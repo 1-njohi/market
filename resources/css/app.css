@@ -1,0 +1,116 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Tailwind v4 theme override ── */
+@theme {
+    /* ── Fonts ── */
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    /* ── Marketplace Color Palette ── */
+    --color-marketplace-bg: #0a1628;
+    --color-marketplace-card: #112240;
+    --color-marketplace-card-hover: #1a2d4a;
+    --color-marketplace-border: #1e3555;
+    --color-marketplace-gold: #f5a623;
+    --color-marketplace-gold-light: #fcdb8a;
+    --color-marketplace-green: #10b981;
+    --color-marketplace-green-dim: #0d8a5e;
+    --color-marketplace-slate: #94a3b8;
+    --color-marketplace-text: #e8edf5;
+    --color-marketplace-muted: #64748b;
+    --color-marketplace-amber: #f59e0b;
+
+    /* ── Radius ── */
+    --radius: 0.5rem;
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* ── Base layer for border and background ── */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-marketplace-border, currentColor);
+    }
+
+    body {
+        background-color: var(--color-marketplace-bg);
+        color: var(--color-marketplace-text);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+    }
+}
+
+/* ── Optional dark mode (keep same colors) ── */
+.dark {
+    
+    /* Base Environment Settings */
+    --background: hsl(217 33% 92%)//hsl(224 39% 7%);            /* #0b0f19 - Ultra Deep Space Navy Canvas */
+    --foreground: hsl(217 33% 92%);           /* #e2e8f0 - Crisp slate text */
+    
+    /* Card Component Architectures */
+    --card: hsl(221 32% 13%);                 /* #161c2a - Premium Cyber Slate Container */
+    --card-foreground: hsl(215 20% 80%);      /* #cbd5e1 - Muted slate text labels */
+    
+    /* Tooltips & Modal Hover Windows */
+    --popover: hsl(222 32% 16%);              /* #1c2436 - Brightened interface overlay popover */
+    --popover-foreground: hsl(210 40% 98%);   /* #f8fafc - Bright text for maximum readability */
+    
+    /* Brand Accents & Interactive Systems */
+    --primary: hsl(199 89% 48%);              /* #0ea5e9 - Vivid Sky Blue Accent */
+    --primary-foreground: hsl(217 39% 80%);    /* Dark contrast variant text for active primary buttons */
+    
+    --secondary: hsl(222 36% 21%);            /* #212b3f - Intermediate deep field interaction element */
+    --secondary-foreground: hsl(210 40% 98%); /* Clean focus state text */
+    
+    /* Structural Elements & Inactive Modes */
+    --muted: hsl(223 31% 18%);                /* #1f2737 - De-emphasized state blocks */
+    --muted-foreground: hsl(215 16% 47%);     /* #64748b - Dimmed secondary label metadata text */
+    
+    --accent: hsl(222 36% 21%);               /* Intermittent list selection overlays */
+    --accent-foreground: hsl(199 89% 48%);    /* Highlight text shifts back to sky blue */
+    
+    /* Validation & System Status Engine */
+    --destructive: hsl(0 84% 60%);             /* #ef4444 - Bright Crimson Net Loss Alert */
+    --destructive-foreground: hsl(210 40% 98%);
+    
+    --border: hsl(219 31% 20%);                /* #232d42 - Neon low-contrast perimeter grid boundaries */
+    --input: hsl(219 31% 20%);                 /* Inputs default flush with layout borders */
+    --ring: hsl(199 89% 48%);                  /* Focus outlines trigger a sky-blue high-energy glow */
+    
+    /* Heatmap Activity Visualizers & Line Charts */
+    --chart-1: hsl(199 89% 48%);              /* Sky Blue (Primary UI data streams) */
+    --chart-2: hsl(160 84% 39%);              /* Emerald Green (Winning days / Profits / Safe limits) */
+    --chart-3: hsl(38 92% 50%);               /* Amber / Dark Orange (Odds targets / Medium alerts) */
+    --chart-4: hsl(280 65% 60%);              /* Cyberpunk Violet Purple (Specialized accumulators) */
+    --chart-5: hsl(340 75% 55%);              /* Hot Magenta */
+    
+    /* Navigation Sidebar Control Deck Overlay */
+    --sidebar-background: hsl(225 45% 5%);    /* Even deeper obsidian back-pocket background shade */
+    --sidebar-foreground: hsl(215 20% 65%);
+    --sidebar-primary: hsl(199 89% 48%);
+    --sidebar-primary-foreground: hsl(224 39% 7%);
+    --sidebar-accent: hsl(222 36% 21%);
+    --sidebar-accent-foreground: hsl(199 89% 48%);
+    --sidebar-border: hsl(219 31% 20%);
+    --sidebar-ring: hsl(199 89% 48%);
+    --sidebar: hsl(225 45% 5%);
+
+    /* Critical Component Border Radius Layouts */
+    --radius: 0.5rem;                        /* Default system baseline rounding radius rules (8px) */
+    --radius-lg: var(--radius);              /* Maps directly into rounded-lg classes */
+    --radius-md: calc(var(--radius) - 2px);  /* Maps directly into rounded-md classes (6px) */
+    --radius-sm: calc(var(--radius) - 4px);
+
+}

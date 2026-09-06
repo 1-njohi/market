@@ -1,0 +1,838 @@
+<template>
+    <div
+        class="flex min-h-screen flex-col bg-[#070b14] px-4 py-6 font-sans text-slate-200 selection:bg-sky-500/30 selection:text-white lg:px-8 lg:py-10"
+    >
+        <div class="mx-auto w-full max-w-7xl space-y-6">
+            <!-- HEADER ARCHITECTURE: USER CONSOLE PROFILE -->
+            <div
+                class="flex flex-col gap-4 border-b border-gray-800/60 pb-6 md:flex-row md:items-center md:justify-between"
+            >
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <img
+                            :src="buyer_data.user.avatar"
+                            :alt="buyer_data.user.name"
+                            class="h-14 w-14 rounded border border-sky-500/30 bg-[#111622]"
+                        />
+                        <span
+                            v-if="buyer_data.user.is_verified"
+                            class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-sky-500 text-[8px] font-black text-[#070b14]"
+                            title="VERIFIED SQUAD"
+                            >✓</span
+                        >
+                    </div>
+                    <div>
+                        <div
+                            class="flex items-center gap-2 text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                        >
+                            <span>[ BUYER PROFILE ]</span>
+                            <span
+                                v-if="!buyer_data.user.is_verified"
+                                class="py-0.2 rounded border border-amber-500/30 px-1 text-[8px] font-bold text-amber-500"
+                                >[ UNVERIFIED ]</span
+                            >
+                        </div>
+                        <h1
+                            class="mt-0.5 font-mono text-xl font-black tracking-tight text-white uppercase"
+                        >
+                            {{ buyer_data.user.name }}
+                        </h1>
+                        <p class="text-[10px] font-medium text-slate-400">
+                            SYS_ID: {{ buyer_data.user.email }} • Joined
+                            {{ buyer_data.user.member_since }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- NOTIFICATION TICKER HUB -->
+                <div class="flex items-center gap-3 self-start md:self-center">
+                    <div
+                        class="group relative cursor-pointer rounded border border-[#232d42] bg-[#111622] p-2 transition-colors hover:border-sky-500/50"
+                    >
+                        <span
+                            class="flex items-center gap-1.5 text-[10px] font-black tracking-wider text-slate-400 uppercase"
+                        >
+                            Notifications
+                            <span
+                                class="py-0.2 animate-pulse rounded-full bg-rose-500 px-1.5 font-mono text-[9px] font-black text-white"
+                            >
+                                {{ buyer_data.notifications.unread_count }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INSIGHTS BANNER TELEMETRY -->
+            <div
+                v-for="(insight, index) in buyer_data.insights"
+                :key="index"
+                class="flex items-center gap-2.5 rounded border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-[11px] font-bold tracking-wide text-emerald-400 uppercase"
+            >
+                <span>SYSTEM_INSIGHT: {{ insight }}</span>
+            </div>
+
+            <!-- Compact Wallet (Mobile Only) -->
+            <div
+                class="block overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40 shadow-[0_0_15px_rgba(16,185,129,0.02)] md:hidden"
+            >
+                <div
+                    class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
+                >
+                    <span
+                        class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
+                        >ACCOUNT: WALLET DETAILS</span
+                    >
+                    <span
+                        class="font-mono text-[9px] font-bold text-slate-500 uppercase"
+                        >[{{ buyer_data.wallet.currency }}]</span
+                    >
+                </div>
+                <div class="space-y-4 p-4">
+                    <div
+                        class="group relative overflow-hidden rounded border border-[#232d42] bg-[#0a101f] p-3 text-center"
+                    >
+                        <div
+                            class="absolute inset-x-0 bottom-0 h-[2px] bg-emerald-500/30"
+                        ></div>
+                        <span
+                            class="block text-[9px] font-black tracking-wider text-slate-500 uppercase"
+                            >LIQUID AVAILABLE BALANCE</span
+                        >
+                        <div
+                            class="my-1 font-mono text-2xl font-black tracking-tight text-white"
+                        >
+                            {{ buyer_data.wallet.currency }}
+                            {{
+                                Number(
+                                    buyer_data.wallet.balance,
+                                ).toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                })
+                            }}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2 sm:flex-row">
+                        <DepositPopover />
+                        <button
+                            type="button"
+                            @click="triggerWithdrawal"
+                            :disabled="isProcessing"
+                            class="flex flex-1 items-center justify-center rounded border border-emerald-500 py-2.5 text-[10px] font-black tracking-widest uppercase"
+                            :class="
+                                Number(buyer_data.wallet.balance) > 0
+                                    ? 'cursor-pointer bg-emerald-500 text-[#070b14] shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all duration-200 hover:bg-transparent hover:text-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.2)] disabled:pointer-events-none disabled:opacity-40'
+                                    : 'text-gray-500'
+                            "
+                        >
+                            <span v-if="isProcessing">// PROCESSING...</span>
+                            <span v-else>WITHDRAW FUNDS (→)</span>
+                        </button>
+                    </div>
+
+                    <div
+                        class="grid grid-cols-1 gap-2.5 sm:grid-cols-3 lg:grid-cols-1"
+                    >
+                        <div
+                            class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5 transition-colors hover:border-amber-500/20"
+                        >
+                            <div class="space-y-0.5">
+                                <span
+                                    class="block text-[9px] font-bold text-slate-500 uppercase"
+                                    >Pending Escrow</span
+                                >
+                                <span
+                                    class="font-mono text-[10px] font-bold text-slate-400"
+                                    >Locked contracts</span
+                                >
+                            </div>
+                            <span
+                                class="font-mono text-xs font-black text-amber-400"
+                            >
+                                {{ buyer_data.wallet.currency }}
+                                {{
+                                    Number(
+                                        buyer_data.wallet.pending_balance,
+                                    ).toFixed(2)
+                                }}
+                            </span>
+                        </div>
+
+                        <div
+                            class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5 transition-colors hover:border-sky-500/20"
+                        >
+                            <div class="space-y-0.5">
+                                <span
+                                    class="block text-[9px] font-bold text-slate-500 uppercase"
+                                    >Total Deposited</span
+                                >
+                                <span
+                                    class="font-mono text-[10px] font-bold text-slate-400"
+                                    >Node injections</span
+                                >
+                            </div>
+                            <span
+                                class="font-mono text-xs font-bold text-sky-400"
+                            >
+                                {{ buyer_data.wallet.currency }}
+                                {{
+                                    Number(
+                                        buyer_data.wallet.total_deposited,
+                                    ).toFixed(2)
+                                }}
+                            </span>
+                        </div>
+
+                        <div
+                            class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5 transition-colors hover:border-rose-500/20"
+                        >
+                            <div class="space-y-0.5">
+                                <span
+                                    class="block text-[9px] font-bold text-slate-500 uppercase"
+                                    >Total Withdrawn</span
+                                >
+                                <span
+                                    class="font-mono text-[10px] font-bold text-slate-400"
+                                    >Cleared revenue</span
+                                >
+                            </div>
+                            <span
+                                class="font-mono text-xs font-bold text-rose-400"
+                            >
+                                {{ buyer_data.wallet.currency }}
+                                {{
+                                    Number(
+                                        buyer_data.wallet.total_withdrawn,
+                                    ).toFixed(2)
+                                }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRID ROW 1: CORE TELEMETRY METRIC CARDS -->
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- WIN RATE METRIC -->
+                <div
+                    class="flex flex-col justify-between rounded border border-[#232d42] bg-[#111622] p-4 shadow-[0_0_15px_rgba(14,165,233,0.02)]"
+                >
+                    <div>
+                        <span
+                            class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
+                            >WIN RATE</span
+                        >
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span
+                                class="font-mono text-3xl font-black tracking-tight text-white"
+                                >{{ buyer_data.performance.win_rate }}%</span
+                            >
+                            <!-- No trend for now, optional -->
+                        </div>
+                    </div>
+                    <div
+                        class="mt-4 flex justify-between border-t border-gray-800/40 pt-2 font-mono text-[10px] tracking-tight text-slate-400 uppercase"
+                    >
+                        <span>Total Purchases:</span>
+                        <span class="font-bold text-white">{{
+                            buyer_data.performance.total_purchases
+                        }}</span>
+                    </div>
+                </div>
+
+                <!-- TOTAL PURCHASES METRIC -->
+                <div
+                    class="flex flex-col justify-between rounded border border-[#232d42] bg-[#111622] p-4 shadow-[0_0_15px_rgba(16,185,129,0.02)]"
+                >
+                    <div>
+                        <span
+                            class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
+                            >TOTAL PURCHASES</span
+                        >
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span
+                                class="font-mono text-3xl font-black tracking-tight text-white"
+                                >{{
+                                    buyer_data.performance.total_purchases
+                                }}</span
+                            >
+                            <span
+                                class="rounded bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-black tracking-wide text-amber-400 uppercase"
+                            >
+                                {{ buyer_data.purchases.pending }} PENDING
+                            </span>
+                        </div>
+                    </div>
+                    <div
+                        class="mt-4 flex justify-between border-t border-gray-800/40 pt-2 font-mono text-[10px] tracking-tight text-slate-400 uppercase"
+                    >
+                        <span>Avg Price:</span>
+                        <span class="font-bold text-white"
+                            >KES
+                            {{
+                                Number(
+                                    buyer_data.performance.avg_price,
+                                ).toFixed(2)
+                            }}</span
+                        >
+                    </div>
+                </div>
+
+                <!-- TOTAL SPENT METRIC -->
+                <div
+                    class="flex flex-col justify-between rounded border border-[#232d42] bg-[#111622] p-4 shadow-[0_0_15px_rgba(245,158,11,0.02)]"
+                >
+                    <div>
+                        <span
+                            class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
+                            >TOTAL SPENT</span
+                        >
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span
+                                class="font-mono text-3xl font-black tracking-tight text-white"
+                                >KES
+                                {{
+                                    buyer_data.financial.total_spent.toLocaleString()
+                                }}</span
+                            >
+                        </div>
+                    </div>
+                    <div
+                        class="mt-4 flex justify-between border-t border-gray-800/40 pt-2 font-mono text-[10px] tracking-tight text-slate-400 uppercase"
+                    >
+                        <span>Net Spent:</span>
+                        <span class="font-bold text-amber-400"
+                            >KES
+                            {{
+                                Number(buyer_data.financial.net_spent).toFixed(
+                                    2,
+                                )
+                            }}</span
+                        >
+                    </div>
+                </div>
+
+                <!-- REFUND RATE METRIC -->
+                <div
+                    class="flex flex-col justify-between rounded border border-[#232d42] bg-[#111622] p-4"
+                >
+                    <div>
+                        <span
+                            class="text-[10px] font-black tracking-widest text-purple-400 uppercase"
+                            >REFUND RATE</span
+                        >
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span
+                                class="font-mono text-3xl font-black tracking-tight text-white"
+                            >
+                                {{
+                                    buyer_data.performance.total_purchases > 0
+                                        ? (
+                                              (buyer_data.performance
+                                                  .total_refunded /
+                                                  buyer_data.performance
+                                                      .total_purchases) *
+                                              100
+                                          ).toFixed(1)
+                                        : 0
+                                }}%
+                            </span>
+                            <span
+                                class="rounded bg-purple-500/10 px-1.5 py-0.5 text-[9px] font-black tracking-wide text-purple-400 uppercase"
+                            >
+                                REFUNDED:
+                                {{
+                                    Number(
+                                        buyer_data.performance.total_refunded,
+                                    ).toFixed(2)
+                                }}
+                            </span>
+                        </div>
+                    </div>
+                    <div
+                        class="mt-4 flex justify-between border-t border-gray-800/40 pt-2 font-mono text-[10px] tracking-tight text-slate-400 uppercase"
+                    >
+                        <span>Balance:</span>
+                        <span class="font-bold text-white"
+                            >KES
+                            {{
+                                Number(buyer_data.quick_stats.balance).toFixed(
+                                    2,
+                                )
+                            }}</span
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRID ROW 2: MANAGEMENT SPLITS AND STREAM DATA -->
+            <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+                <!-- LEFT TRACK: LIVE ACTIVE PURCHASES & ACTIVITY -->
+                <div class="space-y-6 lg:col-span-8">
+                    <!-- ACTIVE PURCHASES -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                            >
+                                ACTIVE PURCHASES [{{
+                                    buyer_data.purchases.active
+                                }}]</span
+                            >
+                            <span
+                                class="font-mono text-[9px] text-slate-500 uppercase"
+                                >[ PURCHASED BETSLIPS ]</span
+                            >
+                        </div>
+
+                        <div class="divide-y divide-gray-800/40">
+                            <div
+                                v-if="buyer_data.purchases.recent?.length === 0"
+                                class="p-6 text-center font-mono text-xs text-slate-500 uppercase"
+                            >
+                                No active purchases currently.
+                            </div>
+                            <BetslipsTable :betslips="purchasesForTable" />
+                        </div>
+                    </div>
+
+                    <!-- RECENT ACTIVITY AUDIT LOG -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-slate-300 uppercase"
+                                >HISTORICAL_LEDGER: RECENT ACTIVITY</span
+                            >
+                        </div>
+                        <div
+                            class="no-scrollbar max-h-[340px] space-y-2.5 overflow-y-auto p-4"
+                        >
+                            <div
+                                v-for="(act, index) in buyer_data.activity"
+                                :key="index"
+                                class="flex items-center justify-between gap-4 rounded border border-[#232d42]/70 bg-[#111622] p-3 transition-colors hover:border-slate-700"
+                            >
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        :class="[
+                                            'flex h-5 w-5 items-center justify-center rounded-sm font-mono text-[9px] font-black select-none',
+                                            act.type === 'purchase'
+                                                ? 'bg-emerald-500 text-[#070b14]'
+                                                : 'bg-amber-500 text-[#070b14]',
+                                        ]"
+                                    >
+                                        {{
+                                            act.type === 'purchase' ? 'B' : 'R'
+                                        }}
+                                    </span>
+                                    <span
+                                        class="text-[11px] font-bold tracking-wide text-slate-300 uppercase"
+                                        >{{ act.message }}</span
+                                    >
+                                </div>
+                                <span
+                                    class="font-mono text-[9px] font-bold whitespace-nowrap text-slate-500"
+                                    >{{ act.time_ago }}</span
+                                >
+                            </div>
+                            <div
+                                v-if="buyer_data.activity.length === 0"
+                                class="p-4 text-center font-mono text-xs text-slate-500"
+                            >
+                                No recent activity.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TRANSACTIONS TABLE -->
+                    <TransactionsTable
+                        :transactions="buyer_data.wallet.recent_transactions"
+                    />
+
+                    <!-- FOLLOWING TABLE (Sellers the buyer follows) -->
+                    <FollowingTable
+                        v-if="buyer_data.following_stats"
+                        :following="buyer_data.following_stats.recent"
+                        title="Sellers You Follow"
+                    />
+                </div>
+
+                <!-- RIGHT TRACK: STATISTICAL DISTRIBUTION AND PROFILE BLOCKS -->
+                <div class="space-y-6 lg:col-span-4">
+                    <!-- WALLET DETAILS (Desktop only) -->
+                    <div
+                        class="hidden overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40 shadow-[0_0_15px_rgba(16,185,129,0.02)] md:block"
+                    >
+                        <div
+                            class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
+                                >ACCOUNT: WALLET DETAILS</span
+                            >
+                            <span
+                                class="font-mono text-[9px] font-bold text-slate-500 uppercase"
+                                >[{{ buyer_data.wallet.currency }}]</span
+                            >
+                        </div>
+
+                        <div class="space-y-4 p-4">
+                            <div
+                                class="group relative overflow-hidden rounded border border-[#232d42] bg-[#0a101f] p-3 text-center"
+                            >
+                                <div
+                                    class="absolute inset-x-0 bottom-0 h-[2px] bg-emerald-500/30"
+                                ></div>
+                                <span
+                                    class="block text-[9px] font-black tracking-wider text-slate-500 uppercase"
+                                    >LIQUID AVAILABLE BALANCE</span
+                                >
+                                <div
+                                    class="my-1 font-mono text-2xl font-black tracking-tight text-white"
+                                >
+                                    {{ buyer_data.wallet.currency }}
+                                    {{
+                                        Number(
+                                            buyer_data.wallet.balance,
+                                        ).toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                        })
+                                    }}
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-2 sm:flex-row">
+                                <DepositPopover />
+                                <button
+                                    type="button"
+                                    @click="triggerWithdrawal"
+                                    :disabled="isProcessing"
+                                    class="flex flex-1 items-center justify-center rounded border border-emerald-500 py-2.5 text-[10px] font-black tracking-widest uppercase"
+                                    :class="
+                                        Number(buyer_data.wallet.balance) > 0
+                                            ? 'cursor-pointer bg-emerald-500 text-[#070b14] shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all duration-200 hover:bg-transparent hover:text-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.2)] disabled:pointer-events-none disabled:opacity-40'
+                                            : 'text-gray-500'
+                                    "
+                                >
+                                    <span v-if="isProcessing"
+                                        >// PROCESSING...</span
+                                    >
+                                    <span v-else>WITHDRAW FUNDS (→)</span>
+                                </button>
+                            </div>
+
+                            <div
+                                class="grid grid-cols-1 gap-2.5 sm:grid-cols-3 lg:grid-cols-1"
+                            >
+                                <div
+                                    class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5 transition-colors hover:border-amber-500/20"
+                                >
+                                    <div class="space-y-0.5">
+                                        <span
+                                            class="block text-[9px] font-bold text-slate-500 uppercase"
+                                            >Pending Escrow</span
+                                        >
+                                        <span
+                                            class="font-mono text-[10px] font-bold text-slate-400"
+                                            >Locked contracts</span
+                                        >
+                                    </div>
+                                    <span
+                                        class="font-mono text-xs font-black text-amber-400"
+                                    >
+                                        {{ buyer_data.wallet.currency }}
+                                        {{
+                                            Number(
+                                                buyer_data.wallet
+                                                    .pending_balance,
+                                            ).toFixed(2)
+                                        }}
+                                    </span>
+                                </div>
+
+                                <div
+                                    class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5 transition-colors hover:border-sky-500/20"
+                                >
+                                    <div class="space-y-0.5">
+                                        <span
+                                            class="block text-[9px] font-bold text-slate-500 uppercase"
+                                            >Total Deposited</span
+                                        >
+                                        <span
+                                            class="font-mono text-[10px] font-bold text-slate-400"
+                                            >Node injections</span
+                                        >
+                                    </div>
+                                    <span
+                                        class="font-mono text-xs font-bold text-sky-400"
+                                    >
+                                        {{ buyer_data.wallet.currency }}
+                                        {{
+                                            Number(
+                                                buyer_data.wallet
+                                                    .total_deposited,
+                                            ).toFixed(2)
+                                        }}
+                                    </span>
+                                </div>
+
+                                <div
+                                    class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5 transition-colors hover:border-rose-500/20"
+                                >
+                                    <div class="space-y-0.5">
+                                        <span
+                                            class="block text-[9px] font-bold text-slate-500 uppercase"
+                                            >Total Withdrawn</span
+                                        >
+                                        <span
+                                            class="font-mono text-[10px] font-bold text-slate-400"
+                                            >Cleared revenue</span
+                                        >
+                                    </div>
+                                    <span
+                                        class="font-mono text-xs font-bold text-rose-400"
+                                    >
+                                        {{ buyer_data.wallet.currency }}
+                                        {{
+                                            Number(
+                                                buyer_data.wallet
+                                                    .total_withdrawn,
+                                            ).toFixed(2)
+                                        }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RECENT FORM RADAR STRIP -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-slate-200 uppercase"
+                                >RECENT FORM STREAM</span
+                            >
+                        </div>
+                        <div class="p-4">
+                            <div class="flex flex-wrap gap-1.5">
+                                <div
+                                    v-for="(form, index) in buyer_data
+                                        .performance.recent_form"
+                                    :key="index"
+                                    :class="[
+                                        'flex h-7 w-7 cursor-help flex-col items-center justify-center rounded-sm font-mono text-xs font-black transition-transform select-none hover:scale-105',
+                                        form.status === 'W'
+                                            ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                                            : form.status === 'L'
+                                              ? 'border border-rose-500/30 bg-rose-500/10 text-rose-400'
+                                              : 'border border-amber-500/30 bg-amber-500/10 text-amber-400',
+                                    ]"
+                                    :title="`Date: ${form.date}`"
+                                >
+                                    {{ form.status }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EPOCH WIN RATE BREAKDOWN COMPASS -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                                >// TIME INTERVAL DECAY WIN RATES</span
+                            >
+                        </div>
+                        <div class="space-y-3.5 p-4">
+                            <div
+                                v-for="(rate, label) in buyer_data.performance
+                                    .win_rate_breakdown"
+                                :key="label"
+                                class="space-y-1"
+                            >
+                                <div
+                                    class="flex items-center justify-between font-mono text-[10px] font-black tracking-wider text-slate-400 uppercase"
+                                >
+                                    <span>{{ label.replace(/_/g, ' ') }}</span>
+                                    <span class="font-mono text-white"
+                                        >{{ rate }}%</span
+                                    >
+                                </div>
+                                <div
+                                    class="h-1.5 w-full overflow-hidden rounded border border-[#232d42] bg-[#111622]"
+                                >
+                                    <div
+                                        class="h-full bg-gradient-to-r from-sky-500 to-emerald-400 transition-all duration-500"
+                                        :style="{ width: `${rate}%` }"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PURCHASE STATUS DISTRIBUTION -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
+                                >// PURCHASE STATUS DISTRIBUTION</span
+                            >
+                        </div>
+                        <div class="space-y-3 p-4">
+                            <div
+                                v-for="status in buyer_data.charts
+                                    .status_distribution"
+                                :key="status.status"
+                                class="space-y-1"
+                            >
+                                <div
+                                    class="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase"
+                                >
+                                    <span>{{ status.status }}</span>
+                                    <span
+                                        class="font-mono font-bold text-amber-400"
+                                        >{{ status.count }}</span
+                                    >
+                                </div>
+                                <div
+                                    class="h-1 w-full overflow-hidden rounded bg-[#111622]"
+                                >
+                                    <div
+                                        class="h-full bg-amber-500"
+                                        :style="{
+                                            width: `${
+                                                buyer_data.purchases.total > 0
+                                                    ? (status.count /
+                                                          buyer_data.purchases
+                                                              .total) *
+                                                      100
+                                                    : 0
+                                            }%`,
+                                        }"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TOP SELLERS PERFORMANCE -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-purple-400 uppercase"
+                                >// TOP SELLERS</span
+                            >
+                        </div>
+                        <div class="space-y-3 p-4">
+                            <div
+                                v-for="seller in buyer_data.charts
+                                    .seller_performance"
+                                :key="seller.seller_name"
+                                class="flex items-center justify-between border-b border-gray-800/30 pb-2 last:border-0 last:pb-0"
+                            >
+                                <div>
+                                    <span
+                                        class="text-[11px] font-bold text-slate-400 uppercase"
+                                        >{{ seller.seller_name }}</span
+                                    >
+                                    <span class="ml-2 text-[9px] text-slate-500"
+                                        >({{ seller.total }} purchases)</span
+                                    >
+                                </div>
+                                <span
+                                    class="rounded border border-purple-500/20 bg-purple-500/10 px-1.5 py-0.5 font-mono text-xs font-black text-purple-400"
+                                    >{{ seller.win_rate }}% WR</span
+                                >
+                            </div>
+                            <div
+                                v-if="
+                                    buyer_data.charts.seller_performance
+                                        .length === 0
+                                "
+                                class="py-2 text-center text-[10px] text-slate-500 uppercase"
+                            >
+                                No seller data available
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import BetslipsTable from '@/components/BetslipsTable.vue';
+import FollowingTable from '@/components/FollowingTable.vue';
+import TransactionsTable from '@/components/TransactionsTable.vue';
+import DepositPopover from '@/components/DepositPopover.vue';
+import { usePage } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import axios from 'axios';
+
+const page = usePage();
+const buyer_data = page.props.buyer_data;
+
+// Map buyer purchases to the format expected by BetslipsTable
+const purchasesForTable = computed(() => {
+    return (buyer_data.purchases.recent || []).map((p) => ({
+        id: p.id,
+        code: p.betslip_code,
+        legs: 0, // we don't have this info; could be derived later
+        total_odds: p.total_odds,
+        price: p.price,
+        remaining: 1, // each purchase is one share
+        status: p.status,
+        purchases: 1, // sold count not relevant
+        is_expiring_soon: false,
+        seller_name: p.seller_name, // additional field not used by table but kept
+    }));
+});
+
+// Deposit & withdrawal logic (copied from SellerDashboard)
+const isProcessing = ref(false);
+
+async function triggerDeposit() {
+    // This is handled by DepositPopover component, but we keep the function for completeness.
+}
+
+async function triggerWithdrawal() {
+    // Placeholder for withdrawal logic
+    alert('Withdrawal functionality coming soon.');
+}
+</script>
+
+<style scoped>
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+</style>
