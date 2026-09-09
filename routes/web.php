@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     });
     Route::prefix('seller')->group(function () {
-        Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('seller.dashboard');
+        Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard/realtime', [SellerDashboardController::class, 'getRealtimeData'])->name('seller.dashboard.realtime');
         Route::get('/dashboard/performance', [SellerDashboardController::class, 'getPerformanceData'])->name('seller.dashboard.performance');
         Route::get('/dashboard/market-performance', [SellerDashboardController::class, 'getMarketPerformance'])->name('seller.dashboard.market-performance');
@@ -46,21 +46,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard/followers', [SellerDashboardController::class, 'getFollowerStats'])->name('seller.dashboard.followers');
     });
 
-
-
-
-    Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
-
-Route::prefix('buyer')->group(function () {
-    Route::get('/dashboard', [BuyerDashboardController::class, 'index'])->name('buyer.dashboard');
-    Route::get('/dashboard/performance', [BuyerDashboardController::class, 'getPerformanceData'])->name('buyer.dashboard.performance');
-    Route::get('/dashboard/activity', [BuyerDashboardController::class, 'getRecentActivity'])->name('buyer.dashboard.activity');
-    Route::get('/dashboard/financial', [BuyerDashboardController::class, 'getFinancialSummary'])->name('buyer.dashboard.financial');
-    Route::get('/dashboard/wallet', [BuyerDashboardController::class, 'getWalletSummary'])->name('buyer.dashboard.wallet');
-    Route::get('/dashboard/insights', [BuyerDashboardController::class, 'getInsights'])->name('buyer.dashboard.insights');
-});
-
-
+    Route::prefix('buyer')->group(function () {
+        Route::get('/dashboard', [BuyerDashboardController::class, 'index'])->name('buyer.dashboard');
+        Route::get('/dashboard/performance', [BuyerDashboardController::class, 'getPerformanceData'])->name('buyer.dashboard.performance');
+        Route::get('/dashboard/activity', [BuyerDashboardController::class, 'getRecentActivity'])->name('buyer.dashboard.activity');
+        Route::get('/dashboard/financial', [BuyerDashboardController::class, 'getFinancialSummary'])->name('buyer.dashboard.financial');
+        Route::get('/dashboard/wallet', [BuyerDashboardController::class, 'getWalletSummary'])->name('buyer.dashboard.wallet');
+        Route::get('/dashboard/insights', [BuyerDashboardController::class, 'getInsights'])->name('buyer.dashboard.insights');
+    });
 
     Route::prefix('/marketplace')->group(function () {
         Route::get('/', [MarketplaceController::class, 'index'])->withoutMiddleware(['auth', 'verified'])->name('marketplace.view');

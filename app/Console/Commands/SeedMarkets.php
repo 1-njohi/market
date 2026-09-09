@@ -52,10 +52,10 @@ class SeedMarkets extends Command
         ];
         
         foreach ($markets as $id => $name) {
-            Market::updateOrCreate(
-                ['id' => $id], 
-                ['name' => $name]
-            );
+            Market::Create([
+                'id' => $id, 
+                'name' => $name
+            ]);
         }
     }
 }

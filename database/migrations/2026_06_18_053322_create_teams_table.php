@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,9 +12,10 @@ return new class extends Migration
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_on_api');
+            $table->integer('id_on_api')->unique();
             $table->string('name');
-            $table->string('logo');
+            $table->string('logo')->nullable();
+            $table->json('colors')->nullable(); // { player: { primary, number, border }, goalkeeper: {...} }
             $table->timestamps();
         });
     }

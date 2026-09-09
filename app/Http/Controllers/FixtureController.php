@@ -14,18 +14,20 @@ class FixtureController extends Controller
     {
         $fixture_id_on_api = $request->id;
         $mappedFixture = $this->getFixture($fixture_id_on_api);
+        \Log::info($mappedFixture);
         return Inertia::render('Fixture', [
             'fixture' => $mappedFixture
         ]);
     }
     private function getFixture($fixture_id_on_api)
     {
-        $excludedMarkets = [6, 8, 19, 20];
+        $excludedMarkets = [99];
 
         // Get a fixture with its pending odds and relationships
         $fixture = Fixture::with([
             'odds' => function ($query) use ($excludedMarkets) {
-                $query->where('status', 'pending')
+                $query
+                // ->where('status', 'pending')
                     ->select('id', 'fixture_id', 'market_id', 'value', 'odd')
                     ->whereNotIn('market_id', $excludedMarkets);
             },
@@ -34,10 +36,11 @@ class FixtureController extends Controller
         ])
             ->where('id_on_api', $fixture_id_on_api)
             ->whereHas('odds', function ($query) use ($excludedMarkets) {
-                $query->where('status', 'pending')
+                $query//->where('status', 'pending')
                     ->whereNotIn('market_id', $excludedMarkets);
             })
             ->first();
+        \Log::info($fixture -> odds -> count());
         // If no fixture found, return null or handle appropriately
         if (!$fixture) {
             return null;

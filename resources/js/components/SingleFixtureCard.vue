@@ -281,6 +281,7 @@ const updateSelections = () => {
 // Add click listener to document to see if clicks are being registered
 onMounted(() => {
     updateSelections();
+    console.log("odds", fixture.value)
     window.addEventListener('betSelectionUpdated', updateSelections);
 
     document.addEventListener('click', (e) => {
@@ -331,60 +332,62 @@ const labelDictionary = {
 
 // COMPUTED LAYER: Normalizes both arrays and mixed object payloads into unified rendering contracts
 const normalizedMarkets = computed(() => {
-    // Points directly to the reactive local computed fixture constant rather than props
     if (!fixture.value?.odds) return [];
 
-    // Market name to ID mapping
     const marketIdMap = {
         three_way: 1,
         home_away: 2,
         second_half_winner: 3,
-        goals_over_under: 4,
-        goals_over_under_first_half: 5,
-        ht_ft_double: 6,
-        both_teams_score: 7,
-        handicap_result: 8,
-        exact_score: 9,
-        double_chance: 10,
-        first_half_winner: 11,
-        team_to_score_first: 12,
-        team_to_score_last: 13,
-        total_home: 14,
-        total_away: 15,
-        double_chance_first_half: 16,
-        odd_even: 17,
-        odd_even_first_half: 18,
-        results_both_teams_score: 19,
-        result_total_goals: 20,
-        goals_over_under_second_half: 21,
-        win_to_nil_home: 22,
-        win_to_nil_away: 23,
-        win_both_halves: 24,
-        both_teams_score_first_half: 25,
-        exact_goals_number: 26,
-        home_exact_goals_number: 27,
-        away_exact_goals_number: 28,
-        second_half_exact_goals_number: 29,
-        home_score_goal: 30,
-        away_score_goal: 31,
-        exact_goals_number_first_half: 32,
+        goals_over_under: 5,
+        goals_over_under_first_half: 6,
+        ht_ft_double: 7,
+        both_teams_score: 8,
+        handicap_result: 9,
+        exact_score: 10,
+        double_chance: 12,
+        first_half_winner: 13,
+        team_to_score_first: 14,
+        team_to_score_last: 15,
+        total_home: 16,
+        total_away: 17,
+        double_chance_first_half: 20,
+        odd_even: 21,
+        odd_even_first_half: 22,
+        results_both_teams_score: 24,
+        result_total_goals: 25,
+        goals_over_under_second_half: 26,
+        win_to_nil_home: 29,
+        win_to_nil_away: 30,
+        win_both_halves: 32,
+        both_teams_score_first_half: 34,
+        exact_goals_number: 38,
+        home_exact_goals_number: 40,
+        away_exact_goals_number: 41,
+        second_half_exact_goals_number: 42,
+        home_score_goal: 43,
+        away_score_goal: 44,
+        exact_goals_number_first_half: 46,
     };
 
     return Object.entries(fixture.value.odds).map(([marketKey, rawData]) => {
         let outcomes = [];
 
         if (Array.isArray(rawData)) {
-            outcomes = rawData.map((item, idx) => ({
-                id: item.id || `${marketKey}_${idx}`,
-                value: item.value,
-                label: item.label || `${idx}`,
-            }));
+            outcomes = rawData
+                .filter(item => item !== null) // Skip null items
+                .map((item, idx) => ({
+                    id: item.id || `${marketKey}_${idx}`,
+                    value: item.value,
+                    label: item.label || `${idx}`,
+                }));
         } else if (typeof rawData === 'object' && rawData !== null) {
-            outcomes = Object.entries(rawData).map(([key, item]) => ({
-                id: item.id || `${marketKey}_${key}`,
-                value: item.value,
-                label: labelDictionary[key] || key.replace(/_/g, ' '),
-            }));
+            outcomes = Object.entries(rawData)
+                .filter(([key, item]) => item !== null) // Skip null values
+                .map(([key, item]) => ({
+                    id: item.id || `${marketKey}_${key}`,
+                    value: item.value,
+                    label: labelDictionary[key] || key.replace(/_/g, ' '),
+                }));
         }
 
         const totalItems = outcomes.length;
@@ -400,7 +403,7 @@ const normalizedMarkets = computed(() => {
 
         return {
             rawName: marketKey,
-            marketId: marketIdMap[marketKey] || null, // Get the market ID from the map
+            marketId: marketIdMap[marketKey] || null,
             displayName: marketKey.replace(/_/g, ' '),
             outcomes,
             cols,

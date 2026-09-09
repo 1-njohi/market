@@ -6,14 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class League extends Model
 {
-    protected $fillable = [
-        'country_id',
-        'sport_id',
+     protected $fillable = [
         'id_on_api',
         'name',
-        'type',
+        'country',
+        'country_id',
         'logo',
+        'flag',
+        'season',
+        'round',
+        'standings',
         'priority'
+    ];
+
+    protected $casts = [
+        'standings' => 'boolean',
     ];
     public function Country() {
         return $this -> belongsTo(Country::class);
