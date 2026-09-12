@@ -23,9 +23,6 @@ class SeedLeagues extends Command
             'x-apisports-key' => config('services.api_sports.key'),
         ])->get(config('services.api_sports.base_url') . '/leagues');
 
-        \Log::info($response);
-
-
         if ($response->successful()) {
             $countries = Country::pluck('id', 'name');
             $data = $response->json();
