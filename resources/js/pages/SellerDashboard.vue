@@ -26,12 +26,12 @@
                         <div
                             class="flex items-center gap-2 text-[10px] font-black tracking-widest text-emerald-400 uppercase"
                         >
-                            <span>[ SELLER PROFILE ]</span>
-                            <span
+                            <span>Tipster</span>
+                            <!-- <span
                                 v-if="!seller_data.user.is_verified"
                                 class="hidden rounded border border-amber-500/30 px-1 text-[8px] font-bold text-amber-500 sm:inline"
                                 >[ UNVERIFIED ]</span
-                            >
+                            > -->
                         </div>
                         <h1
                             class="mt-0.5 truncate font-mono text-lg font-black tracking-tight text-white uppercase md:text-xl"
@@ -39,7 +39,7 @@
                             {{ seller_data.user.name }}
                         </h1>
                         <p class="truncate text-[10px] font-medium text-slate-400">
-                            SYS_ID: {{ seller_data.user.email }} • Joined
+                            Code: {{ seller_data.user.code }} • Member since 
                             {{ seller_data.user.member_since }}
                         </p>
                     </div>
@@ -140,7 +140,7 @@
                 >
                     <span
                         class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
-                        >ACCOUNT: WALLET DETAILS</span
+                        >Wallet</span
                     >
                     <span
                         class="font-mono text-[9px] font-bold text-slate-500 uppercase"
@@ -194,11 +194,11 @@
                             <div class="space-y-0.5">
                                 <span
                                     class="block text-[9px] font-bold text-slate-500 uppercase"
-                                    >Pending Escrow</span
+                                    >Held funds</span
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Locked contracts</span
+                                    >Pending</span
                                 >
                             </div>
                             <span
@@ -222,7 +222,7 @@
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Node injections</span
+                                    >Total deposited</span
                                 >
                             </div>
                             <span
@@ -246,7 +246,7 @@
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Cleared revenue</span
+                                    >Withdrawals</span
                                 >
                             </div>
                             <span
@@ -432,7 +432,7 @@
                             >
                             <span
                                 class="font-mono text-[9px] text-slate-500 uppercase"
-                                >[ UNRESOLVED ]</span
+                                >Active</span
                             >
                         </div>
                         <div class="divide-y divide-gray-800/40">
@@ -451,7 +451,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-slate-300 uppercase"
-                                >HISTORICAL_LEDGER: RECENT SETTLEMENTS</span
+                                >Recent activity</span
                             >
                         </div>
                         <div
@@ -523,7 +523,7 @@
                                 ></div>
                                 <span
                                     class="block text-[9px] font-black tracking-wider text-slate-500 uppercase"
-                                    >LIQUID AVAILABLE BALANCE</span
+                                    >Available balance</span
                                 >
                                 <div
                                     class="my-1 font-mono text-2xl font-black tracking-tight text-white"
@@ -562,11 +562,11 @@
                                     <div class="space-y-0.5">
                                         <span
                                             class="block text-[9px] font-bold text-slate-500 uppercase"
-                                            >Pending Escrow</span
+                                            >Held funds</span
                                         >
                                         <span
                                             class="font-mono text-[10px] font-bold text-slate-400"
-                                            >Locked</span
+                                            >Pending</span
                                         >
                                     </div>
                                     <span
@@ -591,7 +591,7 @@
                                         >
                                         <span
                                             class="font-mono text-[10px] font-bold text-slate-400"
-                                            >Injections</span
+                                            >deposits</span
                                         >
                                     </div>
                                     <span
@@ -616,7 +616,7 @@
                                         >
                                         <span
                                             class="font-mono text-[10px] font-bold text-slate-400"
-                                            >Cleared</span
+                                            >Withdrawals</span
                                         >
                                     </div>
                                     <span
@@ -644,7 +644,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
-                                >// FEE TIER PROGRESS</span
+                                >Your fee tier</span
                             >
                         </div>
                         <div class="space-y-3 p-4">
@@ -716,7 +716,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-slate-200 uppercase"
-                                >RECENT FORM STREAM</span
+                                >Recent form</span
                             >
                         </div>
                         <div class="p-4">
@@ -748,7 +748,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
-                                >// TIME INTERVAL DECAY</span
+                                >Win rate over time</span
                             >
                         </div>
                         <div class="space-y-3.5 p-4">
@@ -787,7 +787,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-purple-400 uppercase"
-                                >// COMPETITION STRENGTH</span
+                                >League performance</span
                             >
                         </div>
                         <div class="space-y-3 p-4">
