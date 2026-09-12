@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('betslip_user_purchases', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('betslip_id')->constrained()->onDelete('cascade');
+            $table->foreignUuId('betslip_id')->constrained()->onDelete('cascade');
             $table->foreignId('buyer_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('seller_id')->constrained('users')->onDelete('cascade');
             $table->decimal('purchase_price', 10, 2);
