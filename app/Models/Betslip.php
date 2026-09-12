@@ -21,6 +21,13 @@ class Betslip extends Model
         'caption'
     ];
 
+    protected $casts = [
+        'total_odds' => 'float',
+        'price' => 'float',
+        'remaining' => 'integer',
+        'is_winner' => 'boolean',
+    ];
+
     // Relationship with the user (seller)
     public function Seller()
     {

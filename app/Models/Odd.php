@@ -14,6 +14,11 @@ class Odd extends Model
         'status' //pending, loser, winner
     ];
 
+    protected $casts = [
+        'odd' => 'float',
+        'market_id' => 'integer',
+        'fixture_id' => 'integer',
+    ];
     public function Fixture()
     {
         return $this->belongsTo(Fixture::class);
@@ -27,7 +32,7 @@ class Odd extends Model
     public function Betslips()
     {
         return $this->belongsToMany(Betslip::class, 'betslip_odd')
-                    ->withPivot('status', 'odd_value_at_time')
-                    ->withTimestamps();
+            ->withPivot('status', 'odd_value_at_time')
+            ->withTimestamps();
     }
 }
