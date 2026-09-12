@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('betslip_odd', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('betslip_id')->constrained()->onDelete('cascade');
+            $table->foreignUuId('betslip_id')->constrained()->onDelete('cascade');
             $table->foreignId('odd_id')->constrained()->onDelete('cascade');
             $table->string('status')->default('pending'); // pending, won, lost
             $table->decimal('odd_value_at_time', 8, 2);
