@@ -108,7 +108,7 @@
                                         class="text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
                                     >
                                         {{ league.country }} •
-                                        {{ league.fixtures.length }} Matches
+                                        {{ league.fixtures?.length ?? 0 }} Matches
                                         Available
                                     </span>
                                 </div>
@@ -220,12 +220,12 @@
                                                 >
                                                     <button
                                                         v-for="(odd, idx) in [
-                                                            match.odds.three_way
-                                                                .home,
-                                                            match.odds.three_way
-                                                                .draw,
-                                                            match.odds.three_way
-                                                                .away,
+                                                            match.odds?.three_way
+                                                                ?.home,
+                                                            match.odds?.three_way
+                                                                ?.draw,
+                                                            match.odds?.three_way
+                                                                ?.away,
                                                         ]"
                                                         :key="idx"
                                                         @click.stop.prevent="
@@ -252,11 +252,7 @@
                                                                 : 'border-transparent',
                                                         ]"
                                                     >
-                                                        {{
-                                                            odd?.value?.toFixed(
-                                                                2,
-                                                            )
-                                                        }}
+                                                        {{ formatOdd(odd?.value) }}
                                                     </button>
                                                 </div>
 
@@ -267,16 +263,16 @@
                                                     <button
                                                         v-for="(odd, idx) in [
                                                             match.odds
-                                                                .double_chance
-                                                                .one_x,
+                                                                ?.double_chance
+                                                                ?.one_x,
                                                             match.odds
-                                                                .double_chance
-                                                                .x_two,
+                                                                ?.double_chance
+                                                                ?.x_two,
                                                             match.odds
-                                                                .double_chance
-                                                                .one_two,
+                                                                ?.double_chance
+                                                                ?.one_two,
                                                         ]"
-                                                        :key="odd"
+                                                        :key="idx"
                                                         @click.stop.prevent="
                                                             () =>
                                                                 handleSelectionMade(
@@ -301,11 +297,7 @@
                                                                 : 'border-transparent',
                                                         ]"
                                                     >
-                                                        {{
-                                                            odd?.value?.toFixed(
-                                                                2,
-                                                            )
-                                                        }}
+                                                        {{ formatOdd(odd?.value) }}
                                                     </button>
                                                 </div>
 
@@ -318,8 +310,8 @@
                                                             () =>
                                                                 handleSelectionMade(
                                                                     match.odds
-                                                                        .over_under
-                                                                        .over,
+                                                                        ?.over_under
+                                                                        ?.over,
                                                                     match,
                                                                     'over_under_2.5',
                                                                     'Over',
@@ -337,8 +329,10 @@
                                                         ]"
                                                     >
                                                         {{
-                                                            match.odds?.over_under?.over?.value.toFixed(
-                                                                2,
+                                                            formatOdd(
+                                                                match.odds
+                                                                    ?.over_under
+                                                                    ?.over?.value,
                                                             )
                                                         }}
                                                     </button>
@@ -347,8 +341,8 @@
                                                             () =>
                                                                 handleSelectionMade(
                                                                     match.odds
-                                                                        .over_under
-                                                                        .under,
+                                                                        ?.over_under
+                                                                        ?.under,
                                                                     match,
                                                                     'over_under_2.5',
                                                                     'Under',
@@ -366,8 +360,10 @@
                                                         ]"
                                                     >
                                                         {{
-                                                            match.odds?.over_under?.under?.value.toFixed(
-                                                                2,
+                                                            formatOdd(
+                                                                match.odds
+                                                                    ?.over_under
+                                                                    ?.under?.value,
                                                             )
                                                         }}
                                                     </button>
@@ -382,8 +378,8 @@
                                                             () =>
                                                                 handleSelectionMade(
                                                                     match.odds
-                                                                        .both_team_to_score
-                                                                        .yes,
+                                                                        ?.both_team_to_score
+                                                                        ?.yes,
                                                                     match,
                                                                     'both_team_to_score',
                                                                     'Yes',
@@ -401,8 +397,10 @@
                                                         ]"
                                                     >
                                                         {{
-                                                            match.odds?.both_team_to_score?.yes?.value.toFixed(
-                                                                2,
+                                                            formatOdd(
+                                                                match.odds
+                                                                    ?.both_team_to_score
+                                                                    ?.yes?.value,
                                                             )
                                                         }}
                                                     </button>
@@ -411,8 +409,8 @@
                                                             () =>
                                                                 handleSelectionMade(
                                                                     match.odds
-                                                                        .both_team_to_score
-                                                                        .no,
+                                                                        ?.both_team_to_score
+                                                                        ?.no,
                                                                     match,
                                                                     'both_team_to_score',
                                                                     'No',
@@ -430,8 +428,10 @@
                                                         ]"
                                                     >
                                                         {{
-                                                            match.odds?.both_team_to_score?.no?.value.toFixed(
-                                                                2,
+                                                            formatOdd(
+                                                                match.odds
+                                                                    ?.both_team_to_score
+                                                                    ?.no?.value,
                                                             )
                                                         }}
                                                     </button>
@@ -571,8 +571,8 @@
                                                                         handleSelectionMade(
                                                                             match
                                                                                 .odds
-                                                                                .three_way
-                                                                                .home,
+                                                                                ?.three_way
+                                                                                ?.home,
                                                                             match,
                                                                             'three_way',
                                                                             0,
@@ -590,8 +590,12 @@
                                                                     class="mt-0.5 font-bold text-marketplace-gold"
                                                                 >
                                                                     {{
-                                                                        match.odds.three_way.home?.value.toFixed(
-                                                                            2,
+                                                                        formatOdd(
+                                                                            match
+                                                                                .odds
+                                                                                ?.three_way
+                                                                                ?.home
+                                                                                ?.value,
                                                                         )
                                                                     }}
                                                                 </div>
@@ -613,8 +617,8 @@
                                                                         handleSelectionMade(
                                                                             match
                                                                                 .odds
-                                                                                .three_way
-                                                                                .draw,
+                                                                                ?.three_way
+                                                                                ?.draw,
                                                                             match,
                                                                             'three_way',
                                                                             1,
@@ -630,8 +634,12 @@
                                                                     class="mt-0.5 font-bold text-marketplace-gold"
                                                                 >
                                                                     {{
-                                                                        match.odds.three_way.draw.value.toFixed(
-                                                                            2,
+                                                                        formatOdd(
+                                                                            match
+                                                                                .odds
+                                                                                ?.three_way
+                                                                                ?.draw
+                                                                                ?.value,
                                                                         )
                                                                     }}
                                                                 </div>
@@ -653,8 +661,8 @@
                                                                         handleSelectionMade(
                                                                             match
                                                                                 .odds
-                                                                                .three_way
-                                                                                .away,
+                                                                                ?.three_way
+                                                                                ?.away,
                                                                             match,
                                                                             'three_way',
                                                                             2,
@@ -672,8 +680,12 @@
                                                                     class="mt-0.5 font-bold text-marketplace-gold"
                                                                 >
                                                                     {{
-                                                                        match.odds.three_way.away.value.toFixed(
-                                                                            2,
+                                                                        formatOdd(
+                                                                            match
+                                                                                .odds
+                                                                                ?.three_way
+                                                                                ?.away
+                                                                                ?.value,
                                                                         )
                                                                     }}
                                                                 </div>
@@ -698,8 +710,8 @@
                                                                         handleSelectionMade(
                                                                             match
                                                                                 .odds
-                                                                                .double_chance
-                                                                                .one_x,
+                                                                                ?.double_chance
+                                                                                ?.one_x,
                                                                             match,
                                                                             'double_chance',
                                                                             0,
@@ -725,8 +737,12 @@
                                                                     class="mt-0.5 font-bold text-marketplace-slate"
                                                                 >
                                                                     {{
-                                                                        match.odds.double_chance.one_x.value.toFixed(
-                                                                            2,
+                                                                        formatOdd(
+                                                                            match
+                                                                                .odds
+                                                                                ?.double_chance
+                                                                                ?.one_x
+                                                                                ?.value,
                                                                         )
                                                                     }}
                                                                 </div>
@@ -738,8 +754,8 @@
                                                                         handleSelectionMade(
                                                                             match
                                                                                 .odds
-                                                                                .double_chance
-                                                                                .x_two,
+                                                                                ?.double_chance
+                                                                                ?.x_two,
                                                                             match,
                                                                             'double_chance',
                                                                             1,
@@ -765,8 +781,12 @@
                                                                     class="mt-0.5 font-bold text-marketplace-slate"
                                                                 >
                                                                     {{
-                                                                        match.odds.double_chance.x_two.value.toFixed(
-                                                                            2,
+                                                                        formatOdd(
+                                                                            match
+                                                                                .odds
+                                                                                ?.double_chance
+                                                                                ?.x_two
+                                                                                ?.value,
                                                                         )
                                                                     }}
                                                                 </div>
@@ -778,8 +798,8 @@
                                                                         handleSelectionMade(
                                                                             match
                                                                                 .odds
-                                                                                .double_chance
-                                                                                .one_two,
+                                                                                ?.double_chance
+                                                                                ?.one_two,
                                                                             match,
                                                                             'double_chance',
                                                                             2,
@@ -805,8 +825,12 @@
                                                                     class="mt-0.5 font-bold text-marketplace-slate"
                                                                 >
                                                                     {{
-                                                                        match.odds.double_chance.one_two.value.toFixed(
-                                                                            2,
+                                                                        formatOdd(
+                                                                            match
+                                                                                .odds
+                                                                                ?.double_chance
+                                                                                ?.one_two
+                                                                                ?.value,
                                                                         )
                                                                     }}
                                                                 </div>
@@ -835,8 +859,8 @@
                                                                             handleSelectionMade(
                                                                                 match
                                                                                     .odds
-                                                                                    .over_under
-                                                                                    .over,
+                                                                                    ?.over_under
+                                                                                    ?.over,
                                                                                 match,
                                                                                 'over_under_2.5',
                                                                                 'Over',
@@ -863,8 +887,12 @@
                                                                         class="mt-0.5 font-bold text-marketplace-slate"
                                                                     >
                                                                         {{
-                                                                            match.odds.over_under.over.value.toFixed(
-                                                                                2,
+                                                                            formatOdd(
+                                                                                match
+                                                                                    .odds
+                                                                                    ?.over_under
+                                                                                    ?.over
+                                                                                    ?.value,
                                                                             )
                                                                         }}
                                                                     </div>
@@ -876,8 +904,8 @@
                                                                             handleSelectionMade(
                                                                                 match
                                                                                     .odds
-                                                                                    .over_under
-                                                                                    .under,
+                                                                                    ?.over_under
+                                                                                    ?.under,
                                                                                 match,
                                                                                 'over_under_2.5',
                                                                                 'Under',
@@ -904,8 +932,12 @@
                                                                         class="mt-0.5 font-bold text-marketplace-slate"
                                                                     >
                                                                         {{
-                                                                            match.odds.over_under.under.value.toFixed(
-                                                                                2,
+                                                                            formatOdd(
+                                                                                match
+                                                                                    .odds
+                                                                                    ?.over_under
+                                                                                    ?.under
+                                                                                    ?.value,
                                                                             )
                                                                         }}
                                                                     </div>
@@ -931,8 +963,8 @@
                                                                             handleSelectionMade(
                                                                                 match
                                                                                     .odds
-                                                                                    .both_team_to_score
-                                                                                    .yes,
+                                                                                    ?.both_team_to_score
+                                                                                    ?.yes,
                                                                                 match,
                                                                                 'both_team_to_score',
                                                                                 'Yes',
@@ -958,8 +990,12 @@
                                                                         class="mt-0.5 font-bold text-marketplace-slate"
                                                                     >
                                                                         {{
-                                                                            match.odds.both_team_to_score.yes.value.toFixed(
-                                                                                2,
+                                                                            formatOdd(
+                                                                                match
+                                                                                    .odds
+                                                                                    ?.both_team_to_score
+                                                                                    ?.yes
+                                                                                    ?.value,
                                                                             )
                                                                         }}
                                                                     </div>
@@ -971,8 +1007,8 @@
                                                                             handleSelectionMade(
                                                                                 match
                                                                                     .odds
-                                                                                    .both_team_to_score
-                                                                                    .no,
+                                                                                    ?.both_team_to_score
+                                                                                    ?.no,
                                                                                 match,
                                                                                 'both_team_to_score',
                                                                                 'No',
@@ -998,8 +1034,12 @@
                                                                         class="mt-0.5 font-bold text-marketplace-slate"
                                                                     >
                                                                         {{
-                                                                            match.odds.both_team_to_score.no.value.toFixed(
-                                                                                2,
+                                                                            formatOdd(
+                                                                                match
+                                                                                    .odds
+                                                                                    ?.both_team_to_score
+                                                                                    ?.no
+                                                                                    ?.value,
                                                                             )
                                                                         }}
                                                                     </div>
@@ -1066,13 +1106,22 @@ const viewFixture = (id) => {
     window.location.href = `/fixture/${id}`;
 };
 
+// Safely format a numeric odd value to two decimal places.
+// Handles strings (from MySQL DECIMAL), numbers, null, undefined, NaN.
+const formatOdd = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n.toFixed(2) : '—';
+};
+
 const updateSelections = () => {
     selections.value = getSelectionsFromLocalStorage();
 };
 
 const handleSelectionMade = (odd, match, type, index) => {
-    // Check if odd is valid
-    if (odd === undefined || odd === null || isNaN(odd.value)) {
+    // Coerce to number and validate
+    const value = Number(odd?.value);
+
+    if (!odd || !Number.isFinite(value)) {
         console.error('⚠️ Invalid odd value:', odd);
         return;
     }
@@ -1096,7 +1145,7 @@ const handleSelectionMade = (odd, match, type, index) => {
         away_team: match.away_team,
         market_name: type,
         selection: odd_value,
-        odds: odd,
+        odds: { ...odd, value }, // store numeric value
     };
 
     console.log('Selection', selection);
