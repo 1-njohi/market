@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('odds', function (Blueprint $table) {
+        Schema::createIfNotExistsIfNotExists('odds', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('fixture_id')->index();
             $table->unsignedBigInteger('market_id')->index();

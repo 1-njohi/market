@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('fixture_events', function (Blueprint $table) {
+        Schema::createIfNotExistsIfNotExists('fixture_events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('fixture_id')->constrained()->onDelete('cascade');
             $table->foreignId('team_id')->nullable()->constrained('teams');

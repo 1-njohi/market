@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
 
-        Schema::create('leagues', function (Blueprint $table) {
+        Schema::createIfNotExistsIfNotExists('leagues', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sport_id')->default(1);
             $table->integer('id_on_api')->unique();

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('countries', function (Blueprint $table) {
+        Schema::createIfNotExistsIfNotExists('countries', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('code')->nullable();

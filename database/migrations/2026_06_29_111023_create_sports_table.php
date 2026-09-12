@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sports', function (Blueprint $table) {
+        Schema::createIfNotExistsIfNotExists('sports', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->timestamps();
