@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::createIfNotExists('fixtures', function (Blueprint $table) {
+        Schema::create('fixtures', function (Blueprint $table) {
             $table->id();
             $table->integer('id_on_api')->unique();
             $table->string('referee')->nullable();
