@@ -8,6 +8,7 @@ import BetSlipSummaryCard from '@/components/BetSlipSummaryCard.vue';
 import LeaderboardSummaryCard from '@/components/LeaderboardSummaryCard.vue';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import BetslipWrapper from '@/components/BetslipWrapper.vue';
+import Footer from '@/components/Footer.vue';
 
 // Initialize selections as a ref with an empty array
 const selections = ref([]);
@@ -81,29 +82,32 @@ const leaderboardData = ref([
         name: 'SmartMoney',
         roi: 24.5,
         win_rate: 82,
-        avatar: "https://api.dicebear.com/10.x/lorelei-neutral/svg?seed=Felix",
+        avatar: 'https://api.dicebear.com/10.x/lorelei-neutral/svg?seed=Felix',
         streak: 12,
-        recent_form: ["L", "W", "W", "W", "W", "W", "W", "L", "W"],
+        recent_form: ['L', 'W', 'W', 'W', 'W', 'W', 'W', 'L', 'W'],
         active_tips: 7,
     },
     {
         id: 50,
         name: 'PhoenixPicks',
         roi: 19.6,
-        avatar: "https://api.dicebear.com/10.x/thumbs/svg?seed=Felix",
+        avatar: 'https://api.dicebear.com/10.x/thumbs/svg?seed=Felix',
         win_rate: 74,
         streak: 4,
-        recent_form: ["L", "W", "L", "W", "L", "W", "W", "W", "W"],
+        recent_form: ['L', 'W', 'L', 'W', 'L', 'W', 'W', 'W', 'W'],
         active_tips: 3,
-        badges: [{
-            name: "BigMan",
-            created_at: "22025-07-09 12:20:20",
-            avatar: ""  
-        }, {
-            name: "Top 1%",
-            created_at: "2000-02-02 02:05:34",
-            avatar: ""
-        }]
+        badges: [
+            {
+                name: 'BigMan',
+                created_at: '22025-07-09 12:20:20',
+                avatar: '',
+            },
+            {
+                name: 'Top 1%',
+                created_at: '2000-02-02 02:05:34',
+                avatar: '',
+            },
+        ],
     },
 ]);
 
@@ -129,10 +133,10 @@ const handleViewAllLeaders = () => {
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     </Head>
     <div
-        class="flex min-h-screen flex-col items-center bg-[#0a1628] px-0 py-6 text-[#1b1b18] lg:justify-center lg:px-0 lg:py-8 dark:bg-[#0a1628]"
+        class="py- flex min-h-screen flex-col items-center bg-[#0a1628] px-0 text-[#1b1b18] lg:justify-center lg:px-0 lg:py-8 dark:bg-[#0a1628]"
     >
         <header
-            class="fixed top-0 right-0 left-0 z-50 mx-auto mt-2 mb-4 flex w-full max-w-[1200px] justify-center bg-transparent px-2 text-sm not-has-[nav]:hidden md:px-6 lg:px-0"
+            class="fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1200px] justify-center bg-[#070b14] text-sm not-has-[nav]:hidden md:px-6 lg:px-0"
         >
             <nav
                 class="flex w-[95%] items-center justify-between rounded-lg border border-[#232d42] bg-[#161c2a] p-4 shadow-lg md:w-[75rem]"
@@ -327,5 +331,7 @@ const handleViewAllLeaders = () => {
             </main>
         </div>
         <div class="hidden h-14.5 lg:block"></div>
+
+        <Footer />
     </div>
 </template>

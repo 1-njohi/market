@@ -38,8 +38,8 @@ const handleStorageChange = (event) => {
 
 const goHome = () => {
     /// route to '/'
-    router.visit("/");
-}
+    router.visit('/');
+};
 
 // Lifecycle hooks
 onMounted(() => {
@@ -53,7 +53,7 @@ onMounted(() => {
     window.addEventListener('storage', handleStorageChange);
 
     // Optional: Poll for changes every few seconds (if you want extra safety)
-    // const interval = setInterval(updateSelections, 2000);
+    const interval = setInterval(updateSelections, 2000);
     // Store interval ID to clear it later
 });
 
@@ -71,11 +71,11 @@ const openBetslip = () => {
             detail: { timestamp: Date.now() },
         }),
     );
-};
 
-// Expose to window for debugging
-window.updateSelections = updateSelections;
-window.getSelections = getSelectionsFromLocalStorage;
+    // Expose to window for debugging
+    window.updateSelections = updateSelections;
+    window.getSelections = getSelectionsFromLocalStorage;
+};
 
 const leaderboardData = ref([
     {
@@ -504,79 +504,11 @@ const handleViewAllLeaders = () => {
     <div
         class="flex min-h-screen flex-col items-center bg-[#070b14] px-0 py-6 text-[#1b1b18] lg:justify-center lg:px-0 lg:py-8 dark:bg-[#070b14]"
     >
-        <header
-            class="mx-auto mb-4 w-full max-w-[1200px] px-2 text-sm not-has-[nav]:hidden md:px-6 lg:px-0"
-        >
-            <nav
-                class="flex items-center justify-between rounded-lg border border-[#232d42] bg-[#161c2a] p-4 shadow-lg"
-            >
-                <!-- BRAND / LOGO ACCENT -->
-                <div class="flex items-center space-x-2 text-sky-400 cursor-pointer" @click="goHome">
-                    <img
-                        src="../../img/logo.png"
-                        alt="Betslip Pirates Logo"
-                        class="pointer-events-none h-10 w-auto object-contain select-none"
-                    />
-
-                    <span
-                        class="text-s md:block hidden font-black tracking-widest text-slate-200 uppercase"
-                    >
-                        BETSLIP PIRATES
-                    </span>
-                </div>
-
-                <!-- NAVIGATION LINKS & ACTIONS -->
-                <div class="flex items-center gap-3">
-                    <!-- Authenticated State -->
-                    <Link
-                        v-if="$page.props.auth.user"
-                        :href="dashboard()"
-                        class="inline-block rounded border border-transparent bg-[#242f48] px-4 py-2 text-xs font-bold tracking-wide text-sky-400 uppercase transition-colors hover:bg-[#2e3c5c]"
-                    >
-                        Dashboard
-                    </Link>
-
-                    <!-- Guest State -->
-                    <template v-else>
-                        <Link
-                            :href="login()"
-                            class="inline-block rounded px-4 py-2 text-xs font-bold tracking-wide text-slate-400 uppercase transition-colors hover:text-slate-200"
-                        >
-                            Log in
-                        </Link>
-                        <Link
-                            :href="register()"
-                            class="inline-block rounded border border-transparent bg-[#242f48] px-4 py-2 text-xs font-bold tracking-wide text-slate-200 uppercase transition-colors hover:bg-[#2e3c5c]"
-                        >
-                            Register
-                        </Link>
-                    </template>
-
-                    <!-- FLOATING MOBILE BETSLIP TRIGGER -->
-                    <!-- Styled to match the premium "⚡ BOOSTED ODDS" badge theme -->
-                    <div v-if="selections && selections.length > 0">
-                        <button
-                            type="button"
-                            @click="openBetslip"
-                            class="fixed right-4 bottom-6 z-50 flex cursor-pointer items-center space-x-2 rounded-full bg-[#ff8c00] px-5 py-3 text-xs font-black tracking-wider text-black uppercase shadow-2xl transition-transform hover:scale-105 active:scale-95 md:hidden"
-                        >
-                            <span>⚡ Betslip</span>
-                            <span
-                                class="flex h-5 w-5 items-center justify-center rounded-full bg-black text-[10px] font-black text-[#ff8c00]"
-                            >
-                                {{ selections.length }}
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </nav>
-        </header>
         <div
             class="w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0"
         >
-            <HeroSection v-if="!$page.props.auth.user" />
             <main
-                class="grid w-full grid-cols-1 gap-4 overflow-hidden rounded-lg p-6 lg:grid-cols-12 lg:p-6"
+                class="grid w-full grid-cols-1 gap-4 overflow-hidden rounded-lg lg:grid-cols-12 lg:p-6"
             >
                 <div class="lg:col-span-3">
                     <!-- <BetslipCard /> -->
@@ -585,6 +517,21 @@ const handleViewAllLeaders = () => {
 
                 <div class="lg:col-span-9">
                     <SingleFixtureCard />
+                </div>
+
+                <div v-if="selections && selections.length > 0">
+                    <button
+                        type="button"
+                        @click="openBetslip"
+                        class="fixed right-4 bottom-6 z-50 flex cursor-pointer items-center space-x-2 rounded-full bg-[#ff8c00] px-5 py-3 text-xs font-black tracking-wider text-black uppercase shadow-2xl transition-transform hover:scale-105 active:scale-95 md:hidden"
+                    >
+                        <span>⚡ Betslip</span>
+                        <span
+                            class="flex h-5 w-5 items-center justify-center rounded-full bg-black text-[10px] font-black text-[#ff8c00]"
+                        >
+                            {{ selections.length }}
+                        </span>
+                    </button>
                 </div>
             </main>
         </div>

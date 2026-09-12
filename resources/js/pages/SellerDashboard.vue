@@ -64,13 +64,13 @@
             </div>
 
             <!-- INSIGHTS BANNER TELEMETRY -->
-            <div
+            <!-- <div
                 v-for="(insight, index) in seller_data.insights"
                 :key="index"
                 class="flex items-center gap-2.5 rounded border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-[11px] font-bold tracking-wide text-emerald-400 uppercase"
             >
                 <span>SYSTEM_INSIGHT: {{ insight }}</span>
-            </div>
+            </div> -->
 
             <div
                 class="block overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40 shadow-[0_0_15px_rgba(16,185,129,0.02)] md:hidden"

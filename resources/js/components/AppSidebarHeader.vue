@@ -34,7 +34,7 @@ watch(flashSuccess, (newMessage) => {
 
 <template>
     <header
-        class="fixed top-0 right-0 left-0 z-50 mt-2 flex w-full justify-center bg-transparent"
+        class="fixed top-0 right-0 left-0 z-50 flex w-full justify-center bg-transparent"
     >
         <nav
             class="flex w-[95%] items-center justify-between rounded-lg border border-[#232d42] bg-[#161c2a] p-4 shadow-lg md:w-[75rem]"
