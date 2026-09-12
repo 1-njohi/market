@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Jobs\SettleFixtureJob;
 use App\Models\Fixture;
+use App\Http\Controllers\NotificationController;
 
 use App\Http\Controllers\MpesaWithdrawalCallbackController;
 use App\Http\Controllers\WithdrawalController;
@@ -279,6 +280,15 @@ Route::prefix('mpesa/b2c')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/withdrawals', [WithdrawalController::class, 'store']);
+});
+
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
 });
 
 

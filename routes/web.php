@@ -11,7 +11,8 @@ use App\Http\Controllers\SellerDashboardController;
 use App\Http\Controllers\PaystackController;
 use App\Http\Controllers\BuyerDashboardController;
 use App\Http\Controllers\WithdrawalController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -19,7 +20,7 @@ Route::get('/fixture/{id}', [FixtureController::class, 'index'])->name('fixture'
 Route::get('/profile/{user_code}', [ProfileController::class, 'index'])->name('profile');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Route::inertia('dashboard', 'BuyerDashboard')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/withdrawals', [WithdrawalController::class, 'store']);
 
     Route::prefix('betslip')->group(function () {
@@ -68,6 +69,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Withdrawal
     Route::post('/withdrawal/initiate', [PaystackController::class, 'initiateWithdrawal'])->name('withdrawal.initiate');
+
+
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
+    });
 
     // Webhooks (public)
     Route::post('/paystack/webhook', [PaystackController::class, 'webhook'])->name('paystack.webhook');

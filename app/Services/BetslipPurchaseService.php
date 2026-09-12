@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\BetslipUserPurchase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Cache;
 
 class BetslipPurchaseService
 {
@@ -60,7 +62,7 @@ class BetslipPurchaseService
                 $buyer,
                 $price,
                 'purchase',
-                $reference . "-" . $buyer -> code,
+                $reference . "-" . $buyer->code,
                 "Purchase of betslip #{$betslip->code}"
             );
 
@@ -68,7 +70,7 @@ class BetslipPurchaseService
             $this->walletService->creditPending(
                 $seller,
                 $price,
-                $reference . "-" . $seller -> code,
+                $reference . "-" . $seller->code,
                 "Pending payout for betslip #{$betslip->code}"
             );
 
@@ -93,6 +95,7 @@ class BetslipPurchaseService
             //     $betslip->update(['status' => 'sold_out']);
             // }
 
+            Cache::forget(DashboardController::cacheKey($buyer));
             return $purchase;
         });
     }

@@ -13,6 +13,9 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 
+use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Cache;
+
 class BetslipController extends Controller
 {
     public function store(Request $request)
@@ -73,6 +76,8 @@ class BetslipController extends Controller
             DB::commit();
 
             $successMessage = "Your Betslip has been created successfully. It was assigned the tracking code " . $betslip->code . ". You can share it with potential buyers";
+           Cache::forget(DashboardController::cacheKey(Auth::user()));
+           
             // FIX: If using a named route configuration (Recommended)
             return Redirect::route('betslip.success', ['code' => $betslip->code])->with('success', $successMessage);
 

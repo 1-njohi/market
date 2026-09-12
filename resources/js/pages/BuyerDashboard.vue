@@ -4,15 +4,17 @@
     >
         <div class="mx-auto w-full max-w-7xl space-y-6">
             <!-- HEADER ARCHITECTURE: USER CONSOLE PROFILE -->
+
             <div
-                class="flex flex-col gap-4 border-b border-gray-800/60 pb-6 md:flex-row md:items-center md:justify-between"
+                class="flex w-full items-start justify-between gap-3 border-b border-gray-800/60 pb-6"
             >
-                <div class="flex items-center gap-4">
-                    <div class="relative">
+                <!-- LEFT: avatar + profile info (min-w-0 allows truncation) -->
+                <div class="flex min-w-0 items-center gap-3 md:gap-4">
+                    <div class="relative flex-shrink-0">
                         <img
                             :src="buyer_data.user.avatar"
                             :alt="buyer_data.user.name"
-                            class="h-14 w-14 rounded border border-sky-500/30 bg-[#111622]"
+                            class="h-12 w-12 rounded border border-sky-500/30 bg-[#111622] md:h-14 md:w-14"
                         />
                         <span
                             v-if="buyer_data.user.is_verified"
@@ -21,56 +23,43 @@
                             >✓</span
                         >
                     </div>
-                    <div>
+
+                    <div class="min-w-0">
                         <div
                             class="flex items-center gap-2 text-[10px] font-black tracking-widest text-sky-400 uppercase"
                         >
                             <span>[ BUYER PROFILE ]</span>
-                            <span
+                            <!-- <span
                                 v-if="!buyer_data.user.is_verified"
-                                class="py-0.2 rounded border border-amber-500/30 px-1 text-[8px] font-bold text-amber-500"
+                                class="rounded border border-amber-500/30 px-1 text-[8px] font-bold text-amber-500"
                                 >[ UNVERIFIED ]</span
-                            >
+                            > -->
                         </div>
+
                         <h1
-                            class="mt-0.5 font-mono text-xl font-black tracking-tight text-white uppercase"
+                            class="mt-0.5 truncate font-mono text-lg font-black tracking-tight text-white uppercase md:text-xl"
                         >
                             {{ buyer_data.user.name }}
                         </h1>
-                        <p class="text-[10px] font-medium text-slate-400">
-                            SYS_ID: {{ buyer_data.user.email }} • Joined
+
+                        <p
+                            class="truncate text-[10px] font-medium text-slate-400"
+                        >
+                            SYS_ID: {{ buyer_data.user.code }} • Joined
                             {{ buyer_data.user.member_since }}
                         </p>
                     </div>
                 </div>
-
-                <!-- NOTIFICATION TICKER HUB -->
-                <div class="flex items-center gap-3 self-start md:self-center">
-                    <div
-                        class="group relative cursor-pointer rounded border border-[#232d42] bg-[#111622] p-2 transition-colors hover:border-sky-500/50"
-                    >
-                        <span
-                            class="flex items-center gap-1.5 text-[10px] font-black tracking-wider text-slate-400 uppercase"
-                        >
-                            Notifications
-                            <span
-                                class="py-0.2 animate-pulse rounded-full bg-rose-500 px-1.5 font-mono text-[9px] font-black text-white"
-                            >
-                                {{ buyer_data.notifications.unread_count }}
-                            </span>
-                        </span>
-                    </div>
+                <!-- RIGHT: switcher + bell -->
+                <div class="flex flex-shrink-0 items-center gap-2">
+                    <DashboardSwitcher active="buyer" />
+                    <NotificationBell
+                        :initial-unread-count="
+                            buyer_data.notifications.unread_count
+                        "
+                    />
                 </div>
             </div>
-
-            <!-- INSIGHTS BANNER TELEMETRY -->
-            <!-- <div
-                v-for="(insight, index) in buyer_data.insights"
-                :key="index"
-                class="flex items-center gap-2.5 rounded border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-[11px] font-bold tracking-wide text-emerald-400 uppercase"
-            >
-                <span>SYSTEM_INSIGHT: {{ insight }}</span>
-            </div> -->
 
             <!-- Compact Wallet (Mobile Only) -->
             <div
@@ -781,6 +770,8 @@ import FollowingTable from '@/components/FollowingTable.vue';
 import TransactionsTable from '@/components/TransactionsTable.vue';
 import DepositPopover from '@/components/DepositPopover.vue';
 import WithdrawalPopover from '@/components/WithdrawalPopover.vue';
+import NotificationBell from '@/components/NotificationBell.vue';
+import DashboardSwitcher from '@/components/DashboardSwitcher.vue';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 

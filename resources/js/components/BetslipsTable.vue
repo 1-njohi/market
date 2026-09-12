@@ -40,7 +40,6 @@
                                 slip.status === 'pending' ||
                                 slip.status === 'underway'
                             "
-                            )
                             :class="[
                                 'rounded border px-2 py-0.5 font-mono text-[9px] font-black uppercase',
                                 slip.status === 'pending'
@@ -200,7 +199,6 @@
                                         slip.status === 'pending' ||
                                         slip.status === 'underway'
                                     "
-                                    )
                                     :class="[
                                         'rounded border px-2 py-0.5 font-mono text-[9px] font-black uppercase',
                                         slip.status === 'pending'

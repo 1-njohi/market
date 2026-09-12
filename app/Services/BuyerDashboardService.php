@@ -392,6 +392,7 @@ class BuyerDashboardService
             'avatar' => $user->profile_picture_url
                 ?? "https://ui-avatars.com/api/?name=" . urlencode($user->name),
             'email' => $user->email,
+            'code' => $user->code,
             'is_verified' => (bool) ($user->email_verified_at ?? false),
             'member_since' => $user->created_at->format('F Y'),
         ];

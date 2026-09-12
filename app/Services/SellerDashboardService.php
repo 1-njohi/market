@@ -27,13 +27,11 @@ class SellerDashboardService
      */
     public function getDashboardData(User $user): array
     {
-        $wa = $this->getWalletSummary($user);
-        Log::info($wa);
         return [
             'user' => $this->getUserInfo($user),
             'performance' => $this->getPerformanceMetrics($user),
             'betslips' => $this->getBetslipManagement($user),
-            'wallet' => $wa,
+            'wallet' => $this->getWalletSummary($user),
             'activity' => $this->getRecentActivity($user, 15),
             'financial' => $this->getFinancialSummary($user),
             'insights' => $this->getInsights($user),
@@ -41,10 +39,9 @@ class SellerDashboardService
             'charts' => $this->getChartData($user),
             'quick_stats' => $this->getQuickStats($user),
             'notifications' => $this->getNotifications($user),
-            'fee_tier' => $this->getFeeTier($user)
+            'fee_tier' => $this->getFeeTier($user),
         ];
     }
-
     /**
      * Get real-time data
      */
@@ -178,7 +175,7 @@ class SellerDashboardService
                     'id' => $betslip->id,
                     'code' => $betslip->code,
                     'legs' => $betslip->legs,
-                    'is_winner' => $betslip -> is_winner,
+                    'is_winner' => $betslip->is_winner,
                     'total_odds' => round($betslip->total_odds, 2),
                     'price' => round($betslip->price, 2),
                     'remaining' => $betslip->remaining,
@@ -261,7 +258,10 @@ class SellerDashboardService
     public function getFinancialSummary(User $user): array
     {
         $totalRevenue = $this->getTotalRevenue($user);
-        $totalFees = $totalRevenue * 0.10; // 10% platform fee
+
+        // Use the seller's actual tier-based fee (falls back to 20% if unknown)
+        $feePct = $this->platformFeeService->getFeePercentageFor($user);
+        $totalFees = $totalRevenue * $feePct;
         $netEarnings = $totalRevenue - $totalFees;
 
         $pendingPayouts = BetslipUserPurchase::where('seller_id', $user->id)
@@ -278,8 +278,8 @@ class SellerDashboardService
             ->map(function ($purchase) {
                 return [
                     'date' => $purchase->created_at->format('Y-m-d'),
-                    'betslip_code' => $purchase->betslip->code,
-                    'buyer_name' => $purchase->buyer->name,
+                    'betslip_code' => $purchase->betslip->code ?? 'N/A',
+                    'buyer_name' => $purchase->buyer->name ?? 'Unknown',
                     'amount' => round($purchase->purchase_price, 2),
                     'status' => $purchase->status,
                 ];
@@ -295,7 +295,6 @@ class SellerDashboardService
             'revenue_trend' => $this->getRevenueTrend($user),
         ];
     }
-
     /**
      * Get AI insights
      */
@@ -415,34 +414,48 @@ class SellerDashboardService
     /**
      * Get notifications
      */
-    public function getNotifications(User $user): array
+    private function getUserInfo(User $user): array
     {
-        // This would typically come from a notifications table
         return [
-            'unread_count' => 3,
-            'items' => [
-                [
-                    'type' => 'purchase',
-                    'message' => 'JohnD purchased #ABC-1234',
-                    'time' => Carbon::now()->subMinutes(2)->diffForHumans(),
-                    'read' => false,
-                ],
-                [
-                    'type' => 'settlement',
-                    'message' => '#XYZ-7890 settled - WINNER! 🎉',
-                    'time' => Carbon::now()->subHour()->diffForHumans(),
-                    'read' => false,
-                ],
-                [
-                    'type' => 'follower',
-                    'message' => '@BettingPro started following you',
-                    'time' => Carbon::now()->subHours(3)->diffForHumans(),
-                    'read' => true,
-                ],
-            ],
+            'id' => $user->id,
+            'name' => $user->name,
+            'avatar' => $user->profile_picture_url
+                ?? "https://ui-avatars.com/api/?name=" . urlencode($user->name),
+            'email' => $user->email,
+            'member_since' => $user->created_at->format('F Y'),
+            'is_verified' => !is_null($user->email_verified_at),
         ];
     }
 
+    /**
+     * Real notifications, matching the buyer dashboard format.
+     */
+    public function getNotifications(User $user): array
+    {
+        $notifications = $user->notifications()
+            ->orderBy('created_at', 'desc')
+            ->take(20)
+            ->get();
+
+        return [
+            'unread_count' => $user->unreadNotifications()->count(),
+            'items' => $notifications->map(function ($notification) {
+                $data = $notification->data ?? [];
+
+                return [
+                    'id' => $notification->id,
+                    'type' => $data['type'] ?? 'general',
+                    'title' => $data['title'] ?? null,
+                    'message' => $data['body'] ?? '',
+                    'betslip_id' => $data['betslip_id'] ?? null,
+                    'betslip_code' => $data['betslip_code'] ?? null,
+                    'time' => $notification->created_at->diffForHumans(),
+                    'created_at' => $notification->created_at->toISOString(),
+                    'read' => !is_null($notification->read_at),
+                ];
+            })->values()->toArray(),
+        ];
+    }
     // ------------------ Helper Methods ------------------ //
 
     private function calculateWinRate($betslips): float
@@ -779,17 +792,6 @@ class SellerDashboardService
         ];
     }
 
-    private function getUserInfo(User $user): array
-    {
-        return [
-            'id' => $user->id,
-            'name' => $user->name,
-            'avatar' => $user->avatar ?? "https://ui-avatars.com/api/?name={$user->name}",
-            'email' => $user->email,
-            'member_since' => $user->created_at->format('F Y'),
-            'is_verified' => $user->is_verified ?? false,
-        ];
-    }
 
     public function getWalletSummary(User $user): array
     {

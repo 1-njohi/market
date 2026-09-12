@@ -6,7 +6,7 @@ import { router } from '@inertiajs/vue3';
 // import type { BreadcrumbItem } from '@/types';
 import { computed, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
-
+import { Link } from '@inertiajs/vue3';
 const page = usePage();
 
 // Safely pull the flash data dynamically from the global pipeline
