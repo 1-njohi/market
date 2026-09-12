@@ -118,8 +118,24 @@
 
                 <span
                     class="rounded border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold tracking-widest text-emerald-400 uppercase"
+                    :class="[
+                        'rounded border px-2 py-0.5 font-mono text-[9px] font-black uppercase',
+                        slip.status === 'pending'
+                            ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                            : slip.status === 'underway'
+                              ? 'border-emerald-500/20 bg-purple-500/10 text-purple-400'
+                              : slip.is_winner
+                                ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                : 'border-rose-500/20 bg-rose-500/10 text-rose-400',
+                    ]"
                 >
-                    {{ slip.status }}
+                    {{
+                        slip.status == 'pending' || slip.status == 'underway'
+                            ? slip.status
+                            : slip.is_winner
+                              ? 'WON'
+                              : 'LOST'
+                    }}
                 </span>
             </div>
 
@@ -217,8 +233,11 @@
             </div>
 
             <!-- UNLOCK TRIGGER BUTTON (Fixed to Footer Area if Locked) -->
-            <UnlockPopover v-if="isLocked" :amount="slip.purchase_info.price_to_purchase" :betslip_id="slip.id"/>
-
+            <UnlockPopover
+                v-if="isLocked"
+                :amount="slip.purchase_info.price_to_purchase"
+                :betslip_id="slip.id"
+            />
         </div>
     </div>
 </template>
@@ -232,7 +251,7 @@ const page = usePage();
 
 const betslip = page.props.betslip;
 
-const balance = page.props.auth.balance
+const balance = page.props.auth.balance;
 
 const emit = defineEmits(['requestUnlock']);
 

@@ -3,10 +3,15 @@
         <button
             type="button"
             @click.stop="togglePopover"
-            :disabled="isProcessing"
-            class="flex w-full cursor-pointer items-center justify-center rounded border border-sky-500/40 bg-transparent py-2.5 text-[10px] font-black tracking-widest text-sky-400 uppercase transition-all duration-200 hover:border-sky-500 hover:bg-sky-500/10 disabled:pointer-events-none disabled:opacity-40"
+            :disabled="disabled || isProcessing"
+            class="flex w-full items-center justify-center rounded border border-emerald-500 py-2.5 text-[10px] font-black tracking-widest uppercase transition-all duration-200"
+            :class="
+                !disabled
+                    ? 'cursor-pointer bg-emerald-500 text-[#070b14] shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:bg-transparent hover:text-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.2)]'
+                    : 'border-gray-700 text-gray-500'
+            "
         >
-            <span>DEPOSIT</span>
+            <span>WITHDRAW FUNDS (→)</span>
         </button>
 
         <Teleport to="body">
@@ -21,14 +26,14 @@
                 <!-- Modal -->
                 <div
                     ref="modalElement"
-                    class="animate-fade-in relative w-full max-w-md rounded border border-gray-800 bg-[#0f1422] p-4 shadow-[0_20px_50px_rgba(7,11,20,0.9),0_0_25px_rgba(14,165,233,0.15)] sm:w-96"
+                    class="animate-fade-in relative w-full max-w-md rounded border border-gray-800 bg-[#0f1422] p-4 shadow-[0_20px_50px_rgba(7,11,20,0.9),0_0_25px_rgba(16,185,129,0.15)] sm:w-96"
                 >
                     <div
                         class="mb-3 flex items-center justify-between border-b border-gray-800 pb-2"
                     >
                         <span
-                            class="text-[9px] font-black tracking-widest text-sky-400 uppercase"
-                            >INITIALIZE PAYMENT (KES {{ initial_amount }} MINIMUM)</span
+                            class="text-[9px] font-black tracking-widest text-emerald-400 uppercase"
+                            >M-PESA WITHDRAWAL</span
                         >
                         <button
                             type="button"
@@ -39,12 +44,30 @@
                         </button>
                     </div>
 
-                    <form @submit.prevent="handleDepositSubmission" class="space-y-3">
+                    <!-- Balance summary -->
+                    <div
+                        class="mb-3 flex items-center justify-between rounded border border-[#232d42] bg-[#0a101f] p-2.5"
+                    >
+                        <span
+                            class="text-[9px] font-black tracking-wider text-slate-500 uppercase"
+                            >Available Balance</span
+                        >
+                        <span class="font-mono text-sm font-black text-emerald-400">
+                            {{ currency }}
+                            {{
+                                Number(availableBalance).toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                })
+                            }}
+                        </span>
+                    </div>
+
+                    <form @submit.prevent="handleWithdrawalSubmission" class="space-y-3">
                         <div>
                             <label
                                 class="mb-1 block font-mono text-[9px] font-black tracking-wider text-slate-400 uppercase"
                             >
-                                Amount ({{ currency }}) — Min 100
+                                Amount ({{ currency }}) — Min 10
                             </label>
                             <div class="relative">
                                 <span
@@ -56,15 +79,32 @@
                                     type="number"
                                     v-model.number="amount"
                                     required
-                                    min="100"
+                                    min="10"
                                     step="any"
                                     placeholder="0.00"
                                     :disabled="isProcessing"
-                                    class="w-full rounded border border-[#232d42] bg-[#070b14] py-2 pr-4 pl-14 font-mono text-xs font-semibold tracking-wide text-white placeholder-slate-600 transition-all focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 focus:outline-none disabled:opacity-50"
+                                    class="w-full rounded border border-[#232d42] bg-[#070b14] py-2 pr-4 pl-14 font-mono text-xs font-semibold tracking-wide text-white placeholder-slate-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 focus:outline-none disabled:opacity-50"
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label
+                                class="mb-1 block font-mono text-[9px] font-black tracking-wider text-slate-400 uppercase"
+                            >
+                                M-PESA Phone Number
+                            </label>
+                            <input
+                                type="tel"
+                                v-model="phone"
+                                required
+                                placeholder="2547XXXXXXXX"
+                                pattern="^(?:254|\+254|0)?(7|1)\d{8}$"
+                                :disabled="isProcessing"
+                                class="w-full rounded border border-[#232d42] bg-[#070b14] px-4 py-2 font-mono text-xs font-semibold tracking-wide text-white placeholder-slate-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 focus:outline-none disabled:opacity-50"
+                            />
                             <p class="mt-1 font-mono text-[9px] text-slate-500">
-                                You will be redirected to Paystack to complete payment.
+                                Use Safaricom M-Pesa number (07XX, 01XX, or 2547XX)
                             </p>
                         </div>
 
@@ -77,16 +117,16 @@
 
                         <button
                             type="submit"
-                            :disabled="isProcessing || !amount || amount < 100"
-                            class="flex w-full cursor-pointer items-center justify-center rounded border border-sky-500 bg-sky-500 py-2.5 text-[10px] font-black tracking-widest text-[#070b14] uppercase transition-all duration-200 hover:bg-transparent hover:text-sky-400 disabled:pointer-events-none disabled:opacity-40"
+                            :disabled="isProcessing || !amount || amount < 10 || !phone"
+                            class="flex w-full cursor-pointer items-center justify-center rounded border border-emerald-500 bg-emerald-500 py-2.5 text-[10px] font-black tracking-widest text-[#070b14] uppercase transition-all duration-200 hover:bg-transparent hover:text-emerald-400 disabled:pointer-events-none disabled:opacity-40"
                         >
                             <span v-if="isProcessing" class="flex items-center gap-1.5">
                                 <span
                                     class="h-1.5 w-1.5 animate-ping rounded-full bg-[#070b14]"
                                 ></span>
-                                INITIALIZING...
+                                PROCESSING...
                             </span>
-                            <span v-else>INITIALIZE PAYMENT</span>
+                            <span v-else>CONFIRM WITHDRAWAL</span>
                         </button>
                     </form>
                 </div>
@@ -100,19 +140,15 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 import axios from 'axios';
 
 const props = defineProps({
-    currency: {
-        type: String,
-        default: 'KES',
-    },
-    initial_amount: {
-        type: Number,
-        default: 100,
-    },
+    currency: { type: String, default: 'KES' },
+    availableBalance: { type: Number, default: 0 },
+    disabled: { type: Boolean, default: false },
 });
 
 const isOpen = ref(false);
 const isProcessing = ref(false);
-const amount = ref(0);
+const amount = ref(null);
+const phone = ref('');
 const errorMessage = ref('');
 
 const popoverContainer = ref(null);
@@ -123,7 +159,7 @@ watch(isOpen, (v) => {
 });
 
 const togglePopover = () => {
-    if (isProcessing.value) return;
+    if (isProcessing.value || props.disabled) return;
     isOpen.value = !isOpen.value;
     if (isOpen.value) errorMessage.value = '';
 };
@@ -132,35 +168,47 @@ const closePopover = () => {
     if (isProcessing.value) return;
     isOpen.value = false;
     amount.value = null;
+    phone.value = '';
     errorMessage.value = '';
 };
 
-const handleDepositSubmission = async () => {
+const handleWithdrawalSubmission = async () => {
     errorMessage.value = '';
 
-    if (!amount.value || amount.value < 100) {
-        errorMessage.value = 'Minimum deposit is KES 100.';
+    if (!amount.value || amount.value < 10) {
+        errorMessage.value = 'Minimum withdrawal is KES 10.';
+        return;
+    }
+    if (amount.value > props.availableBalance) {
+        errorMessage.value = 'Amount exceeds your available balance.';
+        return;
+    }
+    if (!phone.value) {
+        errorMessage.value = 'Please enter your M-Pesa phone number.';
         return;
     }
 
     try {
         isProcessing.value = true;
         const response = await axios.post(
-            '/deposit/initiate',
-            { amount: amount.value },
+            '/withdrawals',
+            { amount: amount.value, phone: phone.value },
             { headers: { Accept: 'application/json' } },
         );
 
         const data = response.data;
-
         if (data.success) {
             closePopover();
-            window.location.href = data.authorization_url;
+            alert(
+                data.message ||
+                    'Withdrawal initiated. Check your phone for the M-Pesa prompt.',
+            );
+            window.location.reload();
         } else {
-            errorMessage.value = data.message || 'Failed to initiate deposit.';
+            errorMessage.value = data.message || 'Failed to initiate withdrawal.';
         }
     } catch (error) {
-        console.error('Deposit error:', error);
+        console.error('Withdrawal error:', error);
         errorMessage.value =
             error.response?.data?.message ||
             'An unexpected error occurred. Please try again.';
@@ -183,7 +231,6 @@ const handleClickOutside = (event) => {
 
 onMounted(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    amount.value = props.initial_amount;
 });
 
 onUnmounted(() => {

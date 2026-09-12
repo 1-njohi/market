@@ -40,4 +40,29 @@ return [
         'base_url' => env('API_FOOTBALL_BASE_URL'),
     ],
 
+    'betslip_pirates' => [
+        'platform_user_email' => env('PLATFORM_USER_EMAIL', 'platform@betslip-pirates.com'),
+
+        // Ordered from lowest to highest tier.
+        // The last tier has no `max` — it's the default for anyone exceeding prior thresholds.
+        'fee_tiers' => [
+            [
+                'max' => (int) env('PLATFORM_FEE_TIER_1_MAX', 9),
+                'percentage' => (float) env('PLATFORM_FEE_TIER_1_PERCENTAGE', 0.25),
+            ],
+            [
+                'max' => (int) env('PLATFORM_FEE_TIER_2_MAX', 49),
+                'percentage' => (float) env('PLATFORM_FEE_TIER_2_PERCENTAGE', 0.20),
+            ],
+            [
+                'max' => (int) env('PLATFORM_FEE_TIER_3_MAX', 99),
+                'percentage' => (float) env('PLATFORM_FEE_TIER_3_PERCENTAGE', 0.15),
+            ],
+            [
+                'max' => null, // highest tier — no cap
+                'percentage' => (float) env('PLATFORM_FEE_TIER_4_PERCENTAGE', 0.10),
+            ],
+        ],
+    ],
+
 ];

@@ -32,7 +32,10 @@
                         <span
                             :class="[
                                 'rounded border px-2 py-0.5 font-mono text-[10px] font-black tracking-wider uppercase',
-                                tx.type === 'deposit'
+                                tx.type === 'deposit' ||
+                                tx.type === 'refund' ||
+                                tx.type === 'pending_release' ||
+                                tx.type === 'payout'
                                     ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
                                     : 'border-rose-500/20 bg-rose-500/10 text-rose-400',
                             ]"
@@ -70,26 +73,27 @@
                             </span>
                             <span
                                 :class="
-                                    (tx.type === 'deposit') |
-                                    (tx.type === 'pending_payout') |
-                                    (tx.type === 'purchase')
+                                    tx.type === 'deposit' ||
+                                    tx.type === 'refund' ||
+                                    tx.type === 'pending_release' ||
+                                    tx.type === 'payout'
                                         ? tx.type === 'deposit'
                                             ? 'font-black text-emerald-400'
-                                            : 'font-black text-amber-400'
+                                            : 'font-black text-emerald-400'
                                         : 'font-black text-rose-400'
                                 "
-                            >
-                                {{
-                                    (tx.type === 'deposit') |
-                                    (tx.type === 'pending_payout')
-                                        ? '+'
-                                        : '-'
-                                }}
-                                KES
-                                {{
-                                    tx.amount.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                    })
+                                >{{
+                                    tx.type === 'deposit' ||
+                                    tx.type === 'refund' ||
+                                    tx.type === 'pending_release' ||
+                                    tx.type === 'payout'
+                                        ? '+' +
+                                          tx.amount.toLocaleString(undefined, {
+                                              minimumFractionDigits: 2,
+                                          })
+                                        : tx.amount.toLocaleString(undefined, {
+                                              minimumFractionDigits: 2,
+                                          })
                                 }}
                             </span>
                         </div>
@@ -142,7 +146,10 @@
                             >
                                 <span
                                     :class="
-                                        tx.type === 'deposit'
+                                        tx.type === 'deposit' ||
+                                        tx.type === 'refund' ||
+                                        tx.type === 'pending_release' ||
+                                        tx.type === 'payout'
                                             ? 'text-emerald-400'
                                             : 'text-rose-400'
                                     "
@@ -161,15 +168,22 @@
                             <td
                                 :class="[
                                     'px-4 py-3.5 text-right font-mono font-black',
-                                    (tx.type === 'deposit') |
-                                    (tx.type === 'pending_payout') |
-                                    (tx.type === 'purchase')
+                                    tx.type === 'deposit' ||
+                                    tx.type === 'pending_release' ||
+                                    tx.type === 'refund' ||
+                                    tx.type == 'payout'
                                         ? 'text-emerald-400'
                                         : 'text-rose-400',
                                 ]"
                             >
-                                {{ tx.type === 'deposit' ? '+' : '-'
-                                }}{{ tx.amount.toFixed(2) }}
+                                {{
+                                    tx.type === 'deposit' ||
+                                    tx.type === 'refund' ||
+                                    tx.type === 'pending_release' ||
+                                    tx.type === 'payout'
+                                        ? '+' + tx.amount.toFixed(2)
+                                        : tx.amount.toFixed(2)
+                                }}
                             </td>
 
                             <td

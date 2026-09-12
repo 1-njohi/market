@@ -5,13 +5,14 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Transaction;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class WalletService
 {
     /**
-     * Get or create a wallet for a user
+     * Get or create a wallet for a user.
      */
     public function getWallet(User $user): Wallet
     {
@@ -26,19 +27,24 @@ class WalletService
             ]
         );
     }
+
     /**
-     * Credit a user's wallet
+     * Credit a user's available balance.
      */
-    public function credit(User $user, float $amount, string $type, $reference = null, $description = null): Transaction
-    {
+    public function credit(
+        User $user,
+        float $amount,
+        string $type,
+        ?string $reference = null,
+        ?string $description = null
+    ): Transaction {
         return DB::transaction(function () use ($user, $amount, $type, $reference, $description) {
             $wallet = $this->getWallet($user);
             $balanceBefore = $wallet->balance;
 
             $wallet->balance += $amount;
 
-            // Update total_deposited if this is a deposit
-            if ($type === 'deposit') {
+            if ($type === Transaction::TYPE_DEPOSIT) {
                 $wallet->total_deposited += $amount;
             }
 
@@ -57,10 +63,15 @@ class WalletService
     }
 
     /**
-     * Debit a user's wallet
+     * Debit a user's available balance.
      */
-    public function debit(User $user, float $amount, string $type, $reference = null, $description = null): Transaction
-    {
+    public function debit(
+        User $user,
+        float $amount,
+        string $type,
+        ?string $reference = null,
+        ?string $description = null
+    ): Transaction {
         return DB::transaction(function () use ($user, $amount, $type, $reference, $description) {
             $wallet = $this->getWallet($user);
 
@@ -71,8 +82,7 @@ class WalletService
             $balanceBefore = $wallet->balance;
             $wallet->balance -= $amount;
 
-            // Update total_withdrawn if this is a withdrawal
-            if ($type === 'withdrawal') {
+            if ($type === Transaction::TYPE_WITHDRAWAL) {
                 $wallet->total_withdrawn += $amount;
             }
 
@@ -90,13 +100,15 @@ class WalletService
         });
     }
 
-    // In WalletService
-
     /**
-     * Credit a user's pending balance (for sellers)
+     * Credit a user's pending balance (for sellers).
      */
-    public function creditPending(User $user, float $amount, $reference = null, $description = null): Transaction
-    {
+    public function creditPending(
+        User $user,
+        float $amount,
+        ?string $reference = null,
+        ?string $description = null
+    ): Transaction {
         return DB::transaction(function () use ($user, $amount, $reference, $description) {
             $wallet = $this->getWallet($user);
             $balanceBefore = $wallet->pending_balance;
@@ -107,7 +119,7 @@ class WalletService
             return $this->createTransaction(
                 $user,
                 $amount,
-                'pending_payout',
+                Transaction::TYPE_PENDING_PAYOUT,
                 $balanceBefore,
                 $wallet->pending_balance,
                 $reference,
@@ -117,11 +129,19 @@ class WalletService
     }
 
     /**
-     * Debit a user's pending balance (reverse payout)
+     * Debit a user's pending balance.
+     *
+     * @param string $type  Transaction type label — 'pending_release' for payouts,
+     *                      'fee' for platform fee deductions.
      */
-    public function debitPending(User $user, float $amount, $reference = null, $description = null): Transaction
-    {
-        return DB::transaction(function () use ($user, $amount, $reference, $description) {
+    public function debitPending(
+        User $user,
+        float $amount,
+        string $type = Transaction::TYPE_PENDING_RELEASE,
+        ?string $reference = null,
+        ?string $description = null
+    ): Transaction {
+        return DB::transaction(function () use ($user, $amount, $type, $reference, $description) {
             $wallet = $this->getWallet($user);
 
             if ($wallet->pending_balance < $amount) {
@@ -135,7 +155,7 @@ class WalletService
             return $this->createTransaction(
                 $user,
                 -$amount,
-                'pending_release',
+                $type,
                 $balanceBefore,
                 $wallet->pending_balance,
                 $reference,
@@ -145,10 +165,15 @@ class WalletService
     }
 
     /**
-     * Release pending balance to available balance (when betslip wins)
+     * Move funds from pending balance to available balance.
+     * Used when a betslip wins and the seller payout is released.
      */
-    public function releasePendingToAvailable(User $user, float $amount, $reference = null, $description = null): void
-    {
+    public function releasePendingToAvailable(
+        User $user,
+        float $amount,
+        ?string $reference = null,
+        ?string $description = null
+    ): void {
         DB::transaction(function () use ($user, $amount, $reference, $description) {
             $wallet = $this->getWallet($user);
 
@@ -156,70 +181,63 @@ class WalletService
                 throw new \Exception('Insufficient pending balance.');
             }
 
-            // Debit pending
+            $pendingBefore = $wallet->pending_balance;
+            $balanceBefore = $wallet->balance;
+
             $wallet->pending_balance -= $amount;
-
-            // Credit available
             $wallet->balance += $amount;
-
             $wallet->save();
 
-            // Record pending release
+            // Ledger: pending debited
             $this->createTransaction(
                 $user,
                 -$amount,
-                'pending_release',
-                $wallet->pending_balance + $amount,
+                Transaction::TYPE_PENDING_RELEASE,
+                $pendingBefore,
                 $wallet->pending_balance,
                 $reference,
                 $description
             );
 
-            // Record payout
+            // Ledger: available credited
             $this->createTransaction(
                 $user,
                 $amount,
-                'payout',
-                $wallet->balance - $amount,
+                Transaction::TYPE_PAYOUT,
+                $balanceBefore,
                 $wallet->balance,
                 $reference,
                 $description
             );
         });
     }
+
     /**
-     * Release seller's pending balance to available balance (when betslip settles)
+     * Charge a platform fee: debit the seller's pending balance
+     * and credit the platform's available balance.
      */
-    public function releasePayout(User $seller, float $amount, $reference = null, $description = null): Transaction
-    {
-        return DB::transaction(function () use ($seller, $amount, $reference, $description) {
-            $wallet = $this->getWallet($seller);
-
-            if ($wallet->pending_balance < $amount) {
-                throw new \Exception('Insufficient pending balance');
-            }
-
-            $wallet->pending_balance -= $amount;
-            $wallet->balance += $amount;
-            $wallet->save();
-
-            // Create two transactions: one for pending release, one for available credit
-            $this->createTransaction(
+    public function chargeFee(
+        User $seller,
+        User $platform,
+        float $feeAmount,
+        ?string $reference = null,
+        ?string $description = null
+    ): void {
+        DB::transaction(function () use ($seller, $platform, $feeAmount, $reference, $description) {
+            // 1. Deduct fee from seller's pending balance
+            $this->debitPending(
                 $seller,
-                -$amount,
-                'pending_release',
-                $wallet->pending_balance + $amount,
-                $wallet->pending_balance,
+                $feeAmount,
+                Transaction::TYPE_FEE,
                 $reference,
                 $description
             );
 
-            return $this->createTransaction(
-                $seller,
-                $amount,
-                'payout',
-                $wallet->balance - $amount,
-                $wallet->balance,
+            // 2. Credit platform's available balance
+            $this->credit(
+                $platform,
+                $feeAmount,
+                Transaction::TYPE_FEE,
                 $reference,
                 $description
             );
@@ -227,7 +245,7 @@ class WalletService
     }
 
     /**
-     * Check if user has sufficient balance
+     * Check if user has sufficient available balance.
      */
     public function hasSufficientBalance(User $user, float $amount): bool
     {
@@ -236,33 +254,51 @@ class WalletService
     }
 
     /**
-     * Get current balance
+     * Get current available balance.
      */
     public function getBalance(User $user): float
     {
-        return $this->getWallet($user)->balance;
+        return (float) $this->getWallet($user)->balance;
     }
 
     /**
-     * Get pending balance (for sellers)
+     * Get pending balance (for sellers).
      */
     public function getPendingBalance(User $user): float
     {
-        return $this->getWallet($user)->pending_balance;
+        return (float) $this->getWallet($user)->pending_balance;
     }
 
     /**
-     * Create a transaction record
+     * Fetch all transactions tied to a reference (for auditing/debugging).
      */
-    private function createTransaction(User $user, float $amount, string $type, float $balanceBefore, float $balanceAfter, $reference = null, $description = null, string $status = 'completed'): Transaction
+    public function findTransactionsByReference(string $reference): Collection
     {
+        return Transaction::where('reference', $reference)
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * Create a transaction record.
+     */
+    private function createTransaction(
+        User $user,
+        float $amount,
+        string $type,
+        float $balanceBefore,
+        float $balanceAfter,
+        ?string $reference = null,
+        ?string $description = null,
+        string $status = Transaction::STATUS_COMPLETED
+    ): Transaction {
         return Transaction::create([
             'user_id' => $user->id,
             'type' => $type,
             'amount' => $amount,
             'balance_before' => $balanceBefore,
             'balance_after' => $balanceAfter,
-            'reference' => $reference ?? Str::uuid(),
+            'reference' => $reference ?? Str::uuid()->toString(),
             'description' => $description,
             'status' => $status,
             'completed_at' => now(),

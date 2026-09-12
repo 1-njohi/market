@@ -40,6 +40,8 @@
                         <p class="text-[10px] font-medium text-slate-400">
                             SYS_ID: {{ seller_data.user.email }} • Joined
                             {{ seller_data.user.member_since }}
+
+                            {{ seller_data.fee_tier }}
                         </p>
                     </div>
                 </div>
@@ -461,12 +463,12 @@
                                 >
                             </div>
                         </div>
-
-
-</div>
-            <!-- <div class="mt-6"> -->
-                <TransactionsTable :transactions="seller_data.wallet.recent_transactions" />
-            <!-- </div> -->
+                    </div>
+                    <!-- <div class="mt-6"> -->
+                    <TransactionsTable
+                        :transactions="seller_data.wallet.recent_transactions"
+                    />
+                    <!-- </div> -->
                     <!-- </div> -->
 
                     <FollowersTable
@@ -794,7 +796,7 @@ const page = usePage();
 const seller_data = page.props.seller_data;
 async function triggerDeposit() {
     // prompt("Enter amount you want to deposit");
-    alert("ddsds")
+    alert('ddsds');
     try {
         const response = await axios.post(
             '/deposit/initiate',

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\BetslipSettlementJob;
 use App\Models\Fixture;
 use App\Models\Odd;
 use App\Models\Betslip;
@@ -24,7 +25,7 @@ class MarketSettlementService
         $match = $this->extractMatchData($apiData);
         $odds = $fixture->Odds;
 
-        \Log::info($match);
+        // \Log::info($match);
 
         if ($odds->isEmpty()) {
             return;
@@ -34,7 +35,7 @@ class MarketSettlementService
             foreach ($odds as $odd) {
                 $this->settleOdd($odd, $match);
             }
-            // $this->updateBetslips($fixture);
+            $this->updateBetslips($fixture);
         });
     }
 
@@ -43,13 +44,13 @@ class MarketSettlementService
      */
     protected function settleOdd(Odd $odd, array $match): void
     {
-        \Log::info("before: Market ID ". $odd -> market_id. " Value: " . $odd -> value . " Status:" . $odd -> status);
+        // \Log::info("before: Market ID " . $odd->market_id . " Value: " . $odd->value . " Status:" . $odd->status);
         $winningValue = $this->resolveMarket($odd->market_id, $odd->value, $match);
         $isWinner = $winningValue !== null && (string) $odd->value === (string) $winningValue;
 
         $odd->status = $isWinner ? 'won' : 'lost';
         $odd->save();
-        \Log::info("after: Status " . $odd -> status);
+        // \Log::info("after: Status " . $odd->status);
     }
 
     /**
@@ -58,14 +59,14 @@ class MarketSettlementService
     protected function resolveMarket(int $marketId, string $oddValue, array $match): ?string
     {
         return match ($marketId) {
-            1  => $this->resolveMatchWinner($match),
-            2  => $this->resolveHomeAway($match),
-            3  => $this->resolveSecondHalfWinner($match),
-            5  => $this->resolveOverUnder($oddValue, $match['total_goals']),
-            6  => $this->resolveOverUnder($oddValue, $match['ht_total_goals']),
-            7  => $this->resolveHTFTDouble($match),
-            8  => $this->resolveBothTeamsScore($match),
-            9  => $this->resolveHandicapResult($oddValue, $match),
+            1 => $this->resolveMatchWinner($match),
+            2 => $this->resolveHomeAway($match),
+            3 => $this->resolveSecondHalfWinner($match),
+            5 => $this->resolveOverUnder($oddValue, $match['total_goals']),
+            6 => $this->resolveOverUnder($oddValue, $match['ht_total_goals']),
+            7 => $this->resolveHTFTDouble($match),
+            8 => $this->resolveBothTeamsScore($match),
+            9 => $this->resolveHandicapResult($oddValue, $match),
             10 => $this->resolveExactScore($match),
             12 => $this->resolveDoubleChance($match),
             13 => $this->resolveFirstHalfWinner($match),
@@ -100,15 +101,19 @@ class MarketSettlementService
 
     protected function resolveMatchWinner(array $match): string
     {
-        if ($match['home_winner']) return 'Home';
-        if ($match['away_winner']) return 'Away';
+        if ($match['home_winner'])
+            return 'Home';
+        if ($match['away_winner'])
+            return 'Away';
         return 'Draw';
     }
 
     protected function resolveHomeAway(array $match): string
     {
-        if ($match['home_winner'] || $match['draw']) return 'Home/Draw';
-        if ($match['away_winner']) return 'Draw/Away';
+        if ($match['home_winner'] || $match['draw'])
+            return 'Home/Draw';
+        if ($match['away_winner'])
+            return 'Draw/Away';
         return 'Home/Away';
     }
 
@@ -116,8 +121,10 @@ class MarketSettlementService
     {
         $homeSH = $match['home_ft_goals'] - $match['home_ht_goals'];
         $awaySH = $match['away_ft_goals'] - $match['away_ht_goals'];
-        if ($homeSH > $awaySH) return 'Home';
-        if ($awaySH > $homeSH) return 'Away';
+        if ($homeSH > $awaySH)
+            return 'Home';
+        if ($awaySH > $homeSH)
+            return 'Away';
         return 'Draw';
     }
 
@@ -125,7 +132,8 @@ class MarketSettlementService
     {
         // e.g., "Over 2.5" -> threshold = 2.5, isOver = true
         preg_match('/(Over|Under)\s+([\d.]+)/', $oddValue, $matches);
-        if (count($matches) < 3) return $oddValue; // fallback
+        if (count($matches) < 3)
+            return $oddValue; // fallback
 
         $threshold = (float) $matches[2];
         $isOver = $matches[1] === 'Over';
@@ -151,7 +159,8 @@ class MarketSettlementService
         // Assume oddValue format: "Home -1.5", "Away +1.5", etc.
         // We need to extract handicap and determine winner.
         preg_match('/(Home|Away)\s+([+-]?[\d.]+)/', $oddValue, $matches);
-        if (count($matches) < 3) return null;
+        if (count($matches) < 3)
+            return null;
 
         $team = $matches[1];
         $handicap = (float) $matches[2];
@@ -159,8 +168,10 @@ class MarketSettlementService
         $homeAdjusted = $match['home_goals'] + ($team === 'Home' ? $handicap : 0);
         $awayAdjusted = $match['away_goals'] + ($team === 'Away' ? $handicap : 0);
 
-        if ($homeAdjusted > $awayAdjusted) return 'Home';
-        if ($awayAdjusted > $homeAdjusted) return 'Away';
+        if ($homeAdjusted > $awayAdjusted)
+            return 'Home';
+        if ($awayAdjusted > $homeAdjusted)
+            return 'Away';
         return 'Draw';
     }
 
@@ -171,29 +182,37 @@ class MarketSettlementService
 
     protected function resolveDoubleChance(array $match): string
     {
-        if ($match['home_winner'] || $match['draw']) return 'Home/Draw';
-        if ($match['away_winner']) return 'Draw/Away';
+        if ($match['home_winner'] || $match['draw'])
+            return 'Home/Draw';
+        if ($match['away_winner'])
+            return 'Draw/Away';
         return 'Home/Away';
     }
 
     protected function resolveFirstHalfWinner(array $match): string
     {
-        if ($match['halftime_home_winner']) return 'Home';
-        if ($match['halftime_away_winner']) return 'Away';
+        if ($match['halftime_home_winner'])
+            return 'Home';
+        if ($match['halftime_away_winner'])
+            return 'Away';
         return 'Draw';
     }
 
     protected function resolveTeamToScoreFirst(array $match): string
     {
-        if ($match['home_scored_first']) return 'Home';
-        if ($match['away_scored_first']) return 'Away';
+        if ($match['home_scored_first'])
+            return 'Home';
+        if ($match['away_scored_first'])
+            return 'Away';
         return 'No Goal';
     }
 
     protected function resolveTeamToScoreLast(array $match): string
     {
-        if ($match['home_scored_last']) return 'Home';
-        if ($match['away_scored_last']) return 'Away';
+        if ($match['home_scored_last'])
+            return 'Home';
+        if ($match['away_scored_last'])
+            return 'Away';
         return 'No Goal';
     }
 
@@ -209,8 +228,10 @@ class MarketSettlementService
 
     protected function resolveDoubleChanceFirstHalf(array $match): string
     {
-        if ($match['halftime_home_winner'] || $match['halftime_draw']) return 'Home/Draw';
-        if ($match['halftime_away_winner']) return 'Draw/Away';
+        if ($match['halftime_home_winner'] || $match['halftime_draw'])
+            return 'Home/Draw';
+        if ($match['halftime_away_winner'])
+            return 'Draw/Away';
         return 'Home/Away';
     }
 
@@ -247,8 +268,10 @@ class MarketSettlementService
     {
         $htHomeWin = $match['home_ht_goals'] > $match['away_ht_goals'];
         $ftHomeWin = $match['home_goals'] > $match['away_goals'];
-        if ($htHomeWin && $ftHomeWin) return 'Home';
-        if (!$htHomeWin && !$ftHomeWin) return 'Away';
+        if ($htHomeWin && $ftHomeWin)
+            return 'Home';
+        if (!$htHomeWin && !$ftHomeWin)
+            return 'Away';
         return null; // draw or split
     }
 
@@ -339,25 +362,22 @@ class MarketSettlementService
 
     protected function updateBetslips(Fixture $fixture): void
     {
-        // Find all betslips that have odds for this fixture and update their status
-        $betslipIds = $fixture->odds()->pluck('betslip_id')->unique();
+        // Find every betslip that has at least one odd belonging to this fixture
+        $betslipIds = DB::table('betslip_odd')
+            ->join('odds', 'odds.id', '=', 'betslip_odd.odd_id')
+            ->where('odds.fixture_id', $fixture->id)
+            ->pluck('betslip_odd.betslip_id')
+            ->unique();
+
+        if ($betslipIds->isEmpty()) {
+            Log::info("Fixture {$fixture->id} settled: no betslips affected.");
+            return;
+        }
 
         foreach ($betslipIds as $betslipId) {
-            $betslip = Betslip::find($betslipId);
-            if (!$betslip) continue;
-
-            $pendingOdds = $betslip->odds()->wherePivot('status', 'pending')->count();
-            if ($pendingOdds > 0) continue; // not all resolved
-
-            $lostOdds = $betslip->odds()->wherePivot('status', 'lost')->count();
-            $isWinner = $lostOdds === 0;
-
-            $betslip->status = 'settled';
-            $betslip->is_winner = $isWinner;
-            $betslip->save();
-
-            // Trigger payout/refund logic here (to be implemented)
-            // $this->settleBetslipTransactions($betslip);
+            BetslipSettlementJob::dispatch($betslipId);
         }
+
+        Log::info("Fixture {$fixture->id} settled: dispatched " . $betslipIds->count() . " betslip settlement jobs.");
     }
 }

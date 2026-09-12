@@ -64,13 +64,13 @@
             </div>
 
             <!-- INSIGHTS BANNER TELEMETRY -->
-            <div
+            <!-- <div
                 v-for="(insight, index) in buyer_data.insights"
                 :key="index"
                 class="flex items-center gap-2.5 rounded border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-[11px] font-bold tracking-wide text-emerald-400 uppercase"
             >
                 <span>SYSTEM_INSIGHT: {{ insight }}</span>
-            </div>
+            </div> -->
 
             <!-- Compact Wallet (Mobile Only) -->
             <div
@@ -115,20 +115,15 @@
 
                     <div class="flex flex-col gap-2 sm:flex-row">
                         <DepositPopover />
-                        <button
-                            type="button"
-                            @click="triggerWithdrawal"
-                            :disabled="isProcessing"
-                            class="flex flex-1 items-center justify-center rounded border border-emerald-500 py-2.5 text-[10px] font-black tracking-widest uppercase"
-                            :class="
-                                Number(buyer_data.wallet.balance) > 0
-                                    ? 'cursor-pointer bg-emerald-500 text-[#070b14] shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all duration-200 hover:bg-transparent hover:text-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.2)] disabled:pointer-events-none disabled:opacity-40'
-                                    : 'text-gray-500'
+
+                        <WithdrawalPopover
+                            :currency="buyer_data.wallet.currency"
+                            :available-balance="
+                                Number(buyer_data.wallet.balance)
                             "
-                        >
-                            <span v-if="isProcessing">// PROCESSING...</span>
-                            <span v-else>WITHDRAW FUNDS (→)</span>
-                        </button>
+                            :disabled="Number(buyer_data.wallet.balance) <= 0"
+                            class="flex-1"
+                        />
                     </div>
 
                     <div
@@ -509,25 +504,19 @@
                                     }}
                                 </div>
                             </div>
-
                             <div class="flex flex-col gap-2 sm:flex-row">
                                 <DepositPopover />
-                                <button
-                                    type="button"
-                                    @click="triggerWithdrawal"
-                                    :disabled="isProcessing"
-                                    class="flex flex-1 items-center justify-center rounded border border-emerald-500 py-2.5 text-[10px] font-black tracking-widest uppercase"
-                                    :class="
-                                        Number(buyer_data.wallet.balance) > 0
-                                            ? 'cursor-pointer bg-emerald-500 text-[#070b14] shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all duration-200 hover:bg-transparent hover:text-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.2)] disabled:pointer-events-none disabled:opacity-40'
-                                            : 'text-gray-500'
+
+                                <WithdrawalPopover
+                                    :currency="buyer_data.wallet.currency"
+                                    :available-balance="
+                                        Number(buyer_data.wallet.balance)
                                     "
-                                >
-                                    <span v-if="isProcessing"
-                                        >// PROCESSING...</span
-                                    >
-                                    <span v-else>WITHDRAW FUNDS (→)</span>
-                                </button>
+                                    :disabled="
+                                        Number(buyer_data.wallet.balance) <= 0
+                                    "
+                                    class="flex-1"
+                                />
                             </div>
 
                             <div
@@ -791,40 +780,28 @@ import BetslipsTable from '@/components/BetslipsTable.vue';
 import FollowingTable from '@/components/FollowingTable.vue';
 import TransactionsTable from '@/components/TransactionsTable.vue';
 import DepositPopover from '@/components/DepositPopover.vue';
+import WithdrawalPopover from '@/components/WithdrawalPopover.vue';
 import { usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
-import axios from 'axios';
+import { computed } from 'vue';
 
 const page = usePage();
 const buyer_data = page.props.buyer_data;
 
-// Map buyer purchases to the format expected by BetslipsTable
 const purchasesForTable = computed(() => {
     return (buyer_data.purchases.recent || []).map((p) => ({
         id: p.id,
         code: p.betslip_code,
-        legs: 0, // we don't have this info; could be derived later
+        legs: p.legs ?? 0,
         total_odds: p.total_odds,
         price: p.price,
-        remaining: 1, // each purchase is one share
+        remaining: 1,
         status: p.status,
-        purchases: 1, // sold count not relevant
+        is_winner: p.is_winner,
+        purchases: 1,
         is_expiring_soon: false,
-        seller_name: p.seller_name, // additional field not used by table but kept
+        seller_name: p.seller_name,
     }));
 });
-
-// Deposit & withdrawal logic (copied from SellerDashboard)
-const isProcessing = ref(false);
-
-async function triggerDeposit() {
-    // This is handled by DepositPopover component, but we keep the function for completeness.
-}
-
-async function triggerWithdrawal() {
-    // Placeholder for withdrawal logic
-    alert('Withdrawal functionality coming soon.');
-}
 </script>
 
 <style scoped>

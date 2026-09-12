@@ -14,10 +14,12 @@ use App\Services\WalletService;
 class SellerDashboardService
 {
     protected WalletService $walletService;
+    protected PlatformFeeService $platformFeeService;
 
-    public function __construct(WalletService $walletService)
+    public function __construct(WalletService $walletService, PlatformFeeService $platformFeeService)
     {
         $this->walletService = $walletService;
+        $this->platformFeeService = $platformFeeService;
     }
 
     /**
@@ -39,12 +41,43 @@ class SellerDashboardService
             'charts' => $this->getChartData($user),
             'quick_stats' => $this->getQuickStats($user),
             'notifications' => $this->getNotifications($user),
+            'fee_tier' => $this->getFeeTier($user)
         ];
     }
 
     /**
      * Get real-time data
      */
+
+    // Somewhere in SellerDashboardService
+    public function getFeeTier(User $seller): array
+    {
+        $totalSales = $this->platformFeeService->getTotalSalesCount($seller);
+        $currentPct = $this->platformFeeService->getFeePercentageFor($seller);
+        $tiers = config('services.betslip_pirates.fee_tiers');
+
+        // Find current tier index
+        $currentIdx = null;
+        foreach ($tiers as $i => $tier) {
+            if ($tier['max'] === null || $totalSales <= $tier['max']) {
+                $currentIdx = $i;
+                break;
+            }
+        }
+
+        $nextTier = $tiers[$currentIdx + 1] ?? null;
+        $currentTier = $tiers[$currentIdx];
+
+        return [
+            'total_sales' => $totalSales,
+            'current_percentage' => $currentPct,
+            'current_tier' => $currentIdx + 1,
+            'next_tier_percentage' => $nextTier['percentage'] ?? null,
+            'sales_until_next_tier' => $nextTier
+                ? max(0, $currentTier['max'] - $totalSales + 1)
+                : null,
+        ];
+    }
     public function getRealtimeData(User $user): array
     {
         return [
@@ -123,8 +156,8 @@ class SellerDashboardService
     public function getBetslipManagement(User $user): array
     {
         $activeBetslips = $user->betslips()
-            ->where('status', 'pending')
-            ->where('remaining', '>', 0)
+            // // ->where('status', 'pending')
+            // ->where('remaining', '>', 0)
             ->withCount('odds as legs')
             ->withCount('purchases as purchases_count')
             ->orderBy('created_at', 'desc')
@@ -145,6 +178,7 @@ class SellerDashboardService
                     'id' => $betslip->id,
                     'code' => $betslip->code,
                     'legs' => $betslip->legs,
+                    'is_winner' => $betslip -> is_winner,
                     'total_odds' => round($betslip->total_odds, 2),
                     'price' => round($betslip->price, 2),
                     'remaining' => $betslip->remaining,

@@ -13,19 +13,25 @@ class Withdrawal extends Model
     protected $fillable = [
         'user_id',
         'reference',
+        'mpesa_conversation_id',
+        'mpesa_originator_conversation_id',
+        'mpesa_receipt',
         'amount',
         'currency',
         'payment_method',
         'destination',
         'status',
-        'metadata',
+        'failure_reason',
+        'paystack_response',
+        'mpesa_response',
         'completed_at',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'destination' => 'array',
-        'metadata' => 'array',
+        'paystack_response' => 'array',
+        'mpesa_response' => 'array',
         'completed_at' => 'datetime',
     ];
 

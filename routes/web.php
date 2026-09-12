@@ -10,6 +10,7 @@ use App\Http\Controllers\FollowController;
 use App\Http\Controllers\SellerDashboardController;
 use App\Http\Controllers\PaystackController;
 use App\Http\Controllers\BuyerDashboardController;
+use App\Http\Controllers\WithdrawalController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,8 @@ Route::get('/profile/{user_code}', [ProfileController::class, 'index'])->name('p
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Route::inertia('dashboard', 'BuyerDashboard')->name('dashboard');
+    Route::post('/withdrawals', [WithdrawalController::class, 'store']);
+
     Route::prefix('betslip')->group(function () {
         Route::post('/store', [BetslipController::class, 'store'])->name('betslip.store');
         Route::get('/success/{code}', [BetslipController::class, 'success'])->name('betslip.success');

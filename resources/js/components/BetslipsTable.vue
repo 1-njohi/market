@@ -28,21 +28,39 @@
                         </span>
                         <span
                             class="rounded border bg-[#0a101f] px-2 py-0.5 font-mono text-xs font-black tracking-wider"
-                            :class="slip.purchases < 1 ? `border-red-500 text-red-500` : `border-green-500 text-green-500`"
+                            :class="
+                                slip.purchases < 1
+                                    ? `border-red-500 text-red-500`
+                                    : `border-green-500 text-green-500`
+                            "
                         >
-                            {{ `${slip.purchases} sold` }}
-                        </span>
-                        <span
+                            {{ `${slip.purchases} sold` }} </span
+                        ><span
+                            v-if="
+                                slip.status === 'pending' ||
+                                slip.status === 'underway'
+                            "
+                            )
                             :class="[
-                                'rounded border px-2 py-0.5 text-[8px] font-black tracking-widest uppercase',
+                                'rounded border px-2 py-0.5 font-mono text-[9px] font-black uppercase',
                                 slip.status === 'pending'
                                     ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-                                    : slip.status === 'won'
-                                      ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
-                                      : 'border-rose-500/20 bg-rose-500/10 text-rose-400',
+                                    : 'border-emerald-500/20 bg-purple-500/10 text-purple-400',
                             ]"
                         >
                             {{ slip.status }}
+                        </span>
+                        
+                        <span
+                            v-else
+                            :class="[
+                                'rounded border px-2 py-0.5 font-mono text-[9px] font-black uppercase',
+                                slip.is_winner
+                                    ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                    : 'border-rose-500/20 bg-rose-500/10 text-rose-400',
+                            ]"
+                        >
+                            {{ slip.is_winner ? 'WON' : 'LOST' }}
                         </span>
                     </div>
 
@@ -178,16 +196,30 @@
 
                             <td class="px-4 py-3.5">
                                 <span
+                                    v-if="
+                                        slip.status === 'pending' ||
+                                        slip.status === 'underway'
+                                    "
+                                    )
                                     :class="[
                                         'rounded border px-2 py-0.5 font-mono text-[9px] font-black uppercase',
                                         slip.status === 'pending'
                                             ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-                                            : slip.status === 'won'
-                                              ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
-                                              : 'border-rose-500/20 bg-rose-500/10 text-rose-400',
+                                            : 'border-emerald-500/20 bg-purple-500/10 text-purple-400',
                                     ]"
                                 >
                                     {{ slip.status }}
+                                </span>
+                                <span
+                                    v-else
+                                    :class="[
+                                        'rounded border px-2 py-0.5 font-mono text-[9px] font-black uppercase',
+                                        slip.is_winner
+                                            ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                            : 'border-rose-500/20 bg-rose-500/10 text-rose-400',
+                                    ]"
+                                >
+                                    {{ slip.is_winner ? 'WON' : 'LOST' }}
                                 </span>
                             </td>
 

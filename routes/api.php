@@ -6,10 +6,15 @@ use Illuminate\Support\Facades\Route;
 use App\Jobs\SettleFixtureJob;
 use App\Models\Fixture;
 
+use App\Http\Controllers\MpesaWithdrawalCallbackController;
+use App\Http\Controllers\WithdrawalController;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+
+Route::post('/withdrawals', [WithdrawalController::class, 'store']);
 
 Route::post('/odds', function (Request $request) {
     // Capture dynamic request inputs or fall back to your example parameters
@@ -267,7 +272,14 @@ Route::get('/settle', function (Request $request) {
 });
 
 
+Route::prefix('mpesa/b2c')->group(function () {
+    Route::post('/result', [MpesaWithdrawalCallbackController::class, 'result']);
+    Route::post('/timeout', [MpesaWithdrawalCallbackController::class, 'timeout']);
+});
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/withdrawals', [WithdrawalController::class, 'store']);
+});
 
 
 
