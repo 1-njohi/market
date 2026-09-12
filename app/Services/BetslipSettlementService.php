@@ -8,6 +8,7 @@ use App\Models\BetslipUserPurchase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Services\LeaderboardService;
 
 class BetslipSettlementService
 {
@@ -129,7 +130,8 @@ class BetslipSettlementService
 
             // Distribute payouts/refunds per purchase
             $this->settlePurchases($betslip, $isWinner);
-
+            // Bust the cached leaderboard so the homepage reflects the new results
+            LeaderboardService::forget(10);
             Log::info("Betslip {$betslip->code} settled as " . ($isWinner ? 'WIN' : 'LOSS') . " ({$won}W/{$lost}L/{$void}V).");
         });
     }
@@ -185,7 +187,7 @@ class BetslipSettlementService
             )
         );
 
-        \Log::info($purchase -> seller);
+        \Log::info($purchase->seller);
 
         // 2. Charge the platform fee
         if ($fee > 0) {

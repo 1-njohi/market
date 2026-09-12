@@ -300,5 +300,8 @@ class User extends Authenticatable implements PasskeyUser
             ->take($limit)
             ->get();
     }
-
+    public function sellerMetric()
+    {
+        return $this->hasOne(\App\Models\SellerMetric::class);
+    }
 }

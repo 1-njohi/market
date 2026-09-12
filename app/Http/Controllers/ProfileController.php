@@ -9,67 +9,55 @@ use App\Models\Betslip;
 use App\Models\BetslipUserPurchase;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+
 class ProfileController extends Controller
 {
     public function index(Request $request)
     {
-
         $data = $this->show($request->user_code);
         return Inertia::render('Profile', [
-            'seller_data' => $data
+            'seller_data' => $data,
         ]);
     }
 
-    /**
-     * Get seller profile data for a user
-     */
     public function show($code)
     {
-        // Find the user by their unique code
         $user = User::where('code', $code)->firstOrFail();
 
-        // Get all their betslips (as seller)
         $betslips = $user->betslips()
-            ->with(['odds', 'odds.fixture', 'odds.market'])
+            ->with(['odds', 'odds.fixture', 'odds.fixture.league', 'odds.market'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Get purchases of their betslips
         $purchases = BetslipUserPurchase::where('seller_id', $user->id)
             ->with(['buyer', 'betslip'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Calculate performance metrics
         $performance = $this->calculatePerformance($betslips, $purchases);
-
-        // Calculate expertise metrics
         $expertise = $this->calculateExpertise($betslips);
-
-        // Get transaction history
         $transactions = $this->getTransactionHistory($user, $purchases);
-
-        // Get available betslips
         $availableBetslips = $this->getAvailableBetslips($user);
-
-        // Calculate predictive metrics
         $predictive = $this->calculatePredictive($betslips);
 
-        // Build the complete profile
         return [
             'seller' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'avatar' => $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->name),
-                'bio' => $user->bio ?? 'Professional sports analyst and predictor.',
+                'code' => $user->code,
+                'avatar' => $user->profile_picture_url
+                    ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->name),
+                'bio' => $user->bio ?? 'Sports analyst and betslip creator.',
                 'member_since' => $user->created_at->format('Y-m-d'),
-                'location' => $user->country_code ?? 'Unknown',
-                'is_verified' => $user->is_verified ?? false,
+                'location' => $user->country_code ?? 'KE',
+                'is_verified' => !is_null($user->email_verified_at),
                 'badges' => $this->getUserBadges($user, $betslips),
-                'followers' => 0,//$user->followers()->count(),
+                'followers' => $user->followers()->count(),
+                'following' => $user->following()->count(),
                 'profile_views' => $user->profile_views ?? 0,
-                'reply_rate' => $this->calculateReplyRate($user),
-                'avg_response_time' => $this->calculateAvgResponseTime($user),
+                'rank' => $this->calculateRank($user),
+                'reply_rate' => null,       // no messages table yet
+                'avg_response_time' => null, // no messages table yet
             ],
             'performance' => $performance,
             'expertise' => $expertise,
@@ -78,60 +66,43 @@ class ProfileController extends Controller
             'available_betslips' => $availableBetslips,
             'meta' => [
                 'is_following' => auth()->check() ? auth()->user()->isFollowing($user) : false,
-                'can_message' => auth()->check(),
+                'can_message' => auth()->check() && auth()->id() !== $user->id,
                 'can_purchase' => auth()->check() && auth()->id() !== $user->id,
-            ]
-
+                'is_owner' => auth()->check() && auth()->id() === $user->id,
+            ],
         ];
     }
 
-    /**
-     * Calculate performance metrics
-     */
+    // ─────────────────────────────────────────────────────────────
+    // Performance
+    // ─────────────────────────────────────────────────────────────
+
     private function calculatePerformance($betslips, $purchases)
     {
         $totalBetslips = $betslips->count();
-        $settledBetslips = $betslips->whereIn('status', ['settled', 'completed']);
-        $wonBetslips = $settledBetslips->where('is_winner', true);
-        $totalRevenue = $purchases->where('status', 'completed')->sum('purchase_price');
-        $totalSold = $purchases->where('status', 'completed')->count();
+        $settled = $betslips->whereIn('status', ['settled', 'completed']);
+        $won = $settled->where('is_winner', true);
+        $lost = $settled->where('is_winner', false);
 
-        // Single pass calculation
-        $stats = $betslips
-            ->whereIn('status', ['settled', 'completed'])
-            ->reduce(function ($carry, $betslip) {
-                if ($betslip->is_winner) {
-                    $carry['won_amount'] += $betslip->total_odds * $betslip->price;
-                } else {
-                    $carry['lost_amount'] += $betslip->price;
-                }
-                return $carry;
-            }, ['won_amount' => 0, 'lost_amount' => 0]);
+        $totalRevenue = $purchases->whereIn('status', ['completed', 'won', 'refunded'])
+            ->sum('purchase_price');
+        $totalSold = $purchases->whereIn('status', ['completed', 'won', 'refunded'])->count();
 
-        $totalWonAmount = $stats['won_amount'];
-        $totalLostAmount = $stats['lost_amount'];
-        $totalStaked = $totalWonAmount + $totalLostAmount;
+        // ROI using the same logic as HomeController
+        $wonAmount = $won->sum(fn($b) => $b->total_odds * $b->price);
+        $lostAmount = $lost->sum('price');
+        $staked = $wonAmount + $lostAmount;
+        $roi = $staked > 0 ? round(($wonAmount / $staked) * 100, 1) : 0;
 
-        // Calculate ROI
-        $roi = $totalStaked > 0
-            ? round(($totalWonAmount / $totalStaked) * 100, 3)
+        $winRate = $settled->count() > 0
+            ? round(($won->count() / $settled->count()) * 100, 1)
             : 0;
 
-        // $purchases->where('status', 'completed')->sum('purchase_price');
-        $totalPayout = $purchases->where('status', 'completed')->sum('potential_payout');
-
-        // Calculate win rate
-        $winRate = $settledBetslips->count() > 0
-            ? round(($wonBetslips->count() / $settledBetslips->count()) * 100, 1)
-            : 0;
-
-        // Calculate average metrics
-        $avgPrice = $purchases->where('status', 'completed')->avg('purchase_price') ?? 0;
+        $avgPrice = $purchases->avg('purchase_price') ?? 0;
         $avgOdds = $betslips->avg('total_odds') ?? 0;
-        $avgLegs = $betslips->avg(function ($betslip) {
-            return $betslip->odds->count();
-        }) ?? 0;
-        // Win rate breakdown by period
+        $avgLegs = $betslips->avg(fn($b) => $b->odds->count()) ?? 0;
+        $avgStake = $betslips->avg('price') ?? 0;
+
         $now = Carbon::now();
         $winRateBreakdown = [
             'last_7_days' => $this->calculateWinRateForPeriod($betslips, $now->copy()->subDays(7)),
@@ -140,214 +111,147 @@ class ProfileController extends Controller
             'all_time' => $winRate,
         ];
 
-        // Recent form (last 5 settled betslips)
-        $recentForm = $betslips
-            ->whereIn('status', ['settled', 'completed'])
-            ->take(5)
-            ->map(function ($betslip) {
-                return [
-                    'status' => $betslip->is_winner ? 'W' : 'L',
-                    'date' => $betslip->created_at->format('Y-m-d')
-                ];
-            })
+        // Recent form — last 10 settled, newest first
+        $recentForm = $settled
+            ->take(10)
+            ->map(fn($b) => [
+                'status' => $b->is_winner ? 'W' : 'L',
+                'date' => $b->created_at->format('Y-m-d'),
+            ])
             ->values()
             ->toArray();
 
-            // $one = array_flip($recentForm);
-            foreach ($recentForm as $rf) {
-                \Log::info($rf);
-            }
+        $streak = $this->calculateCurrentStreak($settled);
 
-        // Win rate trend (daily data for last 6 months)
         $winRateTrend = $this->calculateWinRateTrend($betslips);
 
         return [
             'win_rate' => $winRate,
             'roi' => $roi,
+            'total_betslips' => $totalBetslips,
+            'total_settled' => $settled->count(),
             'total_sold' => $totalSold,
             'sold_rate' => $totalBetslips > 0 ? round(($totalSold / $totalBetslips) * 100, 1) : 0,
             'avg_price' => round($avgPrice, 2),
+            'avg_stake' => round($avgStake, 2),
             'avg_odds' => round($avgOdds, 2),
             'avg_legs' => round($avgLegs, 1),
             'total_revenue' => round($totalRevenue, 2),
-            'total_payout' => round($totalPayout, 2),
+            'total_won_amount' => round($wonAmount, 2),
+            'total_lost_amount' => round($lostAmount, 2),
+            'net_profit' => round($wonAmount - $lostAmount, 2),
+            'current_streak' => $streak,
             'win_rate_breakdown' => $winRateBreakdown,
             'recent_form' => $recentForm,
             'win_rate_trend' => $winRateTrend,
         ];
     }
 
-    /**
-     * Calculate win rate for a specific time period
-     */
     private function calculateWinRateForPeriod($betslips, $since)
     {
-        $periodBetslips = $betslips
+        $period = $betslips
             ->where('created_at', '>=', $since)
             ->whereIn('status', ['settled', 'completed']);
 
-        $total = $periodBetslips->count();
-        $won = $periodBetslips->where('is_winner', true)->count();
+        $total = $period->count();
+        $won = $period->where('is_winner', true)->count();
 
         return $total > 0 ? round(($won / $total) * 100, 1) : 0;
     }
 
+    private function calculateCurrentStreak($settledBetslips): array
+    {
+        $streak = 0;
+        $type = null;
+
+        foreach ($settledBetslips as $betslip) {
+            $isWin = (bool) $betslip->is_winner;
+            if ($type === null) {
+                $type = $isWin ? 'win' : 'loss';
+                $streak = 1;
+            } elseif (($type === 'win' && $isWin) || ($type === 'loss' && !$isWin)) {
+                $streak++;
+            } else {
+                break;
+            }
+        }
+
+        return ['count' => $streak, 'type' => $type];
+    }
+
     /**
-     * Calculate win rate trend data
+     * Daily aggregation over the last 90 days: value = net profit/loss that day.
+     * Returns [{date, value, label, summary}]
      */
     private function calculateWinRateTrend($betslips)
     {
-        $trendData = [];
-        $startDate = Carbon::now()->subMonths(3);
-        $endDate = Carbon::now();
-
-        // Group betslips by day
         $grouped = $betslips
             ->whereIn('status', ['settled', 'completed'])
-            ->groupBy(function ($betslip) {
-                return $betslip->created_at->format('Y-m-d');
-            });
+            ->groupBy(fn($b) => $b->created_at->format('Y-m-d'));
 
-        // Generate daily data
-        $currentDate = clone $startDate;
-        while ($currentDate <= $endDate) {
-            $dateKey = $currentDate->format('Y-m-d');
-            $dayBetslips = $grouped->get($dateKey, collect());
+        $trendData = [];
+        $start = Carbon::now()->subDays(89);
+        $end = Carbon::now();
 
-            // Separate won and lost betslips
-            $wonBetslips = $dayBetslips->where('is_winner', true);
-            $lostBetslips = $dayBetslips->where('is_winner', false);
+        for ($d = clone $start; $d <= $end; $d->addDay()) {
+            $key = $d->format('Y-m-d');
+            $dayBetslips = $grouped->get($key, collect());
 
-            // Basic counts
-            $totalBets = $dayBetslips->count();
-            $totalWon = $wonBetslips->count();
-            $totalLost = $lostBetslips->count();
-            
-            // Financial calculations
-            $totalWonOddsSum = $wonBetslips->sum(function ($betslip) {
-                return $betslip->total_odds * $betslip->price;
-            });
+            $won = $dayBetslips->where('is_winner', true);
+            $lost = $dayBetslips->where('is_winner', false);
 
-            $totalLostPriceSum = $lostBetslips->sum('price');
-            $netProfit = $totalWonOddsSum - $totalLostPriceSum;
-
-            // Additional metrics
-            $totalStaked = $dayBetslips->sum('price');
-            $averageOdds = $dayBetslips->avg('total_odds') ?? 0;
-            $averagePrice = $dayBetslips->avg('price') ?? 0;
-            $averageLegs = $dayBetslips->avg(function ($betslip) {
-                return $betslip->odds->count();
-            }) ?? 0;
-
-            // Best and worst performing betslips of the day
-            $bestBetslip = $dayBetslips->sortByDesc(function ($betslip) {
-                return $betslip->is_winner ? $betslip->total_odds * $betslip->price : -$betslip->price;
-            })->first();
-
-            $worstBetslip = $dayBetslips->sortBy(function ($betslip) {
-                return $betslip->is_winner ? $betslip->total_odds * $betslip->price : -$betslip->price;
-            })->first();
-
-            // Market distribution for the day
-            $marketDistribution = $dayBetslips->flatMap(function ($betslip) {
-                return $betslip->odds->pluck('market_id');
-            })->countBy()->map(function ($count, $marketId) {
-                return [
-                    'market_id' => $marketId,
-                    'count' => $count
-                ];
-            })->values()->toArray();
-
-            // Win rate for the day
-            $dailyWinRate = $totalBets > 0 ? round(($totalWon / $totalBets) * 100, 1) : 0;
+            $wonAmount = $won->sum(fn($b) => $b->total_odds * $b->price);
+            $lostAmount = $lost->sum('price');
+            $net = $wonAmount - $lostAmount;
 
             $trendData[] = [
-                'date' => $dateKey,
-                'day_of_week' => $currentDate->format('l'),
-                'value' => round($netProfit, 1),
+                'date' => $key,
+                'value' => round($net, 2),
                 'label' => sprintf(
-                    "Total Bets: %d (Won: %d / Lost: %d) | Net: %+.2f",
-                    $totalBets,
-                    $totalWon,
-                    $totalLost,
-                    $netProfit
+                    'Bets: %d (W:%d / L:%d) — Net KES %+.2f',
+                    $dayBetslips->count(),
+                    $won->count(),
+                    $lost->count(),
+                    $net
                 ),
                 'summary' => [
-                    'total_bets' => $totalBets,
-                    'total_won' => $totalWon,
-                    'total_lost' => $totalLost,
-                    'win_rate' => $dailyWinRate,
-                    'net_profit' => round($netProfit, 2),
-                    'total_staked' => round($totalStaked, 2),
-                    'total_won_amount' => round($totalWonOddsSum, 2),
-                    'total_lost_amount' => round($totalLostPriceSum, 2),
+                    'total_bets' => $dayBetslips->count(),
+                    'total_won' => $won->count(),
+                    'total_lost' => $lost->count(),
+                    'net_profit' => round($net, 2),
+                    'total_staked' => round($dayBetslips->sum('price'), 2),
                 ],
-                'averages' => [
-                    'odds' => round($averageOdds, 2),
-                    'price' => round($averagePrice, 2),
-                    'legs' => round($averageLegs, 1),
-                ],
-                'performance' => [
-                    'best_betslip' => $bestBetslip ? [
-                        'id' => $bestBetslip->id,
-                        'code' => $bestBetslip->code,
-                        'odds' => round($bestBetslip->total_odds, 2),
-                        'price' => round($bestBetslip->price, 2),
-                        'is_winner' => $bestBetslip->is_winner,
-                        'profit' => $bestBetslip->is_winner
-                            ? round($bestBetslip->total_odds * $bestBetslip->price, 2)
-                            : -round($bestBetslip->price, 2),
-                    ] : null,
-                    'worst_betslip' => $worstBetslip ? [
-                        'id' => $worstBetslip->id,
-                        'code' => $worstBetslip->code,
-                        'odds' => round($worstBetslip->total_odds, 2),
-                        'price' => round($worstBetslip->price, 2),
-                        'is_winner' => $worstBetslip->is_winner,
-                        'profit' => $worstBetslip->is_winner
-                            ? round($worstBetslip->total_odds * $worstBetslip->price, 2)
-                            : -round($worstBetslip->price, 2),
-                    ] : null,
-                ],
-                'market_distribution' => $marketDistribution,
             ];
-
-            $currentDate->addDay();
         }
 
-        // Calculate summary
         $values = array_column($trendData, 'value');
-        $winningDays = count(array_filter($values, function ($v) {
-            return $v > 0;
-        }));
-        $losingDays = count(array_filter($values, function ($v) {
-            return $v < 0;
-        }));
-        $neutralDays = count(array_filter($values, function ($v) {
-            return $v == 0;
-        }));
 
         return [
             'data' => $trendData,
             'summary' => [
                 'total_days' => count($trendData),
-                'winning_days' => $winningDays,
-                'losing_days' => $losingDays,
-                'neutral_days' => $neutralDays,
+                'winning_days' => count(array_filter($values, fn($v) => $v > 0)),
+                'losing_days' => count(array_filter($values, fn($v) => $v < 0)),
+                'neutral_days' => count(array_filter($values, fn($v) => $v == 0)),
                 'best_day' => $trendData[array_search(max($values), $values)] ?? null,
                 'worst_day' => $trendData[array_search(min($values), $values)] ?? null,
-            ]
+            ],
         ];
     }
 
-    /**
-     * Calculate expertise metrics
-     */
+    // ─────────────────────────────────────────────────────────────
+    // Expertise
+    // ─────────────────────────────────────────────────────────────
+
     private function calculateExpertise($betslips)
     {
-        // Top markets
+        $settled = $betslips->whereIn('status', ['settled', 'completed']);
+        $won = $settled->where('is_winner', true);
+        $lost = $settled->where('is_winner', false);
+
+        // ─── Top Markets ───
         $marketStats = [];
-        foreach ($betslips as $betslip) {
+        foreach ($settled as $betslip) {
             foreach ($betslip->odds as $odd) {
                 $marketId = $odd->market_id;
                 if (!isset($marketStats[$marketId])) {
@@ -355,26 +259,30 @@ class ProfileController extends Controller
                         'market_name' => $odd->market->name ?? 'Unknown',
                         'total' => 0,
                         'won' => 0,
+                        'won_amount' => 0,
+                        'lost_amount' => 0,
                         'betslips' => [],
                     ];
                 }
                 $marketStats[$marketId]['total']++;
                 if ($betslip->is_winner) {
                     $marketStats[$marketId]['won']++;
+                    $marketStats[$marketId]['won_amount'] += $betslip->total_odds * $betslip->price;
+                } else {
+                    $marketStats[$marketId]['lost_amount'] += $betslip->price;
                 }
                 $marketStats[$marketId]['betslips'][] = $betslip->id;
             }
         }
 
         $topMarkets = collect($marketStats)
-            ->map(function ($stats) {
-                $total = $stats['total'];
-                $won = $stats['won'];
+            ->map(function ($s) {
+                $staked = $s['won_amount'] + $s['lost_amount'];
                 return [
-                    'market_name' => $stats['market_name'],
-                    'win_rate' => $total > 0 ? round(($won / $total) * 100, 1) : 0,
-                    'betslips' => count(array_unique($stats['betslips'])),
-                    'roi' => round(rand(10, 30), 1), // Calculate from actual data
+                    'market_name' => $s['market_name'],
+                    'win_rate' => $s['total'] > 0 ? round(($s['won'] / $s['total']) * 100, 1) : 0,
+                    'betslips' => count(array_unique($s['betslips'])),
+                    'roi' => $staked > 0 ? round(($s['won_amount'] / $staked) * 100, 1) : 0,
                 ];
             })
             ->sortByDesc('win_rate')
@@ -382,39 +290,44 @@ class ProfileController extends Controller
             ->values()
             ->toArray();
 
-        // Top leagues
+        // ─── Top Leagues ───
         $leagueStats = [];
-        foreach ($betslips as $betslip) {
+        foreach ($settled as $betslip) {
             foreach ($betslip->odds as $odd) {
                 $fixture = $odd->fixture;
-                if ($fixture && $fixture->league) {
-                    $leagueId = $fixture->league_id;
-                    if (!isset($leagueStats[$leagueId])) {
-                        $leagueStats[$leagueId] = [
-                            'league_name' => $fixture->league->name ?? 'Unknown',
-                            'total' => 0,
-                            'won' => 0,
-                            'betslips' => [],
-                        ];
-                    }
-                    $leagueStats[$leagueId]['total']++;
-                    if ($betslip->is_winner) {
-                        $leagueStats[$leagueId]['won']++;
-                    }
-                    $leagueStats[$leagueId]['betslips'][] = $betslip->id;
+                if (!$fixture || !$fixture->league)
+                    continue;
+
+                $leagueId = $fixture->league_id;
+                if (!isset($leagueStats[$leagueId])) {
+                    $leagueStats[$leagueId] = [
+                        'league_name' => $fixture->league->name ?? 'Unknown',
+                        'total' => 0,
+                        'won' => 0,
+                        'won_amount' => 0,
+                        'lost_amount' => 0,
+                        'betslips' => [],
+                    ];
                 }
+                $leagueStats[$leagueId]['total']++;
+                if ($betslip->is_winner) {
+                    $leagueStats[$leagueId]['won']++;
+                    $leagueStats[$leagueId]['won_amount'] += $betslip->total_odds * $betslip->price;
+                } else {
+                    $leagueStats[$leagueId]['lost_amount'] += $betslip->price;
+                }
+                $leagueStats[$leagueId]['betslips'][] = $betslip->id;
             }
         }
 
         $topLeagues = collect($leagueStats)
-            ->map(function ($stats) {
-                $total = $stats['total'];
-                $won = $stats['won'];
+            ->map(function ($s) {
+                $staked = $s['won_amount'] + $s['lost_amount'];
                 return [
-                    'league_name' => $stats['league_name'],
-                    'win_rate' => $total > 0 ? round(($won / $total) * 100, 1) : 0,
-                    'betslips' => count(array_unique($stats['betslips'])),
-                    'roi' => round(rand(10, 30), 1), // Calculate from actual data
+                    'league_name' => $s['league_name'],
+                    'win_rate' => $s['total'] > 0 ? round(($s['won'] / $s['total']) * 100, 1) : 0,
+                    'betslips' => count(array_unique($s['betslips'])),
+                    'roi' => $staked > 0 ? round(($s['won_amount'] / $staked) * 100, 1) : 0,
                 ];
             })
             ->sortByDesc('win_rate')
@@ -422,7 +335,7 @@ class ProfileController extends Controller
             ->values()
             ->toArray();
 
-        // Odds distribution
+        // ─── Odds Distribution ───
         $oddsDistribution = [
             'low' => ['range' => '1.1-2.0', 'count' => 0, 'won' => 0],
             'medium' => ['range' => '2.1-5.0', 'count' => 0, 'won' => 0],
@@ -430,9 +343,8 @@ class ProfileController extends Controller
             'very_high' => ['range' => '10.0+', 'count' => 0, 'won' => 0],
         ];
 
-        foreach ($betslips as $betslip) {
-            $odds = $betslip->total_odds ?? 0;
-            $range = $this->getOddsRange($odds);
+        foreach ($settled as $betslip) {
+            $range = $this->getOddsRange($betslip->total_odds ?? 0);
             if (isset($oddsDistribution[$range])) {
                 $oddsDistribution[$range]['count']++;
                 if ($betslip->is_winner) {
@@ -441,22 +353,16 @@ class ProfileController extends Controller
             }
         }
 
-        $oddsDistribution = collect($oddsDistribution)->map(function ($stats, $key) {
-            $total = $stats['count'];
-            $won = $stats['won'];
+        $totalBetslips = array_sum(array_column($oddsDistribution, 'count'));
+
+        $oddsDistribution = collect($oddsDistribution)->map(function ($s) use ($totalBetslips) {
             return [
-                'range' => $stats['range'],
-                'percentage' => 0, // Will calculate below
-                'win_rate' => $total > 0 ? round(($won / $total) * 100, 1) : 0,
-                'betslips' => $total,
+                'range' => $s['range'],
+                'percentage' => $totalBetslips > 0 ? round(($s['count'] / $totalBetslips) * 100, 1) : 0,
+                'win_rate' => $s['count'] > 0 ? round(($s['won'] / $s['count']) * 100, 1) : 0,
+                'betslips' => $s['count'],
             ];
         })->toArray();
-
-        // Calculate percentages
-        $totalBetslips = array_sum(array_column($oddsDistribution, 'betslips'));
-        foreach ($oddsDistribution as &$dist) {
-            $dist['percentage'] = $totalBetslips > 0 ? round(($dist['betslips'] / $totalBetslips) * 100, 1) : 0;
-        }
 
         return [
             'top_markets' => $topMarkets,
@@ -465,9 +371,6 @@ class ProfileController extends Controller
         ];
     }
 
-    /**
-     * Get odds range
-     */
     private function getOddsRange($odds)
     {
         if ($odds <= 2.0)
@@ -479,27 +382,25 @@ class ProfileController extends Controller
         return 'very_high';
     }
 
-    /**
-     * Get transaction history
-     */
+    // ─────────────────────────────────────────────────────────────
+    // Transaction history, available betslips, predictive
+    // ─────────────────────────────────────────────────────────────
+
     private function getTransactionHistory($user, $purchases)
     {
-        $recentSales = $purchases
-            ->take(5)
-            ->map(function ($purchase) {
-                return [
-                    'code' => $purchase->betslip->code ?? 'N/A',
-                    'odds' => round($purchase->betslip->total_odds ?? 0, 2),
-                    'price' => round($purchase->purchase_price, 2),
-                    'result' => $purchase->betslip->is_winner ? 'won' : ($purchase->betslip->status === 'pending' ? 'pending' : 'lost'),
-                    'date' => $purchase->created_at->toISOString(),
-                    'legs' => $purchase->betslip->odds->count(),
-                ];
-            })
-            ->values()
-            ->toArray();
+        $recentSales = $purchases->take(5)->map(function ($p) {
+            return [
+                'code' => $p->betslip->code ?? 'N/A',
+                'odds' => round($p->betslip->total_odds ?? 0, 2),
+                'price' => round($p->purchase_price, 2),
+                'result' => $p->betslip->is_winner
+                    ? 'won'
+                    : ($p->betslip->status === 'pending' ? 'pending' : 'lost'),
+                'date' => $p->created_at->toISOString(),
+                'legs' => $p->betslip->odds->count(),
+            ];
+        })->values()->toArray();
 
-        // Quick stats
         $now = Carbon::now();
         $thisWeek = $purchases->where('created_at', '>=', $now->copy()->startOfWeek());
         $thisMonth = $purchases->where('created_at', '>=', $now->copy()->startOfMonth());
@@ -507,141 +408,102 @@ class ProfileController extends Controller
         return [
             'recent_sales' => $recentSales,
             'quick_stats' => [
-                'last_sale' => $purchases->first() ? $purchases->first()->created_at->diffForHumans() : 'No sales',
+                'last_sale' => $purchases->first()
+                    ? $purchases->first()->created_at->diffForHumans()
+                    : 'No sales',
                 'sales_this_week' => $thisWeek->count(),
                 'sales_this_month' => $thisMonth->count(),
                 'avg_time_to_sell' => round($this->calculateAvgTimeToSell($purchases)),
-            ]
+            ],
         ];
     }
 
-    /**
-     * Get available betslips
-     */
     private function getAvailableBetslips($user)
     {
         return $user->betslips()
             ->where('status', 'pending')
             ->where('remaining', '>', 0)
             ->withCount('odds as legs')
-            // ->take()
+            ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($betslip) {
+            ->map(function ($b) {
                 return [
-                    'id' => $betslip->id,
-                    'code' => $betslip->code,
-                    'total_odds' => round($betslip->total_odds, 2),
-                    'price' => round($betslip->price, 2),
-                    'legs' => $betslip->legs,
-                    'remaining' => $betslip->remaining,
-                    'created_at' => $betslip->created_at->toISOString(),
+                    'id' => $b->id,
+                    'code' => $b->code,
+                    'total_odds' => round($b->total_odds, 2),
+                    'price' => round($b->price, 2),
+                    'legs' => $b->legs,
+                    'remaining' => $b->remaining,
+                    'created_at' => $b->created_at->toISOString(),
                 ];
             })
             ->toArray();
     }
 
-    /**
-     * Calculate predictive metrics
-     */
     private function calculatePredictive($betslips)
     {
         $settled = $betslips->whereIn('status', ['settled', 'completed']);
         $total = $settled->count();
-        $won = $settled->where('is_winner', true)->count();
-
-        // Projected win rate based on recent performance (last 30 days)
         $recentWinRate = $this->calculateWinRateForPeriod($betslips, Carbon::now()->subDays(30));
-
-        // Calculate confidence score based on sample size
         $confidence = min(95, 50 + ($total * 0.5));
 
-        // Calculate risk level
         $riskLevel = 'Medium';
         if ($recentWinRate > 70)
             $riskLevel = 'Low';
         if ($recentWinRate < 55)
             $riskLevel = 'High';
 
-        // Best times based on historical performance
-        $bestTimes = $this->calculateBestTimes($betslips);
-
         return [
             'projected_win_rate' => round($recentWinRate, 1),
-            'confidence_score' => round(min($confidence, 95), 1),
+            'confidence_score' => round($confidence, 1),
             'risk_level' => $riskLevel,
-            'best_times' => $bestTimes,
+            'best_times' => $this->calculateBestTimes($settled),
         ];
     }
 
-    /**
-     * Calculate best times based on historical data
-     */
-    private function calculateBestTimes($betslips)
+    private function calculateBestTimes($settled)
     {
         $dayStats = [];
-        foreach ($betslips as $betslip) {
-            $day = $betslip->created_at->format('l');
-            if (!isset($dayStats[$day])) {
+        foreach ($settled as $b) {
+            $day = $b->created_at->format('l');
+            if (!isset($dayStats[$day]))
                 $dayStats[$day] = ['total' => 0, 'won' => 0];
-            }
             $dayStats[$day]['total']++;
-            if ($betslip->is_winner) {
+            if ($b->is_winner)
                 $dayStats[$day]['won']++;
-            }
         }
 
         return collect($dayStats)
-            ->map(function ($stats, $day) {
-                return [
-                    'day' => $day,
-                    'win_rate' => $stats['total'] > 0 ? round(($stats['won'] / $stats['total']) * 100, 1) : 0,
-                    'betslips' => $stats['total'],
-                ];
-            })
+            ->map(fn($s, $day) => [
+                'day' => $day,
+                'win_rate' => $s['total'] > 0 ? round(($s['won'] / $s['total']) * 100, 1) : 0,
+                'betslips' => $s['total'],
+            ])
             ->sortByDesc('win_rate')
             ->take(3)
             ->values()
             ->toArray();
     }
 
-    /**
-     * Calculate reply rate
-     */
-    private function calculateReplyRate($user)
-    {
-        // Assuming you have a messages table
-        // $received = $user->receivedMessages()->count();
-        // $replied = $user->receivedMessages()->whereNotNull('replied_at')->count();
-        // return $received > 0 ? round(($replied / $received) * 100) : 0;
-        return rand(85, 98);
-    }
-
-    /**
-     * Calculate average response time
-     */
-    private function calculateAvgResponseTime($user)
-    {
-        // Assuming you have a messages table with response times
-        // return round($user->receivedMessages()->avg('response_time'));
-        return rand(5, 30);
-    }
-
-    /**
-     * Calculate average time to sell
-     */
     private function calculateAvgTimeToSell($purchases)
     {
-        // Calculate average time between betslip creation and purchase
-        $times = $purchases->map(function ($purchase) {
-            return $purchase->created_at->diffInMinutes($purchase->betslip->created_at);
+        $times = $purchases->map(function ($p) {
+            return $p->created_at->diffInMinutes($p->betslip->created_at);
         });
-
         return $times->avg() ?? 0;
     }
 
-    /**
-     * Get user badges
-     */
+    private function calculateRank(User $user): ?int
+    {
+        $metric = $user->sellerMetric;
+        if (!$metric)
+            return null;
+
+        return User::whereHas('sellerMetric', function ($q) use ($metric) {
+            $q->where('roi', '>', $metric->roi);
+        })->count() + 1;
+    }
+
     private function getUserBadges($user, $betslips)
     {
         $badges = [];
@@ -649,7 +511,7 @@ class ProfileController extends Controller
         $totalSold = $user->betslips()->where('status', 'sold')->count();
         if ($totalSold >= 50)
             $badges[] = 'Gold Seller';
-        if ($totalSold >= 10)
+        elseif ($totalSold >= 10)
             $badges[] = 'Silver Seller';
 
         $settled = $betslips->whereIn('status', ['settled', 'completed']);
@@ -661,13 +523,11 @@ class ProfileController extends Controller
         if ($winRate >= 75)
             $badges[] = 'Top 10% Seller';
 
-        // Check for hot streak (5+ consecutive wins)
-        $recent = $betslips->whereIn('status', ['settled', 'completed'])->take(10);
+        // Hot streak: 5+ consecutive wins
         $streak = 0;
-        foreach ($recent as $betslip) {
-            if ($betslip->is_winner) {
-                $streak++;
-                if ($streak >= 5) {
+        foreach ($settled as $b) {
+            if ($b->is_winner) {
+                if (++$streak >= 5) {
                     $badges[] = '🔥 Hot Streak';
                     break;
                 }
@@ -676,7 +536,6 @@ class ProfileController extends Controller
             }
         }
 
-        return array_unique($badges);
+        return array_values(array_unique($badges));
     }
-
 }

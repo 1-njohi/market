@@ -1,193 +1,123 @@
 <template>
     <div
-        class="flex w-full flex-col items-start gap-3 rounded-xl border border-marketplace-border bg-marketplace-card p-4 shadow-lg transition-shadow hover:shadow-xl sm:flex-row sm:items-center sm:gap-4"
+        :class="[
+            'flex cursor-pointer items-center justify-between gap-3 rounded-xl border p-4 shadow-lg transition-all hover:shadow-xl',
+            highlighted
+                ? 'border-marketplace-gold/50 bg-marketplace-gold/5'
+                : 'border-marketplace-border bg-marketplace-card hover:bg-marketplace-card/80',
+        ]"
     >
-        <!-- LEFT: Avatar + Name + Badges -->
-        <div class="flex w-full items-center gap-3 sm:w-auto sm:flex-1">
-            <!-- Avatar -->
+        <!-- ═══ LEFT: Rank + Avatar + Info ═══ -->
+        <div class="flex min-w-0 flex-1 items-center space-x-3">
+            <!-- Rank badge -->
             <div
-                class="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border-2 border-marketplace-gold/30 bg-marketplace-gold/10"
+                v-if="rank"
+                :class="[
+                    'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-sm font-black',
+                    rank === 1
+                        ? 'border-marketplace-gold bg-marketplace-gold/20 text-marketplace-gold'
+                        : rank === 2
+                          ? 'border-slate-300/40 bg-slate-300/10 text-slate-200'
+                          : rank === 3
+                            ? 'border-amber-600/40 bg-amber-600/10 text-amber-500'
+                            : 'border-marketplace-border bg-marketplace-card/60 text-marketplace-muted',
+                ]"
             >
-                <img
-                    v-if="leader.avatar"
-                    :src="leader.avatar"
-                    :alt="leader.name"
-                    class="h-full w-full object-cover"
-                />
-                
-                <span
-                    v-else
-                    class="flex h-full w-full items-center justify-center text-sm font-bold text-marketplace-gold"
-                >
-                    {{ leader.name.substring(0, 2).toUpperCase() }}
-                </span>
-                <!-- Streak indicator ring (optional) -->
-                <div
-                    v-if="leader.streak > 0"
-                    class="absolute -bottom-0.5 -right-0.5 rounded-full border-2 border-marketplace-bg bg-marketplace-green px-1 text-[8px] font-black text-white"
-                >
-                    {{ leader.streak }}
-                </div>
+                {{ rank }}
             </div>
 
-            <!-- Name + Badges -->
-            <div class="flex flex-1 flex-col overflow-hidden">
+            <!-- Avatar -->
+            <div
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-marketplace-gold/30 bg-marketplace-gold/10"
+            >
+                <img
+                    :src="leader.avatar"
+                    :alt="leader.name"
+                    class="h-full w-full rounded-full object-cover"
+                />
+            </div>
+
+            <!-- Name + ROI/WR -->
+            <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
                     <h4
-                        class="truncate text-sm font-extrabold tracking-wide text-white"
+                        class="truncate text-xs font-bold tracking-wider text-white uppercase"
                     >
                         {{ leader.name }}
                     </h4>
                     <span
                         v-if="leader.streak > 0"
-                        class="rounded-full bg-marketplace-green/20 px-2 py-0.5 text-[8px] font-black tracking-wider text-marketplace-green uppercase"
+                        class="flex flex-shrink-0 items-center gap-0.5 rounded bg-marketplace-green/10 px-1.5 py-0.5 text-[9px] font-black text-marketplace-green uppercase"
+                        :title="`${leader.streak} win streak`"
                     >
-                        🔥 {{ leader.streak }} streak
+                        🔥 {{ leader.streak }}
                     </span>
                 </div>
-
-                <!-- Badges -->
-                <div v-if="leader.badges && leader.badges.length" class="mt-1 flex flex-wrap items-center gap-1.5">
-                    <div
-                        v-for="(badge, idx) in visibleBadges"
-                        :key="idx"
-                        class="flex items-center gap-0.5 rounded-full border border-marketplace-gold/20 bg-marketplace-gold/10 px-1.5 py-0.5"
-                        :title="badge.name + ' · ' + formatDate(badge.created_at)"
-                    >
-                        <img
-                            v-if="badge.avatar"
-                            :src="badge.avatar"
-                            class="h-4 w-4 rounded-full object-cover"
-                        />
-                        <span
-                            v-else
-                            class="text-[8px] font-black tracking-wider text-marketplace-gold"
-                        >
-                            {{ badge.name.substring(0, 1) }}
-                        </span>
-                        <span class="text-[8px] font-bold text-marketplace-gold/80">
-                            {{ badge.name }}
-                        </span>
-                    </div>
+                <div
+                    class="mt-0.5 flex items-center space-x-1 text-[10px] font-semibold tracking-wide text-marketplace-muted uppercase"
+                >
                     <span
-                        v-if="leader.badges.length > maxVisibleBadges"
-                        class="text-[8px] font-bold text-marketplace-muted"
+                        >ROI:
+                        <span class="font-bold text-marketplace-green"
+                            >+{{ leader.roi }}%</span
+                        ></span
                     >
-                        +{{ leader.badges.length - maxVisibleBadges }}
-                    </span>
+                    <span class="text-marketplace-border">•</span>
+                    <span
+                        >WR:
+                        <span class="font-bold text-marketplace-gold"
+                            >{{ leader.win_rate }}%</span
+                        ></span
+                    >
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT: Stats + Recent Form -->
-        <div class="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:flex-nowrap">
-            <!-- Stats -->
-            <div class="flex flex-1 items-center gap-3 sm:flex-nowrap">
-                <div class="text-center">
-                    <div class="text-[10px] font-bold uppercase text-marketplace-muted">ROI</div>
-                    <div class="text-sm font-black text-marketplace-green">
-                        +{{ leader.roi }}%
-                    </div>
-                </div>
-                <div class="text-center">
-                    <div class="text-[10px] font-bold uppercase text-marketplace-muted">Win Rate</div>
-                    <div class="text-sm font-black text-marketplace-gold">
-                        {{ leader.win_rate }}%
-                    </div>
-                </div>
-                <div class="text-center">
-                    <div class="text-[10px] font-bold uppercase text-marketplace-muted">Active</div>
-                    <div class="text-sm font-black text-white">
-                        {{ leader.active_tips }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Form Heatmap -->
-            <div class="flex flex-col items-end">
-                <div class="flex space-x-1">
-                    <span
-                        v-for="(status, index) in flippedRecentForm"
-                        :key="index"
-                        :class="[
-                            'h-3.5 w-3.5 rounded-sm border',
-                            status === 'W'
-                                ? 'border-marketplace-green bg-marketplace-green/20'
-                                : status === 'L'
-                                  ? 'border-red-500/60 bg-red-500/20'
-                                  : 'border-marketplace-border bg-marketplace-border/30',
-                        ]"
-                        :title="
-                            status === 'W'
-                                ? 'Won'
-                                : status === 'L'
-                                  ? 'Lost'
-                                  : 'No Bet'
-                        "
-                    ></span>
-                </div>
+        <!-- ═══ RIGHT: Mini Heatmap ═══ -->
+        <div class="flex flex-shrink-0 flex-col items-end">
+            <div class="flex space-x-1">
                 <span
-                    class="mt-0.5 text-[8px] font-bold tracking-wider text-marketplace-muted uppercase"
-                >
-                    Form
-                </span>
+                    v-for="(status, i) in (leader.recent_form || []).slice(0, 6)"
+                    :key="i"
+                    :class="[
+                        'h-3 w-3 rounded-sm border',
+                        status === 'W'
+                            ? 'border-marketplace-green bg-marketplace-green/20'
+                            : status === 'L'
+                              ? 'border-red-500/60 bg-red-500/20'
+                              : 'border-marketplace-border bg-marketplace-border/30',
+                    ]"
+                    :title="
+                        status === 'W'
+                            ? 'Won'
+                            : status === 'L'
+                              ? 'Lost'
+                              : 'Pending'
+                    "
+                ></span>
             </div>
+            <span
+                class="mt-1 text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
+            >
+                Recent Form
+            </span>
         </div>
     </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
-const props = defineProps({
+defineProps({
     leader: {
         type: Object,
         required: true,
-        validator: (obj) => {
-            return (
-                obj.name &&
-                typeof obj.roi === 'number' &&
-                typeof obj.win_rate === 'number' &&
-                typeof obj.streak === 'number' &&
-                typeof obj.active_tips === 'number' &&
-                (typeof obj.recent_form === 'string' || Array.isArray(obj.recent_form))
-            );
-        },
+    },
+    rank: {
+        type: Number,
+        default: null,
+    },
+    highlighted: {
+        type: Boolean,
+        default: false,
     },
 });
-
-// Parse recent_form: it's a string like "L, W, W, W, W, L, W"
-// We'll split and trim, and reverse to show most recent first.
-const recentFormArray = computed(() => {
-    if (!props.leader.recent_form) return [];
-    if (Array.isArray(props.leader.recent_form)) {
-        return props.leader.recent_form.map(s => s.trim());
-    }
-    return props.leader.recent_form.split(',').map(s => s.trim());
-});
-
-// Reverse to show latest on the right (most recent first?)
-// The original component reversed, but we want latest on the right for chronological reading.
-// But they used reverse(), so we'll do the same: reverse to show recent form from oldest to newest? Actually they reversed and displayed left-to-right, so the leftmost is the oldest.
-// We'll keep the same logic: reverse the array so the first item is the oldest, last is newest, and they display left-to-right.
-const flippedRecentForm = computed(() => {
-    return [...recentFormArray.value].reverse();
-});
-
-// Badges: show max 3 visible, plus count
-const maxVisibleBadges = 3;
-const visibleBadges = computed(() => {
-    if (!props.leader.badges) return [];
-    return props.leader.badges.slice(0, maxVisibleBadges);
-});
-
-// Helper to format date for tooltip
-const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    try {
-        return new Date(dateStr).toLocaleDateString();
-    } catch {
-        return dateStr;
-    }
-};
 </script>

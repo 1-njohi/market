@@ -6,20 +6,26 @@ use App\Models\Fixture;
 use App\Models\Betslip;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Services\LeaderboardService;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        protected LeaderboardService $leaderboardService,
+    ) {
+    }
+
     public function index()
     {
         $betSlips = $this->getBetslips();
-
         $mappedFixtures = $this->getFixtures();
-        return \Inertia\Inertia::render('Welcome', [
+
+        return Inertia::render('Welcome', [
             'fixtures' => $mappedFixtures,
-            'bet_slips' => $betSlips
+            'bet_slips' => $betSlips,
+            'leaders' => $this->leaderboardService->getTopSellers(10),
         ]);
     }
-
     private function getFixtures()
     {
         // 1. Get the local market IDs for the markets we care about

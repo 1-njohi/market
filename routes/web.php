@@ -13,7 +13,11 @@ use App\Http\Controllers\BuyerDashboardController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SellerLookupController;
 use Illuminate\Support\Facades\Route;
+
+// routes/api.php
+Route::get('/sellers/lookup', [SellerLookupController::class, 'show']);
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/fixture/{id}', [FixtureController::class, 'index'])->name('fixture');

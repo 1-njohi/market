@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->string('logo')->nullable();
             $table->string('flag')->nullable();
             $table->integer('season')->nullable();
+            $table->integer('priority')->nullable();
             $table->string('round')->nullable();
             $table->boolean('standings')->default(false);
             $table->timestamps();
