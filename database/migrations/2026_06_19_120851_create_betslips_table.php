@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::createIfNotExistsIfNotExists('betslips', function (Blueprint $table) {
+        Schema::createIfNotExists('betslips', function (Blueprint $table) {
             $table->uuid('id')->primary()->unique();
             $table->unsignedBigInteger('user_id')->index();
             $table->string('code')->unique();

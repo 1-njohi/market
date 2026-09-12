@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::createIfNotExistsIfNotExists('teams', function (Blueprint $table) {
+        Schema::createIfNotExists('teams', function (Blueprint $table) {
             $table->id();
             $table->integer('id_on_api')->unique();
             $table->string('name');

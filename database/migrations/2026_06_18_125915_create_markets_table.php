@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::createIfNotExistsIfNotExists('markets', function (Blueprint $table) {
+        Schema::createIfNotExists('markets', function (Blueprint $table) {
             $table->unsignedBigInteger('id')->primary();
             $table->string('name');
             $table->timestamps();

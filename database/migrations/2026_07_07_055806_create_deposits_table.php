@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::createIfNotExistsIfNotExists('deposits', function (Blueprint $table) {
+        Schema::createIfNotExists('deposits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('reference')->unique();

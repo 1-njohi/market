@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::createIfNotExistsIfNotExists('betslip_user_purchases', function (Blueprint $table) {
+        Schema::createIfNotExists('betslip_user_purchases', function (Blueprint $table) {
             $table->id();
             $table->foreignId('betslip_id')->constrained()->onDelete('cascade');
             $table->foreignId('buyer_id')->constrained('users')->onDelete('cascade');
