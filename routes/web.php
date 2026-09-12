@@ -40,7 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     });
     Route::prefix('seller')->group(function () {
-        Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('seller.dashboard');
         Route::get('/dashboard/realtime', [SellerDashboardController::class, 'getRealtimeData'])->name('seller.dashboard.realtime');
         Route::get('/dashboard/performance', [SellerDashboardController::class, 'getPerformanceData'])->name('seller.dashboard.performance');
         Route::get('/dashboard/market-performance', [SellerDashboardController::class, 'getMarketPerformance'])->name('seller.dashboard.market-performance');
