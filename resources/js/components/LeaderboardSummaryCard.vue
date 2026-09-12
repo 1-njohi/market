@@ -166,7 +166,7 @@
                 @click="$emit('view-all-clicked')"
                 class="inline-block cursor-pointer text-[10px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
             >
-                View Full Standings Registry →
+                View All Rankings →
             </button>
         </div>
     </div>
