@@ -50,7 +50,7 @@ class SettleFixtureJob implements ShouldQueue
     protected function fetchMatchData(): ?array
     {
         // If we have a test endpoint for local development, use it.
-        if (config('app.env') === 'local') {
+        if (config('app.env') !== 'local-tuna') {
             $apiResponse = [
                 "get" => "fixtures",
                 "parameters" => [
