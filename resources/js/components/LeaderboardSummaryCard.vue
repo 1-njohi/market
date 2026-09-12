@@ -27,7 +27,7 @@
                     <h3
                         class="text-xs font-bold tracking-widest text-white uppercase"
                     >
-                        Top Captains
+                        Top Sellers
                     </h3>
                     <div
                         class="mt-0.5 text-[10px] font-semibold tracking-wide text-marketplace-muted uppercase"
@@ -155,7 +155,7 @@
             v-else-if="!searchedSeller"
             class="p-8 text-center font-mono text-xs tracking-wider text-marketplace-muted uppercase"
         >
-            No captains on the board yet.
+            No sellers on the board yet.
         </div>
 
         <!-- ═══════ FOOTER — matches "View More Betslips" ═══════ -->

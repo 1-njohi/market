@@ -14,7 +14,7 @@ class PlayerMatchStatistic extends Model
         'number',
         'position',
         'rating',
-        'captain',
+        'seller',
         'substitute',
         'goals',
         'assists',
@@ -39,7 +39,7 @@ class PlayerMatchStatistic extends Model
     ];
 
     protected $casts = [
-        'captain' => 'boolean',
+        'seller' => 'boolean',
         'substitute' => 'boolean',
         'rating' => 'decimal:1',
         'minutes' => 'integer',
