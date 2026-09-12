@@ -79,7 +79,7 @@
                                 <span>FEE TIER {{ seller_data.fee_tier.current_tier }} / 4</span>
                             </div>
                             <div
-                                class="mt-0.5 font-mono text-xl font-black tracking-tight text-white"
+                                class="mt-0.5 font-mono font-black tracking-tight text-white"
                             >
                                 {{ feePercent }}%
                                 <span class="text-xs font-normal text-slate-500"
@@ -106,7 +106,7 @@
                         >
                         <div class="flex items-baseline gap-1.5">
                             <span
-                                class="font-mono text-2xl font-black text-white"
+                                class="font-mono font-black text-white"
                                 >{{ seller_data.fee_tier.sales_until_next_tier }}</span
                             >
                             <span class="text-[10px] text-slate-400 uppercase"
