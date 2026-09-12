@@ -326,9 +326,6 @@ const handleViewAllLeaders = () => {
                         </div>
                     </div>
 
-                    <div class="bg-green-600">
-                        {{ $page.props.fixtures }}
-                    </div>
                     <FixtureSummaryCard :leagues="$page.props.fixtures" />
                 </div>
             </main>
