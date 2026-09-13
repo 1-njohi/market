@@ -78,7 +78,7 @@ watch(
 
 <template>
     <header
-        class="[#070b14] fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1200px] justify-center bg-[#070b14] transparent text-sm not-has-[nav]:hidden md:px-6 lg:px-0"
+        class="[#070b14] transparent fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1200px] justify-center bg-[#070b14] text-sm not-has-[nav]:hidden md:px-6 lg:px-0"
     >
         <nav
             class="flex w-[95%] items-center justify-between rounded-lg border border-[#232d42] bg-[#161c2a] p-4 shadow-lg md:w-[75rem]"
@@ -100,6 +100,31 @@ watch(
             <!-- NAV ACTIONS -->
             <div class="flex items-center gap-3">
                 <template v-if="$page.props.auth.user">
+                    <!-- Balance pill -->
+                    <Link
+                        :href="dashboard()"
+                        class="flex items-center gap-1.5 rounded border border-[#232d42] bg-[#111622] px-3 py-2 transition-colors hover:border-sky-500/40"
+                        title="Available balance"
+                    >
+                        <span
+                            class="hidden text-[9px] font-black tracking-widest text-slate-500 uppercase sm:inline"
+                        >
+                            Balance
+                        </span>
+                        <span
+                            class="font-mono text-xs font-black text-emerald-400"
+                        >
+                            {{
+                                Number(
+                                    $page.props.auth.balance || 0,
+                                ).toLocaleString(undefined, {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                })
+                            }}
+                        </span>
+                    </Link>
+
                     <Link
                         :href="dashboard()"
                         class="inline-block rounded border border-transparent bg-[#242f48] px-4 py-2 text-xs font-bold tracking-wide text-sky-400 uppercase transition-colors hover:bg-[#2e3c5c]"
@@ -154,7 +179,7 @@ watch(
         </nav>
     </header>
 
-    <main class="pt-20 bg-[#070b14]">
+    <main class="bg-[#070b14] pt-20">
         <slot />
     </main>
 
