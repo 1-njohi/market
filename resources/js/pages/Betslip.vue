@@ -1,6 +1,6 @@
 <template>
     <div
-        class="max- m-6 mx-auto flex flex-col overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a] px-2 font-sans text-slate-300 shadow-2xl select-none md:w-[700px]"
+        class="max- m-6 mx-2 flex flex-col overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a] px-2 font-sans text-slate-300 shadow-2xl select-none md:w-[700px]"
     >
         <!-- HEADER PANEL -->
         <div

@@ -5,7 +5,7 @@
             type="button"
             @click.stop="togglePopover"
             :disabled="isProcessing"
-            class="w-full cursor-pointer rounded border border-amber-500/40 bg-transparent py-3 text-xs font-black tracking-widest text-amber-400 uppercase transition-all duration-200 hover:border-amber-500 hover:bg-amber-500/10 disabled:pointer-events-none disabled:opacity-40"
+            class="cursor-pointer rounded-lg bg-marketplace-gold px-6 py-3 text-xs font-bold tracking-wider text-marketplace-bg uppercase shadow-md transition-all hover:bg-marketplace-gold/90 active:scale-[0.98]"
         >
             <span>
                 Unlock access ({{ currency }} {{ Number(amount).toFixed(2) }})
