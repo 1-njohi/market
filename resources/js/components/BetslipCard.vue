@@ -21,12 +21,11 @@
                     class="flex items-center space-x-3 rounded-lg bg-[#7c3aed] p-3 text-white shadow-sm"
                 >
                     <!-- Gift Icon Placed Left -->
-                    <div class="mt-0.5 text-xl">🎁</div>
                     <div class="text-s flex-2">
                         <p class="leading-relaxed font-normal text-purple-100">
-                            Your Multibet of
+                            Your bet of
                             <span class="font-bold text-white"
-                                >{{ selections.length }} selections</span
+                                >{{ selections.length }} selection(s)</span
                             >
                         </p>
                     </div>
@@ -38,10 +37,18 @@
                 >
                     <span
                         class="text-xs font-bold tracking-wider text-[#0f172a] uppercase"
+                        v-if="selections.length > 1"
                     >
                         MULTI BET ({{ selections.length }})
                     </span>
+                    <span
+                        class="text-xs font-bold tracking-wider text-[#0f172a] uppercase"
+                        v-else
+                    >
+                        SINGLE BET
+                    </span>
                     <button
+                        type="button"
                         class="flex items-center space-x-1.5 rounded border border-[#cbd5e1] bg-white px-2.5 py-1 text-xs font-semibold text-[#334155] shadow-sm transition-colors hover:bg-slate-50"
                     >
                         <span>↪</span>
@@ -61,13 +68,13 @@
                             <div
                                 class="flex items-center space-x-1.5 text-xs font-bold text-slate-900"
                             >
-                                <span>⚽</span>
                                 <span class="cursor-pointer hover:underline"
                                     >{{ item.home_team }} –
                                     {{ item.away_team }}</span
                                 >
                             </div>
                             <button
+                                type="button"
                                 @click="removeSelection(item)"
                                 class="h-5 w-5 cursor-pointer rounded-xl bg-red-500 px-1 text-sm font-bold text-white transition-colors hover:text-green-500"
                                 title="Remove selection"
@@ -124,6 +131,7 @@
                     class="flex items-center overflow-hidden rounded border border-slate-300 bg-white shadow-inner"
                 >
                     <button
+                        type="button"
                         @click="adjustPrice(-10)"
                         class="border-r border-slate-300 bg-slate-100 px-2.5 py-1 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-200"
                     >
@@ -135,6 +143,7 @@
                         class="w-16 [appearance:textfield] p-1 text-center text-xs font-bold text-slate-900 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     />
                     <button
+                        type="button"
                         @click="adjustPrice(10)"
                         class="border-l border-slate-300 bg-slate-100 px-2.5 py-1 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-200"
                     >
@@ -148,6 +157,7 @@
                 <!-- Footer Action Buttons Group -->
                 <div class="grid grid-cols-12 gap-2 bg-[#0c2430] p-3">
                     <button
+                        type="button"
                         @click="clearAll"
                         :class="[
                             'col-span-5 rounded border border-[#234d63]/40 bg-[#1b3d4f] px-2 py-3 text-center text-[11px] font-bold tracking-wider uppercase',
@@ -261,14 +271,19 @@ const totalOdds = computed(() => {
 });
 
 const removeSelection = (selection) => {
-    let new_selections = selections.value.filter((item) => item !== selection);
+    const new_selections = selections.value.filter(
+        (item) =>
+            !(
+                item.fixture_id === selection.fixture_id &&
+                item.market_name === selection.market_name
+            ),
+    );
 
     localStorage.setItem('bet_selections', JSON.stringify(new_selections));
 
-    // A custom event so other components can react
     window.dispatchEvent(
         new CustomEvent('betSelectionUpdated', {
-            detail: { selections, selection },
+            detail: { selections: new_selections },
         }),
     );
 };
@@ -324,17 +339,17 @@ const createBetslip = () => {
     console.log(form.selections);
 
     form.post('/betslip/store', {
-        // onSuccess: () => {
-        //     alert(
-        //         `Bet placed successfully! Total Price: KSH ${price.value.toFixed(2)}`,
-        //     );
-        //     selections.value = [];
-        //     form.reset();
-        // },
-        // onError: (errors) => {
-        //     alert('Failed to place bet. Please try again.');
-        //     console.error(errors);
-        // },
+        onSuccess: () => {
+            alert(
+                `Bet placed successfully! Total Price: KSH ${price.value.toFixed(2)}`,
+            );
+            selections.value = [];
+            form.reset();
+        },
+        onError: (errors) => {
+            alert('Failed to place bet. Please try again.');
+            console.error(errors);
+        },
     });
 };
 

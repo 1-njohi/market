@@ -263,14 +263,12 @@ const triggerNativeShare = async () => {
 };
 
 const clearAll = () => {
-    let new_selections = [];
-
+    const new_selections = [];
     localStorage.setItem('bet_selections', JSON.stringify(new_selections));
 
-    // A custom event so other components can react
     window.dispatchEvent(
         new CustomEvent('betSelectionUpdated', {
-            detail: { selections, new_selections },
+            detail: { selections: new_selections },
         }),
     );
 };
