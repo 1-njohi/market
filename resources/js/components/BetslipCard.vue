@@ -340,9 +340,9 @@ const createBetslip = () => {
 
     form.post('/betslip/store', {
         onSuccess: () => {
-            alert(
-                `Bet placed successfully! Total Price: KSH ${price.value.toFixed(2)}`,
-            );
+            // alert(
+            //     `Bet placed successfully! Total Price: KSH ${price.value.toFixed(2)}`,
+            // );
             selections.value = [];
             form.reset();
         },
