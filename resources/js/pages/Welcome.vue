@@ -153,6 +153,32 @@ const clearSearch = () => {
                 <div class="flex items-center gap-3">
                     <!-- Authenticated State -->
                     <template v-if="$page.props.auth.user">
+                        <!-- Balance pill -->
+                        <Link
+                            :href="dashboard()"
+                            class="flex items-center gap-1.5 rounded border border-[#232d42] bg-[#111622] px-3 py-2 transition-colors hover:border-sky-500/40"
+                            title="Available balance"
+                        >
+                            <span
+                                class="hidden text-[9px] font-black tracking-widest text-slate-500 uppercase sm:inline"
+                            >
+                                Balance
+                            </span>
+                            <span
+                                class="font-mono text-xs font-black text-emerald-400"
+                            >
+                                KES
+                                {{
+                                    Number(
+                                        $page.props.auth.balance || 0,
+                                    ).toLocaleString(undefined, {
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0,
+                                    })
+                                }}
+                            </span>
+                        </Link>
+
                         <Link
                             :href="dashboard()"
                             class="inline-block rounded border border-transparent bg-[#242f48] px-4 py-2 text-xs font-bold tracking-wide text-sky-400 uppercase transition-colors hover:bg-[#2e3c5c]"
@@ -187,7 +213,7 @@ const clearSearch = () => {
                                 />
                             </svg>
                         </Link>
-                        <LogoutButton />    
+                        <LogoutButton />
                     </template>
 
                     <!-- Guest State -->
