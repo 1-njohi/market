@@ -1,170 +1,164 @@
 <template>
     <div class="inline-block" ref="popoverContainer">
+        <!-- Trigger -->
         <button
             type="button"
-            @click="togglePopover"
-            class="fw-full cursor-pointer rounded border-b-2 border-amber-700 bg-[#ff8c00] py-3 text-xs font-black tracking-widest text-black uppercase shadow-lg transition-all hover:bg-blue-500"
+            @click.stop="togglePopover"
+            :disabled="isProcessing"
+            class="w-full cursor-pointer rounded border border-amber-500/40 bg-transparent py-3 text-xs font-black tracking-widest text-amber-400 uppercase transition-all duration-200 hover:border-amber-500 hover:bg-amber-500/10 disabled:pointer-events-none disabled:opacity-40"
         >
-            <span
-                >UNLOCK ACCESS ({{ currency }}
-                {{ Number(amount).toFixed(2) }})</span
-            >
+            <span>
+                Unlock access ({{ currency }} {{ Number(amount).toFixed(2) }})
+            </span>
         </button>
 
-        <div
-            v-if="isOpen"
-            class="animate-fade-in fixed top-1/2 left-1/2 isolate !z-[9999] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded border p-4 shadow-[0_20px_50px_rgba(7,11,20,0.9)] sm:w-85"
-            :class="
-                hasSufficientBalance
-                    ? 'border-amber-500/30 bg-[#0f1422]'
-                    : 'border-rose-500/30 bg-[#120b11]'
-            "
-        >
+        <Teleport to="body">
             <div
-                class="mb-3 flex items-center justify-between border-b pb-2"
-                :class="
-                    hasSufficientBalance
-                        ? 'border-gray-800'
-                        : 'border-rose-950/40'
-                "
+                v-if="isOpen"
+                class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                @click.self="closePopover"
             >
-                <span
-                    class="flex items-center gap-1.5 font-mono text-[9px] font-black tracking-widest uppercase"
-                    :class="
-                        hasSufficientBalance
-                            ? 'text-amber-400'
-                            : 'text-rose-400'
-                    "
-                >
-                    <span
-                        class="h-1.5 w-1.5 rounded-full"
-                        :class="
-                            hasSufficientBalance
-                                ? 'bg-amber-400'
-                                : 'animate-pulse bg-rose-500'
-                        "
-                    ></span>
-                    {{
-                        hasSufficientBalance ? 'CONFIRM' : 'INSUFFICIENT FUNDS'
-                    }}
-                </span>
-                <button
-                    type="button"
-                    @click="closePopover"
-                    class="cursor-pointer font-mono text-xs text-slate-500 hover:text-slate-300"
-                >
-                    ✕
-                </button>
-            </div>
-
-            <div v-if="hasSufficientBalance" class="space-y-4">
+                <!-- Backdrop -->
                 <div
-                    class="rounded border border-[#232d42] bg-[#070b14] p-3 font-mono text-[11px] leading-relaxed text-slate-400 uppercase"
-                >
-                    <p class="mb-1 font-bold text-white">JUST TO BE CLEAR:</p>
-                    Confirming this deployment will immediately release
-                    <span class="font-black text-amber-400"
-                        >{{ currency }} {{ Number(amount).toFixed(2) }}</span
-                    >
-                    from your available balance secure escrow lock. It will be
-                    released to the tipster only after this bet has been settled
-                    as a win, otherwise you will be refunded.
-                </div>
+                    class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                ></div>
 
+                <!-- Modal -->
                 <div
-                    class="flex items-center justify-between rounded border border-gray-800 bg-[#111622]/40 p-2 font-mono text-[10px]"
+                    ref="modalElement"
+                    class="animate-fade-in relative w-full max-w-md rounded border border-gray-800 bg-[#0f1422] p-4 shadow-[0_20px_50px_rgba(7,11,20,0.9),0_0_25px_rgba(245,158,11,0.1)] sm:w-96"
                 >
-                    <span class="font-bold text-slate-500">YOUR BALANCE:</span>
-                    <span class="font-black text-emerald-400"
-                        >{{ currency }}
-                        {{
-                            Number(userBalance).toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                            })
-                        }}</span
+                    <!-- Header -->
+                    <div
+                        class="mb-3 flex items-center justify-between border-b border-gray-800 pb-2"
                     >
-                </div>
-
-                <button
-                    type="button"
-                    @click="executeUnlockSequence"
-                    :disabled="isProcessing"
-                    class="flex w-full cursor-pointer items-center justify-center rounded border border-amber-500 bg-amber-500 py-2.5 text-[10px] font-black tracking-widest text-[#070b14] uppercase transition-all duration-200 hover:bg-transparent hover:text-amber-400 disabled:pointer-events-none disabled:opacity-40"
-                >
-                    <span v-if="isProcessing" class="flex items-center gap-1.5">
                         <span
-                            class="h-1.5 w-1.5 animate-ping rounded-full bg-[#070b14]"
-                        ></span>
-                        INITIALIZING DECRYPTION...
-                    </span>
-                    <span v-else>CONFIRM & REVEAL SELECTIONS</span>
-                </button>
-            </div>
-
-            <div v-else class="space-y-4">
-                <div
-                    class="rounded border border-rose-500/20 bg-rose-950/20 p-3 font-mono text-[11px] leading-relaxed text-white uppercase"
-                >
-                    <p class="mb-1 font-black text-rose-400">CAUTION !!</p>
-                    Account ledger balance holds insufficient to unlock
-                    selections. Deposit
-                    <span class="font-mono font-black text-rose-300/90"
-                        >{{ currency }}
-                        {{ Number(amount - userBalance).toFixed(2) }}
-                    </span>
-                    to immediately unlock the selections. The amount will be
-                    held in a secure escrow lock. It will be released to the
-                    tipster only after this bet has been settled as a win,
-                    otherwise you will be refunded.
-                </div>
-
-                <div
-                    class="grid grid-cols-2 gap-2 rounded border border-rose-950/30 bg-[#070b14] p-2.5 font-mono text-[10px]"
-                >
-                    <div>
-                        <span class="block text-[8px] font-bold text-slate-500"
-                            >REQUIRED</span
+                            class="text-[9px] font-black tracking-widest text-amber-400 uppercase"
                         >
-                        <span class="font-bold text-white"
-                            >{{ currency }}
-                            {{ Number(amount).toFixed(2) }}</span
+                            Confirm purchase
+                        </span>
+                        <button
+                            type="button"
+                            @click="closePopover"
+                            class="cursor-pointer font-mono text-xs text-slate-500 hover:text-slate-300"
                         >
+                            ✕
+                        </button>
                     </div>
-                    <div>
-                        <span class="block text-[8px] font-bold text-slate-500"
-                            >AVAILABLE</span
-                        >
-                        <span class="font-bold text-rose-400"
-                            >{{ currency }}
-                            {{ Number(userBalance).toFixed(2) }}</span
-                        >
-                    </div>
-                </div>
 
-                <div class="flex flex-col space-y-2 pt-1">
-                    <span
-                        class="text-center font-mono text-[9px] font-bold text-slate-500 uppercase"
-                        >DEPOSIT EXTRA {{ currency }}
-                        {{
-                            Number(amount - userBalance).toFixed(2)
-                        }}
-                        INSTANTLY</span
+                    <!-- Balance summary -->
+                    <div
+                        class="mb-3 space-y-2 rounded border border-[#232d42] bg-[#070b14] p-3"
                     >
-                    <DepositPopover
-                        :currency="currency"
-                        :initial_amount="amount"
-                        @success="handleDepositInjectedEvent"
-                    />
+                        <div
+                            class="flex items-center justify-between text-[11px]"
+                        >
+                            <span class="font-mono text-slate-400 uppercase">
+                                Betslip price
+                            </span>
+                            <span class="font-mono font-black text-white">
+                                {{ currency }} {{ Number(amount).toFixed(2) }}
+                            </span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between text-[11px]"
+                        >
+                            <span class="font-mono text-slate-400 uppercase">
+                                Your balance
+                            </span>
+                            <span
+                                class="font-mono font-black"
+                                :class="
+                                    hasSufficientBalance
+                                        ? 'text-emerald-400'
+                                        : 'text-rose-400'
+                                "
+                            >
+                                {{ currency }}
+                                {{ Number(userBalance).toFixed(2) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Sufficient balance -->
+                    <template v-if="hasSufficientBalance">
+                        <p
+                            class="mb-3 text-[10px] leading-relaxed text-slate-400"
+                        >
+                            The amount will be held from your balance and
+                            released to the seller only if the betslip wins. If
+                            it loses, you get a full refund.
+                        </p>
+
+                        <div
+                            v-if="errorMessage"
+                            class="mb-3 rounded border border-rose-500/30 bg-rose-500/10 p-2 text-[10px] font-bold tracking-wide text-rose-400 uppercase"
+                        >
+                            {{ errorMessage }}
+                        </div>
+
+                        <button
+                            type="button"
+                            @click="confirmPurchase"
+                            :disabled="isProcessing"
+                            class="flex w-full cursor-pointer items-center justify-center rounded border border-amber-500 bg-amber-500 py-2.5 text-[10px] font-black tracking-widest text-[#070b14] uppercase transition-all duration-200 hover:bg-transparent hover:text-amber-400 disabled:pointer-events-none disabled:opacity-40"
+                        >
+                            <span
+                                v-if="isProcessing"
+                                class="flex items-center gap-1.5"
+                            >
+                                <span
+                                    class="h-1.5 w-1.5 animate-ping rounded-full bg-[#070b14]"
+                                ></span>
+                                Processing…
+                            </span>
+                            <span v-else>Confirm purchase</span>
+                        </button>
+                    </template>
+
+                    <!-- Insufficient balance -->
+                    <template v-else>
+                        <div
+                            class="mb-3 rounded border border-rose-500/30 bg-rose-500/10 p-3"
+                        >
+                            <p
+                                class="text-[10px] leading-relaxed font-bold text-rose-300"
+                            >
+                                You need
+                                <span class="font-mono text-white">
+                                    {{ currency }}
+                                    {{
+                                        Number(amount - userBalance).toFixed(2)
+                                    }}
+                                </span>
+                                more to unlock this betslip.
+                            </p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <span
+                                class="block text-center font-mono text-[9px] font-bold text-slate-500 uppercase"
+                            >
+                                Add funds to continue
+                            </span>
+
+                            <DepositPopover
+                                :currency="currency"
+                                :initial_amount="
+                                    Math.ceil(amount - userBalance)
+                                "
+                            />
+                        </div>
+                    </template>
                 </div>
             </div>
-        </div>
+        </Teleport>
     </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
-import axios from 'axios';
 import DepositPopover from '@/components/DepositPopover.vue';
 
 const props = defineProps({
@@ -185,103 +179,64 @@ const props = defineProps({
 const page = usePage();
 const isOpen = ref(false);
 const isProcessing = ref(false);
+const errorMessage = ref('');
 const popoverContainer = ref(null);
+const modalElement = ref(null);
 
-// Extract reactive authenticated global balance allocations directly from shared state array
-const userBalance = computed(() => {
-    return Number(page.props.auth?.balance || 0);
-});
+const userBalance = computed(() => Number(page.props.auth?.balance || 0));
+const hasSufficientBalance = computed(() => userBalance.value >= props.amount);
 
-// Structural branching check conditional state
-const hasSufficientBalance = computed(() => {
-    return userBalance.value >= props.amount;
-});
-
-// Window tracking context scroll locks
-watch(isOpen, (newValue) => {
-    if (newValue) {
-        document.body.classList.add('overflow-hidden');
-    } else {
-        document.body.classList.remove('overflow-hidden');
-    }
+watch(isOpen, (v) => {
+    document.body.classList.toggle('overflow-hidden', v);
 });
 
 const togglePopover = () => {
-    if (!isProcessing.value) {
-        isOpen.value = !isOpen.value;
-    }
+    if (isProcessing.value) return;
+    isOpen.value = !isOpen.value;
+    if (isOpen.value) errorMessage.value = '';
 };
 
 const closePopover = () => {
-    if (!isProcessing.value) {
-        isOpen.value = false;
-    }
+    if (isProcessing.value) return;
+    isOpen.value = false;
 };
 
-// Dispatch server pipeline request handlers
-const executeUnlockSequence = async () => {
+const confirmPurchase = () => {
     if (!hasSufficientBalance.value) return;
 
-    // router.post(
-    //     `/betslip/unlock`,
-    //     {
-    //         betslip_id: props.betslip_id,
-    //     },
-    //     {
-    //         preserveScroll: true,
-    //         onStart: () => {
-    //             isProcessing.value = true;
-    //         },
-    //         onFinish: () => {
-    //             isProcessing.value = false;
-    //         },
-    //         onSuccess: () => {
-    //             closePopover();
-    //         },
-    //         onError: (err) => {
-    //             console.error('Decryption deployment failure:', err);
-    //             isProcessing.value = false;
-    //         },
-    //     },
-    // );
+    errorMessage.value = '';
 
-    try {
-        isProcessing.value = true;
-        const response = await axios.post(
-            '/betslip/unlock',
-            { betslip_id: props.betslip_id },
-            { headers: { Accept: 'application/json' } },
-        );
-
-        const data = response.data;
-
-        if (data.success) {
-            closePopover();
-            // window.location.href = data.authorization_url;
-        } else {
-            isProcessing.value = false;
-            alert(data.message || 'Failed to initiate deposit');
-        }
-    } catch (error) {
-        console.error('Deposit error:', error);
-        alert('An unexpected error occurred. Please try again.');
-        isProcessing.valvue = false;
-    }
-};
-
-// React gracefully if inline capital balance injection event finishes cleanly
-const handleDepositInjectedEvent = () => {
-    console.log(
-        'Capital injection sequence completed successfully. Re-evaluating balance thresholds.',
+    router.post(
+        '/betslip/unlock',
+        { betslip_id: props.betslip_id },
+        {
+            preserveScroll: false, // we're navigating away, don't preserve
+            onStart: () => {
+                isProcessing.value = true;
+            },
+            onSuccess: () => {
+                isProcessing.value = false;
+                isOpen.value = false;
+            },
+            onError: (err) => {
+                errorMessage.value =
+                    Object.values(err)[0] ||
+                    'Purchase failed. Please try again.';
+                isProcessing.value = false;
+            },
+            onFinish: () => {
+                isProcessing.value = false;
+            },
+        },
     );
 };
 
 const handleClickOutside = (event) => {
-    const activeModal = document.querySelector('.fixed');
     if (
         isOpen.value &&
-        activeModal &&
-        !activeModal.contains(event.target) &&
+        modalElement.value &&
+        !modalElement.value.contains(event.target) &&
+        popoverContainer.value &&
         !popoverContainer.value.contains(event.target)
     ) {
         closePopover();
@@ -302,11 +257,11 @@ onUnmounted(() => {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translate(-1/2, -45%) scale(0.95);
+        transform: scale(0.95);
     }
     to {
         opacity: 1;
-        transform: translate(-1/2, -50%) scale(1);
+        transform: scale(1);
     }
 }
 .animate-fade-in {

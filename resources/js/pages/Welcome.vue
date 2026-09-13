@@ -187,7 +187,7 @@ const clearSearch = () => {
                                 />
                             </svg>
                         </Link>
-                        <LogoutButton />
+                        <LogoutButton />    
                     </template>
 
                     <!-- Guest State -->

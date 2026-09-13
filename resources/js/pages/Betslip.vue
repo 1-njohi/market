@@ -249,44 +249,33 @@ import UnlockPopover from '@/components/UnlockPopover.vue';
 
 const page = usePage();
 
-const betslip = page.props.betslip;
-
-const balance = page.props.auth.balance;
-
-const emit = defineEmits(['requestUnlock']);
-
-const slip = computed(() => betslip);
+// Reactive — reads from page.props every time they change
+const slip = computed(() => page.props.betslip);
 const isLocked = computed(() => !slip.value.has_access);
 
 const copyToClipboard = (text) => {
-    // 1. Check if window and navigator are present (Prevents SSR crashes)
     if (typeof window === 'undefined' || !navigator) {
         return;
     }
 
-    // 2. Fallback check for insecure HTTP connections where .clipboard is missing
     if (!navigator.clipboard) {
         fallbackCopyTextSelection(text);
         return;
     }
 
-    // 3. Execution for normal secure contexts (HTTPS / localhost)
     navigator.clipboard
         .writeText(text)
         .then(() => {
-            alert('Tracking code copied to clipboard!'); // Replace with your toast system
+            alert('Tracking code copied to clipboard!');
         })
         .catch((err) => {
             console.error('Failed to copy text: ', err);
         });
 };
 
-// Old school input fallback mechanism for standard HTTP environments
 const fallbackCopyTextSelection = (text) => {
     const textArea = document.createElement('textarea');
     textArea.value = text;
-
-    // Avoid scrolling to bottom of screen when appending
     textArea.style.top = '0';
     textArea.style.left = '0';
     textArea.style.position = 'fixed';

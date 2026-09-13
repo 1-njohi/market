@@ -7,6 +7,7 @@ use App\Services\BetslipPurchaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class BetslipPurchaseController extends Controller
 {
@@ -19,27 +20,23 @@ class BetslipPurchaseController extends Controller
 
     public function purchase(Request $request)
     {
-        // dd($request->all());
         $user = Auth::user();
 
         $betslip = Betslip::find($request->betslip_id);
 
-        // Check if user can purchase
-        // $message = $this->purchaseService->getPurchaseAvailabilityMessage($user, $betslip);
-
-        \Log::info("sdfgdsa");
-        // if ($message) {
-
-        //     dd($message);
-        //     return back()->with('error', $message);
-        // }
-
         try {
             $purchase = $this->purchaseService->purchase($user, $betslip);
 
-            \Log::info("Purchase: ");
+            $now = Carbon::now();
 
-            return back()->with('success', 'Betslip purchased successfully!');
+            $betslip_code = $purchase->Betslip->code;
+
+            $message =  $now->format('d-m-Y H:i:s') . ": 'Betslip " . $betslip_code . "purchased successfully!";
+
+            return redirect()
+                ->route('betslip.show_guest', ['code' => $betslip_code])
+                ->with('success', $message);
+
         } catch (\Exception $e) {
             \Log::error($e);
             return back()->with('error', $e->getMessage());
