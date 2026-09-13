@@ -39,7 +39,7 @@ defineOptions({
                     <h2
                         class="flex items-center gap-2 text-sm font-black tracking-widest text-slate-200 uppercase"
                     >
-                        ✨ Create Account
+                        Create Account
                     </h2>
                 </div>
 

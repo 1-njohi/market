@@ -42,10 +42,10 @@ defineProps<{
                     <h2
                         class="flex items-center gap-2 text-sm font-black tracking-widest text-slate-200 uppercase"
                     >
-                        🔑 Account Authentication
+                        Account Authentication
                     </h2>
                 </div>
-                <PasskeyVerify />
+                <!-- <PasskeyVerify /> -->
 
                 <div class="grid gap-2">
                     <Label
