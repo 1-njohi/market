@@ -11,6 +11,7 @@ import BetslipWrapper from '@/components/BetslipWrapper.vue';
 import Footer from '@/components/Footer.vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
+import LogoutButton from '@/components/LogoutButton.vue';
 
 const leaderboardRef = ref(null);
 
@@ -186,6 +187,7 @@ const clearSearch = () => {
                                 />
                             </svg>
                         </Link>
+                        <LogoutButton />
                     </template>
 
                     <!-- Guest State -->
