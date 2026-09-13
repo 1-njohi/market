@@ -10,37 +10,31 @@ const reportTypes = [
         value: 'bug',
         label: 'Bug or technical issue',
         description: 'Something is broken, slow, or behaving incorrectly.',
-        icon: '🐛',
     },
     {
         value: 'seller',
         label: 'Seller misconduct',
         description: 'A seller is manipulating results, using fake accounts, or misleading buyers.',
-        icon: '⚠️',
     },
     {
         value: 'buyer',
         label: 'Buyer misconduct',
         description: 'A buyer is abusing the refund system, harassing sellers, or violating rules.',
-        icon: '🚫',
     },
     {
         value: 'payment',
         label: 'Payment problem',
         description: 'A deposit, withdrawal, or refund did not arrive or behaved incorrectly.',
-        icon: '💳',
     },
     {
         value: 'security',
         label: 'Security or account',
         description: 'Suspicious login, unauthorized access, or account compromise.',
-        icon: '🔒',
     },
     {
         value: 'other',
         label: 'Something else',
         description: 'Anything that doesn\'t fit the categories above.',
-        icon: '📝',
     },
 ];
 
@@ -158,7 +152,6 @@ const submit = () => {
                             ]"
                         >
                             <div class="flex items-center gap-2">
-                                <span class="text-base">{{ type.icon }}</span>
                                 <span
                                     :class="[
                                         'text-xs font-bold',
