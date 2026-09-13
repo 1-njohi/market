@@ -11,7 +11,7 @@
                     : 'border-gray-700 text-gray-500'
             "
         >
-            <span>WITHDRAW FUNDS (→)</span>
+            <span>WITHDRAW</span>
         </button>
 
         <Teleport to="body">
