@@ -7,7 +7,7 @@
         >
             <div class="flex items-center space-x-2 text-emerald-400">
                 <span class="text-[10px] font-black tracking-widest uppercase"
-                    >RECENT TRANSACTIONS</span
+                    >Transactions</span
                 >
             </div>
             <DepositPopover class="max-w-[10rem]" />
@@ -100,7 +100,7 @@
                         <div>
                             <span
                                 class="block text-[8px] font-bold tracking-wider text-slate-500"
-                                >POST RECONCILIATION</span
+                                >Balance after</span
                             >
                             <span class="font-mono font-bold text-white"
                                 >KES
@@ -129,7 +129,7 @@
                         >
                             <th class="px-4 py-3">TYPE</th>
                             <th class="px-4 py-3">DESCRIPTION</th>
-                            <th class="px-4 py-3 text-right">DIFFERENCE</th>
+                            <th class="px-4 py-3 text-right">AMOUNT</th>
                             <th class="px-4 py-3 text-right">BALANCE</th>
                             <th class="px-4 py-3 text-center">STATUS</th>
                             <th class="px-4 py-3 text-right">TIME</th>
@@ -201,7 +201,7 @@
                                 <div
                                     class="text-[9px] font-medium text-slate-600"
                                 >
-                                    PREV: {{ tx.balance_before.toFixed(2) }}
+                                    Before: {{ tx.balance_before.toFixed(2) }}
                                 </div>
                             </td>
 

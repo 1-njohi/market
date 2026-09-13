@@ -16,7 +16,9 @@
                 @click.self="closePopover"
             >
                 <!-- Backdrop -->
-                <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+                <div
+                    class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                ></div>
 
                 <!-- Modal -->
                 <div
@@ -28,7 +30,7 @@
                     >
                         <span
                             class="text-[9px] font-black tracking-widest text-sky-400 uppercase"
-                            >INITIALIZE PAYMENT (KES {{ initial_amount }} MINIMUM)</span
+                            >Add funds (KES {{ initial_amount }} MINIMUM)</span
                         >
                         <button
                             type="button"
@@ -39,7 +41,10 @@
                         </button>
                     </div>
 
-                    <form @submit.prevent="handleDepositSubmission" class="space-y-3">
+                    <form
+                        @submit.prevent="handleDepositSubmission"
+                        class="space-y-3"
+                    >
                         <div>
                             <label
                                 class="mb-1 block font-mono text-[9px] font-black tracking-wider text-slate-400 uppercase"
@@ -64,7 +69,8 @@
                                 />
                             </div>
                             <p class="mt-1 font-mono text-[9px] text-slate-500">
-                                You will be redirected to Paystack to complete payment.
+                                You will be redirected to Paystack to complete
+                                payment.
                             </p>
                         </div>
 
@@ -80,13 +86,16 @@
                             :disabled="isProcessing || !amount || amount < 100"
                             class="flex w-full cursor-pointer items-center justify-center rounded border border-sky-500 bg-sky-500 py-2.5 text-[10px] font-black tracking-widest text-[#070b14] uppercase transition-all duration-200 hover:bg-transparent hover:text-sky-400 disabled:pointer-events-none disabled:opacity-40"
                         >
-                            <span v-if="isProcessing" class="flex items-center gap-1.5">
+                            <span
+                                v-if="isProcessing"
+                                class="flex items-center gap-1.5"
+                            >
                                 <span
                                     class="h-1.5 w-1.5 animate-ping rounded-full bg-[#070b14]"
                                 ></span>
-                                INITIALIZING...
+                                Processing…
                             </span>
-                            <span v-else>INITIALIZE PAYMENT</span>
+                            <span v-else>Add funds</span>
                         </button>
                     </form>
                 </div>

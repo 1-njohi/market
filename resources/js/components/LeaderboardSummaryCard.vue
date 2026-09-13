@@ -119,7 +119,7 @@
                     <span
                         class="text-[10px] font-bold tracking-wider text-marketplace-gold uppercase"
                     >
-                        ◆ Search Result
+                        Search Result
                     </span>
                     <button
                         @click="clearSearch"

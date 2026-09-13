@@ -69,7 +69,7 @@
                         <div>
                             <span
                                 class="block text-[9px] font-bold tracking-wider text-slate-500"
-                                >LEGS</span
+                                >Markets</span
                             >
                             <span class="font-bold text-white"
                                 >{{ slip.legs }}
@@ -97,7 +97,7 @@
                         <div>
                             <span
                                 class="block text-[9px] font-bold tracking-wider text-slate-500"
-                                >LEGS LEFT</span
+                                >MARKETS LEFT</span
                             >
                             <span
                                 :class="
@@ -137,8 +137,8 @@
                         <tr
                             class="border-b border-gray-800/60 bg-[#0f1422] font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
                         >
-                            <th class="px-4 py-3">SIGNATURE CODE</th>
-                            <th class="px-4 py-3">LEGS</th>
+                            <th class="px-4 py-3">CODE</th>
+                            <th class="px-4 py-3">MARKETS</th>
                             <th class="px-4 py-3">ODDS</th>
                             <th class="px-4 py-3">PRICE</th>
                             <th class="px-4 py-3">REMAINING / SOLD</th>
@@ -186,7 +186,7 @@
                                             : 'text-sky-400'
                                     "
                                 >
-                                    {{ slip.remaining }} legs left
+                                    {{ slip.remaining }} markets left
                                 </span>
                                 <span class="ml-1 text-[10px] text-slate-500"
                                     >({{ slip.purchases || 0 }} sold)</span

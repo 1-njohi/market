@@ -248,7 +248,7 @@
                             <h3
                                 class="flex items-center gap-2 text-xs font-black tracking-widest text-amber-400 uppercase"
                             >
-                                🧠 Predictor Insights
+                                Insights
                             </h3>
                             <span
                                 class="rounded border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-black text-amber-500 uppercase"
@@ -319,7 +319,7 @@
                             <h3
                                 class="border-b border-marketplace-border/60 pb-2 text-xs font-black tracking-widest text-slate-400 uppercase"
                             >
-                                🏆 Top Leagues
+                                Top leagues
                             </h3>
                             <div
                                 v-if="!profile.expertise.top_leagues.length"
@@ -359,7 +359,7 @@
                             <h3
                                 class="border-b border-marketplace-border/60 pb-2 text-xs font-black tracking-widest text-slate-400 uppercase"
                             >
-                                🎯 Top Markets
+                                Top Markets
                             </h3>
                             <div
                                 v-if="!profile.expertise.top_markets.length"
@@ -399,7 +399,7 @@
                         <h2
                             class="text-xs font-black tracking-widest text-slate-400 uppercase"
                         >
-                            ⚡ Active Slips For Sale
+                            Betslips for sale
                         </h2>
                         <div
                             v-if="!profile.available_betslips.length"
@@ -474,7 +474,7 @@
                         <h3
                             class="border-b border-marketplace-border/60 pb-2 text-xs font-black tracking-widest text-slate-400 uppercase"
                         >
-                            📈 Marketplace Dynamics
+                            Marketplace activity
                         </h3>
                         <div
                             class="grid grid-cols-2 gap-4 py-1 text-center font-mono"
@@ -544,7 +544,7 @@
                         <h3
                             class="border-b border-marketplace-border/60 pb-2 text-xs font-black tracking-widest text-slate-400 uppercase"
                         >
-                            🗓 Accuracy Breakdown
+                            Accuracy over time
                         </h3>
                         <div class="space-y-2 font-mono text-xs">
                             <div

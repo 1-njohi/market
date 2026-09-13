@@ -43,7 +43,7 @@
                             :href="`/profile/${follower.code}`"
                             class="w-full flex items-center justify-center bg-[#1c273a] hover:bg-purple-500 hover:text-[#070b14] border border-[#2b3a54] hover:border-purple-500 text-[10px] font-black tracking-widest text-slate-300 py-2 rounded uppercase transition-all duration-200"
                         >
-                            VIEW PROFILE
+                            View profile
                         </Link>
                     </div>
                 </div>
@@ -55,7 +55,7 @@
                         <tr class="border-b border-gray-800/60 bg-[#0f1422] text-[10px] font-black tracking-widest text-slate-400 uppercase font-mono">
                             <th class="py-3 px-4">NAME</th>
                             <th class="py-3 px-4">CODE</th>
-                            <th class="py-3 px-4">FOLLOWER SINCE</th>
+                            <th class="py-3 px-4">FOLLOWING SINCE</th>
                             <th class="py-3 px-4 text-right">ACTION</th>
                         </tr>
                     </thead>

@@ -33,7 +33,7 @@
                     >
                         <span
                             class="text-[9px] font-black tracking-widest text-emerald-400 uppercase"
-                            >M-PESA WITHDRAWAL</span
+                            >WITHDRAW</span
                         >
                         <button
                             type="button"
@@ -50,7 +50,7 @@
                     >
                         <span
                             class="text-[9px] font-black tracking-wider text-slate-500 uppercase"
-                            >Available Balance</span
+                            >Available</span
                         >
                         <span class="font-mono text-sm font-black text-emerald-400">
                             {{ currency }}
@@ -124,9 +124,9 @@
                                 <span
                                     class="h-1.5 w-1.5 animate-ping rounded-full bg-[#070b14]"
                                 ></span>
-                                PROCESSING...
+                                Processing...
                             </span>
-                            <span v-else>CONFIRM WITHDRAWAL</span>
+                            <span v-else>Confirm</span>
                         </button>
                     </form>
                 </div>

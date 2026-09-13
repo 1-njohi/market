@@ -126,7 +126,7 @@
                 <div
                     class="flex items-center gap-1.5 text-[10px] font-bold tracking-widest text-marketplace-muted uppercase"
                 >
-                    <span> Tracking Code:</span>
+                    <span> Code:</span>
                     <span
                         class="rounded border border-marketplace-border bg-marketplace-card/60 px-2 py-0.5 font-mono text-xs font-black tracking-normal text-white"
                     >
@@ -286,7 +286,7 @@
                 @click="unlockClicked(slip)"
                 class="cursor-pointer rounded-lg bg-marketplace-gold px-6 py-3 text-xs font-bold tracking-wider text-marketplace-bg uppercase shadow-md transition-all hover:bg-marketplace-gold/90 active:scale-[0.98]"
             >
-                Unlock Selections
+                Unlock
             </button>
         </div>
         <div

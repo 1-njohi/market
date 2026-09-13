@@ -28,7 +28,7 @@
                         <div
                             class="flex items-center gap-2 text-[10px] font-black tracking-widest text-sky-400 uppercase"
                         >
-                            <span>[ BUYER PROFILE ]</span>
+                            <span>BUYER</span>
                             <!-- <span
                                 v-if="!buyer_data.user.is_verified"
                                 class="rounded border border-amber-500/30 px-1 text-[8px] font-bold text-amber-500"
@@ -45,7 +45,7 @@
                         <p
                             class="truncate text-[10px] font-medium text-slate-400"
                         >
-                            SYS_ID: {{ buyer_data.user.code }} • Joined
+                            Code: {{ buyer_data.user.code }} • Joined
                             {{ buyer_data.user.member_since }}
                         </p>
                     </div>
@@ -70,7 +70,7 @@
                 >
                     <span
                         class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
-                        >ACCOUNT: WALLET DETAILS</span
+                        >WALLET</span
                     >
                     <span
                         class="font-mono text-[9px] font-bold text-slate-500 uppercase"
@@ -86,7 +86,7 @@
                         ></div>
                         <span
                             class="block text-[9px] font-black tracking-wider text-slate-500 uppercase"
-                            >LIQUID AVAILABLE BALANCE</span
+                            >AVAILABLE BALANCE</span
                         >
                         <div
                             class="my-1 font-mono text-2xl font-black tracking-tight text-white"
@@ -124,11 +124,11 @@
                             <div class="space-y-0.5">
                                 <span
                                     class="block text-[9px] font-bold text-slate-500 uppercase"
-                                    >Pending Escrow</span
+                                    >Held Funds</span
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Locked contracts</span
+                                    >Pending</span
                                 >
                             </div>
                             <span
@@ -153,7 +153,7 @@
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Node injections</span
+                                    >Deposits   </span
                                 >
                             </div>
                             <span
@@ -178,7 +178,7 @@
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Cleared revenue</span
+                                    >Withdrawals</span
                                 >
                             </div>
                             <span
@@ -370,7 +370,7 @@
                             >
                             <span
                                 class="font-mono text-[9px] text-slate-500 uppercase"
-                                >[ PURCHASED BETSLIPS ]</span
+                                >Your purchases</span
                             >
                         </div>
 
@@ -394,7 +394,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-slate-300 uppercase"
-                                >HISTORICAL_LEDGER: RECENT ACTIVITY</span
+                                >Recent activity</span
                             >
                         </div>
                         <div
@@ -601,7 +601,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-slate-200 uppercase"
-                                >RECENT FORM STREAM</span
+                                >Recent form</span
                             >
                         </div>
                         <div class="p-4">
@@ -635,7 +635,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
-                                >// TIME INTERVAL DECAY WIN RATES</span
+                                >Win rate over time</span
                             >
                         </div>
                         <div class="space-y-3.5 p-4">
@@ -674,7 +674,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
-                                >// PURCHASE STATUS DISTRIBUTION</span
+                                >Purchase status</span
                             >
                         </div>
                         <div class="space-y-3 p-4">

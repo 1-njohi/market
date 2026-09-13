@@ -222,7 +222,7 @@
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Total deposited</span
+                                    >Deposits</span
                                 >
                             </div>
                             <span
@@ -591,7 +591,7 @@
                                         >
                                         <span
                                             class="font-mono text-[10px] font-bold text-slate-400"
-                                            >deposits</span
+                                            >Deposits</span
                                         >
                                     </div>
                                     <span

@@ -27,7 +27,7 @@
                     <h3
                         class="text-xs font-black tracking-widest text-white uppercase"
                     >
-                        Bet History Audit
+                        Bet History
                     </h3>
                     <p
                         class="mt-0.5 text-[10px] font-semibold tracking-wide text-marketplace-muted uppercase"
