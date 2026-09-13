@@ -154,7 +154,7 @@ watch(
         </nav>
     </header>
 
-    <main class="pt-20">
+    <main class="pt-20 bg-[#070b14]">
         <slot />
     </main>
 
