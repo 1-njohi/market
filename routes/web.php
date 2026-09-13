@@ -15,8 +15,35 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SellerLookupController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Illuminate\Http\Request;
 
-// routes/api.php
+
+
+
+
+Route::get('/how-it-works', fn () => Inertia::render('HowItWorks'))->name('how-it-works');
+Route::get('/faq', fn () => Inertia::render('Faq'))->name('faq');
+Route::get('/contact', fn () => Inertia::render('Contact'))->name('contact');
+Route::post('/contact', function (Request $request) {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'subject' => 'required|string|max:255',
+        'message' => 'required|string|min:10',
+    ]);
+    // TODO: Mail::to('hello@betslip-pirates.com')->send(new ContactFormMail($request->validated()));
+    return back()->with('success', 'Thanks — we\'ll be in touch within 24 hours.');
+})->name('contact.submit');
+
+Route::get('/privacy', fn () => Inertia::render('Legal/Privacy'))->name('privacy');
+Route::get('/responsible-gaming', fn () => Inertia::render('Legal/ResponsibleGaming'))->name('responsible-gaming');
+
+
+
+
+Route::get('/about', fn () => Inertia::render('About'))->name('about');
+Route::get('/terms', fn () => Inertia::render('Legal/Terms'))->name('terms');
 Route::get('/sellers/lookup', [SellerLookupController::class, 'show']);
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
