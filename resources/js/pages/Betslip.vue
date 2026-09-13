@@ -160,7 +160,7 @@
                 <span
                     class="mb-0.5 text-[9px] font-black tracking-widest text-[#64748b] uppercase"
                 >
-                    ⚽ {{ leg.fixture.league }}
+                    {{ leg.fixture.league }}
                 </span>
 
                 <!-- Match Head to Head (Always Visible) -->
