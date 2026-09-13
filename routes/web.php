@@ -20,7 +20,11 @@ use Illuminate\Http\Request;
 
 
 
-
+Route::get('/cookies', fn () => Inertia::render('Legal/Cookies'))->name('cookies');
+Route::get('/help', fn () => Inertia::render('HelpCenter'))->name('help');
+Route::get('/community', fn () => Inertia::render('Community'))->name('community');
+Route::get('/careers', fn () => Inertia::render('Careers'))->name('careers');
+Route::get('/press', fn () => Inertia::render('Press'))->name('press');
 
 Route::get('/how-it-works', fn () => Inertia::render('HowItWorks'))->name('how-it-works');
 Route::get('/faq', fn () => Inertia::render('Faq'))->name('faq');
@@ -35,6 +39,10 @@ Route::post('/contact', function (Request $request) {
     // TODO: Mail::to('hello@betslip-pirates.com')->send(new ContactFormMail($request->validated()));
     return back()->with('success', 'Thanks — we\'ll be in touch within 24 hours.');
 })->name('contact.submit');
+
+Route::get('/report', fn () => Inertia::render('Report'))->name('report');
+Route::post('/report', [ReportController::class, 'store'])->name('report.submit');
+
 
 Route::get('/privacy', fn () => Inertia::render('Legal/Privacy'))->name('privacy');
 Route::get('/responsible-gaming', fn () => Inertia::render('Legal/ResponsibleGaming'))->name('responsible-gaming');

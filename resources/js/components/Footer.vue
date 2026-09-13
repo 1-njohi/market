@@ -37,7 +37,7 @@ const columns = [
         links: [
             { label: 'Help Center', href: '/help' },
             { label: 'FAQ', href: '/faq' },
-            { label: 'Report a Bug', href: '/report' },
+            { label: 'Report', href: '/report' },
             { label: 'Community', href: '/community' },
         ],
     },
@@ -250,7 +250,7 @@ const handleSubscribe = () => {
                     <span
                         class="text-[10px] font-bold tracking-widest text-slate-600 uppercase"
                     >
-                        Made in Nairobi 🇰🇪
+                        Made in Kenya
                     </span>
                 </div>
             </div>
