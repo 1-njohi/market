@@ -8,12 +8,13 @@ const currentUrl = computed(() => page.url);
 
 const navItems = [
     { label: 'Dashboard', href: '/admin' },
-    { label: 'Metrics', href: '/admin/metrics' },
     { label: 'Users', href: '/admin/users' },
     { label: 'Withdrawals', href: '/admin/withdrawals' },
     { label: 'Transactions', href: '/admin/transactions' },
     { label: 'Reports', href: '/admin/reports' },
     { label: 'Betslips', href: '/admin/betslips' },
+    { label: 'Metrics', href: '/admin/metrics' },
+    { label: 'Health', href: '/admin/health' },
 ];
 
 const isActive = (href: string) => {

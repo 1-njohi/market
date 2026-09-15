@@ -23,3 +23,8 @@ Schedule::command('metrics:warm')
     ->onOneServer()
     ->withoutOverlapping(15)
     ->runInBackground();
+
+Schedule::command('health:check')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(4)
+    ->runInBackground();

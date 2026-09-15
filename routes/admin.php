@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\WithdrawalController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\BetslipController;
 use App\Http\Controllers\Admin\MetricsController;
+use App\Http\Controllers\Admin\HealthController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -41,4 +42,6 @@ Route::middleware(['auth', 'verified', 'admin'])
 
         Route::get('/metrics', [MetricsController::class, 'index'])->name('metrics.index');
         Route::post('/metrics/refresh', [MetricsController::class, 'refresh'])->name('metrics.refresh');
+
+        Route::get('/health', [HealthController::class, 'index'])->name('health.index');
     });
