@@ -25,7 +25,7 @@ class MarketSettlementService
         $match = $this->extractMatchData($apiData);
         $odds = $fixture->Odds;
 
-        // \Log::info($match);
+        \Log::info($match);
 
         if ($odds->isEmpty()) {
             return;
