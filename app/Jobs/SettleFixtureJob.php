@@ -30,6 +30,10 @@ class SettleFixtureJob implements ShouldQueue
     {
         $matchData = $this->fetchMatchData();
 
+
+        \Log::info("Data['response']");
+        \Log::info($matchData)['response'];
+
         if (!$matchData) {
             // Match not finished or data missing – release back to queue
             Log::info("Match data not ready for fixture {$this->fixture->id}. Releasing job.");
@@ -211,8 +215,6 @@ class SettleFixtureJob implements ShouldQueue
 
             $data = $response->json();
 
-            \Log::info("Data");
-            \Log::info($data);
 
             if (!empty($data['response'])) {
                 $fixtureData = $data['response'][0];
