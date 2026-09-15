@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative w-full overflow-hidden bg-[#070b14] border-b border-gray-800/40 py-20 lg:py-32"
+    class="relative w-full overflow-hidden bg-[#0a1628 border-b border-gray-800/40 py-20 lg:py-32"
   >
     <!-- Ambient Glows -->
     <div
