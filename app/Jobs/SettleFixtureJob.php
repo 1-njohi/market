@@ -37,7 +37,7 @@ class SettleFixtureJob implements ShouldQueue
             return;
         }
 
-        $settlementService->settleFixture($this->fixture, $matchData['response'][0]);
+        $settlementService->settleFixture($this->fixture, $matchData['response']);
 
         Log::info("Fixture {$this->fixture->id} settled successfully.");
     }
@@ -50,7 +50,7 @@ class SettleFixtureJob implements ShouldQueue
     protected function fetchMatchData(): ?array
     {
         // If we have a test endpoint for local development, use it.
-        if (config('app.env') !== 'local-tuna') {
+        if (config('app.env') == 'local') {
             $apiResponse = [
                 "get" => "fixtures",
                 "parameters" => [
