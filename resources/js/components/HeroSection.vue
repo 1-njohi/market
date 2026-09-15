@@ -2,7 +2,7 @@
   <div
     class="relative w-full overflow-hidden bg-[#070b14] border-b border-gray-800/40 py-20 lg:py-32"
   >
-    <!-- Cyberpunk Ambient Glows (unchanged) -->
+    <!-- Ambient Glows -->
     <div
       class="pointer-events-none absolute top-0 left-1/4 h-96 w-96 rounded-full bg-blue-600/10 blur-[120px]"
     ></div>
@@ -20,7 +20,7 @@
         <span
           class="text-[10px] font-black uppercase tracking-widest text-blue-400"
         >
-          The Decentralized Tipster Syndicate
+          A Marketplace for Verified Betslips
         </span>
       </div>
 
@@ -28,11 +28,11 @@
       <h1
         class="mx-auto max-w-4xl text-4xl font-black uppercase leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl"
       >
-        Stop Buying Faked Slips.<br />
+        Stop Buying Fake Betslips.<br />
         <span
           class="bg-gradient-to-r from-blue-500 via-indigo-400 to-amber-400 bg-clip-text text-transparent"
         >
-          Track. Verify. Monetize.
+          Real Picks. Real Results. Real Money.
         </span>
       </h1>
 
@@ -40,29 +40,29 @@
       <p
         class="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-gray-400 sm:text-base"
       >
-        The ultimate zero-trust marketplace for football insights. Powered by
-        direct
-        <span class="font-semibold text-gray-200">api-football.com</span>
-        auditing. Pirates sell pure, un‑deletable data history. Buyers get
-        transparent, mathematical edges.
+        A marketplace where tipsters sell their betslips and buyers pay to
+        unlock the picks. Every result is
+        <span class="font-semibold text-gray-200">verified after the match</span>,
+        so sellers can't edit or fake their history. If a slip loses, you get
+        your money back.
       </p>
 
       <!-- CTAs -->
       <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-        <!-- Primary: Explore Slips → use Inertia Link -->
+        <!-- Primary -->
         <Link
           href="/marketplace"
           class="w-full sm:w-auto px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-[0.98] transition-all text-white text-xs font-bold uppercase tracking-wider shadow-xl shadow-blue-600/20"
         >
-          Explore Verified Slips
+          Browse Betslips
         </Link>
 
-        <!-- Secondary: Become Seller -->
+        <!-- Secondary -->
         <button
           @click="$emit('become-seller')"
           class="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#0d1527] hover:bg-[#121b32] border border-gray-800 text-gray-300 hover:text-white text-xs font-bold uppercase tracking-wider transition-all"
         >
-          Start Selling Your Tips
+          Start Selling Your Betslips
         </button>
       </div>
 
@@ -77,7 +77,7 @@
           <span
             class="mt-1 block text-[10px] font-bold uppercase tracking-widest text-gray-500"
           >
-            Audited Results
+            Results Verified
           </span>
         </div>
         <div class="text-center">
@@ -88,7 +88,7 @@
           <span
             class="mt-1 block text-[10px] font-bold uppercase tracking-widest text-gray-500"
           >
-            Top Pirate ROI
+            Top Pirate Profit
           </span>
         </div>
         <div class="text-center">
@@ -98,7 +98,7 @@
           <span
             class="mt-1 block text-[10px] font-bold uppercase tracking-widest text-gray-500"
           >
-            Fakeable Data
+            Fake Results
           </span>
         </div>
         <div class="text-center">
@@ -109,7 +109,7 @@
           <span
             class="mt-1 block text-[10px] font-bold uppercase tracking-widest text-gray-500"
           >
-            Escrow Settlement
+            Safe Payouts
           </span>
         </div>
       </div>
@@ -120,5 +120,5 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 
-defineEmits(['become-seller']); // explore-slips is no longer needed, it's handled by Link
+defineEmits(['become-seller']);
 </script>
