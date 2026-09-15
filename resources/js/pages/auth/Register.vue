@@ -26,7 +26,7 @@ defineOptions({
 <template>
     <Head title="Register" />
 
-    <div class="min-h-screen flex items-center">
+    <div class="min-h-[90vh] pt-[20vh] px-2 bg-[#070b14] flex items-center">
         <AppSidebarHeader />
         <Form
             v-bind="store.form()"

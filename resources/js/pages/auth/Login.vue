@@ -30,7 +30,7 @@ defineProps<{
     <AppSidebarHeader />
     <Head title="Log in" />
 
-    <div class="flex min-h-screen items-center">
+    <div class="flex min-h-[90vh] items-center bg-[#070b14] px-2">
         <Form
             v-bind="store.form()"
             :reset-on-success="['password']"
