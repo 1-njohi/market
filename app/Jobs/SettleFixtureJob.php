@@ -32,7 +32,7 @@ class SettleFixtureJob implements ShouldQueue
 
 
         \Log::info("Data['response']");
-        \Log::info($matchData)['response'];
+        \Log::info($matchData);
 
         if (!$matchData) {
             // Match not finished or data missing – release back to queue
@@ -41,7 +41,7 @@ class SettleFixtureJob implements ShouldQueue
             return;
         }
 
-        $settlementService->settleFixture($this->fixture, $matchData['response']);
+        $settlementService->settleFixture($this->fixture, $matchData);
 
         Log::info("Fixture {$this->fixture->id} settled successfully.");
     }
