@@ -30,7 +30,6 @@ const isActive = (href: string) => {
             <!-- Brand -->
             <div class="flex h-16 items-center border-b border-[#232d42] px-5">
                 <Link href="/admin" class="flex items-center gap-2">
-                    <span class="text-lg">🏴‍☠️</span>
                     <span
                         class="text-xs font-black tracking-widest text-white uppercase"
                     >
