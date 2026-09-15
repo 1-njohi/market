@@ -1,44 +1,14 @@
 <template>
-    <div
-        class="rounded-xl border border-marketplace-border bg-marketplace-card p-5 shadow-lg select-none"
-    >
-        <!-- ═══ HEADER ═══ -->
-        <div class="mb-5 flex items-start justify-between">
-            <div class="flex items-center gap-3">
-                <div
-                    class="flex h-8 w-8 items-center justify-center rounded-full border border-marketplace-gold/30 bg-marketplace-gold/10 text-marketplace-gold"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="2.5"
-                        stroke="currentColor"
-                        class="h-3.5 w-3.5"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-                        />
-                    </svg>
-                </div>
-                <div>
-                    <h3
-                        class="text-xs font-black tracking-widest text-white uppercase"
-                    >
-                        Bet History
-                    </h3>
-                    <p
-                        class="mt-0.5 text-[10px] font-semibold tracking-wide text-marketplace-muted uppercase"
-                    >
-                        Last {{ data.length }} Days
-                    </p>
-                </div>
-            </div>
-
+    <div class="select-none">
+        <!-- ═══ SUB-HEADER ═══ -->
+        <div class="mb-4 flex items-center justify-between">
             <span
-                class="rounded border border-marketplace-green/20 bg-marketplace-green/10 px-2 py-0.5 font-mono text-xs font-black text-marketplace-green"
+                class="font-mono text-[10px] font-black tracking-widest text-slate-500 uppercase"
+            >
+                Last {{ data.length }} days
+            </span>
+            <span
+                class="rounded border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] font-black text-emerald-400"
             >
                 {{ roi }} ROI
             </span>
@@ -47,9 +17,9 @@
         <!-- ═══ EMPTY ═══ -->
         <div
             v-if="!data || data.length === 0"
-            class="p-6 text-center font-mono text-[10px] tracking-wider text-marketplace-muted uppercase"
+            class="rounded border border-dashed border-[#232d42] bg-[#0a101f] p-6 text-center font-mono text-[10px] tracking-wider text-slate-500 uppercase"
         >
-            No bet history yet.
+            No bet history yet
         </div>
 
         <!-- ═══ GRID ═══ -->
@@ -60,7 +30,7 @@
                     <div
                         v-for="(d, i) in ['M', '', 'W', '', 'F', '', '']"
                         :key="i"
-                        class="flex h-3.5 items-center text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
+                        class="flex h-3.5 items-center text-[9px] font-bold tracking-wider text-slate-600 uppercase"
                     >
                         {{ d }}
                     </div>
@@ -75,7 +45,7 @@
                     <!-- Month label -->
                     <div class="mb-2 h-4">
                         <span
-                            class="flex text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
+                            class="flex text-[9px] font-bold tracking-wider text-slate-500 uppercase"
                         >
                             {{ month.name }}
                         </span>
@@ -91,7 +61,7 @@
                             <div
                                 v-for="(day, dIndex) in col"
                                 :key="dIndex"
-                                class="h-3.5 w-3.5 cursor-crosshair rounded-full border transition-all duration-150 hover:z-50 hover:scale-[1.6]"
+                                class="h-3.5 w-3.5 cursor-crosshair rounded-sm border transition-all duration-150 hover:z-50 hover:scale-[1.6]"
                                 :class="getDayClass(day)"
                                 :style="getDayStyle(day)"
                                 @mouseenter="handleHover($event, day)"
@@ -112,27 +82,25 @@
 
         <!-- ═══ LEGEND ═══ -->
         <div
-            class="mt-5 flex items-center justify-center border-t border-marketplace-border/40 pt-4 text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
+            class="mt-5 flex flex-wrap items-center justify-center gap-4 border-t border-[#232d42]/60 pt-4 text-[10px] font-bold tracking-wider text-slate-500 uppercase"
         >
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-1.5">
-                    <div
-                        class="h-3 w-3 rounded-full border border-marketplace-border bg-marketplace-card/60"
-                    ></div>
-                    <span>Dormant</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <div
-                        class="h-3 w-3 rounded-full border border-rose-500/60 bg-rose-500/30"
-                    ></div>
-                    <span>Net Loss</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <div
-                        class="h-3 w-3 rounded-full border border-marketplace-green/60 bg-marketplace-green/30"
-                    ></div>
-                    <span>Net Profit</span>
-                </div>
+            <div class="flex items-center gap-1.5">
+                <div
+                    class="h-3 w-3 rounded-sm border border-[#232d42] bg-[#0a101f]"
+                ></div>
+                <span>Dormant</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <div
+                    class="h-3 w-3 rounded-sm border border-rose-500/60 bg-rose-500/30"
+                ></div>
+                <span>Net loss</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <div
+                    class="h-3 w-3 rounded-sm border border-emerald-500/60 bg-emerald-500/30"
+                ></div>
+                <span>Net profit</span>
             </div>
         </div>
 
@@ -141,10 +109,10 @@
             <div
                 v-if="tooltip.show"
                 :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }"
-                class="pointer-events-none fixed z-[9999] -translate-x-1/2 -translate-y-full overflow-hidden rounded-lg border border-marketplace-border bg-marketplace-card shadow-2xl"
+                class="pointer-events-none fixed z-[9999] -translate-x-1/2 -translate-y-full overflow-hidden rounded-lg border border-[#232d42] bg-[#111622] shadow-2xl"
             >
                 <div
-                    class="flex items-center justify-between gap-3 border-b border-marketplace-border/60 bg-marketplace-card/80 px-3 py-1.5"
+                    class="flex items-center justify-between gap-3 border-b border-[#232d42]/60 bg-[#0a101f] px-3 py-1.5"
                 >
                     <span
                         class="text-[10px] font-black tracking-wider text-white uppercase"
@@ -152,20 +120,20 @@
                         {{ tooltip.date }}
                     </span>
                     <span
-                        class="text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
+                        class="text-[9px] font-bold tracking-wider text-slate-500 uppercase"
                     >
                         {{ tooltip.dayName }}
                     </span>
                 </div>
                 <div class="px-3 py-2">
                     <div
-                        class="font-mono text-sm font-black leading-none"
+                        class="font-mono text-sm leading-none font-black"
                         :class="
                             tooltip.value > 0
-                                ? 'text-marketplace-green'
+                                ? 'text-emerald-400'
                                 : tooltip.value < 0
                                   ? 'text-rose-400'
-                                  : 'text-marketplace-muted'
+                                  : 'text-slate-500'
                         "
                     >
                         {{ tooltip.value > 0 ? '+' : ''
@@ -174,12 +142,12 @@
                     </div>
                     <div
                         v-if="tooltip.summary"
-                        class="mt-1.5 flex items-center gap-2 border-t border-marketplace-border/40 pt-1.5 font-mono text-[10px]"
+                        class="mt-1.5 flex items-center gap-2 border-t border-[#232d42]/40 pt-1.5 font-mono text-[10px]"
                     >
-                        <span class="text-marketplace-muted uppercase"
+                        <span class="text-slate-500 uppercase"
                             >{{ tooltip.summary.total_bets }} bets</span
                         >
-                        <span class="text-marketplace-green"
+                        <span class="text-emerald-400"
                             >{{ tooltip.summary.total_won }}W</span
                         >
                         <span class="text-rose-400"
@@ -273,9 +241,9 @@ const extremes = computed(() => {
 // ─── Class: base border color per day ───
 const getDayClass = (day) => {
     if (day.isEmpty) return 'opacity-0';
-    if (day.value > 0) return 'border-marketplace-green/70';
+    if (day.value > 0) return 'border-emerald-500/70';
     if (day.value < 0) return 'border-rose-500/70';
-    return 'border-marketplace-border/40';
+    return 'border-[#232d42]';
 };
 
 // ─── Style: fill + glow intensity ───

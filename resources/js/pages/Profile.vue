@@ -1,43 +1,78 @@
 <template>
     <div
-        class="min-h-screen bg-[#070b14] p-4 font-sans text-slate-200 select-none md:p-6 lg:p-8"
+        class="min-h-screen bg-[#070b14] px-4 py-6 font-sans text-slate-200 selection:bg-sky-500/30 selection:text-white lg:px-8 lg:py-10"
     >
-        <div class="mx-auto max-w-[1200px] space-y-6">
-            <!-- ═══ HERO ═══ -->
+        <div class="mx-auto w-full max-w-7xl space-y-6">
+            <!-- ═══════════════ HEADER ═══════════════ -->
             <div
-                class="flex flex-col items-start justify-between gap-6 rounded-xl border border-marketplace-border bg-marketplace-card p-6 shadow-lg md:flex-row md:items-center"
+                class="flex w-full flex-col gap-4 border-b border-gray-800/60 pb-6 md:flex-row md:items-start md:justify-between"
             >
-                <div class="flex items-center gap-4">
-                    <div class="relative">
+                <!-- LEFT: profile -->
+                <div class="flex min-w-0 items-start gap-3 md:gap-4">
+                    <div class="relative flex-shrink-0">
                         <img
                             :src="profile.seller.avatar"
-                            alt="Avatar"
-                            class="h-20 w-20 rounded-full border-2 border-marketplace-border object-cover"
+                            :alt="profile.seller.name"
+                            class="h-14 w-14 rounded border border-sky-500/30 bg-[#111622] object-cover md:h-16 md:w-16"
                         />
                         <span
                             v-if="profile.seller.is_verified"
-                            class="absolute right-0 bottom-0 rounded-full bg-marketplace-gold px-1.5 py-0.5 text-[10px] font-black text-marketplace-bg shadow-md"
+                            class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-black text-[#070b14]"
+                            title="VERIFIED"
                             >✓</span
                         >
                     </div>
-                    <div class="space-y-1">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <h1
-                                class="text-xl font-black tracking-wide text-white uppercase"
-                            >
-                                {{ profile.seller.name }}
-                            </h1>
+
+                    <div class="min-w-0 flex-1">
+                        <!-- Eyebrow: role + rank -->
+                        <div
+                            class="flex flex-wrap items-center gap-2 text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                        >
+                            <span>Tipster</span>
                             <span
                                 v-if="profile.seller.rank"
-                                class="rounded border border-marketplace-gold/30 bg-marketplace-gold/10 px-2 py-0.5 text-[9px] font-black tracking-wider text-marketplace-gold uppercase"
+                                class="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[9px] text-amber-400"
                             >
                                 #{{ profile.seller.rank }} Global
                             </span>
                         </div>
 
+                        <!-- Name -->
+                        <h1
+                            class="mt-0.5 truncate font-mono text-lg font-black tracking-tight text-white uppercase md:text-xl"
+                        >
+                            {{ profile.seller.name }}
+                        </h1>
+
+                        <!-- Meta strip -->
+                        <div
+                            class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium text-slate-400"
+                        >
+                            <span v-if="profile.seller.location">
+                                📍 {{ profile.seller.location }}
+                            </span>
+                            <span class="text-slate-600">•</span>
+                            <span>
+                                Member since
+                                <span class="font-bold text-slate-300">{{
+                                    processMemberSince(
+                                        profile.seller.member_since,
+                                    )
+                                }}</span>
+                            </span>
+                            <span class="text-slate-600">•</span>
+                            <span>
+                                <span class="font-bold text-slate-300">{{
+                                    profile.seller.followers
+                                }}</span>
+                                followers
+                            </span>
+                        </div>
+
+                        <!-- Badges -->
                         <div
                             v-if="profile.seller.badges.length"
-                            class="flex flex-wrap gap-1"
+                            class="mt-2 flex flex-wrap gap-1"
                         >
                             <span
                                 v-for="badge in profile.seller.badges"
@@ -47,305 +82,263 @@
                                 {{ badge }}
                             </span>
                         </div>
-
-                        <p
-                            class="line-clamp-2 max-w-md text-xs leading-relaxed text-marketplace-muted"
-                        >
-                            {{ profile.seller.bio }}
-                        </p>
-
-                        <div
-                            class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-bold text-marketplace-muted uppercase"
-                        >
-                            <div class="flex items-center gap-1.5">
-                                <span>📍</span>
-                                <span>{{ profile.seller.location }}</span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <span>⚓ Member since</span>
-                                <span class="text-slate-400">{{
-                                    processMemberSince(
-                                        profile.seller.member_since,
-                                    )
-                                }}</span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <span>👥</span>
-                                <span class="text-slate-400"
-                                    >{{
-                                        profile.seller.followers
-                                    }}
-                                    followers</span
-                                >
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <!-- CTAs -->
-                <div
-                    class="flex w-full items-center gap-3 border-t border-marketplace-border/40 pt-4 md:w-auto md:border-none md:pt-0"
-                >
+                <!-- RIGHT: CTAs -->
+                <div class="flex flex-shrink-0 items-center gap-2">
+                    <button
+                        v-if="profile.meta.can_message"
+                        class="rounded border border-[#232d42] bg-[#111622] px-4 py-2 text-[10px] font-black tracking-widest text-slate-300 uppercase transition-colors hover:border-sky-500/40 hover:text-white"
+                    >
+                        ✉ Message
+                    </button>
                     <button
                         v-if="!profile.meta.is_owner"
                         @click="toggleFollow"
-                        class="flex-1 cursor-pointer rounded border px-5 py-3 text-xs font-black tracking-widest uppercase transition-all md:flex-none"
+                        class="cursor-pointer rounded border px-5 py-2 text-[10px] font-black tracking-widest uppercase transition-all"
                         :class="
                             profile.meta.is_following
-                                ? 'border-marketplace-border bg-transparent text-slate-400 hover:text-white'
-                                : 'border-marketplace-gold/30 bg-marketplace-gold/10 text-marketplace-gold hover:bg-marketplace-gold/20'
+                                ? 'border-[#232d42] bg-[#111622] text-slate-400 hover:text-white'
+                                : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
                         "
                     >
                         {{ profile.meta.is_following ? 'Following' : 'Follow' }}
                     </button>
-                    <button
-                        v-if="profile.meta.can_message"
-                        class="cursor-pointer rounded border border-marketplace-border bg-marketplace-card px-4 py-3 text-xs font-black tracking-wider text-slate-300 uppercase transition-all hover:text-white"
-                    >
-                        ✉ Message
-                    </button>
                 </div>
             </div>
 
-            <!-- ═══ MAIN GRID ═══ -->
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <!-- LEFT -->
-                <div class="space-y-6 lg:col-span-2">
-                    <!-- Core metrics -->
-                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                        <div
-                            class="rounded-xl border border-marketplace-border bg-marketplace-card p-4 text-center shadow-lg"
+            <!-- ═══════════════ BIO ═══════════════ -->
+            <div
+                v-if="profile.seller.bio"
+                class="rounded border border-[#232d42] bg-[#111622] p-4"
+            >
+                <span
+                    class="mb-2 block text-[10px] font-black tracking-widest text-slate-500 uppercase"
+                    >About</span
+                >
+                <p class="text-xs leading-relaxed text-slate-400">
+                    {{ profile.seller.bio }}
+                </p>
+            </div>
+
+            <!-- ═══════════════ METRIC CARDS ═══════════════ -->
+            <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                <!-- WIN RATE -->
+                <div
+                    class="flex flex-col justify-between rounded border border-[#232d42] bg-[#111622] p-4"
+                >
+                    <div>
+                        <span
+                            class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
+                            >Win rate</span
                         >
+                        <div class="mt-2 flex items-baseline gap-2">
                             <span
-                                class="mb-1 block text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
+                                class="font-mono text-3xl font-black tracking-tight text-white"
+                                >{{ profile.performance.win_rate }}%</span
                             >
-                                Win Rate
-                            </span>
-                            <span
-                                class="font-mono text-2xl font-black text-marketplace-green"
-                            >
-                                {{ profile.performance.win_rate }}%
-                            </span>
                         </div>
-                        <div
-                            class="rounded-xl border border-marketplace-border bg-marketplace-card p-4 text-center shadow-lg"
+                    </div>
+                    <div
+                        class="mt-4 flex justify-between border-t border-gray-800/40 pt-2 font-mono text-[10px] tracking-tight text-slate-400 uppercase"
+                    >
+                        <span>Won / Settled:</span>
+                        <span class="font-bold text-white">
+                            {{ profile.performance.won_betslips }} /
+                            {{ profile.performance.total_betslips }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- ROI -->
+                <div
+                    class="flex flex-col justify-between rounded border border-[#232d42] bg-[#111622] p-4"
+                >
+                    <div>
+                        <span
+                            class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                            >ROI</span
                         >
+                        <div class="mt-2 flex items-baseline gap-2">
                             <span
-                                class="mb-1 block text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
+                                class="font-mono text-3xl font-black tracking-tight text-white"
+                                >{{ profile.performance.roi }}%</span
                             >
-                                ROI
-                            </span>
-                            <span
-                                class="font-mono text-2xl font-black text-sky-400"
-                            >
-                                {{ profile.performance.roi }}%
-                            </span>
                         </div>
-                        <div
-                            class="rounded-xl border border-marketplace-border bg-marketplace-card p-4 text-center shadow-lg"
+                    </div>
+                    <div
+                        class="mt-4 flex justify-between border-t border-gray-800/40 pt-2 font-mono text-[10px] tracking-tight text-slate-400 uppercase"
+                    >
+                        <span>Avg Odds:</span>
+                        <span class="font-bold text-white">{{
+                            profile.performance.avg_odds
+                        }}</span>
+                    </div>
+                </div>
+
+                <!-- TOTAL SLIPS -->
+                <div
+                    class="flex flex-col justify-between rounded border border-[#232d42] bg-[#111622] p-4"
+                >
+                    <div>
+                        <span
+                            class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
+                            >Total Betslips</span
                         >
+                        <div class="mt-2 flex items-baseline gap-2">
                             <span
-                                class="mb-1 block text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
+                                class="font-mono text-3xl font-black tracking-tight text-white"
+                                >{{ profile.performance.total_betslips }}</span
                             >
-                                Total Slips
-                            </span>
-                            <span
-                                class="font-mono text-2xl font-black text-marketplace-gold"
-                            >
-                                {{ profile.performance.total_betslips }}
-                            </span>
                         </div>
-                        <div
-                            class="rounded-xl border border-marketplace-border bg-marketplace-card p-4 text-center shadow-lg"
+                    </div>
+                    <div
+                        class="mt-4 flex justify-between border-t border-gray-800/40 pt-2 font-mono text-[10px] tracking-tight text-slate-400 uppercase"
+                    >
+                        <span>Active:</span>
+                        <span class="font-bold text-white">{{
+                            profile.available_betslips.length
+                        }}</span>
+                    </div>
+                </div>
+
+                <!-- STREAK -->
+                <div
+                    class="flex flex-col justify-between rounded border border-[#232d42] bg-[#111622] p-4"
+                >
+                    <div>
+                        <span
+                            class="text-[10px] font-black tracking-widest uppercase"
+                            :class="
+                                profile.performance.current_streak.type ===
+                                'win'
+                                    ? 'text-emerald-400'
+                                    : 'text-rose-400'
+                            "
+                            >Current Streak</span
                         >
+                        <div class="mt-2 flex items-baseline gap-2">
                             <span
-                                class="mb-1 block text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
+                                class="font-mono text-3xl font-black tracking-tight text-white"
+                                >{{
+                                    profile.performance.current_streak.count
+                                }}</span
                             >
-                                Streak
-                            </span>
                             <span
-                                class="font-mono text-2xl font-black"
+                                class="font-mono text-xs font-black uppercase"
                                 :class="
                                     profile.performance.current_streak.type ===
                                     'win'
-                                        ? 'text-marketplace-green'
+                                        ? 'text-emerald-400'
                                         : 'text-rose-400'
                                 "
                             >
-                                {{ profile.performance.current_streak.count }}
-                                <span class="text-xs font-normal">
-                                    {{
-                                        profile.performance.current_streak
-                                            .type === 'win'
-                                            ? 'W'
-                                            : 'L'
-                                    }}
-                                </span>
+                                {{
+                                    profile.performance.current_streak.type ===
+                                    'win'
+                                        ? 'WINS'
+                                        : 'LOSSES'
+                                }}
                             </span>
                         </div>
                     </div>
-
-                    <!-- Recent Form + more metrics -->
-                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                        <div
-                            class="rounded-xl border border-marketplace-border bg-marketplace-card p-4"
-                        >
-                            <span
-                                class="text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
-                            >
-                                Avg Odds
-                            </span>
-                            <div
-                                class="mt-1 font-mono text-lg font-black text-marketplace-gold"
-                            >
-                                {{ profile.performance.avg_odds }}
-                            </div>
-                        </div>
-                        <div
-                            class="rounded-xl border border-marketplace-border bg-marketplace-card p-4"
-                        >
-                            <span
-                                class="text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
-                            >
-                                Recent Form
-                            </span>
-                            <div class="mt-2 flex flex-wrap gap-1">
-                                <span
-                                    v-for="(
-                                        form, idx
-                                    ) in profile.performance.recent_form.slice(
-                                        0,
-                                        6,
-                                    )"
-                                    :key="idx"
-                                    :class="[
-                                        'flex h-5 w-5 items-center justify-center rounded-sm border font-mono text-[9px] font-black',
-                                        form.status === 'W'
-                                            ? 'border-marketplace-green/60 bg-marketplace-green/20 text-marketplace-green'
-                                            : 'border-red-500/60 bg-red-500/20 text-red-400',
-                                    ]"
-                                    :title="form.date"
-                                >
-                                    {{ form.status }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Heatmap -->
-                    <HeatMap
-                        :data="profile.performance.win_rate_trend.data"
-                        :roi="profile.performance.roi + '%'"
-                    />
-
-                    <!-- Predictive -->
                     <div
-                        class="space-y-4 rounded-xl border border-amber-500/20 bg-marketplace-card p-5 shadow-lg"
+                        class="mt-4 flex justify-between border-t border-gray-800/40 pt-2 font-mono text-[10px] tracking-tight text-slate-400 uppercase"
+                    >
+                        <span>Last 6:</span>
+                        <span class="flex gap-0.5">
+                            <span
+                                v-for="(
+                                    form, idx
+                                ) in profile.performance.recent_form.slice(
+                                    0,
+                                    6,
+                                )"
+                                :key="idx"
+                                :class="[
+                                    'flex h-3 w-3 items-center justify-center rounded-sm font-mono text-[7px] font-black',
+                                    form.status === 'W'
+                                        ? 'bg-emerald-500/20 text-emerald-400'
+                                        : 'bg-rose-500/20 text-rose-400',
+                                ]"
+                                :title="form.date"
+                            >
+                                {{ form.status }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════ MAIN GRID ═══════════════ -->
+            <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+                <!-- LEFT TRACK -->
+                <div class="space-y-6 lg:col-span-8">
+                    <!-- HEATMAP -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
                     >
                         <div
-                            class="flex items-center justify-between border-b border-marketplace-border/60 pb-3"
+                            class="border-b border-gray-800/60 bg-[#111a30] p-4"
                         >
-                            <h3
-                                class="flex items-center gap-2 text-xs font-black tracking-widest text-amber-400 uppercase"
-                            >
-                                Insights
-                            </h3>
                             <span
-                                class="rounded border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-black text-amber-500 uppercase"
+                                class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                                >Win rate trend</span
                             >
-                                Risk: {{ profile.predictive.risk_level }}
-                            </span>
                         </div>
-                        <div
-                            class="grid grid-cols-1 gap-4 font-mono text-sm sm:grid-cols-3"
-                        >
-                            <div
-                                class="rounded border border-marketplace-border bg-marketplace-card/40 p-3"
-                            >
-                                <span
-                                    class="mb-1 block text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
-                                >
-                                    Projected WR
-                                </span>
-                                <span class="text-base font-black text-white"
-                                    >{{
-                                        profile.predictive.projected_win_rate
-                                    }}%</span
-                                >
-                            </div>
-                            <div
-                                class="rounded border border-marketplace-border bg-marketplace-card/40 p-3"
-                            >
-                                <span
-                                    class="mb-1 block text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
-                                >
-                                    Confidence
-                                </span>
-                                <span class="text-base font-black text-sky-400"
-                                    >{{
-                                        profile.predictive.confidence_score
-                                    }}%</span
-                                >
-                            </div>
-                            <div
-                                class="rounded border border-marketplace-border bg-marketplace-card/40 p-3"
-                            >
-                                <span
-                                    class="mb-1 block text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
-                                >
-                                    Best Day
-                                </span>
-                                <span
-                                    class="text-xs font-black tracking-wide text-marketplace-green uppercase"
-                                >
-                                    {{
-                                        profile.predictive.best_times[0]?.day ??
-                                        '—'
-                                    }}
-                                    ({{
-                                        profile.predictive.best_times[0]
-                                            ?.win_rate ?? 0
-                                    }}%)
-                                </span>
-                            </div>
+                        <div class="p-4">
+                            <HeatMap
+                                :data="profile.performance.win_rate_trend.data"
+                                :roi="profile.performance.roi + '%'"
+                            />
                         </div>
                     </div>
 
-                    <!-- Expertise -->
+                    <!-- EXPERTISE -->
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Top leagues -->
                         <div
-                            class="space-y-3 rounded-xl border border-marketplace-border bg-marketplace-card p-4"
+                            class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
                         >
-                            <h3
-                                class="border-b border-marketplace-border/60 pb-2 text-xs font-black tracking-widest text-slate-400 uppercase"
+                            <div
+                                class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
                             >
-                                Top leagues
-                            </h3>
+                                <span
+                                    class="text-[10px] font-black tracking-widest text-purple-400 uppercase"
+                                    >Top leagues</span
+                                >
+                                <span
+                                    class="font-mono text-[9px] text-slate-500 uppercase"
+                                    >WR / Count</span
+                                >
+                            </div>
                             <div
                                 v-if="!profile.expertise.top_leagues.length"
-                                class="text-center text-[10px] text-marketplace-muted uppercase"
+                                class="p-6 text-center text-[10px] font-bold text-slate-500 uppercase"
                             >
-                                No data
+                                No data yet
                             </div>
-                            <div v-else class="space-y-2">
+                            <div v-else class="divide-y divide-gray-800/40">
                                 <div
                                     v-for="league in profile.expertise
                                         .top_leagues"
                                     :key="league.league_name"
-                                    class="flex items-center justify-between text-xs"
+                                    class="flex items-center justify-between px-4 py-3"
                                 >
                                     <span
-                                        class="max-w-[150px] truncate font-bold text-slate-300"
-                                        >{{ league.league_name }}</span
+                                        class="max-w-[160px] truncate text-[11px] font-bold text-slate-300 uppercase"
                                     >
+                                        {{ league.league_name }}
+                                    </span>
                                     <div
                                         class="flex gap-3 font-mono text-[11px]"
                                     >
                                         <span
-                                            class="font-bold text-marketplace-green"
+                                            class="font-black text-emerald-400"
                                             >{{ league.win_rate }}%</span
                                         >
-                                        <span class="text-marketplace-muted">{{
+                                        <span class="text-slate-500">{{
                                             league.betslips
                                         }}</span>
                                     </div>
@@ -353,39 +346,48 @@
                             </div>
                         </div>
 
+                        <!-- Top markets -->
                         <div
-                            class="space-y-3 rounded-xl border border-marketplace-border bg-marketplace-card p-4"
+                            class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
                         >
-                            <h3
-                                class="border-b border-marketplace-border/60 pb-2 text-xs font-black tracking-widest text-slate-400 uppercase"
+                            <div
+                                class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
                             >
-                                Top Markets
-                            </h3>
+                                <span
+                                    class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                                    >Top markets</span
+                                >
+                                <span
+                                    class="font-mono text-[9px] text-slate-500 uppercase"
+                                    >WR / Count</span
+                                >
+                            </div>
                             <div
                                 v-if="!profile.expertise.top_markets.length"
-                                class="text-center text-[10px] text-marketplace-muted uppercase"
+                                class="p-6 text-center text-[10px] font-bold text-slate-500 uppercase"
                             >
-                                No data
+                                No data yet
                             </div>
-                            <div v-else class="space-y-2">
+                            <div v-else class="divide-y divide-gray-800/40">
                                 <div
                                     v-for="market in profile.expertise
                                         .top_markets"
                                     :key="market.market_name"
-                                    class="flex items-center justify-between text-xs"
+                                    class="flex items-center justify-between px-4 py-3"
                                 >
                                     <span
-                                        class="max-w-[150px] truncate font-bold text-slate-300"
-                                        >{{ market.market_name }}</span
+                                        class="max-w-[160px] truncate text-[11px] font-bold text-slate-300 uppercase"
                                     >
+                                        {{ market.market_name }}
+                                    </span>
                                     <div
                                         class="flex gap-3 font-mono text-[11px]"
                                     >
                                         <span
-                                            class="font-bold text-marketplace-green"
+                                            class="font-black text-emerald-400"
                                             >{{ market.win_rate }}%</span
                                         >
-                                        <span class="text-marketplace-muted">{{
+                                        <span class="text-slate-500">{{
                                             market.betslips
                                         }}</span>
                                     </div>
@@ -394,70 +396,87 @@
                         </div>
                     </div>
 
-                    <!-- Available betslips -->
-                    <div class="space-y-3">
-                        <h2
-                            class="text-xs font-black tracking-widest text-slate-400 uppercase"
+                    <!-- BETSLIPS FOR SALE -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
                         >
-                            Betslips for sale
-                        </h2>
+                            <span
+                                class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
+                            >
+                                Betslips for sale [{{
+                                    profile.available_betslips.length
+                                }}]
+                            </span>
+                            <span
+                                class="font-mono text-[9px] text-slate-500 uppercase"
+                                >Live</span
+                            >
+                        </div>
+
                         <div
                             v-if="!profile.available_betslips.length"
-                            class="rounded-xl border border-marketplace-border bg-marketplace-card p-6 text-center text-xs text-marketplace-muted uppercase"
+                            class="p-8 text-center text-[10px] font-bold text-slate-500 uppercase"
                         >
-                            No live entries listed right now.
+                            No live entries listed right now
                         </div>
+
                         <div
                             v-else
-                            class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                            class="grid grid-cols-1 gap-px bg-gray-800/40 sm:grid-cols-2"
                         >
                             <div
                                 v-for="slip in profile.available_betslips"
                                 :key="slip.id"
-                                class="flex flex-col justify-between space-y-3 rounded-xl border border-marketplace-border bg-marketplace-card p-4 transition-colors hover:border-sky-500/40"
+                                class="flex flex-col justify-between gap-4 bg-[#111622] p-4 transition-colors hover:bg-[#131a2a]"
                             >
+                                <!-- Top row: code + odds -->
                                 <div class="flex items-start justify-between">
-                                    <div>
+                                    <div class="min-w-0">
                                         <span
-                                            class="rounded border border-marketplace-border bg-marketplace-card/60 px-2 py-0.5 font-mono text-[10px] text-slate-400 uppercase"
+                                            class="inline-block rounded border border-[#232d42] bg-[#0a101f] px-2 py-0.5 font-mono text-[10px] text-slate-400 uppercase"
                                         >
                                             {{ slip.code }}
                                         </span>
                                         <p
-                                            class="mt-1.5 text-[10px] font-bold text-marketplace-muted uppercase"
+                                            class="mt-1.5 text-[10px] font-bold tracking-wider text-slate-500 uppercase"
                                         >
                                             {{ slip.legs }} Selections
                                         </p>
                                     </div>
                                     <div class="text-right">
                                         <span
-                                            class="block text-[9px] font-bold text-marketplace-muted uppercase"
+                                            class="block text-[9px] font-bold tracking-wider text-slate-500 uppercase"
                                             >Odds</span
                                         >
                                         <span
-                                            class="font-mono text-sm font-black text-marketplace-gold"
+                                            class="font-mono text-base font-black text-amber-400"
                                             >{{ slip.total_odds }}</span
                                         >
                                     </div>
                                 </div>
+
+                                <!-- Bottom row: price + CTA -->
                                 <div
-                                    class="flex items-center justify-between border-t border-marketplace-border/40 pt-3"
+                                    class="flex items-center justify-between border-t border-gray-800/40 pt-3"
                                 >
                                     <div>
                                         <span
-                                            class="block text-[8px] font-bold text-marketplace-muted uppercase"
-                                            >Cost</span
+                                            class="block text-[9px] font-bold tracking-wider text-slate-500 uppercase"
+                                            >Unlock Price</span
                                         >
                                         <span
-                                            class="font-mono text-sm font-black text-marketplace-green"
+                                            class="font-mono text-sm font-black text-emerald-400"
                                             >KES {{ slip.price }}</span
                                         >
                                     </div>
                                     <button
                                         @click="viewBetslip(slip.code)"
-                                        class="cursor-pointer rounded border-b border-amber-700 bg-marketplace-gold px-3 py-2 text-[11px] font-black tracking-wide text-marketplace-bg uppercase shadow transition-all hover:bg-marketplace-gold/80"
+                                        class="cursor-pointer rounded border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[10px] font-black tracking-widest text-amber-400 uppercase transition-colors hover:bg-amber-500/20"
                                     >
-                                        View Betslip
+                                        View
                                     </button>
                                 </div>
                             </div>
@@ -465,115 +484,205 @@
                     </div>
                 </div>
 
-                <!-- RIGHT -->
-                <div class="space-y-6">
-                    <!-- Marketplace dynamics -->
+                <!-- RIGHT TRACK -->
+                <div class="space-y-6 lg:col-span-4">
+                    <!-- RECENT FORM -->
                     <div
-                        class="space-y-3 rounded-xl border border-marketplace-border bg-marketplace-card p-4 shadow-lg"
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
                     >
-                        <h3
-                            class="border-b border-marketplace-border/60 pb-2 text-xs font-black tracking-widest text-slate-400 uppercase"
-                        >
-                            Marketplace activity
-                        </h3>
                         <div
-                            class="grid grid-cols-2 gap-4 py-1 text-center font-mono"
+                            class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
                         >
-                            <div
-                                class="rounded border border-marketplace-border/60 bg-marketplace-card/40 p-2.5"
+                            <span
+                                class="text-[10px] font-black tracking-widest text-slate-200 uppercase"
+                                >Recent form</span
                             >
-                                <span
-                                    class="block text-[8px] font-bold text-marketplace-muted uppercase"
-                                    >Sold Rate</span
-                                >
-                                <span class="text-sm font-black text-white"
-                                    >{{ profile.performance.sold_rate }}%</span
-                                >
-                            </div>
-                            <div
-                                class="rounded border border-marketplace-border/60 bg-marketplace-card/40 p-2.5"
+                            <span
+                                class="font-mono text-[9px] text-slate-500 uppercase"
+                                >Last 6</span
                             >
-                                <span
-                                    class="block text-[8px] font-bold text-marketplace-muted uppercase"
-                                    >Last Sale</span
-                                >
-                                <span class="text-xs font-black text-sky-400">{{
-                                    profile.transaction_history.quick_stats
-                                        .last_sale
-                                }}</span>
-                            </div>
                         </div>
-                        <div class="space-y-2 pt-1 text-xs">
-                            <div
-                                class="flex justify-between text-[10px] font-bold text-marketplace-muted uppercase"
-                            >
-                                <span>Sales this week</span>
-                                <span class="font-mono text-slate-300">{{
-                                    profile.transaction_history.quick_stats
-                                        .sales_this_week
-                                }}</span>
-                            </div>
-                            <div
-                                class="flex justify-between text-[10px] font-bold text-marketplace-muted uppercase"
-                            >
-                                <span>Sales this month</span>
-                                <span class="font-mono text-slate-300">{{
-                                    profile.transaction_history.quick_stats
-                                        .sales_this_month
-                                }}</span>
-                            </div>
-                            <div
-                                class="flex justify-between text-[10px] font-bold text-marketplace-muted uppercase"
-                            >
-                                <span>Avg sell time</span>
-                                <span class="font-mono text-slate-300"
-                                    >{{
-                                        profile.transaction_history.quick_stats
-                                            .avg_time_to_sell
-                                    }}
-                                    min</span
+                        <div class="p-4">
+                            <div class="flex flex-wrap gap-1.5">
+                                <div
+                                    v-for="(form, index) in profile.performance
+                                        .recent_form"
+                                    :key="index"
+                                    :class="[
+                                        'flex h-7 w-7 items-center justify-center rounded-sm font-mono text-xs font-black',
+                                        form.status === 'W'
+                                            ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                                            : 'border border-rose-500/30 bg-rose-500/10 text-rose-400',
+                                    ]"
+                                    :title="`Settled: ${form.date}`"
                                 >
+                                    {{ form.status }}
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Accuracy breakdown -->
+                    <!-- ACCURACY OVER TIME -->
                     <div
-                        class="space-y-3 rounded-xl border border-marketplace-border bg-marketplace-card p-4 shadow-lg"
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
                     >
-                        <h3
-                            class="border-b border-marketplace-border/60 pb-2 text-xs font-black tracking-widest text-slate-400 uppercase"
+                        <div
+                            class="border-b border-gray-800/60 bg-[#111a30] p-4"
                         >
-                            Accuracy over time
-                        </h3>
-                        <div class="space-y-2 font-mono text-xs">
-                            <div
-                                v-for="(rate, title) in profile.performance
-                                    .win_rate_breakdown"
-                                :key="title"
-                                class="flex items-center justify-between"
+                            <span
+                                class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                                >Win rate over time</span
                             >
-                                <span
-                                    class="font-sans text-[10px] font-bold text-marketplace-muted uppercase"
-                                >
-                                    {{ title.replace(/_/g, ' ') }}
-                                </span>
+                        </div>
+                        <div class="space-y-3.5 p-4">
+                            <div
+                                v-for="(rate, label) in profile.performance
+                                    .win_rate_breakdown"
+                                :key="label"
+                                class="space-y-1"
+                            >
                                 <div
-                                    class="flex w-2/3 items-center justify-end gap-3"
+                                    class="flex items-center justify-between font-mono text-[10px] font-black tracking-wider text-slate-400 uppercase"
                                 >
-                                    <div
-                                        class="h-1.5 w-24 overflow-hidden rounded-full border border-marketplace-border bg-marketplace-card/40"
-                                    >
-                                        <div
-                                            class="h-full bg-marketplace-green"
-                                            :style="{ width: rate + '%' }"
-                                        ></div>
-                                    </div>
-                                    <span
-                                        class="w-10 text-right font-black text-marketplace-green"
+                                    <span>{{ label.replace(/_/g, ' ') }}</span>
+                                    <span class="font-mono text-white"
                                         >{{ rate }}%</span
                                     >
                                 </div>
+                                <div
+                                    class="h-1.5 w-full overflow-hidden rounded border border-[#232d42] bg-[#111622]"
+                                >
+                                    <div
+                                        class="h-full bg-gradient-to-r from-sky-500 to-emerald-400 transition-all duration-500"
+                                        :style="{ width: `${rate}%` }"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INSIGHTS -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
+                                >Insights</span
+                            >
+                            <span
+                                class="rounded border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 font-mono text-[9px] font-black text-amber-400 uppercase"
+                            >
+                                Risk: {{ profile.predictive.risk_level }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 gap-px bg-gray-800/40">
+                            <div
+                                class="flex items-center justify-between bg-[#111622] px-4 py-3"
+                            >
+                                <span
+                                    class="text-[10px] font-bold tracking-wider text-slate-500 uppercase"
+                                    >Projected WR</span
+                                >
+                                <span
+                                    class="font-mono text-sm font-black text-white"
+                                    >{{
+                                        profile.predictive.projected_win_rate
+                                    }}%</span
+                                >
+                            </div>
+                            <div
+                                class="flex items-center justify-between bg-[#111622] px-4 py-3"
+                            >
+                                <span
+                                    class="text-[10px] font-bold tracking-wider text-slate-500 uppercase"
+                                    >Confidence</span
+                                >
+                                <span
+                                    class="font-mono text-sm font-black text-sky-400"
+                                    >{{
+                                        profile.predictive.confidence_score
+                                    }}%</span
+                                >
+                            </div>
+                            <div
+                                class="flex items-center justify-between bg-[#111622] px-4 py-3"
+                            >
+                                <span
+                                    class="text-[10px] font-bold tracking-wider text-slate-500 uppercase"
+                                    >Best day</span
+                                >
+                                <span
+                                    class="font-mono text-[11px] font-black tracking-wide text-emerald-400 uppercase"
+                                >
+                                    {{
+                                        profile.predictive.best_times[0]?.day ??
+                                        '—'
+                                    }}
+                                    {{
+                                        profile.predictive.best_times[0]
+                                            ?.win_rate
+                                            ? `(${profile.predictive.best_times[0].win_rate}%)`
+                                            : ''
+                                    }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- REPUTATION -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-purple-400 uppercase"
+                                >Reputation</span
+                            >
+                        </div>
+                        <div class="space-y-3 p-4">
+                            <div class="flex items-center justify-between">
+                                <span
+                                    class="text-[10px] font-bold tracking-wider text-slate-500 uppercase"
+                                    >Global rank</span
+                                >
+                                <span
+                                    class="font-mono text-sm font-black text-amber-400"
+                                >
+                                    {{
+                                        profile.seller.rank
+                                            ? `#${profile.seller.rank}`
+                                            : '—'
+                                    }}
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span
+                                    class="text-[10px] font-bold tracking-wider text-slate-500 uppercase"
+                                    >Followers</span
+                                >
+                                <span
+                                    class="font-mono text-sm font-black text-white"
+                                    >{{ profile.seller.followers }}</span
+                                >
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span
+                                    class="text-[10px] font-bold tracking-wider text-slate-500 uppercase"
+                                    >Joined</span
+                                >
+                                <span
+                                    class="font-mono text-[11px] font-black text-slate-300"
+                                    >{{
+                                        processMemberSince(
+                                            profile.seller.member_since,
+                                        )
+                                    }}</span
+                                >
                             </div>
                         </div>
                     </div>
@@ -593,7 +702,10 @@ const profile = ref(page.props.seller_data);
 
 const processMemberSince = (memberSince) => {
     const date = new Date(memberSince);
-    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        year: 'numeric',
+    });
 };
 
 const toggleFollow = () => {
@@ -632,12 +744,3 @@ const viewBetslip = (code) => {
     router.visit(`/betslip/view/g/${code}`);
 };
 </script>
-
-<style scoped>
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-</style>

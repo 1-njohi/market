@@ -182,7 +182,7 @@ class BetslipController extends Controller
         // Load the betslip with all necessary relationships
         $betslip = Betslip::with([
             'seller' => function ($query) {
-                $query->select('id', 'name', 'email', 'created_at');
+                $query->select('id', 'name', 'email', 'created_at', 'code');
             },
             'odds' => function ($query) {
                 $query->select('odds.id', 'odds.fixture_id', 'odds.market_id', 'odds.value', 'odds.odd')
@@ -312,6 +312,7 @@ class BetslipController extends Controller
                 'name' => $betslip->seller->name,
                 'email' => $betslip->seller->email,
                 'member_since' => $betslip->seller->created_at->format('F Y'),
+                'code' => $betslip->seller->code,
                 'statistics' => $sellerStats,
             ],
 
