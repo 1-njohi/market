@@ -7,12 +7,12 @@ const user = computed(() => page.props.auth?.user);
 const currentUrl = computed(() => page.url);
 
 const navItems = [
-    { label: 'Dashboard', href: '/admin', icon: '⌂' },
-    { label: 'Users', href: '/admin/users', icon: '👤' },
-    { label: 'Withdrawals', href: '/admin/withdrawals', icon: '🏦' },
-    { label: 'Transactions', href: '/admin/transactions', icon: '📒' },
-    { label: 'Reports', href: '/admin/reports', icon: '🚩' },
-    { label: 'Betslips', href: '/admin/betslips', icon: '🎫' },
+    { label: 'Dashboard', href: '/admin' },
+    { label: 'Users', href: '/admin/users' },
+    { label: 'Withdrawals', href: '/admin/withdrawals' },
+    { label: 'Transactions', href: '/admin/transactions' },
+    { label: 'Reports', href: '/admin/reports' },
+    { label: 'Betslips', href: '/admin/betslips' },
 ];
 
 const isActive = (href: string) => {
@@ -55,7 +55,6 @@ const isActive = (href: string) => {
                     ]"
                     @click="item.disabled && $event.preventDefault()"
                 >
-                    <span class="w-4 text-center text-sm">{{ item.icon }}</span>
                     <span>{{ item.label }}</span>
                     <span
                         v-if="item.disabled"
