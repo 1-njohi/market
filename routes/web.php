@@ -21,15 +21,15 @@ use Illuminate\Http\Request;
 
 
 
-Route::get('/cookies', fn () => Inertia::render('Legal/Cookies'))->name('cookies');
-Route::get('/help', fn () => Inertia::render('HelpCenter'))->name('help');
-Route::get('/community', fn () => Inertia::render('Community'))->name('community');
-Route::get('/careers', fn () => Inertia::render('Careers'))->name('careers');
-Route::get('/press', fn () => Inertia::render('Press'))->name('press');
+Route::get('/cookies', fn() => Inertia::render('Legal/Cookies'))->name('cookies');
+Route::get('/help', fn() => Inertia::render('HelpCenter'))->name('help');
+Route::get('/community', fn() => Inertia::render('Community'))->name('community');
+Route::get('/careers', fn() => Inertia::render('Careers'))->name('careers');
+Route::get('/press', fn() => Inertia::render('Press'))->name('press');
 
-Route::get('/how-it-works', fn () => Inertia::render('HowItWorks'))->name('how-it-works');
-Route::get('/faq', fn () => Inertia::render('Faq'))->name('faq');
-Route::get('/contact', fn () => Inertia::render('Contact'))->name('contact');
+Route::get('/how-it-works', fn() => Inertia::render('HowItWorks'))->name('how-it-works');
+Route::get('/faq', fn() => Inertia::render('Faq'))->name('faq');
+Route::get('/contact', fn() => Inertia::render('Contact'))->name('contact');
 Route::post('/contact', function (Request $request) {
     $request->validate([
         'name' => 'required|string|max:255',
@@ -41,18 +41,14 @@ Route::post('/contact', function (Request $request) {
     return back()->with('success', 'Thanks — we\'ll be in touch within 24 hours.');
 })->name('contact.submit');
 
-Route::get('/report', fn () => Inertia::render('Report'))->name('report');
+Route::get('/report', fn() => Inertia::render('Report'))->name('report');
 Route::post('/report', [ReportController::class, 'store'])->name('report.submit');
 
+Route::get('/privacy', fn() => Inertia::render('Legal/Privacy'))->name('privacy');
+Route::get('/responsible-gaming', fn() => Inertia::render('Legal/ResponsibleGaming'))->name('responsible-gaming');
 
-Route::get('/privacy', fn () => Inertia::render('Legal/Privacy'))->name('privacy');
-Route::get('/responsible-gaming', fn () => Inertia::render('Legal/ResponsibleGaming'))->name('responsible-gaming');
-
-
-
-
-Route::get('/about', fn () => Inertia::render('About'))->name('about');
-Route::get('/terms', fn () => Inertia::render('Legal/Terms'))->name('terms');
+Route::get('/about', fn() => Inertia::render('About'))->name('about');
+Route::get('/terms', fn() => Inertia::render('Legal/Terms'))->name('terms');
 Route::get('/sellers/lookup', [SellerLookupController::class, 'show']);
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -64,7 +60,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/withdrawals', [WithdrawalController::class, 'store']);
 
     Route::prefix('betslip')->group(function () {
-        Route::post('/store', [BetslipController::class, 'store'])->name('betslip.store');
+        Route::post('/', [BetslipController::class, 'store'])->name('betslip.store');
+        Route::post('/draft', [BetslipController::class, 'draft'])->name('betslip.draft');
+        Route::get('/confirm', [BetslipController::class, 'confirm'])->name('betslip.confirm');
+        Route::post('/betslip', [BetslipController::class, 'store'])->name('betslip.store');
+
         Route::get('/success/{code}', [BetslipController::class, 'success'])->name('betslip.success');
         Route::get('/view/g/{code}', [BetslipController::class, 'show'])->withoutMiddleware(['auth', 'verified'])->name('betslip.show_guest');
         Route::post('/unlock', [BetslipPurchaseController::class, 'purchase'])->name('betslip.purchase');

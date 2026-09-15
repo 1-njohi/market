@@ -18,78 +18,128 @@ use Illuminate\Support\Facades\Cache;
 
 class BetslipController extends Controller
 {
-    public function store(Request $request)
+    public function draft(Request $request)
     {
-        // Validate the request
         $validated = $request->validate([
             'selections' => 'required|array|min:1',
             'selections.*.odd_id' => 'required|exists:odds,id',
-            'total_price' => 'required|numeric|min:0',
         ]);
+
+        // De-dupe in case the user somehow double-clicked
+        $oddIds = collect($validated['selections'])->pluck('odd_id')->unique()->values()->toArray();
+
+        session(['betslip_draft' => $oddIds]);
+
+        return Redirect::route('betslip.confirm');
+    }
+
+    public function confirm(Request $request)
+    {
+        $oddIds = session('betslip_draft');
+
+        if (!$oddIds || count($oddIds) === 0) {
+            return Redirect::route('home')
+                ->with('error', 'Your betslip draft expired. Please build it again.');
+        }
+
+        $odds = Odd::with([
+            'fixture.homeTeam:id,name',
+            'fixture.awayTeam:id,name',
+            'fixture.league:id,name,country',
+            'market:id,name',
+        ])->whereIn('id', $oddIds)->get();
+
+        if ($odds->isEmpty()) {
+            session()->forget('betslip_draft');
+            return Redirect::route('home')
+                ->with('error', 'Those selections are no longer available.');
+        }
+
+        $totalOdds = $odds->reduce(fn($carry, $odd) => $carry * $odd->odd, 1);
+
+        return Inertia::render('BetslipConfirm', [
+            'selections' => $odds->map(fn($odd) => [
+                'odd_id' => $odd->id,
+                'odds' => (float) $odd->odd,
+                'market' => $odd->market->name ?? 'Unknown Market',
+                'home_team' => $odd->fixture->homeTeam->name ?? 'Unknown',
+                'away_team' => $odd->fixture->awayTeam->name ?? 'Unknown',
+                'league' => $odd->fixture->league->name ?? null,
+                'country' => $odd->fixture->league->country ?? null,
+                'kickoff' => $odd->fixture->date
+                    ? \Carbon\Carbon::parse($odd->fixture->date)->format('d/m/y - H:i')
+                    : null,
+            ])->values(),
+            'total_odds' => round($totalOdds, 2),
+        ]);
+    }
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'price' => 'required|numeric|min:1|max:1000000',
+            'caption' => 'nullable|string|max:280',
+        ]);
+
+        $oddIds = session('betslip_draft');
+
+        if (!$oddIds || count($oddIds) === 0) {
+            return Redirect::route('home')
+                ->withErrors(['error' => 'Your draft expired. Please build the betslip again.']);
+        }
 
         DB::beginTransaction();
 
         try {
-            $oddIds = collect($validated['selections'])->pluck('odd_id')->toArray();
-
-            // 1. Fetch all odds AT ONCE and key them by their ID for immediate lookups
             $oddsCollection = Odd::whereIn('id', $oddIds)->get()->keyBy('id');
 
-            // 2. Calculate total odds safely using mathematical collection features
-            $total_odds = $oddsCollection->reduce(function ($carry, $odd) {
-                return $carry * $odd->odd;
-            }, 1);
+            if ($oddsCollection->count() !== count($oddIds)) {
+                throw new \Exception('One or more selections are no longer available.');
+            }
 
-            $code = Str::random(3) . "-" . Str::random(4) . "-" . Str::random(3);
+            $total_odds = $oddsCollection->reduce(fn($carry, $odd) => $carry * $odd->odd, 1);
+
+            $code = Str::random(3) . '-' . Str::random(4) . '-' . Str::random(3);
 
             $betslip = Betslip::create([
                 'user_id' => Auth::id(),
                 'code' => strtoupper($code),
-                'price' => $validated['total_price'],
+                'price' => $validated['price'],
                 'total_odds' => $total_odds,
                 'status' => 'pending',
-                'remaining' => count($validated['selections']),
+                'remaining' => $oddsCollection->count(),
                 'is_winner' => false,
+                'caption' => $validated['caption'] ?? null,
             ]);
 
-            // 3. Prepare attachment payload array cleanly
             $attachData = [];
-            foreach ($validated['selections'] as $selection) {
-                $oddId = $selection['odd_id'];
-
-                // Instantly pull from memory collection instead of running Odd::find()
-                $oddModel = $oddsCollection->get($oddId);
-
-                if ($oddModel) {
-                    $attachData[$oddId] = [
-                        'odd_value_at_time' => $oddModel->odd,
-                        'status' => 'pending',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
-                }
+            foreach ($oddsCollection as $oddId => $oddModel) {
+                $attachData[$oddId] = [
+                    'odd_value_at_time' => $oddModel->odd,
+                    'status' => 'pending',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
 
-            // 4. Fire a single batch insert query for all pivot entries instead of looping execution
             $betslip->odds()->attach($attachData);
 
             DB::commit();
 
-            $successMessage = "Your Betslip has been created successfully. It was assigned the tracking code " . $betslip->code . ". You can share it with potential buyers";
-           Cache::forget(DashboardController::cacheKey(Auth::user()));
-           
-            // FIX: If using a named route configuration (Recommended)
-            return Redirect::route('betslip.success', ['code' => $betslip->code])->with('success', $successMessage);
+            session()->forget('betslip_draft');
+            Cache::forget(DashboardController::cacheKey(Auth::user()));
 
-            // ALTERNATIVE FIX: If you are NOT using named routes, use 'to' instead:
-            // return Redirect::to('betslip/success/' . $betslip->code);
+            $successMessage = "Your Betslip has been created successfully. It was assigned the tracking code "
+                . $betslip->code . ". You can share it with potential buyers";
+
+            return Redirect::route('betslip.success', ['code' => $betslip->code])
+                ->with('success', $successMessage);
 
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Betslip creation failed: ' . $e->getMessage());
 
             return redirect()->back()->withErrors([
-                'error' => 'Failed to create betslip. Please try again.'
+                'error' => $e->getMessage() ?: 'Failed to create betslip. Please try again.',
             ]);
         }
     }
