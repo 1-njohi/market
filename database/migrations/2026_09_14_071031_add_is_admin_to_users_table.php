@@ -9,8 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_admin')->default(false)->after('is_verified');
-            
+            $table->boolean('is_admin')->default(false)->after('email_verified_at');
             $table->timestamp('suspended_at')->nullable()->after('is_admin');
             $table->string('suspension_reason')->nullable()->after('suspended_at');
         });
