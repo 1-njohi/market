@@ -6,51 +6,95 @@
         <div
             class="flex items-center justify-between border-b border-marketplace-border/60 bg-marketplace-card/80 p-4"
         >
-            <div
-                class="flex cursor-pointer items-center space-x-3"
+            <!-- Clickable seller block -->
+            <button
+                type="button"
+                class="group -m-2 flex cursor-pointer items-center space-x-3 rounded-lg p-2 text-left transition-colors hover:bg-marketplace-gold/5"
                 @click="viewSellerProfile(slip.seller.code)"
+                title="View {{ slip.seller.name }}'s profile"
             >
                 <!-- Seller Avatar -->
                 <div
-                    class="flex h-10 w-10 items-center justify-center rounded-full border border-marketplace-gold/30 bg-marketplace-gold/10 text-sm font-bold tracking-wider text-marketplace-gold"
+                    class="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-marketplace-gold/30 bg-marketplace-gold/10"
                 >
-                    <!-- {{ slip.seller.name.substring(0, 2).toUpperCase() }} -->
-
-                <img
-                    src="https://api.dicebear.com/10.x/lorelei-neutral/svg?seed=Felix"
-                    :alt="slip.seller.name"
-                    class="h-full w-full rounded-full object-cover"
-                />
-                
+                    <img
+                        :src="
+                            slip.seller.avatar ||
+                            `https://api.dicebear.com/10.x/lorelei-neutral/svg?seed=${slip.seller.code}`
+                        "
+                        :alt="slip.seller.name"
+                        class="h-full w-full rounded-full object-cover"
+                    />
                 </div>
-                <div>
-                    <h4
-                        class="text-xs font-bold tracking-wider text-white uppercase"
-                    >
-                        {{ slip.seller.name }}
-                    </h4>
+
+                <!-- Name + stats + view-profile hint -->
+                <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                        <h4
+                            class="text-xs font-bold tracking-wider text-white uppercase transition-colors group-hover:text-marketplace-gold"
+                        >
+                            {{ slip.seller.name }}
+                        </h4>
+                        <!-- Chevron — brightens on hover -->
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="3"
+                            stroke="currentColor"
+                            class="h-3 w-3 flex-shrink-0 text-marketplace-muted transition-all group-hover:translate-x-0.5 group-hover:text-marketplace-gold"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                            />
+                        </svg>
+                    </div>
+
                     <div
                         class="mt-0.5 flex items-center space-x-1 text-[10px] font-semibold tracking-wide text-marketplace-muted uppercase"
                     >
-                        <span
-                            >ROI:
-                            <span class="font-bold text-marketplace-green"
-                                >+{{ slip.seller.roi }}%</span
-                            ></span
-                        >
+                        <span>
+                            ROI:
+                            <span class="font-bold text-marketplace-green">
+                                +{{ slip.seller.roi }}%
+                            </span>
+                        </span>
                         <span class="text-marketplace-border">•</span>
-                        <span
-                            >Win Rate:
-                            <span class="font-bold text-marketplace-gold"
-                                >{{ slip.seller.win_rate }}%</span
-                            ></span
-                        >
+                        <span>
+                            Win Rate:
+                            <span class="font-bold text-marketplace-gold">
+                                {{ slip.seller.win_rate }}%
+                            </span>
+                        </span>
                     </div>
-                </div>
-            </div>
 
-            <!-- Mini-Heatmap -->
-            <div class="flex flex-col items-end">
+                    <!-- Explicit "View profile" hint -->
+                    <span
+                        class="mt-1 inline-flex items-center gap-1 text-[9px] font-black tracking-widest text-marketplace-gold/70 uppercase transition-colors group-hover:text-marketplace-gold"
+                    >
+                        View profile
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="3"
+                            stroke="currentColor"
+                            class="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                            />
+                        </svg>
+                    </span>
+                </div>
+            </button>
+
+            <!-- Mini-Heatmap (unchanged) -->
+            <div class="flex flex-shrink-0 flex-col items-end">
                 <div class="flex space-x-1">
                     <span
                         v-for="(status, index) in flipRecentForm(
@@ -134,24 +178,44 @@
                     </span>
                 </div>
                 <div class="flex items-center gap-2">
+                    <!-- COPY BUTTON -->
                     <button
+                        type="button"
                         @click="copyToClipboard(slip.code)"
-                        class="cursor-pointer text-[10px] font-black tracking-wider text-marketplace-gold uppercase transition-colors hover:text-marketplace-gold/80"
-                    >
-                        Copy
-                    </button>
-                    <button
-                        @click="shareSlip"
-                        class="cursor-pointer text-[10px] font-black tracking-wider text-marketplace-gold uppercase transition-colors hover:text-marketplace-gold/80"
-                        title="Share this betslip"
+                        title="Copy tracking code"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-marketplace-gold uppercase transition-all hover:border-marketplace-gold/50 hover:bg-marketplace-gold/10 active:scale-95"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            stroke-width="2"
+                            stroke-width="2.5"
                             stroke="currentColor"
-                            class="h-4 w-4"
+                            class="h-3 w-3"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+                            />
+                        </svg>
+                        Copy
+                    </button>
+
+                    <!-- SHARE BUTTON -->
+                    <button
+                        type="button"
+                        @click="shareSlip"
+                        title="Share this betslip"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-marketplace-gold uppercase transition-all hover:border-marketplace-gold/50 hover:bg-marketplace-gold/10 active:scale-95"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="2.5"
+                            stroke="currentColor"
+                            class="h-3 w-3"
                         >
                             <path
                                 stroke-linecap="round"
@@ -159,6 +223,7 @@
                                 d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"
                             />
                         </svg>
+                        Share
                     </button>
                 </div>
             </div>
@@ -242,7 +307,7 @@
         <!-- 4. SELLER'S CAPTION / PITCH -->
         <div
             v-if="slip.caption"
-            class="relative mx-2 mb-2 mt-1 overflow-hidden rounded-xl bg-gradient-to-br from-marketplace-card/80 to-marketplace-card p-4 shadow-sm"
+            class="relative mx-2 mt-1 mb-2 overflow-hidden rounded-xl bg-gradient-to-br from-marketplace-card/80 to-marketplace-card p-4 shadow-sm"
         >
             <div
                 class="absolute -top-2 -left-2 text-7xl font-black text-marketplace-gold/10 select-none"
