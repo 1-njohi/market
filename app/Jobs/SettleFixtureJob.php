@@ -28,7 +28,6 @@ class SettleFixtureJob implements ShouldQueue
 
     public function handle(MarketSettlementService $settlementService)
     {
-        \Log::info("Called");
         $matchData = $this->fetchMatchData();
 
         if (!$matchData) {
@@ -211,6 +210,9 @@ class SettleFixtureJob implements ShouldQueue
             }
 
             $data = $response->json();
+
+            \Log::info("Data");
+            \Log::info($data);
 
             if (!empty($data['response'])) {
                 $fixtureData = $data['response'][0];
