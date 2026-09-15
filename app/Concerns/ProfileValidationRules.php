@@ -13,14 +13,26 @@ trait ProfileValidationRules
      *
      * @return array<string, array<int, ValidationRule|array<mixed>|string>>
      */
+
     protected function profileRules(?int $userId = null): array
     {
         return [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
+            'photo' => $this->photoRules(),
+            'remove_photo' => ['sometimes', 'boolean'],
         ];
     }
 
+    protected function photoRules(): array
+    {
+        return [
+            'nullable',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:2048', // 2 MB
+        ];
+    }
     /**
      * Get the validation rules used to validate user names.
      *
@@ -44,8 +56,8 @@ trait ProfileValidationRules
             'email',
             'max:255',
             $userId === null
-                ? Rule::unique(User::class)
-                : Rule::unique(User::class)->ignore($userId),
+            ? Rule::unique(User::class)
+            : Rule::unique(User::class)->ignore($userId),
         ];
     }
 }

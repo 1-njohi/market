@@ -13,6 +13,8 @@ use Illuminate\Support\Carbon;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @property int $id
@@ -321,5 +323,38 @@ class User extends Authenticatable implements PasskeyUser
     public function getJoinedAgoAttribute(): string
     {
         return $this->created_at?->diffForHumans() ?? '';
+    }
+
+    protected function profilePictureUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function (?string $value) {
+                if (!$value) {
+                    return null;
+                }
+
+                // Legacy: value is already an absolute URL (e.g. an external avatar)
+                if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+                    return $value;
+                }
+
+                return Storage::disk('public')->url($value);
+            },
+        );
+    }
+
+    /**
+     * Get the raw storage path for deletion. Returns null for external URLs
+     * so we never try to delete something we don't own.
+     */
+    public function getAvatarPathForDeletion(): ?string
+    {
+        $raw = $this->getRawOriginal('profile_picture_url');
+
+        if (!$raw || str_starts_with($raw, 'http://') || str_starts_with($raw, 'https://')) {
+            return null;
+        }
+
+        return $raw;
     }
 }

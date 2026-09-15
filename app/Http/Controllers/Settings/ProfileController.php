@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -30,17 +31,48 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $data = $request->safe()->only(['name', 'email']);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user->fill($data);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        // ── Handle photo removal ──
+        if ($request->boolean('remove_photo')) {
+            $this->deleteAvatar($user);
+            $user->profile_picture_url = null;
+        }
+
+        // ── Handle new photo upload ──
+        if ($request->hasFile('photo')) {
+            $this->deleteAvatar($user);
+
+            // store() generates a random name and returns the relative path
+            $path = $request->file('photo')->store('avatars', 'public');
+            $user->profile_picture_url = $path;
+        }
+
+        $user->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 
         return to_route('profile.edit');
+    }
+
+    /**
+     * Delete the user's currently-stored avatar (if any).
+     * External URLs are ignored.
+     */
+    protected function deleteAvatar($user): void
+    {
+        $path = $user->getAvatarPathForDeletion();
+
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
     }
 
     /**

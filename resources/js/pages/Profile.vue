@@ -87,6 +87,7 @@
 
                 <!-- RIGHT: CTAs -->
                 <div class="flex flex-shrink-0 items-center gap-2">
+                    
                     <button
                         v-if="!profile.meta.is_owner"
                         @click="toggleFollow"

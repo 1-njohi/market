@@ -46,7 +46,7 @@
 
         <!-- ═══════ SEARCH BAR (outside the cards) ═══════ -->
         <div
-            class="border-b border-[#232d42] mb-6 pb-6 marketplace-border/40 bg-marketplace-card/30 p-3"
+            class="marketplace-border/40 mb-6 border-b border-[#232d42] bg-marketplace-card/30 p-3 pb-6"
         >
             <div class="relative w-full select-none">
                 <div
@@ -73,7 +73,7 @@
                     v-model="searchQuery"
                     @keyup.enter="submitSearch"
                     placeholder="Search seller by code"
-                                class="w-full rounded-lg border border-[#232d42] bg-[#111622] py-2 pr-9 pl-10 text-xs font-semibold tracking-wide text-white placeholder-slate-500 transition-all duration-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 focus:outline-none"
+                    class="w-full rounded-lg border border-[#232d42] bg-[#111622] py-2 pr-9 pl-10 text-xs font-semibold tracking-wide text-white placeholder-slate-500 transition-all duration-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 focus:outline-none"
                 />
 
                 <button
