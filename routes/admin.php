@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\WithdrawalController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\BetslipController;
+use App\Http\Controllers\Admin\MetricsController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -37,4 +38,7 @@ Route::middleware(['auth', 'verified', 'admin'])
 
         Route::get('/betslips', [BetslipController::class, 'index'])->name('betslips.index');
         Route::get('/betslips/{betslip}', [BetslipController::class, 'show'])->name('betslips.show');
+
+        Route::get('/metrics', [MetricsController::class, 'index'])->name('metrics.index');
+        Route::post('/metrics/refresh', [MetricsController::class, 'refresh'])->name('metrics.refresh');
     });

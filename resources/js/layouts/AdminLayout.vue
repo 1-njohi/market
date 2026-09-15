@@ -8,6 +8,7 @@ const currentUrl = computed(() => page.url);
 
 const navItems = [
     { label: 'Dashboard', href: '/admin' },
+    { label: 'Metrics', href: '/admin/metrics' },
     { label: 'Users', href: '/admin/users' },
     { label: 'Withdrawals', href: '/admin/withdrawals' },
     { label: 'Transactions', href: '/admin/transactions' },
