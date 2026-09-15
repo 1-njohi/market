@@ -334,7 +334,7 @@ class BetslipController extends Controller
                         'id' => $fixture->id,
                         'date' => $fixture->date ? \Carbon\Carbon::parse($fixture->date)->format('d/m/y - H:i') : null,
                         'timestamp' => $fixture->timestamp,
-                        'home_team' => $fixture->homeTeam->name ?? 'Unknown',
+                        'home_team' => $fixture->homeTeam ?? 'Unknown',
                         'away_team' => $fixture->awayTeam->name ?? 'Unknown',
                         'league' => $fixture->league->name ?? 'Unknown League',
                         'country' => $fixture->league->country ?? null,

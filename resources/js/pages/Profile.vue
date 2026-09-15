@@ -88,12 +88,6 @@
                 <!-- RIGHT: CTAs -->
                 <div class="flex flex-shrink-0 items-center gap-2">
                     <button
-                        v-if="profile.meta.can_message"
-                        class="rounded border border-[#232d42] bg-[#111622] px-4 py-2 text-[10px] font-black tracking-widest text-slate-300 uppercase transition-colors hover:border-sky-500/40 hover:text-white"
-                    >
-                        ✉ Message
-                    </button>
-                    <button
                         v-if="!profile.meta.is_owner"
                         @click="toggleFollow"
                         class="cursor-pointer rounded border px-5 py-2 text-[10px] font-black tracking-widest uppercase transition-all"
