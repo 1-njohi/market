@@ -277,7 +277,7 @@ class HomeController extends Controller
                 'id' => $betslip->id,
                 'code' => $betslip->code,
                 'price' => (float) $betslip->price,
-                'caption' => $betslip->caption ?? $fake_caption,
+                'caption' => $betslip->caption ?? null,
                 'seller' => [
                     'name' => $seller->name ?? 'Unknown',
                     'code' => $seller->code,

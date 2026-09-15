@@ -244,7 +244,7 @@
             v-if="slip.caption"
             class="relative mx-2 mb-2 mt-1 overflow-hidden rounded-xl bg-gradient-to-br from-marketplace-card/80 to-marketplace-card p-4 shadow-sm"
         >
-            <!-- <div
+            <div
                 class="absolute -top-2 -left-2 text-7xl font-black text-marketplace-gold/10 select-none"
             >
                 "
@@ -262,7 +262,7 @@
                         — Seller's insight
                     </span>
                 </div>
-            </div> -->
+            </div>
             <div
                 class="absolute -right-4 -bottom-4 h-12 w-12 rounded-full bg-marketplace-gold/5 blur-xl"
             ></div>
