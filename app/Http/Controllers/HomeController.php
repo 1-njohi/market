@@ -272,7 +272,6 @@ class HomeController extends Controller
         return $betslips->map(function ($betslip) {
             $seller = $betslip->seller;
 
-            $fake_caption = "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius illo nihil, beatae, eveniet iste ducimus porro voluptatem esse quasi, error ex deserunt distinctio? Facere perferendis ullam consectetur exercitationem velit ipsum maiores autem consequuntur similique dolores iste rerum recusandae harum modi, laboriosam eius at qui quam numquam omnis architecto porro expedita!";
             return [
                 'id' => $betslip->id,
                 'code' => $betslip->code,
@@ -281,9 +280,10 @@ class HomeController extends Controller
                 'seller' => [
                     'name' => $seller->name ?? 'Unknown',
                     'code' => $seller->code,
+                    'avatar' => $seller->profile_picture_url,
                     'roi' => $this->calculateROI($seller),
                     'win_rate' => $this->calculateWinRate($seller),
-                    'recent_form' => $this->getRecentForm($seller),
+                    'recent_form' => $this->getRecentForm($seller)
                 ],
                 'total_markets' => $betslip->odds_count, // Use the withCount result
                 'legs' => $betslip->odds->take(1)->map(function ($odd) {

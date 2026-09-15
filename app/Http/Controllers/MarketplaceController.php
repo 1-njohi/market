@@ -42,15 +42,15 @@ class MarketplaceController extends Controller
         $transformed = $betslips->getCollection()->map(function ($betslip) {
             $seller = $betslip->seller;
 
-            $fake_caption = "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius illo nihil, beatae, eveniet iste ducimus porro voluptatem esse quasi, error ex deserunt distinctio? Facere perferendis ullam consectetur exercitationem velit ipsum maiores autem consequuntur similique dolores iste rerum recusandae harum modi, laboriosam eius at qui quam numquam omnis architecto porro expedita!";
             return [
                 'id' => $betslip->id,
                 'code' => $betslip->code,
                 'price' => (float) $betslip->price,
-                'caption' => $betslip->caption ?? $fake_caption,
+                'caption' => $betslip->caption,
                 'seller' => [
                     'name' => $seller->name ?? 'Unknown',
                     'code' => $seller->code,
+                    'avatar' => $seller->profile_picture_url,
                     'roi' => $this->calculateROI($seller),
                     'win_rate' => $this->calculateWinRate($seller),
                     'recent_form' => $this->getRecentForm($seller),

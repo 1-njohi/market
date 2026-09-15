@@ -26,7 +26,6 @@
                         class="h-full w-full rounded-full object-cover"
                     />
                 </div>
-
                 <!-- Name + stats + view-profile hint -->
                 <div class="min-w-0">
                     <div class="flex items-center gap-1.5">
@@ -314,7 +313,7 @@
             >
                 "
             </div>
-            <div class="relative flex items-start space-x-3">
+            <div class="relative flex items-start space-x-3" v-if="slip.caption">
                 <div class="flex-1">
                     <p
                         class="text-sm leading-relaxed font-medium text-white/90"
