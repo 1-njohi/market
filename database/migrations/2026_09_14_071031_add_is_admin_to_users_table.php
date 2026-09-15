@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('is_admin')->default(false)->after('is_verified');
+            
             $table->timestamp('suspended_at')->nullable()->after('is_admin');
             $table->string('suspension_reason')->nullable()->after('suspended_at');
         });
