@@ -11,7 +11,7 @@
                 type="button"
                 class="group -m-2 flex cursor-pointer items-center space-x-3 rounded-lg p-2 text-left transition-colors hover:bg-marketplace-gold/5"
                 @click="viewSellerProfile(slip.seller.code)"
-                title="View {{ slip.seller.name }}'s profile"
+                :title="`View ${slip.seller.name}'s profile`"
             >
                 <!-- Seller Avatar -->
                 <div
