@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Report;
 
 class ReportController extends Controller
 {
@@ -20,27 +21,23 @@ class ReportController extends Controller
             'screenshot' => 'nullable|file|mimes:png,jpg,jpeg,pdf|max:5120',
         ]);
 
-        // Store the screenshot if provided
         $screenshotPath = null;
         if ($request->hasFile('screenshot')) {
-            $screenshotPath = $request->file('screenshot')
-                ->store('reports', 'local');
+            $screenshotPath = $request->file('screenshot')->store('reports', 'local');
         }
 
-        // Log the report (replace with DB insert + mail later)
-        Log::warning('User report submitted', [
+        $report = Report::create([
+            'user_id' => auth()->id(),
             'type' => $validated['type'],
             'severity' => $validated['severity'],
             'subject' => $validated['subject'],
+            'description' => $validated['description'],
             'betslip_code' => $validated['betslip_code'] ?? null,
             'contact_email' => $validated['contact_email'],
-            'user_id' => auth()->id(),
             'screenshot' => $screenshotPath,
         ]);
 
-        // TODO: Persist to a reports table and email support@ + security@ for critical items
-        // $report = Report::create([...$validated, 'user_id' => auth()->id(), 'screenshot' => $screenshotPath]);
-        // Mail::to('support@betslip-pirates.com')->send(new ReportSubmitted($report));
+        Log::warning('Report submitted', ['report_id' => $report->id, 'type' => $report->type]);
 
         return back()->with('success', 'Report submitted. We will be in touch.');
     }

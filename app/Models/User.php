@@ -27,7 +27,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'phone', 'code', 'country_code', 'bio', 'profile_picture_url'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'code', 'country_code', 'bio', 'profile_picture_url', 'is_admin', 'is_verified', 'suspended_at', 'suspension_reason'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
@@ -45,9 +45,12 @@ class User extends Authenticatable implements PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'is_admin' => 'boolean',
+            'suspended_at' => 'datetime'
         ];
     }
 
+    protected $appends = ['joined_ago'];
     public function Wallet()
     {
         return $this->hasOne(Wallet::class);
@@ -303,5 +306,20 @@ class User extends Authenticatable implements PasskeyUser
     public function sellerMetric()
     {
         return $this->hasOne(\App\Models\SellerMetric::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === true;
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
+    }
+
+    public function getJoinedAgoAttribute(): string
+    {
+        return $this->created_at?->diffForHumans() ?? '';
     }
 }
