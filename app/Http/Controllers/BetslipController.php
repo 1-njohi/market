@@ -43,8 +43,8 @@ class BetslipController extends Controller
         }
 
         $odds = Odd::with([
-            'fixture.homeTeam:id,name',
-            'fixture.awayTeam:id,name',
+            'fixture.homeTeam:id,id_on_api,name',
+            'fixture.awayTeam:id,id_on_api,name',
             'fixture.league:id,name,country',
             'market:id,name',
         ])->whereIn('id', $oddIds)->get();
@@ -326,25 +326,28 @@ class BetslipController extends Controller
 
             // Legs (individual selections)
             'legs' => $betslip->odds->map(function ($odd) use ($hasAccess) {
-                $fixture = Fixture::query()->where('id', $odd->fixture_id)->first();
+                $fixture = $odd->fixture;              // already eager-loaded
+                $homeTeam = $fixture?->homeTeam;        // already eager-loaded
+                $awayTeam = $fixture?->awayTeam;
 
                 return [
                     'id' => $odd->id,
                     'fixture' => [
-                        'id' => $fixture->id,
-                        'date' => $fixture->date ? \Carbon\Carbon::parse($fixture->date)->format('d/m/y - H:i') : null,
-                        'timestamp' => $fixture->timestamp,
-                        'home_team' => $fixture->homeTeam ?? 'Unknown',
-                        'away_team' => $fixture->awayTeam->name ?? 'Unknown',
-                        'league' => $fixture->league->name ?? 'Unknown League',
-                        'country' => $fixture->league->country ?? null,
+                        'id' => $fixture?->id,
+                        'date' => $fixture?->date
+                            ? \Carbon\Carbon::parse($fixture->date)->format('d/m/y - H:i')
+                            : null,
+                        'timestamp' => $fixture?->timestamp,
+                        'home_team' => $homeTeam?->name ?? 'Unknown',
+                        'away_team' => $awayTeam?->name ?? 'Unknown',
+                        'league' => $fixture?->league->name ?? 'Unknown League',
+                        'country' => $fixture?->league->country,
                     ],
                     'market' => [
                         'id' => $odd->market->id ?? $odd->market_id,
                         'name' => $odd->market->name ?? 'Unknown Market',
                     ],
-                    'selection' => $hasAccess ? $odd->pivot->selection_value ?? $odd->value : 'locked',
-                    // If user has access, show the actual odd, otherwise show 'locked'
+                    'selection' => $hasAccess ? ($odd->pivot->selection_value ?? $odd->value) : 'locked',
                     'odds' => $hasAccess
                         ? (float) ($odd->pivot->odd_value_at_time ?? $odd->odd)
                         : 'locked',
