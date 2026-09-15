@@ -28,6 +28,7 @@ class SettleFixtureJob implements ShouldQueue
 
     public function handle(MarketSettlementService $settlementService)
     {
+        \Log::info("Called");
         $matchData = $this->fetchMatchData();
 
         if (!$matchData) {
