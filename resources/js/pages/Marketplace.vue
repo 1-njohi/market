@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex min-h-screen flex-col items-center bg-[#0a1628] px-0 py-6 text-[#1b1b18] lg:justify-center lg:px-0 lg:py-8 dark:bg-[#070b14]"
+        class="flex min-h-screen flex-col items-center bg-[#070b14] px-0 py-6 text-[#1b1b18] lg:justify-center lg:px-0 lg:py-8 dark:bg-[#070b14]"
     >
         <div
             class="w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0"
@@ -18,11 +18,11 @@
 
                 <!-- MAIN SLIPS DECK DISPLAY -->
                 <div
-                    class="overflow-hidden rounded-lg border border-gray-800/40 bg-[#0a1628] /40 lg:col-span-9"
+                    class="overflow-hidden rounded-lg border border-gray-800/40 bg-[#070b14] /40 lg:col-span-9"
                 >
                     <!-- HEADER CONTROL CONSOLE (unchanged) -->
                     <div
-                        class="block items-center justify-between border-b border-gray-800/60 p-4 md:flex md:bg-[#0a1628]"
+                        class="block items-center justify-between border-b border-gray-800/60 p-4 md:flex md:bg-[#070b14]"
                     >
                         <div class="flex items-center space-x-2 text-blue-400">
                             <!-- <svg ... > -->
