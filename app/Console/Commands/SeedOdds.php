@@ -31,7 +31,6 @@ class SeedOdds extends Command
                 $fixtures = $league->fixtures;
 
                 foreach ($fixtures as $fixture) {
-                    \Log::info($fixture);
                     $home_team = $fixture->HomeTeam->name;
                     $away_team = $fixture->AwayTeam->name;
                     $this->error("Checking " . $home_team . " VS " . $away_team . "...\n");

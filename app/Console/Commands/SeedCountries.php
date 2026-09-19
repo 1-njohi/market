@@ -21,9 +21,6 @@ class SeedCountries extends Command
             'x-apisports-key' => config('services.api_sports.key'),
         ])->get(config('services.api_sports.base_url') . '/countries');
 
-        \Log::info($response);
-
-
         if ($response->successful()) {
             $data = $response->json();
             $countries = $data['response'];

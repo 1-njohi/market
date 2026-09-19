@@ -10,7 +10,6 @@ class SellerLookupController extends Controller
     public function show(Request $request)
     {
         $code = trim($request->query('code', ''));
-        \Log::info($code);
     
         $seller = User::where('code', $code)
             ->with('sellerMetric')

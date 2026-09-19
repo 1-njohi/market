@@ -38,7 +38,6 @@ class SellerDashboardController extends Controller
         // );
 
         $dashboardData = $this->dashboardService->getDashboardData($user);
-        // \Log::info($dashboardData);
         return Inertia::render('SellerDashboard')->with([
             'seller_data' => $dashboardData,
         ]);

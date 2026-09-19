@@ -38,7 +38,6 @@ class BetslipPurchaseController extends Controller
                 ->with('success', $message);
 
         } catch (\Exception $e) {
-            \Log::error($e);
             return back()->with('error', $e->getMessage());
         }
     }

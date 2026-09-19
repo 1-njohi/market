@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\BusinessMetricsService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use App\Services\AlertDispatcher;
 use Throwable;
 
 class WarmBusinessMetrics extends Command
@@ -13,7 +14,7 @@ class WarmBusinessMetrics extends Command
 
     protected $description = 'Recompute the business metrics dashboard and refresh its cache';
 
-    public function handle(BusinessMetricsService $metrics): int
+    public function handle(BusinessMetricsService $metrics, AlertDispatcher $dispatcher, ): int
     {
         $this->info('Warming business metrics…');
         $overallStart = microtime(true);
@@ -36,12 +37,12 @@ class WarmBusinessMetrics extends Command
                 ));
 
                 Log::info('Business metrics warmed', [
-                    'window_days'                => $days,
-                    'duration_ms'                => $elapsed,
-                    'unlock_rate'                => $summary['unlock_rate']['value'] ?? null,
-                    'buyer_repeat_rate'          => $summary['buyer_repeat_rate']['value'] ?? null,
-                    'seller_activation'          => $summary['seller_activation']['value'] ?? null,
-                    'median_time_to_first_sale'  => $summary['median_time_to_first_sale']['value'] ?? null,
+                    'window_days' => $days,
+                    'duration_ms' => $elapsed,
+                    'unlock_rate' => $summary['unlock_rate']['value'] ?? null,
+                    'buyer_repeat_rate' => $summary['buyer_repeat_rate']['value'] ?? null,
+                    'seller_activation' => $summary['seller_activation']['value'] ?? null,
+                    'median_time_to_first_sale' => $summary['median_time_to_first_sale']['value'] ?? null,
                 ]);
             } catch (Throwable $e) {
                 $failures++;
@@ -50,9 +51,14 @@ class WarmBusinessMetrics extends Command
 
                 Log::error('Business metrics warm failed', [
                     'window_days' => $days,
-                    'error'       => $e->getMessage(),
-                    'trace'       => $e->getTraceAsString(),
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                 ]);
+
+                $dispatcher->dispatchJobFailure(
+                    "metrics:warm ({$days}d)",
+                    $e->getMessage()
+                );
             }
         }
 

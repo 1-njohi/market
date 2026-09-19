@@ -30,10 +30,6 @@ class SettleFixtureJob implements ShouldQueue
     {
         $matchData = $this->fetchMatchData();
 
-
-        \Log::info("Data['response']");
-        \Log::info($matchData);
-
         if (!$matchData) {
             // Match not finished or data missing – release back to queue
             Log::info("Match data not ready for fixture {$this->fixture->id}. Releasing job.");
@@ -54,7 +50,7 @@ class SettleFixtureJob implements ShouldQueue
     protected function fetchMatchData(): ?array
     {
         // If we have a test endpoint for local development, use it.
-        if (config('app.env') == 'local') {
+        if (config('app.env') == 'locial') {
             $apiResponse = [
                 "get" => "fixtures",
                 "parameters" => [

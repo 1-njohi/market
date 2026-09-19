@@ -26,7 +26,6 @@ class BuyerDashboardController extends Controller
 
         $dashboardData = $this->dashboardService->getDashboardData($user);
 
-        \Log::info($dashboardData);
         return Inertia::render('BuyerDashboard')->with([
             'buyer_data' => $dashboardData,
         ]);

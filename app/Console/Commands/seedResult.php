@@ -66,9 +66,6 @@ class seedResult extends Command
         } else {
             $this->line("Match not finished");
         }
-        // $fixture_id = $this->argument('fixture_id');
-        // \Log::info($fixture_id);
-        // \Log::info($response);
 
     }
 }

@@ -136,7 +136,6 @@ class BetslipController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Betslip creation failed: ' . $e->getMessage());
 
             return redirect()->back()->withErrors([
                 'error' => $e->getMessage() ?: 'Failed to create betslip. Please try again.',

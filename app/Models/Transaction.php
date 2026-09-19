@@ -16,6 +16,7 @@ class Transaction extends Model
         'transactionable_type',
         'transactionable_id',
         'type',
+        'balance_type',
         'amount',
         'balance_before',
         'balance_after',
@@ -100,23 +101,21 @@ class Transaction extends Model
      */
     public function isCredit(): bool
     {
-        return $this->amount > 0;
+        return bccomp((string) $this->amount, '0', 2) > 0;
     }
-
     /**
      * Check if transaction is a debit (negative amount)
      */
     public function isDebit(): bool
     {
-        return $this->amount < 0;
+        return bccomp((string) $this->amount, '0', 2) < 0;
     }
-
     /**
      * Get absolute amount (always positive)
      */
-    public function getAbsoluteAmountAttribute(): float
+    public function getAbsoluteAmountAttribute(): string
     {
-        return abs($this->amount);
+        return bcmul((string) $this->amount, '-1', 2);
     }
 
     /**

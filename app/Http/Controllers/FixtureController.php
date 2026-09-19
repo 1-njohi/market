@@ -14,7 +14,6 @@ class FixtureController extends Controller
     {
         $fixture_id_on_api = $request->id;
         $mappedFixture = $this->getFixture($fixture_id_on_api);
-        \Log::info($mappedFixture);
         return Inertia::render('Fixture', [
             'fixture' => $mappedFixture
         ]);

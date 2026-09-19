@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Services\SystemHealthService;
+use app\Services\AlertDispatcher;
+use app\Services\SystemHealthService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class CheckSystemHealth extends Command
 {
@@ -12,10 +14,35 @@ class CheckSystemHealth extends Command
 
     protected $description = 'Run system integrity checks and report any drift';
 
-    public function handle(SystemHealthService $health): int
+    public function handle(SystemHealthService $health, AlertDispatcher $dispatcher): int
     {
-        $result = $health->all();
+        try {
+            $result = $health->all();
+        } catch (Throwable $e) {
+            // If the checks themselves crash (DB unreachable, etc.) we
+            // synthesize a fail result so the dispatcher still alerts.
+            $result = [
+                'overall' => SystemHealthService::STATUS_FAIL,
+                'checked_at' => now()->toIso8601String(),
+                'checks' => [
+                    [
+                        'key' => 'health_check_exception',
+                        'label' => 'Health check crashed',
+                        'status' => SystemHealthService::STATUS_FAIL,
+                        'value' => null,
+                        'context' => $e->getMessage(),
+                        'details' => [],
+                    ]
+                ],
+            ];
 
+            Log::error('health:check crashed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+
+        // ── Console output ──
         $this->line('');
         $this->line(sprintf(
             '  System health: <fg=%s>%s</> — checked %s',
@@ -43,8 +70,13 @@ class CheckSystemHealth extends Command
 
         $this->line('');
 
+        // ── Alert dispatch ──
+        // Runs on every invocation. No-ops when the state hasn't changed
+        // and no cooldown has elapsed.
+        $dispatcher->dispatchHealthResult($result);
+
         $problems = collect($result['checks'])
-            ->reject(fn ($c) => $c['status'] === SystemHealthService::STATUS_OK);
+            ->reject(fn($c) => $c['status'] === SystemHealthService::STATUS_OK);
 
         if ($problems->isEmpty()) {
             Log::info('System health: all checks passing');

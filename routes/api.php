@@ -46,7 +46,7 @@ Route::post('/odds', function (Request $request) {
         ["id" => 42, "name" => "Second Half Exact Goals Number", "values" => ["more 3", 0, 1, 2]],
         ["id" => 41, "name" => "Away Team Exact Goals Number", "values" => ["more 3", 0, 1, 2]],
         ["id" => 7, "name" => "HT/FT Double", "values" => ["Home/Home", "Draw/Draw", "Draw/Away", "Home/Away", "Home/Draw", "Away/Away", "Away/Draw", "Away/Home", "Draw/Home"]],
-        ["id" => 26, "name" => "Goals Over/Under - Second Half", "values" => ["Under 3.5", "Over 3.5", "Over 1.5", "Under 1.5", "Under 0.5", "Over 0.5", "Under 1.11", "Over 2.5"]],
+        ["id" => 26, "name" => "Goals Over/Under - Second Half", "values" => ["Under 3.5", "Over 3.5", "Over 1.5", "Under 1.5", "Under 0.5", "Over 0.5", "Under 1.5", "Over 2.5"]],
         ["id" => 6, "name" => "Goals Over/Under First Half", "values" => ["Under 0.5", "Over 0.5", "Under 2.5", "Over 2.5", "Under 1.5", "Over 1.5", "Under 3.5", "Over 3.5"]],
         ["id" => 5, "name" => "Goals Over/Under", "values" => ["Under 5.5", "Over 3.5", "Under 3.5", "Over 1.5", "Over 5.5", "Under 0.5", "Over 0.5", "Under 2.5", "Over 2.5", "Under 4.5", "Over 4.5", "Under 1.5"]],
         ["id" => 3, "name" => "Second Half Winner", "values" => ["Away", "Draw", "Home"]],
