@@ -208,6 +208,12 @@ class BetslipSettlementService
             'status' => 'won',
             'settled_at' => now(),
         ]);
+
+        $this->notifyOutcome(
+            won: true,
+            betslip: $betslip,
+            purchase: $purchase,
+        );
     }
 
     /**
@@ -237,23 +243,26 @@ class BetslipSettlementService
             'status' => $pivotStatus,
             'settled_at' => now(),
         ]);
+        $this->notifyOutcome(
+            won: false,
+            betslip: $betslip,
+            purchase: $purchase,
+            pivotStatus: $pivotStatus,
+        );
     }
-    protected function notifyOutcome(bool $won, Betslip $betslip, ?BetslipUserPurchase $purchase = null): void
-    {
-        $notification = $won
-            ? new \App\Notifications\BetslipWonNotification($betslip)
-            : new \App\Notifications\BetslipLostNotification($betslip);
+    protected function notifyOutcome(
+        bool $won,
+        Betslip $betslip,
+        BetslipUserPurchase $purchase,
+        string $pivotStatus = 'refunded',
+    ): void {
+        $notification = match (true) {
+            $won => new \App\Notifications\BetslipWonNotification($betslip),
+            $pivotStatus === 'voided' => new \App\Notifications\BetslipVoidedNotification($betslip),
+            default => new \App\Notifications\BetslipLostNotification($betslip),
+        };
 
-        \Log::info("Notification fired");
-
-        if ($purchase) {
-            // Notify buyer
-            $purchase->buyer->notify($notification);
-
-            // Notify seller (won: payout, lost: payout reversed)
-            $purchase->seller->notify($notification);
-        } else {
-            $betslip->seller->notify($notification);
-        }
+        $purchase->buyer->notify($notification);
+        $purchase->seller->notify($notification);
     }
 }

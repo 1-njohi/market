@@ -126,8 +126,10 @@ class PaystackDepositService
             'status' => 'completed',
             'completed_at' => now(),
             'payment_method' => $channel,
-            'pesapal_response' => $metadata
+            'paystack_response' => $metadata
         ]);
+
+        $user->notify(new \App\Notifications\DepositConfirmedNotification($deposit->fresh()));
     }
 
     /**

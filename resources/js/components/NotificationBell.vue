@@ -292,13 +292,14 @@ const handleNotificationClick = async (n) => {
 };
 
 // Helpers
-
 const iconEmoji = (type) => {
     switch (type) {
         case 'betslip_won':
             return '🏆';
         case 'betslip_lost':
             return '💸';
+        case 'betslip_voided':
+            return '↩️';
         case 'deposit':
             return '💰';
         case 'withdrawal':
@@ -314,6 +315,8 @@ const iconBg = (type) => {
             return 'bg-emerald-500/15 text-emerald-400';
         case 'betslip_lost':
             return 'bg-amber-500/15 text-amber-400';
+        case 'betslip_voided':
+            return 'bg-slate-500/15 text-slate-400';
         case 'deposit':
             return 'bg-sky-500/15 text-sky-400';
         case 'withdrawal':
@@ -322,7 +325,6 @@ const iconBg = (type) => {
             return 'bg-slate-500/15 text-slate-400';
     }
 };
-
 // Click-outside dismissal
 const handleClickOutside = (event) => {
     if (
