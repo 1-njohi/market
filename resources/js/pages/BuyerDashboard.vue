@@ -124,11 +124,11 @@
                             <div class="space-y-0.5">
                                 <span
                                     class="block text-[9px] font-bold text-slate-500 uppercase"
-                                    >Held Funds</span
+                                    >In escrow</span
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Pending</span
+                                    >Held</span
                                 >
                             </div>
                             <span
@@ -137,7 +137,7 @@
                                 {{ buyer_data.wallet.currency }}
                                 {{
                                     Number(
-                                        buyer_data.wallet.pending_balance,
+                                        buyer_data.wallet.escrow_balance,
                                     ).toFixed(2)
                                 }}
                             </span>
@@ -153,8 +153,8 @@
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Deposits   </span
-                                >
+                                    >Deposits
+                                </span>
                             </div>
                             <span
                                 class="font-mono text-xs font-bold text-sky-400"
@@ -310,17 +310,7 @@
                             <span
                                 class="font-mono text-3xl font-black tracking-tight text-white"
                             >
-                                {{
-                                    buyer_data.performance.total_purchases > 0
-                                        ? (
-                                              (buyer_data.performance
-                                                  .total_refunded /
-                                                  buyer_data.performance
-                                                      .total_purchases) *
-                                              100
-                                          ).toFixed(1)
-                                        : 0
-                                }}%
+                                {{ buyer_data.performance.refund_rate }}%
                             </span>
                             <span
                                 class="rounded bg-purple-500/10 px-1.5 py-0.5 text-[9px] font-black tracking-wide text-purple-400 uppercase"
@@ -384,7 +374,106 @@
                             <BetslipsTable :betslips="purchasesForTable" />
                         </div>
                     </div>
+                    <!-- SETTLED BETSLIPS -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
+                            >
+                                Settled Betslips [{{
+                                    buyer_data.settled_outcomes.length
+                                }}]
+                            </span>
+                            <span
+                                class="font-mono text-[9px] text-slate-500 uppercase"
+                            >
+                                Outcomes
+                            </span>
+                        </div>
 
+                        <div class="divide-y divide-gray-800/40">
+                            <div
+                                v-for="outcome in buyer_data.settled_outcomes"
+                                :key="outcome.id"
+                                class="flex items-center justify-between gap-3 p-3 transition-colors hover:bg-[#111a30]/40"
+                            >
+                                <div class="flex min-w-0 items-center gap-3">
+                                    <span
+                                        :class="[
+                                            'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-sm font-mono text-[9px] font-black select-none',
+                                            outcome.outcome === 'won'
+                                                ? 'bg-emerald-500 text-[#070b14]'
+                                                : outcome.outcome === 'voided'
+                                                  ? 'bg-slate-500 text-[#070b14]'
+                                                  : 'bg-rose-500 text-white',
+                                        ]"
+                                    >
+                                        {{
+                                            outcome.outcome === 'won'
+                                                ? 'W'
+                                                : outcome.outcome === 'voided'
+                                                  ? 'V'
+                                                  : 'L'
+                                        }}
+                                    </span>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <span
+                                                class="truncate font-mono text-[11px] font-bold text-sky-400"
+                                            >
+                                                {{ outcome.betslip_code }}
+                                            </span>
+                                        </div>
+                                        <p
+                                            class="mt-0.5 truncate text-[10px] text-slate-500"
+                                        >
+                                            from {{ outcome.seller_name }} ·
+                                            {{ outcome.settled_ago }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p
+                                        class="font-mono text-xs font-black"
+                                        :class="
+                                            outcome.outcome === 'won'
+                                                ? 'text-rose-400'
+                                                : 'text-emerald-400'
+                                        "
+                                    >
+                                        {{
+                                            outcome.outcome === 'won'
+                                                ? '-'
+                                                : '+'
+                                        }}KES
+                                        {{ Number(outcome.price).toFixed(2) }}
+                                    </p>
+                                    <p
+                                        class="text-[9px] text-slate-500 uppercase"
+                                    >
+                                        {{
+                                            outcome.outcome === 'won'
+                                                ? 'Paid out'
+                                                : outcome.outcome === 'voided'
+                                                  ? 'Voided'
+                                                  : 'Refunded'
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div
+                                v-if="buyer_data.settled_outcomes.length === 0"
+                                class="p-6 text-center font-mono text-xs text-slate-500 uppercase"
+                            >
+                                No settled betslips yet.
+                            </div>
+                        </div>
+                    </div>
                     <!-- RECENT ACTIVITY AUDIT LOG -->
                     <div
                         class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
@@ -409,14 +498,10 @@
                                     <span
                                         :class="[
                                             'flex h-5 w-5 items-center justify-center rounded-sm font-mono text-[9px] font-black select-none',
-                                            act.type === 'purchase'
-                                                ? 'bg-emerald-500 text-[#070b14]'
-                                                : 'bg-amber-500 text-[#070b14]',
+                                            toneBadgeClass(act.tone),
                                         ]"
                                     >
-                                        {{
-                                            act.type === 'purchase' ? 'B' : 'R'
-                                        }}
+                                        {{ act.badge }}
                                     </span>
                                     <span
                                         class="text-[11px] font-bold tracking-wide text-slate-300 uppercase"
@@ -531,7 +616,7 @@
                                         {{
                                             Number(
                                                 buyer_data.wallet
-                                                    .pending_balance,
+                                                    .escrow_balance,
                                             ).toFixed(2)
                                         }}
                                     </span>
@@ -793,6 +878,20 @@ const purchasesForTable = computed(() => {
         seller_name: p.seller_name,
     }));
 });
+
+const toneBadgeClass = (tone) => {
+    switch (tone) {
+        case 'positive':
+            return 'bg-emerald-500 text-[#070b14]';
+        case 'negative':
+            return 'bg-rose-500 text-white';
+        case 'pending':
+            return 'bg-amber-500 text-[#070b14]';
+        case 'neutral':
+        default:
+            return 'bg-slate-500 text-white';
+    }
+};
 </script>
 
 <style scoped>

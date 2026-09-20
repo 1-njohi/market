@@ -118,7 +118,7 @@ class AdminUserController extends Controller
 
             'wallet' => [
                 'balance' => (float) ($user->wallet->balance ?? 0),
-                'pending_balance' => (float) ($user->wallet->pending_balance ?? 0),
+                'escrow_balance' => (float) ($user->wallet->escrow_balance ?? 0),
                 'total_deposited' => (float) ($user->wallet->total_deposited ?? 0),
                 'total_withdrawn' => (float) ($user->wallet->total_withdrawn ?? 0),
                 'currency' => $user->wallet->currency ?? 'KES',

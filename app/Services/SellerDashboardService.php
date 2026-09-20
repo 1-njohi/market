@@ -33,6 +33,7 @@ class SellerDashboardService
             'betslips' => $this->getBetslipManagement($user),
             'wallet' => $this->getWalletSummary($user),
             'activity' => $this->getRecentActivity($user, 15),
+            'settlements' => $this->getSettlements($user),
             'financial' => $this->getFinancialSummary($user),
             'insights' => $this->getInsights($user),
             'follower_stats' => $this->getFollowerStats($user),
@@ -91,7 +92,7 @@ class SellerDashboardService
      */
     public function getPerformanceMetrics(User $user): array
     {
-        $betslips = $user->betslips()->whereIn('status', ['settled', 'completed'])->get();
+        $betslips = $user->betslips()->where('status', 'settled')->get();
         $totalBetslips = $betslips->count();
         $wonBetslips = $betslips->where('is_winner', true);
 
@@ -136,7 +137,9 @@ class SellerDashboardService
             'roi' => $roi,
             'roi_change' => $this->calculateROIChange($user),
             'total_betslips' => $user->betslips()->count(),
-            'total_sold' => $user->betslips()->where('status', 'sold')->count(),
+            'total_sold' => BetslipUserPurchase::where('seller_id', $user->id)
+                ->whereIn('status', ['won', 'refunded', 'voided'])
+                ->count(),
             'total_revenue' => $this->getTotalRevenue($user),
             'total_revenue_change' => $this->calculateRevenueChange($user),
             'avg_price' => $this->getAveragePrice($user),
@@ -197,59 +200,122 @@ class SellerDashboardService
     }
 
     /**
-     * Get recent activity
+     * Chronological feed of everything that happened to this seller's
+     * betslips: sales (buyers purchasing) and settlements (terminal states).
+     *
+     * Every event shares the same shape so the frontend renders them
+     * uniformly. See WalletService docs for the ledger side of these.
      */
     public function getRecentActivity(User $user, int $limit = 20): array
     {
-        $activities = collect();
-
-        // Purchases
-        $purchases = BetslipUserPurchase::where('seller_id', $user->id)
+        // ── Sales: buyers who purchased one of my betslips ──────────────
+        $sales = BetslipUserPurchase::where('seller_id', $user->id)
             ->with(['buyer', 'betslip'])
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('created_at')
             ->take($limit)
             ->get()
             ->map(function ($purchase) {
                 return [
-                    'type' => 'purchase',
-                    'message' => "{$purchase->buyer->name} purchased #{$purchase->betslip->code}",
-                    'amount' => $purchase->purchase_price,
-                    'betslip_code' => $purchase->betslip->code,
-                    'buyer_name' => $purchase->buyer->name,
+                    'kind' => 'sale',
+                    'badge' => 'S',
+                    'tone' => 'neutral',
+                    'message' => "{$purchase->buyer->name} bought #{$purchase->betslip->code}",
+                    'amount' => (float) $purchase->purchase_price,
                     'created_at' => $purchase->created_at->toISOString(),
                     'time_ago' => $purchase->created_at->diffForHumans(),
                 ];
             });
 
-        // Settlements
+        // ── Settlements: my betslips reaching a terminal state ──────────
         $settlements = $user->betslips()
-            ->whereIn('status', ['settled', 'completed'])
-            ->orderBy('updated_at', 'desc')
+            ->whereIn('status', ['settled', 'voided'])
+            ->orderByDesc('updated_at')
             ->take($limit)
             ->get()
             ->map(function ($betslip) {
-                $icon = $betslip->is_winner ? '🎉' : '😔';
-                $status = $betslip->is_winner ? 'WINNER' : 'LOST';
+                if ($betslip->status === 'voided') {
+                    return [
+                        'kind' => 'settlement_voided',
+                        'badge' => 'V',
+                        'tone' => 'neutral',
+                        'message' => "#{$betslip->code} voided — buyers refunded",
+                        'amount' => null,
+                        'created_at' => $betslip->updated_at->toISOString(),
+                        'time_ago' => $betslip->updated_at->diffForHumans(),
+                    ];
+                }
+
+                if ($betslip->is_winner) {
+                    return [
+                        'kind' => 'settlement_won',
+                        'badge' => 'W',
+                        'tone' => 'positive',
+                        'message' => "#{$betslip->code} settled WON — payout released",
+                        'amount' => null,
+                        'created_at' => $betslip->updated_at->toISOString(),
+                        'time_ago' => $betslip->updated_at->diffForHumans(),
+                    ];
+                }
+
                 return [
-                    'type' => 'settlement',
-                    'message' => "#{$betslip->code} settled - {$status} {$icon}",
-                    'result' => $betslip->is_winner ? 'won' : 'lost',
-                    'betslip_code' => $betslip->code,
+                    'kind' => 'settlement_lost',
+                    'badge' => 'L',
+                    'tone' => 'neutral',
+                    'message' => "#{$betslip->code} settled LOST — buyers refunded",
+                    'amount' => null,
                     'created_at' => $betslip->updated_at->toISOString(),
                     'time_ago' => $betslip->updated_at->diffForHumans(),
                 ];
             });
 
-        // New followers (if you have this model)
-        // $followers = $user->followers()->orderBy('followed_at', 'desc')->take($limit)->get()->map...
-
-        $activities = $purchases->concat($settlements)
+        return $sales
+            ->concat($settlements)
             ->sortByDesc('created_at')
             ->take($limit)
             ->values()
-            ->toArray();
+            ->all();
+    }
 
-        return $activities;
+    /**
+     * Settled purchases for the seller, newest first.
+     *
+     * Reads the actual payout and fee amounts off the ledger (transactions
+     * tagged with this pivot) rather than recomputing from the current fee
+     * tier. Historical settlements therefore reflect what was actually paid
+     * out, even if the seller's tier changes later.
+     */
+    public function getSettlements(User $user, int $limit = 20): array
+    {
+        return $user->purchasesAsSeller()
+            ->with(['betslip', 'buyer', 'transactions'])
+            ->whereIn('status', ['won', 'refunded', 'voided'])
+            ->orderByDesc('settled_at')
+            ->take($limit)
+            ->get()
+            ->map(function ($purchase) {
+                $available = $purchase->transactions
+                    ->where('user_id', $purchase->seller_id)
+                    ->where('balance_type', 'available');
+
+                $gross = (float) $available->where('type', 'payout')->sum('amount');
+                $fee = abs((float) $available->where('type', 'fee')->sum('amount'));
+                $net = $gross - $fee;
+
+                return [
+                    'id' => $purchase->id,
+                    'betslip_code' => $purchase->betslip->code ?? 'N/A',
+                    'outcome' => $purchase->status,
+                    'buyer_name' => $purchase->buyer->name ?? 'Unknown',
+                    'buyer_code' => $purchase->buyer->code ?? null,
+                    'gross' => round($gross, 2),
+                    'fee' => round($fee, 2),
+                    'net' => round($net, 2),
+                    'settled_at' => $purchase->settled_at?->toISOString(),
+                    'settled_ago' => $purchase->settled_at?->diffForHumans(),
+                ];
+            })
+            ->values()
+            ->toArray();
     }
 
     /**
@@ -257,50 +323,47 @@ class SellerDashboardService
      */
     public function getFinancialSummary(User $user): array
     {
-        $totalRevenue = $this->getTotalRevenue($user);
+        $wallet = $this->walletService->getWallet($user);
 
-        // Use the seller's actual tier-based fee (falls back to 20% if unknown)
-        $feePct = $this->platformFeeService->getFeePercentageFor($user);
-        $totalFees = $totalRevenue * $feePct;
-        $netEarnings = $totalRevenue - $totalFees;
+        // Lifetime earnings, straight from the ledger. Each won purchase
+        // writes a payout row (gross) and, if applicable, a fee row.
+        $lifetimeGross = (float) \App\Models\Transaction::where('user_id', $user->id)
+            ->where('balance_type', 'available')
+            ->where('type', \App\Models\Transaction::TYPE_PAYOUT)
+            ->sum('amount');
 
-        $pendingPayouts = BetslipUserPurchase::where('seller_id', $user->id)
+        $lifetimeFees = abs((float) \App\Models\Transaction::where('user_id', $user->id)
+            ->where('balance_type', 'available')
+            ->where('type', \App\Models\Transaction::TYPE_FEE)
+            ->sum('amount'));
+
+        $netEarnings = $lifetimeGross - $lifetimeFees;
+
+        // Projected earnings from still-pending sales — not wallet money.
+        $grossAtStake = (float) BetslipUserPurchase::where('seller_id', $user->id)
             ->where('status', 'pending')
             ->sum('purchase_price');
 
-        $availableBalance = $netEarnings - $pendingPayouts;
-
-        $transactions = BetslipUserPurchase::where('seller_id', $user->id)
-            ->where('status', 'completed')
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get()
-            ->map(function ($purchase) {
-                return [
-                    'date' => $purchase->created_at->format('Y-m-d'),
-                    'betslip_code' => $purchase->betslip->code ?? 'N/A',
-                    'buyer_name' => $purchase->buyer->name ?? 'Unknown',
-                    'amount' => round($purchase->purchase_price, 2),
-                    'status' => $purchase->status,
-                ];
-            });
+        $feePct = $this->platformFeeService->getFeePercentageFor($user);
+        $netAtStake = round($grossAtStake * (1 - $feePct), 2);
 
         return [
-            'total_revenue' => round($totalRevenue, 2),
-            'platform_fees' => round($totalFees, 2),
+            'total_revenue' => round($lifetimeGross, 2),
+            'platform_fees' => round($lifetimeFees, 2),
             'net_earnings' => round($netEarnings, 2),
-            'pending_payouts' => round($pendingPayouts, 2),
-            'available_balance' => max(0, round($availableBalance, 2)),
-            'transactions' => $transactions,
+            'available_balance' => (float) $wallet->balance,
+            'gross_at_stake' => round($grossAtStake, 2),
+            'net_at_stake' => $netAtStake,
             'revenue_trend' => $this->getRevenueTrend($user),
         ];
     }
+
     /**
      * Get AI insights
      */
     public function getInsights(User $user): array
     {
-        $betslips = $user->betslips()->whereIn('status', ['settled', 'completed'])->get();
+        $betslips = $user->betslips()->whereIn('status', ['settled', 'voided'])->get();
         $winRate = $this->calculateWinRate($betslips);
 
         $insights = [];
@@ -398,13 +461,15 @@ class SellerDashboardService
      */
     public function getQuickStats(User $user): array
     {
-        $betslips = $user->betslips()->whereIn('status', ['settled', 'completed'])->get();
+        $betslips = $user->betslips()->whereIn('status', ['settled', 'voided'])->get();
 
         return [
             'win_rate' => $this->calculateWinRate($betslips),
             'roi' => $this->calculateROI($betslips),
             'active_betslips' => $user->betslips()->where('status', 'pending')->where('remaining', '>', 0)->count(),
-            'total_sold' => $user->betslips()->where('status', 'sold')->count(),
+            'total_sold' => BetslipUserPurchase::where('seller_id', $user->id)
+                ->whereIn('status', ['won', 'refunded', 'voided'])
+                ->count(),
             'total_revenue' => round($this->getTotalRevenue($user), 0),
             'followers' => $user->followers()->count(),
             'profile_views' => $user->profile_views ?? 0,
@@ -486,14 +551,14 @@ class SellerDashboardService
     private function getTotalRevenue(User $user): float
     {
         return BetslipUserPurchase::where('seller_id', $user->id)
-            ->where('status', 'completed')
+            ->where('status', 'won')
             ->sum('purchase_price');
     }
 
     private function getAveragePrice(User $user): float
     {
         return BetslipUserPurchase::where('seller_id', $user->id)
-            ->where('status', 'completed')
+            ->where('status', 'won')
             ->avg('purchase_price') ?? 0;
     }
 
@@ -511,7 +576,7 @@ class SellerDashboardService
     {
         // Compare last 30 days vs previous 30 days
         $now = Carbon::now();
-        $betslips = $user->betslips()->whereIn('status', ['settled', 'completed'])->get();
+        $betslips = $user->betslips()->whereIn('status', ['settled', 'voided'])->get();
 
         $current = $this->calculateWinRateForPeriod($betslips, $now->copy()->subDays(30));
         $previous = $this->calculateWinRateForPeriod($betslips, $now->copy()->subDays(60)->subDays(30));
@@ -538,7 +603,7 @@ class SellerDashboardService
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $revenue = BetslipUserPurchase::where('seller_id', $user->id)
-                ->where('status', 'completed')
+                ->where('status', 'won')
                 ->whereDate('created_at', $date->toDateString())
                 ->sum('purchase_price');
             $trend[] = [
@@ -719,7 +784,7 @@ class SellerDashboardService
     private function getWinRateTrend(User $user): array
     {
         $data = [];
-        $betslips = $user->betslips()->whereIn('status', ['settled', 'completed'])->get();
+        $betslips = $user->betslips()->whereIn('status', ['settled', 'voided'])->get();
 
         for ($i = 29; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
@@ -745,11 +810,12 @@ class SellerDashboardService
         for ($i = 29; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $profit = BetslipUserPurchase::where('seller_id', $user->id)
+                ->where('status', 'won')
                 ->whereDate('created_at', $date->toDateString())
                 ->sum('purchase_price');
             $data[] = [
                 'date' => $date->format('Y-m-d'),
-                'profit' => round($profit, 2),
+                'profit' => round((float) $profit, 2),
             ];
         }
         return $data;
@@ -791,20 +857,29 @@ class SellerDashboardService
             ['day' => 'Sun', 'win_rate' => 70],
         ];
     }
-
-
     public function getWalletSummary(User $user): array
     {
         $wallet = $this->walletService->getWallet($user);
 
+        $grossAtStake = (float) \App\Models\BetslipUserPurchase::where('seller_id', $user->id)
+            ->where('status', 'pending')
+            ->sum('purchase_price');
+
+        $feePct = $this->platformFeeService->getFeePercentageFor($user);
+        $netIfAllWin = round($grossAtStake * (1 - $feePct), 2);
+
         return [
             'balance' => (float) $wallet->balance,
-            'pending_balance' => (float) $wallet->pending_balance,
+            'gross_at_stake' => round($grossAtStake, 2),
+            'net_if_all_win' => $netIfAllWin,
             'total_deposited' => (float) $wallet->total_deposited,
             'total_withdrawn' => (float) $wallet->total_withdrawn,
             'currency' => $wallet->currency ?? 'KES',
             'recent_transactions' => $user->transactions()
+                ->where('balance_type', 'available')
                 ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')   // within same timestamp, execution order:
+                // payout row was written before fee row
                 ->take(10)
                 ->get()
                 ->map(function ($transaction) {
@@ -818,8 +893,7 @@ class SellerDashboardService
                         'status' => $transaction->status,
                         'created_at' => $transaction->created_at->toISOString(),
                     ];
-                }),
+                })->values()->toArray(),
         ];
     }
-
 }

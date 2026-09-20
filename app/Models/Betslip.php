@@ -13,7 +13,7 @@ class Betslip extends Model
         'user_id',
         'total_odds',
         'price',
-        'status', //pending, underway, settled
+        'status', //pending, underway, settled, voided
         'remaining',
         'is_winner',
         'code',
@@ -117,7 +117,7 @@ class Betslip extends Model
     // Get active purchases (pending or completed)
     public function activePurchases()
     {
-        return $this->purchases()->whereIn('status', ['pending', 'completed']);
+        return $this->purchases()->where('status', 'pending');
     }
 
     // Check if a user has purchased this betslip
@@ -137,11 +137,4 @@ class Betslip extends Model
     {
         return $this->status === 'pending' && $this->remaining > 0;
     }
-
-    // Get available shares
-    public function getAvailableShares(): int
-    {
-        return max(0, $this->remaining - $this->purchases()->whereIn('status', ['pending', 'completed'])->count());
-    }
-
 }

@@ -24,7 +24,7 @@ class PlatformUserSeeder extends Seeder
 
         Wallet::firstOrCreate(
             ['user_id' => $platform->id],
-            ['balance' => 0, 'pending_balance' => 0, 'currency' => 'KES']
+            ['balance' => 0, 'escrow_balance' => 0, 'currency' => 'KES']
         );
     }
 }

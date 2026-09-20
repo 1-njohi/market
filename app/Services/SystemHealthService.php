@@ -74,7 +74,7 @@ class SystemHealthService
 
     // ─────────────────────────────────────────────────────────────
     //  1. Wallet ledger integrity
-    //  Invariant: SUM(transactions.amount) == balance + pending_balance
+    //  Invariant: SUM(transactions.amount) == balance + escrow_balance
     //  per user.
     //
     //  Holds because every wallet mutation in WalletService writes a
@@ -85,9 +85,9 @@ class SystemHealthService
     public function walletLedgerIntegrity(): array
     {
         $drifted = DB::table('wallets as w')
-            ->select('w.user_id', 'w.balance', 'w.pending_balance')
+            ->select('w.user_id', 'w.balance', 'w.escrow_balance')
             ->whereRaw('ABS(
-                (w.balance + w.pending_balance) - COALESCE((
+                (w.balance + w.escrow_balance) - COALESCE((
                     SELECT SUM(t.amount)
                     FROM transactions t
                     WHERE t.user_id = w.user_id
@@ -107,14 +107,14 @@ class SystemHealthService
                 : "{$count} wallet(s) drift from their ledger",
             'details' => $drifted->take(10)->map(fn ($row) => [
                 'user_id' => $row->user_id,
-                'wallet_total' => round($row->balance + $row->pending_balance, 2),
+                'wallet_total' => round($row->balance + $row->escrow_balance, 2),
             ])->all(),
         ];
     }
 
     // ─────────────────────────────────────────────────────────────
     //  2. Escrow integrity
-    //  Invariant: SUM(wallets.pending_balance) equals the total of
+    //  Invariant: SUM(wallets.escrow_balance) equals the total of
     //  all purchases currently in 'pending' status.
     //
     //  Every purchase adds to the seller's pending balance; every
@@ -124,7 +124,7 @@ class SystemHealthService
 
     public function escrowIntegrity(): array
     {
-        $pendingHeld = (float) DB::table('wallets')->sum('pending_balance');
+        $pendingHeld = (float) DB::table('wallets')->sum('escrow_balance');
         $pendingOwed = (float) DB::table('betslip_user_purchases')
             ->where('status', 'pending')
             ->sum('purchase_price');

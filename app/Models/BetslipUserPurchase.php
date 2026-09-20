@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class BetslipUserPurchase extends Model
 {
@@ -18,13 +19,15 @@ class BetslipUserPurchase extends Model
         'status',
         'payment_method',
         'payment_reference',
-        'purchased_at'
+        'purchased_at',
+        'settled_at'
     ];
 
     protected $casts = [
         'purchase_price' => 'decimal:2',
         'total_odds' => 'decimal:2',
         'purchased_at' => 'datetime',
+        'settled_at' => 'datetime',
     ];
 
     // Relationship to betslip
@@ -44,22 +47,35 @@ class BetslipUserPurchase extends Model
     {
         return $this->belongsTo(User::class, 'seller_id');
     }
-
-    // Check if purchase is active
+    // A purchase awaiting settlement.
     public function isActive(): bool
     {
-        return in_array($this->status, ['pending', 'completed']);
+        return $this->status === 'pending';
     }
 
-    // Scope for active purchases
+    // A purchase that has reached a terminal state (win, loss, or void).
+    public function isSettled(): bool
+    {
+        return in_array($this->status, ['won', 'refunded', 'voided'], true);
+    }
+
     public function scopeActive($query)
     {
-        return $query->whereIn('status', ['pending', 'completed']);
+        return $query->where('status', 'pending');
     }
 
-    // Scope for completed purchases
-    public function scopeCompleted($query)
+    public function scopeSettled($query)
     {
-        return $query->where('status', 'completed');
+        return $query->whereIn('status', ['won', 'refunded', 'voided']);
+    }
+
+    public function scopeWon($query)
+    {
+        return $query->where('status', 'won');
+    }
+
+    public function transactions(): MorphMany
+    {
+        return $this->morphMany(Transaction::class, 'transactionable');
     }
 }

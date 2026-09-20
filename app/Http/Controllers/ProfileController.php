@@ -80,13 +80,13 @@ class ProfileController extends Controller
     private function calculatePerformance($betslips, $purchases)
     {
         $totalBetslips = $betslips->count();
-        $settled = $betslips->whereIn('status', ['settled', 'completed']);
+        $settled = $betslips->whereIn('status', ['settled', 'voided']);
         $won = $settled->where('is_winner', true);
         $lost = $settled->where('is_winner', false);
 
-        $totalRevenue = $purchases->whereIn('status', ['completed', 'won', 'refunded'])
+        $totalRevenue = $purchases->whereIn('status', ['won', 'refunded'])
             ->sum('purchase_price');
-        $totalSold = $purchases->whereIn('status', ['completed', 'won', 'refunded'])->count();
+        $totalSold = $purchases->whereIn('status', ['won', 'refunded'])->count();
 
         // ROI using the same logic as HomeController
         $wonAmount = $won->sum(fn($b) => $b->total_odds * $b->price);
@@ -151,7 +151,7 @@ class ProfileController extends Controller
     {
         $period = $betslips
             ->where('created_at', '>=', $since)
-            ->whereIn('status', ['settled', 'completed']);
+            ->whereIn('status', ['settled']);
 
         $total = $period->count();
         $won = $period->where('is_winner', true)->count();
@@ -186,7 +186,7 @@ class ProfileController extends Controller
     private function calculateWinRateTrend($betslips)
     {
         $grouped = $betslips
-            ->whereIn('status', ['settled', 'completed'])
+            ->whereIn('status', ['settled'])
             ->groupBy(fn($b) => $b->created_at->format('Y-m-d'));
 
         $trendData = [];
@@ -245,7 +245,7 @@ class ProfileController extends Controller
 
     private function calculateExpertise($betslips)
     {
-        $settled = $betslips->whereIn('status', ['settled', 'completed']);
+        $settled = $betslips->whereIn('status', ['settled']);
         $won = $settled->where('is_winner', true);
         $lost = $settled->where('is_winner', false);
 
@@ -442,7 +442,7 @@ class ProfileController extends Controller
 
     private function calculatePredictive($betslips)
     {
-        $settled = $betslips->whereIn('status', ['settled', 'completed']);
+        $settled = $betslips->whereIn('status', ['settled']);
         $total = $settled->count();
         $recentWinRate = $this->calculateWinRateForPeriod($betslips, Carbon::now()->subDays(30));
         $confidence = min(95, 50 + ($total * 0.5));
@@ -514,7 +514,7 @@ class ProfileController extends Controller
         elseif ($totalSold >= 10)
             $badges[] = 'Silver Seller';
 
-        $settled = $betslips->whereIn('status', ['settled', 'completed']);
+        $settled = $betslips->whereIn('status', ['settled']);
         $won = $settled->where('is_winner', true);
         $winRate = $settled->count() > 0 ? ($won->count() / $settled->count()) * 100 : 0;
 

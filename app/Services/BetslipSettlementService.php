@@ -8,6 +8,8 @@ use App\Models\BetslipUserPurchase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Cache;
 use App\Services\LeaderboardService;
 
 class BetslipSettlementService
@@ -15,6 +17,7 @@ class BetslipSettlementService
     public function __construct(
         protected WalletService $walletService,
         protected PlatformFeeService $platformFeeService,
+        protected PlatformAccount $platformAccount,
     ) {
     }
 
@@ -37,7 +40,8 @@ class BetslipSettlementService
             }
 
             // Idempotency guard
-            if ($betslip->status === 'won' || $betslip->status === 'voided') {
+            // Idempotency guard
+            if (in_array($betslip->status, ['settled', 'voided'], true)) {
                 Log::info("Betslip {$betslip->code} already settled/voided. Skipping.");
                 return;
             }
@@ -110,11 +114,9 @@ class BetslipSettlementService
 
                 Log::info("Betslip {$betslip->code} voided: all {$void} legs void.");
 
-                // Refund buyers, reverse sellers' pending balances
-                $this->settlePurchases($betslip, false);
+                $this->settlePurchases($betslip, false, 'voided');   // <— add the third arg
                 return;
             }
-
             // ─────────────────────────────────────────────────────────
             // Normal win/loss resolution
             //   - Winner: at least one won, no lost (void legs ignored)
@@ -139,8 +141,11 @@ class BetslipSettlementService
     /**
      * Move money for every purchase tied to this betslip.
      */
-    protected function settlePurchases(Betslip $betslip, bool $isWinner): void
-    {
+    protected function settlePurchases(
+        Betslip $betslip,
+        bool $isWinner,
+        string $pivotStatus = 'refunded'
+    ): void {
         $purchases = BetslipUserPurchase::where('betslip_id', $betslip->id)
             ->lockForUpdate()
             ->get();
@@ -153,11 +158,19 @@ class BetslipSettlementService
             if ($isWinner) {
                 $this->payoutSeller($purchase, $betslip);
             } else {
-                $this->refundBuyer($purchase, $betslip);
+                $this->refundBuyer($purchase, $betslip, $pivotStatus);
             }
+        }
 
-            // Notify both parties once per purchase
-            // $this->notifyOutcome($isWinner, $betslip, $purchase);
+        // Cache invalidation — unchanged from the previous slice.
+        $buyerIds = $purchases->pluck('buyer_id')->unique();
+        $sellerIds = $purchases->pluck('seller_id')->unique();
+
+        foreach ($buyerIds as $id) {
+            Cache::forget(DashboardController::cacheKey(User::find($id)));
+        }
+        foreach ($sellerIds as $id) {
+            Cache::forget(DashboardController::cacheKey(User::find($id)));
         }
     }
     /**
@@ -168,76 +181,62 @@ class BetslipSettlementService
         $gross = (float) $purchase->purchase_price;
 
         $split = $this->platformFeeService->split($purchase->seller, $gross);
-        $fee = $split['fee'];
-        $net = $split['net'];
-        $percentage = $split['percentage'];
+        $fee = (float) $split['fee'];
 
-        // Shared reference for this settlement's ledger entries
-        $reference = $betslip->code . '-' . now()->timestamp;
+        $platform = $this->platformAccount->user();
 
-        // 1. Release the seller's net share to available balance
-        $this->walletService->releasePendingToAvailable(
-            $purchase->seller,
-            $net,
-            $reference,
-            sprintf(
-                "Net payout for winning betslip #%s (%d%% platform fee)",
-                $betslip->code,
-                $percentage * 100
-            )
+        $txs = $this->walletService->settleEscrowToSeller(
+            buyer: $purchase->buyer,
+            seller: $purchase->seller,
+            platform: $platform,
+            gross: $gross,
+            fee: $fee,
+            context: "Betslip #{$betslip->code}",
         );
 
-        \Log::info($purchase->seller);
-
-        // 2. Charge the platform fee
-        if ($fee > 0) {
-            $platform = User::where(
-                'email',
-                config('services.betslip_pirates.platform_user_email')
-            )->firstOrFail();
-
-            $this->walletService->chargeFee(
-                $purchase->seller,
-                $platform,
-                $fee,
-                $reference,
-                sprintf(
-                    "Platform fee for betslip #%s (%d%% of KES %s)",
-                    $betslip->code,
-                    $percentage * 100,
-                    number_format($gross, 2)
-                )
-            );
+        // Tag every money row with the originating purchase, so the ledger
+        // is walkable in both directions: pivot → transactions, and any
+        // single transaction → its pivot.
+        foreach ($txs as $tx) {
+            $tx->update([
+                'transactionable_type' => BetslipUserPurchase::class,
+                'transactionable_id' => $purchase->id,
+            ]);
         }
 
-        $purchase->update(['status' => 'won']);
+        $purchase->update([
+            'status' => 'won',
+            'settled_at' => now(),
+        ]);
     }
+
     /**
-     * Losing purchase: refund buyer and reverse seller's pending balance.
+     * Losing/void purchase: return the buyer's escrowed funds and mark the
+     * pivot with the appropriate status ('refunded' for a loss, 'voided' for
+     * an all-void betslip).
      */
-    protected function refundBuyer(BetslipUserPurchase $purchase, Betslip $betslip): void
-    {
-        $reference = $betslip->code . '-' . now()->timestamp;
-
-        // 1. Refund the buyer
-        $this->walletService->credit(
-            $purchase->buyer,
-            $purchase->purchase_price,
-            'refund',
-            $reference,
-            "Refund for losing betslip #{$betslip->code}"
+    protected function refundBuyer(
+        BetslipUserPurchase $purchase,
+        Betslip $betslip,
+        string $pivotStatus = 'refunded'
+    ): void {
+        $txs = $this->walletService->refundEscrow(
+            user: $purchase->buyer,
+            amount: (float) $purchase->purchase_price,
+            context: "Betslip #{$betslip->code}",
         );
 
-        // 2. Reverse the seller's pending balance
-        $this->walletService->debitPending(
-            $purchase->seller,
-            $purchase->purchase_price,
-            'pending_release',
-            $reference,
-            "Pending payout reversed for losing betslip #{$betslip->code}"
-        );
+        foreach ($txs as $tx) {
+            $tx->update([
+                'transactionable_type' => BetslipUserPurchase::class,
+                'transactionable_id' => $purchase->id,
+            ]);
+        }
 
-        $purchase->update(['status' => 'refunded']);
+        $purchase->update([
+            'status' => $pivotStatus,
+            'settled_at' => now(),
+        ]);
     }
     protected function notifyOutcome(bool $won, Betslip $betslip, ?BetslipUserPurchase $purchase = null): void
     {

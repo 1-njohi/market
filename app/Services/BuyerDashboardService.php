@@ -20,6 +20,7 @@ class BuyerDashboardService
             'user' => $this->getUserInfo($user),
             'performance' => $this->getPerformanceMetrics($user),
             'purchases' => $this->getPurchaseManagement($user),
+            'settled_outcomes' => $this->getSettledOutcomes($user),
             'activity' => $this->getRecentActivity($user, 15),
             'financial' => $this->getFinancialSummary($user),
             'wallet' => $this->getWalletSummary($user),
@@ -41,24 +42,39 @@ class BuyerDashboardService
         $totalPurchases = $purchases->count();
 
         $settledPurchases = $purchases->filter(
-            fn($p) => in_array($p->status, ['won', 'refunded', 'completed'])
+            fn($p) => in_array($p->status, ['won', 'refunded'], true)
         );
 
-        $wonPurchases = $purchases->filter(fn($p) => $p->status === 'won');
-        $refundedPurchases = $purchases->filter(fn($p) => $p->status === 'refunded');
-
+        $wonPurchases = $purchases->where('status', 'won');
+        $refundedPurchases = $purchases->whereIn('status', ['refunded', 'voided']);
         $winRate = $settledPurchases->count() > 0
             ? round(($wonPurchases->count() / $settledPurchases->count()) * 100, 1)
             : 0;
+        $totalSpent = (float) $wonPurchases->sum('purchase_price');
+        $totalRefunded = (float) $refundedPurchases->sum('purchase_price');
+        $netSpent = $totalSpent;
 
-        $totalSpent = $purchases->filter(fn($p) => $p->status !== 'refunded')->sum('purchase_price');
-        $totalRefunded = $refundedPurchases->sum('purchase_price');
-        $netSpent = $totalSpent - $totalRefunded;
-        $avgPrice = $totalPurchases > 0 ? round($totalSpent / $totalPurchases, 2) : 0;
+        $refundedCount = $refundedPurchases->count();
+        $refundRate = $totalPurchases > 0
+            ? round(($refundedCount / $totalPurchases) * 100, 1)
+            : 0;
+
+        $committedPurchases = $purchases->whereIn('status', ['won', 'pending']);
+        $totalCommitted = (float) $committedPurchases->sum('purchase_price');
+        $avgPrice = $committedPurchases->count() > 0
+            ? round($totalCommitted / $committedPurchases->count(), 2)
+            : 0;
 
         $recentForm = $purchases->take(10)->map(function ($purchase) {
+            $mark = match ($purchase->status) {
+                'won' => 'W',
+                'refunded' => 'L',
+                'voided' => 'V',
+                default => 'P',   // pending
+            };
+
             return [
-                'status' => $purchase->status === 'won' ? 'W' : ($purchase->status === 'refunded' ? 'L' : 'P'),
+                'status' => $mark,
                 'date' => $purchase->created_at->format('Y-m-d'),
             ];
         })->values()->toArray();
@@ -77,6 +93,7 @@ class BuyerDashboardService
                 $seller = $group->first()->seller;
                 $total = $group->count();
                 $won = $group->where('status', 'won')->count();
+                $settled = $group->whereIn('status', ['won', 'refunded'])->count();
                 $lastPurchase = $group->max('created_at');
 
                 return [
@@ -84,7 +101,9 @@ class BuyerDashboardService
                     'seller_name' => $seller->name,
                     'total_purchases' => $total,
                     'won_purchases' => $won,
-                    'win_rate' => $total > 0 ? round(($won / $total) * 100, 1) : 0,
+                    'win_rate' => $settled > 0
+                        ? round(($won / $settled) * 100, 1)
+                        : 0,
                     'last_purchase_at' => $lastPurchase,
                 ];
             })
@@ -99,6 +118,7 @@ class BuyerDashboardService
             'total_purchases' => $totalPurchases,
             'total_spent' => round($totalSpent, 2),
             'total_refunded' => round($totalRefunded, 2),
+            'refund_rate' => $refundRate,
             'net_spent' => round($netSpent, 2),
             'avg_price' => $avgPrice,
             'recent_form' => $recentForm,
@@ -106,7 +126,6 @@ class BuyerDashboardService
             'top_sellers' => $topSellers,
         ];
     }
-
     public function getPurchaseManagement(User $user): array
     {
         $purchases = $user->purchases()
@@ -115,8 +134,8 @@ class BuyerDashboardService
             ->get();
 
         $pending = $purchases->where('status', 'pending');
-        $active = $purchases->whereIn('status', ['pending', 'completed']);
-        $settled = $purchases->whereIn('status', ['won', 'refunded']);
+        $active = $purchases->where('status', 'pending');
+        $settled = $purchases->whereIn('status', ['won', 'refunded', 'voided']);
 
         return [
             'total' => $purchases->count(),
@@ -139,82 +158,169 @@ class BuyerDashboardService
         ];
     }
 
-    public function getRecentActivity(User $user, int $limit = 20): array
+    /**
+     * Settled purchases for the buyer, newest first.
+     *
+     * Returns one row per pivot — the buyer's canonical view of "what
+     * happened to my money". Both won and refunded/voided outcomes are
+     * included so the buyer can see the full story.
+     */
+    public function getSettledOutcomes(User $user, int $limit = 20): array
     {
-        $purchases = $user->purchases()
+        return $user->purchases()
             ->with(['betslip', 'seller'])
-            ->orderBy('created_at', 'desc')
+            ->whereIn('status', ['won', 'refunded', 'voided'])
+            ->orderByDesc('settled_at')
             ->take($limit)
             ->get()
             ->map(function ($purchase) {
                 return [
-                    'type' => 'purchase',
+                    'id' => $purchase->id,
+                    'betslip_code' => $purchase->betslip->code ?? 'N/A',
+                    'outcome' => $purchase->status,   // won | refunded | voided
+                    'price' => (float) $purchase->purchase_price,
+                    'seller_name' => $purchase->seller->name ?? 'Unknown',
+                    'seller_code' => $purchase->seller->code ?? null,
+                    'settled_at' => $purchase->settled_at?->toISOString(),
+                    'settled_ago' => $purchase->settled_at?->diffForHumans(),
+                ];
+            })
+            ->values()
+            ->toArray();
+    }
+    /**
+     * Chronological feed of everything that happened to this buyer's
+     * purchases: the purchase itself and the terminal outcome.
+     *
+     * Refunds are NOT emitted as a separate event — the settlement event
+     * carries that information in its message, and the money movement is
+     * already visible in the transactions table.
+     */
+    public function getRecentActivity(User $user, int $limit = 20): array
+    {
+        // ── Purchases: betslips I bought ────────────────────────────────
+        $purchases = $user->purchases()
+            ->with(['betslip', 'seller'])
+            ->orderByDesc('created_at')
+            ->take($limit)
+            ->get()
+            ->map(function ($purchase) {
+                return [
+                    'kind' => 'purchase',
+                    'badge' => 'P',
+                    'tone' => 'negative',
                     'message' => "Purchased #{$purchase->betslip->code} from {$purchase->seller->name}",
                     'amount' => (float) $purchase->purchase_price,
-                    'status' => $purchase->status,
                     'created_at' => $purchase->created_at->toISOString(),
                     'time_ago' => $purchase->created_at->diffForHumans(),
                 ];
             });
 
-        $refunds = $user->transactions()
-            ->where('type', 'refund')
-            ->orderBy('created_at', 'desc')
+        // ── Settlements: outcomes of my purchases ───────────────────────
+        $settlements = $user->purchases()
+            ->with('betslip')
+            ->whereIn('status', ['won', 'refunded', 'voided'])
+            ->whereNotNull('settled_at')
+            ->orderByDesc('settled_at')
             ->take($limit)
             ->get()
-            ->map(function ($transaction) {
+            ->map(function ($purchase) {
+                $code = $purchase->betslip->code ?? 'N/A';
+                $price = number_format((float) $purchase->purchase_price, 2);
+
+                if ($purchase->status === 'won') {
+                    return [
+                        'kind' => 'settlement_won',
+                        'badge' => 'W',
+                        'tone' => 'positive',
+                        'message' => "#{$code} won — you kept the tip",
+                        'amount' => (float) $purchase->purchase_price,
+                        'created_at' => $purchase->settled_at->toISOString(),
+                        'time_ago' => $purchase->settled_at->diffForHumans(),
+                    ];
+                }
+
+                if ($purchase->status === 'voided') {
+                    return [
+                        'kind' => 'settlement_voided',
+                        'badge' => 'V',
+                        'tone' => 'neutral',
+                        'message' => "#{$code} voided — KES {$price} refunded",
+                        'amount' => (float) $purchase->purchase_price,
+                        'created_at' => $purchase->settled_at->toISOString(),
+                        'time_ago' => $purchase->settled_at->diffForHumans(),
+                    ];
+                }
+
+                // status === 'refunded'
                 return [
-                    'type' => 'refund',
-                    'message' => "Refund of KES {$transaction->amount} — {$transaction->description}",
-                    'amount' => (float) $transaction->amount,
-                    'status' => $transaction->status,
-                    'created_at' => $transaction->created_at->toISOString(),
-                    'time_ago' => $transaction->created_at->diffForHumans(),
+                    'kind' => 'settlement_lost',
+                    'badge' => 'L',
+                    'tone' => 'neutral',
+                    'message' => "#{$code} lost — KES {$price} refunded",
+                    'amount' => (float) $purchase->purchase_price,
+                    'created_at' => $purchase->settled_at->toISOString(),
+                    'time_ago' => $purchase->settled_at->diffForHumans(),
                 ];
             });
 
-        return $purchases->concat($refunds)
+        return $purchases
+            ->concat($settlements)
             ->sortByDesc('created_at')
             ->take($limit)
             ->values()
-            ->toArray();
+            ->all();
     }
-
     public function getFinancialSummary(User $user): array
     {
         $wallet = $this->walletService->getWallet($user);
         $purchases = $user->purchases;
 
-        $totalSpent = $purchases->filter(fn($p) => $p->status !== 'refunded')->sum('purchase_price');
-        $totalRefunded = $purchases->filter(fn($p) => $p->status === 'refunded')->sum('purchase_price');
-        $netSpent = $totalSpent - $totalRefunded;
+        $won = $purchases->where('status', 'won');
+        $pending = $purchases->where('status', 'pending');
+        $refunded = $purchases->whereIn('status', ['refunded', 'voided']);
+
+        $totalSpent = (float) $won->sum('purchase_price');
+        $totalCommitted = (float) $won->sum('purchase_price')
+            + (float) $pending->sum('purchase_price');
+        $escrowed = (float) $pending->sum('purchase_price');
+        $totalRefunded = (float) $refunded->sum('purchase_price');
 
         return [
             'balance' => (float) $wallet->balance,
-            'pending_balance' => (float) $wallet->pending_balance,
+            'escrow_balance' => (float) $wallet->escrow_balance,
             'total_spent' => round($totalSpent, 2),
+            'total_committed' => round($totalCommitted, 2),
+            'escrowed' => round($escrowed, 2),
             'total_refunded' => round($totalRefunded, 2),
-            'net_spent' => round($netSpent, 2),
+            'net_spent' => round($totalSpent, 2),   // = total_spent now
             'total_deposited' => (float) $wallet->total_deposited,
             'total_withdrawn' => (float) $wallet->total_withdrawn,
         ];
     }
-
     public function getWalletSummary(User $user): array
     {
         $wallet = $this->walletService->getWallet($user);
 
         return [
             'balance' => (float) $wallet->balance,
-            'pending_balance' => (float) $wallet->pending_balance,
+            'escrow_balance' => (float) $wallet->escrow_balance,
             'total_deposited' => (float) $wallet->total_deposited,
             'total_withdrawn' => (float) $wallet->total_withdrawn,
             'currency' => $wallet->currency ?? 'KES',
             'recent_transactions' => $user->transactions()
+                ->with('transactionable')
+                ->where('balance_type', 'available')
                 ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->take(10)
                 ->get()
                 ->map(function ($transaction) {
+                    $outcome = null;
+                    if ($transaction->transactionable instanceof \App\Models\BetslipUserPurchase) {
+                        $outcome = $transaction->transactionable->status;
+                    }
+
                     return [
                         'id' => $transaction->id,
                         'type' => $transaction->type,
@@ -223,6 +329,7 @@ class BuyerDashboardService
                         'balance_after' => (float) $transaction->balance_after,
                         'description' => $transaction->description,
                         'status' => $transaction->status,
+                        'outcome' => $outcome,   // null | won | refunded | voided | pending
                         'created_at' => $transaction->created_at->toISOString(),
                     ];
                 })->values()->toArray(),
@@ -239,9 +346,10 @@ class BuyerDashboardService
             ->map(function ($group) {
                 $total = $group->count();
                 $won = $group->where('status', 'won')->count();
+                $settled = $group->whereIn('status', ['won', 'refunded'])->count();
                 return [
                     'seller_name' => $group->first()->seller->name,
-                    'win_rate' => $total > 0 ? round(($won / $total) * 100, 1) : 0,
+                    'win_rate' => $settled > 0 ? round(($won / $settled) * 100, 1) : 0,
                     'total' => $total,
                 ];
             })
@@ -302,8 +410,13 @@ class BuyerDashboardService
         return [
             'total_purchases' => $purchases->count(),
             'win_rate' => $this->calculateWinRate($purchases),
-            'total_spent' => round($purchases->filter(fn($p) => $p->status !== 'refunded')->sum('purchase_price'), 2),
-            'total_refunded' => round($purchases->where('status', 'refunded')->sum('purchase_price'), 2),
+            'total_spent' => round((float) $purchases->where('status', 'won')->sum('purchase_price'), 2),
+            'total_committed' => round(
+                (float) $purchases->where('status', 'won')->sum('purchase_price')
+                + (float) $purchases->where('status', 'pending')->sum('purchase_price'),
+                2
+            ),
+            'total_refunded' => round((float) $purchases->whereIn('status', ['refunded', 'voided'])->sum('purchase_price'), 2),
             'balance' => (float) $wallet->balance,
             'pending_purchases' => $purchases->where('status', 'pending')->count(),
         ];
@@ -371,11 +484,13 @@ class BuyerDashboardService
     private function calculateWinRate($purchases): float
     {
         $settled = $purchases->filter(
-            fn($p) => in_array($p->status, ['won', 'refunded', 'completed'])
+            fn($p) => in_array($p->status, ['won', 'refunded'], true)
         );
         $won = $purchases->where('status', 'won');
 
-        return $settled->count() > 0 ? round(($won->count() / $settled->count()) * 100, 1) : 0;
+        return $settled->count() > 0
+            ? round(($won->count() / $settled->count()) * 100, 1)
+            : 0.0;
     }
 
     private function calculateWinRateForPeriod($purchases, $since): float
@@ -444,7 +559,7 @@ class BuyerDashboardService
             ['status' => 'Pending', 'count' => $statuses->get('pending', 0)],
             ['status' => 'Won', 'count' => $statuses->get('won', 0)],
             ['status' => 'Refunded', 'count' => $statuses->get('refunded', 0)],
-            ['status' => 'Completed', 'count' => $statuses->get('completed', 0)],
+            ['status' => 'Voided', 'count' => $statuses->get('voided', 0)],
         ];
     }
 
@@ -456,12 +571,15 @@ class BuyerDashboardService
             $seller = $group->first()->seller;
             $total = $group->count();
             $won = $group->where('status', 'won')->count();
+            $settled = $group->whereIn('status', ['won', 'refunded'])->count();
 
             return [
                 'seller_name' => $seller->name,
                 'total' => $total,
                 'won' => $won,
-                'win_rate' => $total > 0 ? round(($won / $total) * 100, 1) : 0,
+                'win_rate' => $settled > 0
+                    ? round(($won / $settled) * 100, 1)
+                    : 0,
             ];
         })->sortByDesc('win_rate')->take(5)->values()->toArray();
     }

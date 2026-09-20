@@ -75,6 +75,7 @@ class Transaction extends Model
     /**
      * Scope for completed transactions
      */
+
     public function scopeCompleted($query)
     {
         return $query->where('status', self::STATUS_COMPLETED);
@@ -101,21 +102,21 @@ class Transaction extends Model
      */
     public function isCredit(): bool
     {
-        return bccomp((string) $this->amount, '0', 2) > 0;
+        return (float) $this->amount > 0;
     }
     /**
      * Check if transaction is a debit (negative amount)
      */
     public function isDebit(): bool
     {
-        return bccomp((string) $this->amount, '0', 2) < 0;
+        return (float) $this->amount < 0;
     }
     /**
      * Get absolute amount (always positive)
      */
     public function getAbsoluteAmountAttribute(): string
     {
-        return bcmul((string) $this->amount, '-1', 2);
+        return number_format(abs((float) $this->amount), 2, '.', '');
     }
 
     /**

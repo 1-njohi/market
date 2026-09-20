@@ -32,7 +32,7 @@ class PlatformFeeService
     public function getTotalSalesCount(User $seller): int
     {
         return BetslipUserPurchase::where('seller_id', $seller->id)
-            ->whereIn('status', ['completed', 'won', 'lost', 'refunded'])
+            ->whereIn('status', ['voided', 'won', 'lost', 'refunded'])
             ->count();
     }
 

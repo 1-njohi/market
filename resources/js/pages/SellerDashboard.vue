@@ -38,8 +38,10 @@
                         >
                             {{ seller_data.user.name }}
                         </h1>
-                        <p class="truncate text-[10px] font-medium text-slate-400">
-                            Code: {{ seller_data.user.code }} • Member since 
+                        <p
+                            class="truncate text-[10px] font-medium text-slate-400"
+                        >
+                            Code: {{ seller_data.user.code }} • Member since
                             {{ seller_data.user.member_since }}
                         </p>
                     </div>
@@ -76,7 +78,11 @@
                             <div
                                 class="flex items-center gap-2 text-[10px] font-black tracking-widest text-emerald-400 uppercase"
                             >
-                                <span>FEE TIER {{ seller_data.fee_tier.current_tier }} / 4</span>
+                                <span
+                                    >FEE TIER
+                                    {{ seller_data.fee_tier.current_tier }} /
+                                    4</span
+                                >
                             </div>
                             <div
                                 class="mt-0.5 font-mono font-black tracking-tight text-white"
@@ -105,15 +111,20 @@
                             >Next Tier</span
                         >
                         <div class="flex items-baseline gap-1.5">
-                            <span
-                                class="font-mono font-black text-white"
-                                >{{ seller_data.fee_tier.sales_until_next_tier }}</span
-                            >
+                            <span class="font-mono font-black text-white">{{
+                                seller_data.fee_tier.sales_until_next_tier
+                            }}</span>
                             <span class="text-[10px] text-slate-400 uppercase"
                                 >more sales →</span
                             >
-                            <span class="font-mono text-sm font-bold text-emerald-400"
-                                >{{ (seller_data.fee_tier.next_tier_percentage * 100).toFixed(0) }}%</span
+                            <span
+                                class="font-mono text-sm font-bold text-emerald-400"
+                                >{{
+                                    (
+                                        seller_data.fee_tier
+                                            .next_tier_percentage * 100
+                                    ).toFixed(0)
+                                }}%</span
                             >
                         </div>
                     </div>
@@ -194,11 +205,11 @@
                             <div class="space-y-0.5">
                                 <span
                                     class="block text-[9px] font-bold text-slate-500 uppercase"
-                                    >Held funds</span
+                                    >At stake</span
                                 >
                                 <span
                                     class="font-mono text-[10px] font-bold text-slate-400"
-                                    >Pending</span
+                                    >If all win</span
                                 >
                             </div>
                             <span
@@ -207,7 +218,7 @@
                                 {{ seller_data.wallet.currency }}
                                 {{
                                     Number(
-                                        seller_data.wallet.pending_balance,
+                                        seller_data.wallet.gross_at_stake,
                                     ).toFixed(2)
                                 }}
                             </span>
@@ -441,7 +452,145 @@
                             />
                         </div>
                     </div>
+                    <!-- SETTLEMENTS -->
+                    <div
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <span
+                                class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
+                            >
+                                Settlements [{{
+                                    seller_data.settlements.length
+                                }}]
+                            </span>
+                            <span
+                                class="font-mono text-[9px] text-slate-500 uppercase"
+                            >
+                                Payout history
+                            </span>
+                        </div>
 
+                        <div class="divide-y divide-gray-800/40">
+                            <div
+                                v-for="s in seller_data.settlements"
+                                :key="s.id"
+                                class="p-3 transition-colors hover:bg-[#111a30]/40"
+                            >
+                                <div
+                                    class="flex items-center justify-between gap-3"
+                                >
+                                    <div
+                                        class="flex min-w-0 items-center gap-3"
+                                    >
+                                        <span
+                                            :class="[
+                                                'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-sm font-mono text-[9px] font-black select-none',
+                                                s.outcome === 'won'
+                                                    ? 'bg-emerald-500 text-[#070b14]'
+                                                    : s.outcome === 'voided'
+                                                      ? 'bg-slate-500 text-[#070b14]'
+                                                      : 'bg-rose-500 text-white',
+                                            ]"
+                                        >
+                                            {{
+                                                s.outcome === 'won'
+                                                    ? 'W'
+                                                    : s.outcome === 'voided'
+                                                      ? 'V'
+                                                      : 'L'
+                                            }}
+                                        </span>
+                                        <div class="min-w-0">
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <span
+                                                    class="truncate font-mono text-[11px] font-bold text-sky-400"
+                                                >
+                                                    {{ s.betslip_code }}
+                                                </span>
+                                            </div>
+                                            <p
+                                                class="mt-0.5 truncate text-[10px] text-slate-500"
+                                            >
+                                                from {{ s.buyer_name }} ·
+                                                {{ s.settled_ago }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p
+                                            class="font-mono text-xs font-black"
+                                            :class="
+                                                s.outcome === 'won'
+                                                    ? 'text-emerald-400'
+                                                    : 'text-slate-500'
+                                            "
+                                        >
+                                            {{
+                                                s.outcome === 'won' ? '+' : ''
+                                            }}KES
+                                            {{ Number(s.net).toFixed(2) }}
+                                        </p>
+                                        <p
+                                            class="text-[9px] text-slate-500 uppercase"
+                                        >
+                                            {{
+                                                s.outcome === 'won'
+                                                    ? 'Net earned'
+                                                    : s.outcome === 'voided'
+                                                      ? 'Voided'
+                                                      : 'Refunded'
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Gross / fee breakdown, only for wins -->
+                                <div
+                                    v-if="s.outcome === 'won'"
+                                    class="mt-2 flex items-center gap-3 border-t border-gray-800/40 pt-2 font-mono text-[9px] tracking-wide text-slate-500 uppercase"
+                                >
+                                    <span>
+                                        Gross
+                                        <span class="text-slate-300"
+                                            >KES
+                                            {{
+                                                Number(s.gross).toFixed(2)
+                                            }}</span
+                                        >
+                                    </span>
+                                    <span class="text-slate-700">·</span>
+                                    <span>
+                                        Fee
+                                        <span class="text-rose-400"
+                                            >KES
+                                            {{ Number(s.fee).toFixed(2) }}</span
+                                        >
+                                    </span>
+                                    <span class="text-slate-700">·</span>
+                                    <span>
+                                        Net
+                                        <span
+                                            class="font-black text-emerald-400"
+                                            >KES
+                                            {{ Number(s.net).toFixed(2) }}</span
+                                        >
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div
+                                v-if="seller_data.settlements.length === 0"
+                                class="p-6 text-center font-mono text-xs text-slate-500 uppercase"
+                            >
+                                No settlements yet.
+                            </div>
+                        </div>
+                    </div>
                     <!-- ACTIVITY -->
                     <div
                         class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
@@ -466,12 +615,10 @@
                                     <span
                                         :class="[
                                             'flex h-5 w-5 items-center justify-center rounded-sm font-mono text-[9px] font-black select-none',
-                                            act.result === 'won'
-                                                ? 'bg-emerald-500 text-[#070b14]'
-                                                : 'bg-rose-500 text-white',
+                                            toneBadgeClass(act.tone),
                                         ]"
                                     >
-                                        {{ act.result === 'won' ? 'W' : 'L' }}
+                                        {{ act.badge }}
                                     </span>
                                     <span
                                         class="text-[11px] font-bold tracking-wide text-slate-300 uppercase"
@@ -576,7 +723,7 @@
                                         {{
                                             Number(
                                                 seller_data.wallet
-                                                    .pending_balance,
+                                                    .gross_at_stake,
                                             ).toFixed(2)
                                         }}
                                     </span>
@@ -674,26 +821,29 @@
                                     class="flex items-center justify-between font-mono text-[10px] text-slate-400"
                                 >
                                     <span>Lifetime Sales</span>
-                                    <span class="text-white"
-                                        >{{ seller_data.fee_tier.total_sales }}</span
-                                    >
+                                    <span class="text-white">{{
+                                        seller_data.fee_tier.total_sales
+                                    }}</span>
                                 </div>
                                 <div
                                     v-if="
-                                        seller_data.fee_tier.sales_until_next_tier
+                                        seller_data.fee_tier
+                                            .sales_until_next_tier
                                     "
                                     class="mt-2 rounded border border-sky-500/20 bg-sky-500/5 p-2 text-[10px] text-sky-400"
                                 >
                                     <span class="font-black">{{
-                                        seller_data.fee_tier.sales_until_next_tier
+                                        seller_data.fee_tier
+                                            .sales_until_next_tier
                                     }}</span>
                                     more sales to unlock
-                                    <span class="font-black">{{
-                                        (
-                                            seller_data.fee_tier
-                                                .next_tier_percentage * 100
-                                        ).toFixed(0)
-                                    }}%</span
+                                    <span class="font-black"
+                                        >{{
+                                            (
+                                                seller_data.fee_tier
+                                                    .next_tier_percentage * 100
+                                            ).toFixed(0)
+                                        }}%</span
                                     >
                                     fee rate
                                 </div>
@@ -849,6 +999,20 @@ const tierBadgeClass = computed(() => {
             return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
     }
 });
+
+const toneBadgeClass = (tone) => {
+    switch (tone) {
+        case 'positive':
+            return 'bg-emerald-500 text-[#070b14]';
+        case 'negative':
+            return 'bg-rose-500 text-white';
+        case 'pending':
+            return 'bg-amber-500 text-[#070b14]';
+        case 'neutral':
+        default:
+            return 'bg-slate-500 text-white';
+    }
+};
 </script>
 
 <style scoped>

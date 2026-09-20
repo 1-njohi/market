@@ -48,7 +48,7 @@ class TestUserSeeder extends Seeder
                 ['user_id' => $user->id],
                 [
                     'balance' => $balance,
-                    'pending_balance' => 0,
+                    'escrow_balance' => 0,
                     'total_deposited' => $balance,
                     'total_withdrawn' => 0,
                     'currency' => 'KES',

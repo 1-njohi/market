@@ -194,7 +194,7 @@ const submitAdjust = () => {
                         >Pending</span
                     >
                     <p class="mt-2 text-lg font-black text-amber-400">
-                        {{ formatKES(wallet.pending_balance) }}
+                        {{ formatKES(wallet.escrow_balance) }}
                     </p>
                 </div>
                 <div

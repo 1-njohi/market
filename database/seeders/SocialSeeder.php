@@ -38,7 +38,7 @@ class SocialSeeder extends Seeder
         // ─── Seller Metrics ───
         foreach ($sellers as $seller) {
             $all = Betslip::where('user_id', $seller->id)->get();
-            $settled = $all->whereIn('status', ['settled', 'completed']);
+            $settled = $all->whereIn('status', ['settled', 'voided']);
 
             $totalBetslips = $settled->count();
             $wonBetslips = $settled->where('is_winner', true)->count();

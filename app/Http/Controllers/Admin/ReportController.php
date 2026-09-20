@@ -105,26 +105,28 @@ class ReportController extends Controller
             return back()->with('error', 'Betslip not found.');
         }
 
-        // Loop purchases, refund each buyer, reverse seller pending
         \DB::transaction(function () use ($betslip) {
-            foreach ($betslip->purchases()->where('status', 'pending')->get() as $purchase) {
-                app(\App\Services\WalletService::class)->credit(
-                    $purchase->buyer,
-                    (float) $purchase->purchase_price,
-                    'refund',
-                    $betslip->code . '-admin-refund',
-                    "Admin-forced refund for #{$betslip->code}"
-                );
-                app(\App\Services\WalletService::class)->debitPending(
-                    $purchase->seller,
-                    (float) $purchase->purchase_price,
-                    'pending_release',
-                    $betslip->code . '-admin-refund',
-                    "Pending reversed for #{$betslip->code}"
+            $walletService = app(\App\Services\WalletService::class);
+
+            $purchases = $betslip->purchases()
+                ->where('status', 'pending')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($purchases as $purchase) {
+                $walletService->refundEscrow(
+                    user: $purchase->buyer,
+                    amount: (float) $purchase->purchase_price,
+                    context: "Betslip #{$betslip->code} (admin refund)",
                 );
                 $purchase->update(['status' => 'refunded']);
             }
-            $betslip->update(['status' => 'settled', 'is_winner' => false, 'remaining' => 0]);
+
+            $betslip->update([
+                'status' => 'settled',
+                'is_winner' => false,
+                'remaining' => 0,
+            ]);
         });
 
         return back()->with('success', 'Betslip refunded and settled as loss.');

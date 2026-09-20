@@ -231,7 +231,7 @@ class BetslipController extends Controller
     {
         // Get all settled betslips
         $settledBetslips = $seller->betslips()
-            ->whereIn('status', ['settled', 'completed'])
+            ->whereIn('status', ['settled', 'vioded'])
             ->get();
 
         $totalBetslips = $settledBetslips->count();
@@ -247,7 +247,7 @@ class BetslipController extends Controller
 
         // Recent form (last 6 settled betslips)
         $recentForm = $seller->betslips()
-            ->whereIn('status', ['settled', 'completed'])
+            ->whereIn('status', ['settled', 'voided'])
             ->orderBy('created_at', 'desc')
             ->take(6)
             ->get()

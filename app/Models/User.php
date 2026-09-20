@@ -135,13 +135,13 @@ class User extends Authenticatable implements PasskeyUser
     // Get active purchases (pending or completed)
     public function getActivePurchases()
     {
-        return $this->purchasedBetslips()->wherePivotIn('status', ['pending', 'completed']);
+        return $this->purchasedBetslips()->wherePivotIn('status', ['pending', 'underway']);
     }
 
     // Get completed purchases
     public function getCompletedPurchases()
     {
-        return $this->purchasedBetslips()->wherePivot('status', 'completed');
+        return $this->purchasedBetslips()->wherePivot('status', 'settled');
     }
 
     // Check if user has purchased a specific betslip

@@ -44,12 +44,10 @@ class BetslipPurchaseService
 
         // Use a database transaction to prevent race conditions
         return DB::transaction(function () use ($buyer, $betslip, $price, $totalOdds) {
-            // Lock the betslip row
             $betslip = Betslip::where('id', $betslip->id)
                 ->lockForUpdate()
                 ->first();
 
-            // Double-check availability
             if ($betslip->remaining < 1) {
                 throw new \Exception('This betslip is no longer available.');
             }
@@ -57,24 +55,8 @@ class BetslipPurchaseService
             $seller = $betslip->seller;
             $reference = 'PUR-' . strtoupper(Str::random(10));
 
-            // 1. Debit buyer's wallet (immediate deduction)
-            $this->walletService->debit(
-                $buyer,
-                $price,
-                'purchase',
-                $reference . "-" . $buyer->code,
-                "Purchase of betslip #{$betslip->code}"
-            );
-
-            // 2. Credit seller's pending balance (not available yet)
-            $this->walletService->creditPending(
-                $seller,
-                $price,
-                $reference . "-" . $seller->code,
-                "Pending payout for betslip #{$betslip->code}"
-            );
-
-            // 3. Create the purchase record
+            // 1. Create the pivot first so the (betslip_id, buyer_id) unique
+            //    constraint fires before any money moves.
             $purchase = BetslipUserPurchase::create([
                 'betslip_id' => $betslip->id,
                 'buyer_id' => $buyer->id,
@@ -87,17 +69,26 @@ class BetslipPurchaseService
                 'purchased_at' => now(),
             ]);
 
-            // 4. Decrement remaining shares
-            // $betslip->decrement('remaining');
+            // 2. Move funds: available → escrow. Returns [available leg, escrow leg].
+            $txs = $this->walletService->hold(
+                $buyer,
+                $price,
+                \App\Models\Transaction::TYPE_PURCHASE,
+                "Purchase of betslip #{$betslip->code}"
+            );
 
-            // 5. If no shares left, update status
-            // if ($betslip->remaining === 0) {
-            //     $betslip->update(['status' => 'sold_out']);
-            // }
+            // 3. Tag the visible (available) leg with the pivot. The escrow leg
+            //    stays untagged — it's internal bookkeeping and never surfaces.
+            $txs[0]->update([
+                'transactionable_type' => BetslipUserPurchase::class,
+                'transactionable_id' => $purchase->id,
+            ]);
 
             Cache::forget(DashboardController::cacheKey($buyer));
+
             return $purchase;
         });
+        ;
     }
 
     /**

@@ -35,7 +35,7 @@ class LeaderboardService
         // Only consider sellers who have at least one settled betslip
         $sellers = User::query()
             ->whereHas('betslips', function ($q) {
-                $q->whereIn('status', ['settled', 'completed']);
+                $q->whereIn('status', ['settled']);
             })
             ->with('sellerMetric')
             ->withCount([
@@ -52,7 +52,7 @@ class LeaderboardService
         $leaders = $sellers->map(function (User $seller) {
             // Pull the seller's last 9 settled betslips for recent form + streak
             $settled = $seller->betslips()
-                ->whereIn('status', ['settled', 'completed'])
+                ->whereIn('status', ['settled'])
                 ->orderByDesc('updated_at')
                 ->take(9)
                 ->get();

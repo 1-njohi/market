@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Pure data model. All balance mutations MUST go through
+ * App\Services\WalletService so that every change writes a matching
+ * Transaction row under a row lock. Do not add credit/debit/hold
+ * helpers here — they will not be locked and will not be audited.
+ */
+
 class Wallet extends Model
 {
     use HasFactory;
@@ -14,7 +21,7 @@ class Wallet extends Model
     protected $fillable = [
         'user_id',
         'balance',
-        'pending_balance',
+        'escrow_balance',
         'total_deposited',
         'total_withdrawn',
         'currency',
@@ -22,7 +29,7 @@ class Wallet extends Model
 
     protected $casts = [
         'balance' => 'decimal:2',
-        'pending_balance' => 'decimal:2',
+        'escrow_balance' => 'decimal:2',
         'total_deposited' => 'decimal:2',
         'total_withdrawn' => 'decimal:2',
     ];
@@ -41,37 +48,5 @@ class Wallet extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
-    }
-
-    /**
-     * Check if wallet has sufficient balance
-     */
-    public function hasSufficientBalance(float $amount): bool
-    {
-        return $this->balance >= $amount;
-    }
-
-    /**
-     * Add amount to balance
-     */
-    public function credit(float $amount): self
-    {
-        $this->balance += $amount;
-        $this->save();
-        return $this;
-    }
-
-    /**
-     * Deduct amount from balance
-     */
-    public function debit(float $amount): self
-    {
-        if (!$this->hasSufficientBalance($amount)) {
-            throw new \Exception('Insufficient balance');
-        }
-
-        $this->balance -= $amount;
-        $this->save();
-        return $this;
     }
 }

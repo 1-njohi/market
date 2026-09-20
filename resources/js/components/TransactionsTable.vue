@@ -57,12 +57,19 @@
                         </span>
                     </div>
 
-                    <p
-                        class="font-sans text-xs font-bold tracking-wide text-slate-300 normal-case"
-                    >
-                        {{ tx.description }}
-                    </p>
-
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span
+                            v-if="tx.outcome"
+                            :class="outcomeBadgeClass(tx.outcome)"
+                        >
+                            {{ outcomeBadgeLabel(tx.outcome) }}
+                        </span>
+                        <p
+                            class="font-sans text-xs font-bold tracking-wide text-slate-300 normal-case"
+                        >
+                            {{ tx.description }}
+                        </p>
+                    </div>
                     <div
                         class="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-gray-800/40 pt-2 font-mono text-[10px] font-semibold uppercase"
                     >
@@ -102,8 +109,7 @@
                                 class="block text-[8px] font-bold tracking-wider text-slate-500"
                                 >Balance after</span
                             >
-                            <span class="font-mono font-bold text-white"
-                                >KES
+                            <span class="font-mono font-bold text-white">
                                 {{
                                     tx.balance_after.toLocaleString(undefined, {
                                         minimumFractionDigits: 2,
@@ -116,7 +122,7 @@
                     <div
                         class="pt-1 text-right font-mono text-[9px] text-slate-500"
                     >
-                        TIME: {{ formatDate(tx.created_at) }}
+                        {{ formatDate(tx.created_at) }}
                     </div>
                 </div>
             </div>
@@ -158,11 +164,21 @@
                                 </span>
                             </td>
 
-                            <td
-                                class="max-w-xs truncate px-4 py-3.5 font-bold text-slate-300 normal-case"
-                                :title="tx.description"
-                            >
-                                {{ tx.description }}
+                            <td class="max-w-xs px-4 py-3.5">
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        v-if="tx.outcome"
+                                        :class="outcomeBadgeClass(tx.outcome)"
+                                    >
+                                        {{ outcomeBadgeLabel(tx.outcome) }}
+                                    </span>
+                                    <span
+                                        class="truncate font-bold text-slate-300 normal-case"
+                                        :title="tx.description"
+                                    >
+                                        {{ tx.description }}
+                                    </span>
+                                </div>
                             </td>
 
                             <td
@@ -190,7 +206,6 @@
                                 class="px-4 py-3.5 text-right font-mono text-slate-400"
                             >
                                 <div class="font-bold text-white">
-                                    KES
                                     {{
                                         tx.balance_after.toLocaleString(
                                             undefined,
@@ -259,5 +274,28 @@ const formatDate = (dateString) => {
             hour12: false,
         })
         .replace(',', '');
+};
+
+const outcomeBadgeClass = (outcome) => {
+    const base =
+        'flex-shrink-0 rounded border px-1.5 py-0.5 font-mono text-[9px] font-black tracking-widest uppercase';
+    const palette = {
+        pending: 'border-amber-500/20  bg-amber-500/5  text-amber-400/80',
+        won: 'border-emerald-500/20 bg-emerald-500/5 text-emerald-400/80',
+        refunded: 'border-rose-500/20  bg-rose-500/5   text-rose-400/80',
+        voided: 'border-slate-500/20 bg-slate-500/5  text-slate-400/80',
+    };
+    return [base, palette[outcome] ?? ''];
+};
+
+const outcomeBadgeLabel = (outcome) => {
+    return (
+        {
+            pending: 'PENDING',
+            won: 'WON',
+            refunded: 'REFUNDED',
+            voided: 'VOIDED',
+        }[outcome] ?? outcome.toUpperCase()
+    );
 };
 </script>
