@@ -156,8 +156,8 @@ class SellerDashboardService
     public function getBetslipManagement(User $user): array
     {
         $activeBetslips = $user->betslips()
-            // // ->where('status', 'pending')
-            // ->where('remaining', '>', 0)
+            ->whereIn('status', ['pending', 'underway'])
+            ->where('remaining', '>', 0)
             ->withCount('odds as legs')
             ->withCount('purchases as purchases_count')
             ->orderBy('created_at', 'desc')
