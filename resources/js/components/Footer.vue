@@ -218,15 +218,101 @@ const handleSubscribe = () => {
                 </p>
             </div>
 
+            <!-- REGISTERED BUSINESS -->
+            <div
+                class="mt-4 rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
+            >
+                <p
+                    class="text-[10px] font-black tracking-widest text-slate-200 uppercase"
+                >
+                    Registered Business
+                </p>
+                <div
+                    class="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 text-[10px] font-semibold sm:grid-cols-2 md:grid-cols-4"
+                >
+                    <div>
+                        <span
+                            class="block tracking-wider text-slate-600 uppercase"
+                            >Business Name</span
+                        >
+                        <span class="mt-0.5 block text-slate-300"
+                            >Piratestech Solutions</span
+                        >
+                    </div>
+                    <div>
+                        <span
+                            class="block tracking-wider text-slate-600 uppercase"
+                            >Registration No.</span
+                        >
+                        <span class="mt-0.5 block font-mono text-slate-300"
+                            >BN-P7SEM5YO</span
+                        >
+                    </div>
+                    <div>
+                        <span
+                            class="block tracking-wider text-slate-600 uppercase"
+                            >Registered</span
+                        >
+                        <span class="mt-0.5 block text-slate-300"
+                            >21 July 2026</span
+                        >
+                    </div>
+                    <div>
+                        <span
+                            class="block tracking-wider text-slate-600 uppercase"
+                            >Jurisdiction</span
+                        >
+                        <span class="mt-0.5 block text-slate-300"
+                            >Republic of Kenya</span
+                        >
+                    </div>
+                    <div class="sm:col-span-2 md:col-span-3">
+                        <span
+                            class="block tracking-wider text-slate-600 uppercase"
+                            >Registered Address</span
+                        >
+                        <span
+                            class="mt-0.5 block leading-relaxed text-slate-300"
+                        >
+                            Ground Floor, Sunrise Arcade, Next to Stage, Baringo
+                            Central District, P.O. Box 1, 30400 — Kabarnet,
+                            Kenya
+                        </span>
+                    </div>
+                    <div>
+                        <span
+                            class="block tracking-wider text-slate-600 uppercase"
+                            >Contact</span
+                        >
+                        <a
+                            href="mailto:hello@betslip-pirates.com"
+                            class="mt-0.5 block text-sky-400 underline decoration-dotted hover:text-sky-300"
+                        >
+                            hello@betslip-pirates.com
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- BOTTOM: copyright + legal links -->
             <div
                 class="mt-8 flex flex-col items-center justify-between gap-4 border-t border-[#232d42] pt-6 md:flex-row"
             >
-                <p
-                    class="text-[10px] font-bold tracking-widest text-slate-500 uppercase"
+                <div
+                    class="flex flex-col items-center gap-1 md:items-start"
                 >
-                    © {{ year }} Betslip Pirates. All rights reserved.
-                </p>
+                    <p
+                        class="text-[10px] font-bold tracking-widest text-slate-500 uppercase"
+                    >
+                        © {{ year }} Piratestech Solutions. All rights reserved.
+                    </p>
+                    <p
+                        class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase"
+                    >
+                        Betslip Pirates is a trading name of Piratestech
+                        Solutions (BN-P7SEM5YO)
+                    </p>
+                </div>
 
                 <div class="flex flex-wrap items-center gap-5">
                     <Link
