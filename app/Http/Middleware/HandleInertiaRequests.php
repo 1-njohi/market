@@ -41,13 +41,17 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
-                'balance' => $request -> user()->wallet->balance ?? 0
+                'balance' => $request->user()->wallet->balance ?? 0
             ],
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
             ],
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'app' => [
+                'version' => config('version.number'),
+                'released_at' => config('version.released_at'),
+            ],
         ];
     }
 }

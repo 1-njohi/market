@@ -4,7 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use \App\Traits\TraitUuid;
+use App\Observers\BetslipObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy(BetslipObserver::class)]
 class Betslip extends Model
 {
     use TraitUuid;
