@@ -94,12 +94,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/deletebetslips', function () {
         try {
             // Load relationships if needed so model events fire (deleting/deleted)
-            Betslip::with(['items', 'user']) // adjust relationship names
-                ->get()
-                ->each(function ($betslip) {
-                    // $betslip->items()->delete(); // delete children first
-                    $betslip->delete();
-                });
+            Betslip::truncate();
 
             return response('Success: All betslips and relationships deleted.', 200);
         } catch (\Throwable $e) {
