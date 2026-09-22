@@ -18,15 +18,60 @@
 
                 <!-- MAIN SLIPS DECK DISPLAY -->
                 <div
-                    class="overflow-hidden rounded-lg border border-gray-800/40 bg-[#070b14] /40 lg:col-span-9"
+                    class="/40 overflow-hidden rounded-lg border border-gray-800/40 bg-[#070b14] lg:col-span-9"
                 >
                     <!-- HEADER CONTROL CONSOLE (unchanged) -->
                     <div
                         class="block items-center justify-between border-b border-gray-800/60 p-4 md:flex md:bg-[#070b14]"
                     >
-                        <div class="flex items-center space-x-2 text-blue-400">
-                            <!-- <svg ... > -->
-                            <h3>Featured Betslips</h3>
+                        <div class="flex items-center gap-2">
+                            <h3
+                                class="text-xs font-bold tracking-widest text-gray-200 uppercase"
+                            >
+                                Featured Betslips
+                            </h3>
+                            <InfoPopover title="How the marketplace works">
+                                <p>
+                                    Every slip here is listed by a seller. You
+                                    can interact with any of them in two ways.
+                                </p>
+                                <div
+                                    class="rounded border border-sky-500/20 bg-sky-500/5 px-3 py-2"
+                                >
+                                    <p
+                                        class="mb-1 text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                                    >
+                                        Watch — free
+                                    </p>
+                                    <p class="text-[11px] text-slate-300">
+                                        Track the slip without paying. You won't
+                                        see the picks until it settles. We'll
+                                        notify you of the outcome, and your
+                                        personal watch record grows over time.
+                                    </p>
+                                </div>
+                                <div
+                                    class="rounded border border-amber-500/20 bg-amber-500/5 px-3 py-2"
+                                >
+                                    <p
+                                        class="mb-1 text-[10px] font-black tracking-widest text-amber-400 uppercase"
+                                    >
+                                        Unlock — pay once
+                                    </p>
+                                    <p class="text-[11px] text-slate-300">
+                                        Pay the seller's price to see their
+                                        picks immediately. If the slip loses,
+                                        you're refunded automatically. If it
+                                        wins, you keep the picks and can place
+                                        them at your bookmaker.
+                                    </p>
+                                </div>
+                                <p class="text-slate-400">
+                                    Sellers are ranked by win rate and ROI.
+                                    Click any seller's name to see their full
+                                    record before you commit.
+                                </p>
+                            </InfoPopover>
                         </div>
                         <div
                             class="relative mt-2 w-full max-w-md select-none md:mt-0"
@@ -65,7 +110,7 @@
                                 v-else-if="slot.type === 'iframe'"
                                 class="[#0a0f1a] aspect-square w-full rounded-lg border border-gray-700/40 p-0"
                             >
-                            <!-- <AdBanner /> -->
+                                <!-- <AdBanner /> -->
                                 <iframe
                                     :src="slot.url"
                                     width="100%"
@@ -74,7 +119,7 @@
                                     allowfullscreen
                                     loading="lazy"
                                     sandbox="allow-scripts allow-same-origin"
-                                    class="rounded-md aspect-square"
+                                    class="aspect-square rounded-md"
                                 />
                             </div>
                         </template>
@@ -112,6 +157,7 @@ import { usePage, Link, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import BetSlipSummaryCard from '@/components/BetSlipSummaryCard.vue';
 import AdBanner from '@/components/AdBanner.vue';
+import InfoPopover from '@/components/InfoPopover.vue';
 
 // ---------- 1. Initial data from props ----------
 const page = usePage();
@@ -227,7 +273,6 @@ async function loadMore() {
 
 // Setup Intersection Observer
 onMounted(() => {
-
     if (!observerTarget.value) return;
     observer = new IntersectionObserver(
         (entries) => {
