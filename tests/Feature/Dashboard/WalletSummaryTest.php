@@ -425,6 +425,65 @@ class WalletSummaryTest extends TestCase
         // (100 + 200) / 2 = 150
         $this->assertSame(150.0, (float) $metrics['avg_price']);
     }
+
+    public function test_buyer_dashboard_includes_watch_record(): void
+    {
+        [$buyer] = $this->makeUserWithWallet();
+        [$seller] = $this->makeUserWithWallet();
+
+        $this->watchSettled($buyer, $seller, 'settled', true, 2.00, 'BS-W1');
+        $this->watchSettled($buyer, $seller, 'settled', true, 3.00, 'BS-W2');
+        $this->watchSettled($buyer, $seller, 'settled', false, 1.50, 'BS-L1');
+
+        $data = app(BuyerDashboardService::class)->getDashboardData($buyer);
+
+        $this->assertArrayHasKey('watch_record', $data);
+        $this->assertSame(3, $data['watch_record']['settled_count']);
+        $this->assertSame(2, $data['watch_record']['won_count']);
+        $this->assertSame(2.0, (float) $data['watch_record']['units']);
+    }
+
+    public function test_seller_active_betslips_carry_watch_counts(): void
+    {
+        [$seller] = $this->makeUserWithWallet();
+        $buyer1 = $this->makeUser();
+        $buyer2 = $this->makeUser();
+
+        $betslipA = $this->makePendingSellerBetslip($seller, 'BS-A');
+        $betslipB = $this->makePendingSellerBetslip($seller, 'BS-B');
+
+        // A: 2 watchers. B: 1 watcher.
+        $betslipA->watchers()->attach($buyer1->id, ['watched_at' => now()]);
+        $betslipA->watchers()->attach($buyer2->id, ['watched_at' => now()]);
+        $betslipB->watchers()->attach($buyer1->id, ['watched_at' => now()]);
+
+        $data = app(SellerDashboardService::class)->getDashboardData($seller);
+
+        $active = collect($data['betslips']['active']);
+        $a = $active->firstWhere('code', 'BS-A');
+        $b = $active->firstWhere('code', 'BS-B');
+
+        $this->assertNotNull($a);
+        $this->assertNotNull($b);
+        $this->assertSame(2, $a['watch_count']);
+        $this->assertSame(1, $b['watch_count']);
+
+        // Aggregate at the betslips level.
+        $this->assertSame(3, $data['betslips']['total_watchers']);
+    }
+
+    private function makePendingSellerBetslip(User $seller, string $code): \App\Models\Betslip
+    {
+        return \App\Models\Betslip::create([
+            'user_id' => $seller->id,
+            'total_odds' => 3.50,
+            'price' => 100.00,
+            'status' => 'pending',
+            'remaining' => 1,
+            'code' => $code,
+            'is_winner' => false,
+        ]);
+    }
     private function makeBuyerPurchase(User $buyer, string $status): void
     {
         $seller = User::factory()->create();
@@ -594,22 +653,13 @@ class WalletSummaryTest extends TestCase
 
         return $purchase;
     }
-    public function test_buyer_dashboard_includes_watch_record(): void
+    private function makeUser(): User
     {
-        [$buyer] = $this->makeUserWithWallet();
-        [$seller] = $this->makeUserWithWallet();
-
-        $this->watchSettled($buyer, $seller, 'settled', true, 2.00, 'BS-W1');
-        $this->watchSettled($buyer, $seller, 'settled', true, 3.00, 'BS-W2');
-        $this->watchSettled($buyer, $seller, 'settled', false, 1.50, 'BS-L1');
-
-        $data = app(BuyerDashboardService::class)->getDashboardData($buyer);
-
-        $this->assertArrayHasKey('watch_record', $data);
-        $this->assertSame(3, $data['watch_record']['settled_count']);
-        $this->assertSame(2, $data['watch_record']['won_count']);
-        $this->assertSame(2.0, (float) $data['watch_record']['units']);
+        return User::factory()->create([
+            'code' => strtoupper(\Illuminate\Support\Str::random(8)),
+        ]);
     }
+
 
     private function watchSettled(
         User $buyer,

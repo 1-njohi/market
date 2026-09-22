@@ -13,7 +13,7 @@ const betSlips = computed(() => page.props.bet_slips?.data ?? []);
     <Head title="Watchlist — Betslip Pirates" />
 
     <div class="min-h-screen bg-[#0000] font-sans text-slate-300">
-        <div class="mx-auto w-full max-w-[1200px] px-4 py-12 md:px-6 lg:px-8">
+        <div class="mx-auto w-full max-w-[1200px] px-2 py-12 md:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-8 border-b border-[#232d42] pb-6">
                 <div class="flex items-center gap-2">

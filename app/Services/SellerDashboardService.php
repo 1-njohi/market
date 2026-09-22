@@ -156,10 +156,9 @@ class SellerDashboardService
     public function getBetslipManagement(User $user): array
     {
         $activeBetslips = $user->betslips()
-            ->whereIn('status', ['pending', 'underway'])
-            ->where('remaining', '>', 0)
             ->withCount('odds as legs')
             ->withCount('purchases as purchases_count')
+            ->withCount('watchers as watch_count')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -186,9 +185,11 @@ class SellerDashboardService
                     'created_at' => $betslip->created_at->toISOString(),
                     'days_active' => $betslip->created_at->diffInDays(Carbon::now()),
                     'is_expiring_soon' => $betslip->created_at->diffInDays(Carbon::now()) >= 7,
-                    'purchases' => $betslip->purchases_count
+                    'purchases' => $betslip->purchases_count,
+                    'watch_count' => (int) $betslip->watch_count,
                 ];
             }),
+            'total_watchers' => (int) $activeBetslips->sum('watch_count'),
             'total_active' => $activeBetslips->count(),
             'expiring_soon' => $expiringSoon->count(),
             'sold_out' => $soldOut,
