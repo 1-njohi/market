@@ -12,7 +12,6 @@ import Footer from '@/components/Footer.vue';
 import NavMenu from '@/components/NavMenu.vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
-import LogoutButton from '@/components/LogoutButton.vue';
 const page = usePage();
 
 const leaderboardRef = ref(null);
@@ -239,6 +238,7 @@ const clearSearch = () => {
                             <span
                                 class="font-mono text-xs font-black text-emerald-400"
                             >
+                                KES
                                 {{
                                     Number(
                                         $page.props.auth.balance || 0,
