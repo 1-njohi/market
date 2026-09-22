@@ -808,7 +808,7 @@
                         >
                             <span
                                 class="text-[10px] font-black tracking-widest text-purple-400 uppercase"
-                                >// TOP SELLERS</span
+                                >TOP SELLERS</span
                             >
                         </div>
                         <div class="space-y-3 p-4">
