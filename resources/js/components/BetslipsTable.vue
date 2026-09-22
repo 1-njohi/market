@@ -1,6 +1,6 @@
 <template>
     <div
-        class="w-full overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40 font-sans text-slate-200"
+        class="w-full overflow-hidden rounded bordd font-sans text-slate-200"
     >
         <!-- Empty state -->
         <div
@@ -12,11 +12,11 @@
 
         <template v-else>
             <!-- ─────── MOBILE ─────── -->
-            <div class="block divide-y divide-gray-800/40 md:hidden">
+            <div class="space-y-3 py-3 px-0 md:hidden bg-[#070b14]">
                 <div
                     v-for="slip in betslips"
                     :key="slip.id"
-                    class="space-y-3 p-4 transition-colors hover:bg-[#111622]/40"
+                    class="space-y-3 rounded-lg border border-[#232d42] bg-[#111622]/40 p-4 transition-colors hover:border-sky-500/20"
                 >
                     <!-- Header: code + status + sold + watching -->
                     <div class="flex flex-wrap items-center gap-2">
