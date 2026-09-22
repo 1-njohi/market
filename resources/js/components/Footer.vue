@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
+const page = usePage();
 const year = new Date().getFullYear();
+
+const version = computed(
+    () => (page.props.app as { version?: string })?.version ?? 'dev',
+);
+const releasedAt = computed(
+    () => (page.props.app as { released_at?: string })?.released_at ?? '',
+);
 
 const columns = [
     {
@@ -298,9 +306,7 @@ const handleSubscribe = () => {
             <div
                 class="mt-8 flex flex-col items-center justify-between gap-4 border-t border-[#232d42] pt-6 md:flex-row"
             >
-                <div
-                    class="flex flex-col items-center gap-1 md:items-start"
-                >
+                <div class="flex flex-col items-center gap-1 md:items-start">
                     <p
                         class="text-[10px] font-bold tracking-widest text-slate-500 uppercase"
                     >
@@ -311,6 +317,14 @@ const handleSubscribe = () => {
                     >
                         Betslip Pirates is a trading name of Piratestech
                         Solutions (BN-P7SEM5YO)
+                    </p>
+                    <p
+                        class="font-mono text-[9px] font-medium tracking-wider text-white"
+                    >
+                        v{{ version }}
+                        <span v-if="releasedAt" class="ml-2">{{
+                            releasedAt
+                        }}</span>
                     </p>
                 </div>
 
