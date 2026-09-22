@@ -97,7 +97,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Betslip::with(['items', 'user']) // adjust relationship names
                 ->get()
                 ->each(function ($betslip) {
-                    $betslip->items()->delete(); // delete children first
+                    // $betslip->items()->delete(); // delete children first
                     $betslip->delete();
                 });
 
