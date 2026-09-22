@@ -35,6 +35,12 @@
                     >
                         {{ statusLabel }}
                     </span>
+                    <!-- WATCH BUTTON -->
+                    <WatchButton
+                        v-if="slip.can_watch !== false"
+                        :code="slip.code"
+                        :watching="slip.is_watching === true"
+                    />
                 </div>
 
                 <h1
@@ -395,6 +401,7 @@
 import { computed } from 'vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import UnlockPopover from '@/components/UnlockPopover.vue';
+import WatchButton from '@/components/WatchButton.vue';
 
 const page = usePage();
 

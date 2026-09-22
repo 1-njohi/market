@@ -1,19 +1,91 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { dashboard, login } from '@/routes';
 import { register } from '@/routes';
 import HeroSection from '@/components/HeroSection.vue';
 import FixtureSummaryCard from '@/components/FixtureSummaryCard.vue';
 import BetSlipSummaryCard from '@/components/BetSlipSummaryCard.vue';
 import LeaderboardSummaryCard from '@/components/LeaderboardSummaryCard.vue';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
 import BetslipWrapper from '@/components/BetslipWrapper.vue';
 import Footer from '@/components/Footer.vue';
+import NavMenu from '@/components/NavMenu.vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 import LogoutButton from '@/components/LogoutButton.vue';
+const page = usePage();
 
 const leaderboardRef = ref(null);
+
+
+const flashSuccess = computed(() => page.props.flash?.success);
+const flashError = computed(() => page.props.flash?.error);
+
+const visibleSuccess = ref<string | null>(null);
+const visibleError = ref<string | null>(null);
+
+let successTimer: ReturnType<typeof setTimeout> | null = null;
+let errorTimer: ReturnType<typeof setTimeout> | null = null;
+
+// ─── Show helpers ──────────────────────────────────────────
+const showSuccess = (msg: string) => {
+    if (successTimer) {
+        clearTimeout(successTimer);
+        successTimer = null;
+    }
+    visibleSuccess.value = msg;
+    successTimer = setTimeout(() => {
+        visibleSuccess.value = null;
+        successTimer = null;
+    }, 4000);
+};
+
+const showError = (msg: string) => {
+    if (errorTimer) {
+        clearTimeout(errorTimer);
+        errorTimer = null;
+    }
+    visibleError.value = msg;
+    errorTimer = setTimeout(() => {
+        visibleError.value = null;
+        errorTimer = null;
+    }, 5000);
+};
+
+// ─── Dismiss helpers ───────────────────────────────────────
+const dismissSuccess = () => {
+    if (successTimer) {
+        clearTimeout(successTimer);
+        successTimer = null;
+    }
+    visibleSuccess.value = null;
+};
+
+const dismissError = () => {
+    if (errorTimer) {
+        clearTimeout(errorTimer);
+        errorTimer = null;
+    }
+    visibleError.value = null;
+};
+
+// ─── Watch the flash and route through the helpers ─────────
+watch(
+    flashSuccess,
+    (msg) => {
+        if (msg) showSuccess(msg);
+    },
+    { immediate: true },
+);
+
+watch(
+    flashError,
+    (msg) => {
+        if (msg) showError(msg);
+    },
+    { immediate: true },
+);
+
 
 const handleLeaderSearch = async ({ code, local, seller }) => {
     if (local) {
@@ -214,6 +286,7 @@ const clearSearch = () => {
                             </svg>
                         </Link>
                         <LogoutButton />
+                        <NavMenu />
                     </template>
 
                     <!-- Guest State -->
@@ -384,5 +457,133 @@ const clearSearch = () => {
         <div class="hidden h-14.5 lg:block"></div>
 
         <Footer />
+
+        
+    <!-- ─── Global Toast Container ────────────────────────────── -->
+    <Teleport to="body">
+        <div
+            class="pointer-events-none fixed inset-x-0 bottom-0 z-[9999] flex flex-col items-center gap-2 p-4 sm:items-end sm:p-6"
+        >
+            <!-- Success Toast -->
+            <Transition
+                enter-active-class="transition-all duration-300 ease-out"
+                enter-from-class="translate-y-8 opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
+                leave-active-class="transition-all duration-200 ease-in"
+                leave-from-class="translate-y-0 opacity-100"
+                leave-to-class="translate-y-8 opacity-0"
+            >
+                <div
+                    v-if="visibleSuccess"
+                    class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-emerald-200 bg-white p-4 shadow-lg"
+                >
+                    <div
+                        class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="3"
+                            stroke="currentColor"
+                            class="h-3 w-3 text-emerald-600"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m4.5 12.75 6 6 9-13.5"
+                            />
+                        </svg>
+                    </div>
+
+                    <p class="flex-1 text-sm font-medium text-slate-800">
+                        {{ visibleSuccess }}
+                    </p>
+
+                    <button
+                        type="button"
+                        @click="dismissSuccess"
+                        class="-mt-1 -mr-1 flex h-6 w-6 flex-shrink-0 cursor-pointer items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                        aria-label="Dismiss"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="2.5"
+                            stroke="currentColor"
+                            class="h-3.5 w-3.5"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M6 18 18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </button>
+                </div>
+            </Transition>
+
+            <!-- Error Toast -->
+            <Transition
+                enter-active-class="transition-all duration-500 ease-out"
+                enter-from-class="translate-y-8 opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
+                leave-active-class="transition-all duration-200 ease-in"
+                leave-from-class="translate-y-0 opacity-100"
+                leave-to-class="translate-y-8 opacity-0"
+            >
+                <div
+                    v-if="visibleError"
+                    class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-rose-200 bg-white p-4 shadow-lg"
+                >
+                    <div
+                        class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-rose-100"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="3"
+                            stroke="currentColor"
+                            class="h-3 w-3 text-rose-600"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M6 18 18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </div>
+
+                    <p class="flex-1 text-sm font-medium text-slate-800">
+                        {{ visibleError }}
+                    </p>
+
+                    <button
+                        type="button"
+                        @click="dismissError"
+                        class="-mt-1 -mr-1 flex h-6 w-6 flex-shrink-0 cursor-pointer items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                        aria-label="Dismiss"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="2.5"
+                            stroke="currentColor"
+                            class="h-3.5 w-3.5"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M6 18 18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </button>
+                </div>
+            </Transition>
+        </div>
+    </Teleport>
     </div>
 </template>

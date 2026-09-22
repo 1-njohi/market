@@ -119,6 +119,24 @@ class User extends Authenticatable implements PasskeyUser
             ->withTimestamps()
             ->orderBy('betslip_user_purchases.created_at', 'desc');
     }
+    
+    /**
+     * Betslips this user is watching (without owning).
+     *
+     * Distinct from purchasedBetslips — a watch is a paper-trade interest,
+     * not a commitment. The buyer does not see selections until settlement.
+     */
+    public function watchedBetslips()
+    {
+        return $this->belongsToMany(
+            Betslip::class,
+            'betslip_watches',
+            'user_id',
+            'betslip_id'
+        )
+            ->withPivot('watched_at')
+            ->orderByDesc('betslip_watches.watched_at');
+    }
 
     // Purchase records as buyer
     public function purchasesAsBuyer()

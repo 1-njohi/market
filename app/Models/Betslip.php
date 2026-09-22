@@ -111,6 +111,19 @@ class Betslip extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Users watching this betslip.
+     */
+    public function watchers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'betslip_watches',
+            'betslip_id',
+            'user_id'
+        )->withPivot('watched_at');
+    }
+
     // Get all purchases for this betslip
     public function purchases()
     {

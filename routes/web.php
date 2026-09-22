@@ -15,6 +15,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SellerDashboardController;
 use App\Http\Controllers\SellerLookupController;
 use App\Http\Controllers\WithdrawalController;
+use App\Http\Controllers\WatchlistController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,21 +31,21 @@ use Inertia\Inertia;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // ── Marketing / company ──
-Route::get('/about', fn () => Inertia::render('About'))->name('about');
-Route::get('/careers', fn () => Inertia::render('Careers'))->name('careers');
-Route::get('/press', fn () => Inertia::render('Press'))->name('press');
-Route::get('/community', fn () => Inertia::render('Community'))->name('community');
+Route::get('/about', fn() => Inertia::render('About'))->name('about');
+Route::get('/careers', fn() => Inertia::render('Careers'))->name('careers');
+Route::get('/press', fn() => Inertia::render('Press'))->name('press');
+Route::get('/community', fn() => Inertia::render('Community'))->name('community');
 
 // ── Help / support ──
-Route::get('/help', fn () => Inertia::render('HelpCenter'))->name('help');
-Route::get('/faq', fn () => Inertia::render('Faq'))->name('faq');
-Route::get('/how-it-works', fn () => Inertia::render('HowItWorks'))->name('how-it-works');
+Route::get('/help', fn() => Inertia::render('HelpCenter'))->name('help');
+Route::get('/faq', fn() => Inertia::render('Faq'))->name('faq');
+Route::get('/how-it-works', fn() => Inertia::render('HowItWorks'))->name('how-it-works');
 
-Route::get('/contact', fn () => Inertia::render('Contact'))->name('contact');
+Route::get('/contact', fn() => Inertia::render('Contact'))->name('contact');
 Route::post('/contact', function (Request $request) {
     $request->validate([
-        'name'    => 'required|string|max:255',
-        'email'   => 'required|email|max:255',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
         'subject' => 'required|string|max:255',
         'message' => 'required|string|min:10',
     ]);
@@ -55,10 +56,10 @@ Route::post('/contact', function (Request $request) {
 })->name('contact.submit');
 
 // ── Legal ──
-Route::get('/terms', fn () => Inertia::render('Legal/Terms'))->name('terms');
-Route::get('/privacy', fn () => Inertia::render('Legal/Privacy'))->name('privacy');
-Route::get('/cookies', fn () => Inertia::render('Legal/Cookies'))->name('cookies');
-Route::get('/responsible-gaming', fn () => Inertia::render('Legal/ResponsibleGaming'))->name('responsible-gaming');
+Route::get('/terms', fn() => Inertia::render('Legal/Terms'))->name('terms');
+Route::get('/privacy', fn() => Inertia::render('Legal/Privacy'))->name('privacy');
+Route::get('/cookies', fn() => Inertia::render('Legal/Cookies'))->name('cookies');
+Route::get('/responsible-gaming', fn() => Inertia::render('Legal/ResponsibleGaming'))->name('responsible-gaming');
 
 // ── Public data pages ──
 Route::get('/fixture/{id}', [FixtureController::class, 'index'])->name('fixture');
@@ -66,7 +67,7 @@ Route::get('/profile/{user_code}', [ProfileController::class, 'index'])->name('p
 Route::get('/sellers/lookup', [SellerLookupController::class, 'show']);
 
 // ── Reporting ──
-Route::get('/report', fn () => Inertia::render('Report'))->name('report');
+Route::get('/report', fn() => Inertia::render('Report'))->name('report');
 Route::post('/report', [ReportController::class, 'store'])->name('report.submit');
 
 /*
@@ -113,6 +114,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->withoutMiddleware(['auth', 'verified'])
             ->name('betslip.show_guest');
         Route::post('/unlock', [BetslipPurchaseController::class, 'purchase'])->name('betslip.purchase');
+
+        // watch routes
+        Route::post('/{code}/watch', [\App\Http\Controllers\BetslipWatchController::class, 'store'])
+            ->name('betslip.watch');
+
+        Route::delete('/{code}/watch', [\App\Http\Controllers\BetslipWatchController::class, 'destroy'])
+            ->name('betslip.unwatch');
     });
 
     // ── Wallet: deposits & withdrawals ──
@@ -163,6 +171,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
         Route::delete('/{id}', [NotificationController::class, 'destroy']);
     });
+
+    Route::get('/watchlist', [WatchlistController::class, 'index'])
+        ->name('watchlist.index');
 });
 
 /*

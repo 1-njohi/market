@@ -177,6 +177,12 @@
                     </span>
                 </div>
                 <div class="flex items-center gap-2">
+                    <!-- WATCH BUTTON -->
+                    <WatchButton
+                        v-if="slip.can_watch !== false"
+                        :code="slip.code"
+                        :watching="slip.is_watching === true"
+                    />
                     <!-- COPY BUTTON -->
                     <button
                         type="button"
@@ -313,7 +319,10 @@
             >
                 "
             </div>
-            <div class="relative flex items-start space-x-3" v-if="slip.caption">
+            <div
+                class="relative flex items-start space-x-3"
+                v-if="slip.caption"
+            >
                 <div class="flex-1">
                     <p
                         class="text-sm leading-relaxed font-medium text-white/90"
@@ -364,6 +373,7 @@
 
 <script setup>
 import { router } from '@inertiajs/vue3';
+import WatchButton from '@/components/WatchButton.vue';
 
 const props = defineProps({
     slip: {

@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { dashboard, login, register } from '@/routes';
 import LogoutButton from './LogoutButton.vue';
-
+import NavMenu from '@/components/NavMenu.vue';
 const page = usePage();
 
 // ─── Flash message handling ────────────────────────────────
@@ -161,6 +161,7 @@ watch(
                         </svg>
                     </Link>
                     <LogoutButton />
+                    <NavMenu />
                 </template>
                 <template v-else>
                     <Link

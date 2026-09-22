@@ -7,6 +7,7 @@ use App\Models\Betslip;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Services\LeaderboardService;
+use App\Services\BetslipCardPresenter;
 
 class HomeController extends Controller
 {
@@ -252,95 +253,18 @@ class HomeController extends Controller
 
     private function getBetslips()
     {
-        // Get betslips with limited odds and a separate count
-        $betslips = Betslip::with([
-            'seller',
-            'odds' => function ($query) {
-                $query->limit(3); // Still limit for display
-            },
-            'odds.fixture',
-            'odds.fixture.homeTeam',
-            'odds.fixture.awayTeam',
-            'odds.market'
-        ])
-            ->withCount('odds') // Add count of all odds
+        $user = auth()->user();
+        $presenter = app(BetslipCardPresenter::class);
+
+        $betslips = Betslip::with(BetslipCardPresenter::eagerLoad())
+            ->withCount('odds')
             ->where('status', 'pending')
             ->take(4)
             ->get();
 
-        // Transform the collection
-        return $betslips->map(function ($betslip) {
-            $seller = $betslip->seller;
-
-            return [
-                'id' => $betslip->id,
-                'code' => $betslip->code,
-                'price' => (float) $betslip->price,
-                'caption' => $betslip->caption ?? null,
-                'seller' => [
-                    'name' => $seller->name ?? 'Unknown',
-                    'code' => $seller->code,
-                    'avatar' => $seller->profile_picture_url,
-                    'roi' => $this->calculateROI($seller),
-                    'win_rate' => $this->calculateWinRate($seller),
-                    'recent_form' => $this->getRecentForm($seller)
-                ],
-                'total_markets' => $betslip->odds_count, // Use the withCount result
-                'legs' => $betslip->odds->take(1)->map(function ($odd) {
-                    return [
-                        'id' => $odd->id,
-                        'league' => $odd->fixture->league->name ?? 'Unknown League',
-                        'kickoff_at' => $odd->fixture->timestamp ?? now()->toISOString(),
-                        'home_team' => $odd->fixture->homeTeam->name ?? 'Unknown',
-                        'away_team' => $odd->fixture->awayTeam->name ?? 'Unknown',
-                        'market_name' => $odd->market->name ?? 'Unknown Market',
-                        'selection' => $odd->pivot->selection_value ?? $odd->value,
-                        'odds' => (float) ($odd->pivot->odd_value_at_time ?? $odd->odd),
-                    ];
-                })->toArray(),
-            ];
-        });
-    }
-
-    /**
-     * Get recent form for a user based on their last 5 settled betslips
-     * Returns array of 'W', 'L', or 'P' (pending)
-     */
-    private function getRecentForm($user, $limit = 6)
-    {
-        // Get the last 5 betslips that are NOT pending (settled)
-        $settledBetslips = $user->betslips()
-            ->where('status', '!=', 'pending')
-            ->where('status', '!=', 'underway')
-            ->orderBy('created_at', 'desc')
-            ->take($limit)
-            ->get();
-
-        // Map to 'W' or 'L' based on is_winner
-        $results = $settledBetslips->map(function ($betslip) {
-            return $betslip->is_winner ? 'W' : 'L';
-        })->toArray();
-
-        // If we have fewer than $limit results, pad the beginning with 'P'
-        while (count($results) < $limit) {
-            array_unshift($results, 'P');
-        }
-
-        return $results;
-    }
-
-    private function calculateROI($user)
-    {
-        $totalStaked = $user->betslips()->sum('price');
-        $totalWon = $user->betslips()->where('is_winner', true)->sum('price');
-        return $totalStaked > 0 ? round(($totalWon / $totalStaked) * 100, 1) : 0;
-    }
-
-    private function calculateWinRate($user)
-    {
-        $totalBetslips = $user->betslips()->where('status', '!=', 'pending')->count();
-        $wonBetslips = $user->betslips()->where('is_winner', true)->count();
-        return $totalBetslips > 0 ? round(($wonBetslips / $totalBetslips) * 100) : 0;
+        return $betslips->map(
+            fn($betslip) => $presenter->present($betslip, $user)
+        );
     }
 }
 

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
-
+use App\Services\WatchlistService;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Cache;
 
@@ -208,18 +208,31 @@ class BetslipController extends Controller
             ->firstOrFail();
 
         // Check if the logged-in user is the seller or has purchased the betslip
+        $watchlist = app(WatchlistService::class);
+
         if ($user) {
-            $isSeller = $user && $betslip->user_id === $user->id;
-            $hasPurchased = $user && $betslip->buyers()->where('buyer_id', $user->id)->exists();
+            $is_watching = $betslip->watchers()->where('user_id', $user->id)->exists();
+            $can_watch = $watchlist->canWatch($user, $betslip);
+            $isSeller = (int) $betslip->user_id === (int) $user->id;
+            $hasPurchased = $betslip->buyers()->where('buyer_id', $user->id)->exists();
         } else {
+            $is_watching = false;
+            $can_watch = false;
             $isSeller = false;
             $hasPurchased = false;
         }
+
         // Calculate seller statistics
         $sellerStats = $this->calculateSellerStats($betslip->seller);
-
-        // Format the betslip for response
-        $formattedBetslip = $this->formatBetslipForDisplay($betslip, $sellerStats, $isSeller, $hasPurchased);
+        
+        $formattedBetslip = $this->formatBetslipForDisplay(
+            $betslip,
+            $sellerStats,
+            $isSeller,
+            $hasPurchased,
+            $is_watching,
+            $can_watch,
+        );
 
         return $formattedBetslip;
     }
@@ -231,7 +244,7 @@ class BetslipController extends Controller
     {
         // Get all settled betslips
         $settledBetslips = $seller->betslips()
-            ->whereIn('status', ['settled', 'vioded'])
+            ->whereIn('status', ['settled', 'voided'])
             ->get();
 
         $totalBetslips = $settledBetslips->count();
@@ -275,8 +288,14 @@ class BetslipController extends Controller
     /**
      * Format betslip for display to potential buyers
      */
-    private function formatBetslipForDisplay($betslip, $sellerStats, $isSeller, $hasPurchased)
-    {
+    private function formatBetslipForDisplay(
+        $betslip,
+        $sellerStats,
+        $isSeller,
+        $hasPurchased,
+        bool $isWatching = false,
+        bool $canWatch = false,
+    ) {
         // Determine if user has access to view odds (seller or purchaser)
         $hasAccess = $isSeller || $hasPurchased;
 
@@ -304,6 +323,10 @@ class BetslipController extends Controller
             'has_access' => $hasAccess, // Whether user can view odds
             'created_at' => $betslip->created_at->toISOString(),
             'updated_at' => $betslip->updated_at->toISOString(),
+
+            //Watch information 
+            'is_watching' => $isWatching,
+            'can_watch' => $canWatch,
 
             // Seller information
             'seller' => [
