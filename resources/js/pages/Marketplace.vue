@@ -34,6 +34,8 @@
                                 <p>
                                     Every slip here is listed by a seller. You
                                     can interact with any of them in two ways.
+                                    (You too can create your own betslips and
+                                    they will be listed here)
                                 </p>
                                 <div
                                     class="rounded border border-sky-500/20 bg-sky-500/5 px-3 py-2"
