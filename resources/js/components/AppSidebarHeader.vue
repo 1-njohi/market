@@ -114,7 +114,6 @@ watch(
                         <span
                             class="font-mono text-xs font-black text-emerald-400"
                         >
-                            KES
                             {{
                                 Number(
                                     $page.props.auth.balance || 0,
