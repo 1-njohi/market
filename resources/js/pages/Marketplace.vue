@@ -60,10 +60,14 @@
                                     </p>
                                     <p class="text-[11px] text-slate-300">
                                         Pay the seller's price to see their
-                                        picks immediately. If the slip loses,
-                                        you're refunded automatically. If it
-                                        wins, you keep the picks and can place
-                                        them at your bookmaker.
+                                        picks immediately, and place a similar
+                                        bet with the bookmarker of your choice.
+                                        If the bet wins, you keep 100% of your
+                                        winnings, and the seller gets their
+                                        payout. If the slip loses, you're
+                                        refunded the amount you used to unlock
+                                        the betslip automatically, and the
+                                        seller gets nothing.
                                     </p>
                                 </div>
                                 <p class="text-slate-400">
