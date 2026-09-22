@@ -5,13 +5,14 @@ namespace App\Services;
 use App\Models\User;
 use Carbon\Carbon;
 
+
 class BuyerDashboardService
 {
-    protected WalletService $walletService;
 
-    public function __construct(WalletService $walletService)
-    {
-        $this->walletService = $walletService;
+    public function __construct(
+        protected WalletService $walletService,
+        protected WatchlistService $watchlist
+    ) {
     }
 
     public function getDashboardData(User $user): array
@@ -21,6 +22,7 @@ class BuyerDashboardService
             'performance' => $this->getPerformanceMetrics($user),
             'purchases' => $this->getPurchaseManagement($user),
             'settled_outcomes' => $this->getSettledOutcomes($user),
+            'watch_record' => $this->watchlist->getWatchRecord($user),
             'activity' => $this->getRecentActivity($user, 15),
             'financial' => $this->getFinancialSummary($user),
             'wallet' => $this->getWalletSummary($user),

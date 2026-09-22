@@ -594,4 +594,43 @@ class WalletSummaryTest extends TestCase
 
         return $purchase;
     }
+    public function test_buyer_dashboard_includes_watch_record(): void
+    {
+        [$buyer] = $this->makeUserWithWallet();
+        [$seller] = $this->makeUserWithWallet();
+
+        $this->watchSettled($buyer, $seller, 'settled', true, 2.00, 'BS-W1');
+        $this->watchSettled($buyer, $seller, 'settled', true, 3.00, 'BS-W2');
+        $this->watchSettled($buyer, $seller, 'settled', false, 1.50, 'BS-L1');
+
+        $data = app(BuyerDashboardService::class)->getDashboardData($buyer);
+
+        $this->assertArrayHasKey('watch_record', $data);
+        $this->assertSame(3, $data['watch_record']['settled_count']);
+        $this->assertSame(2, $data['watch_record']['won_count']);
+        $this->assertSame(2.0, (float) $data['watch_record']['units']);
+    }
+
+    private function watchSettled(
+        User $buyer,
+        User $seller,
+        string $status,
+        bool $isWinner,
+        float $totalOdds,
+        string $code,
+    ): void {
+        $betslip = Betslip::create([
+            'user_id' => $seller->id,
+            'total_odds' => $totalOdds,
+            'price' => 100.00,
+            'status' => $status,
+            'remaining' => 0,
+            'code' => $code,
+            'is_winner' => $isWinner,
+        ]);
+
+        $buyer->watchedBetslips()->attach($betslip->id, [
+            'watched_at' => now(),
+        ]);
+    }
 }

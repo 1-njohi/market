@@ -16,6 +16,7 @@ use App\Http\Controllers\SellerDashboardController;
 use App\Http\Controllers\SellerLookupController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\WatchlistController;
+use App\Http\Controllers\WatchlistRecordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -90,21 +91,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ── Dashboard ──
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/deletebetslips', function () {
-    try {
-        // Load relationships if needed so model events fire (deleting/deleted)
-        Betslip::with(['items', 'user']) // adjust relationship names
-            ->get()
-            ->each(function ($betslip) {
-                $betslip->items()->delete(); // delete children first
-                $betslip->delete();
-            });
+    Route::get('/deletebetslips', function () {
+        try {
+            // Load relationships if needed so model events fire (deleting/deleted)
+            Betslip::with(['items', 'user']) // adjust relationship names
+                ->get()
+                ->each(function ($betslip) {
+                    $betslip->items()->delete(); // delete children first
+                    $betslip->delete();
+                });
 
-        return response('Success: All betslips and relationships deleted.', 200);
-    } catch (\Throwable $e) {
-        return response('Fail: ' . $e->getMessage(), 500);
-    }
-});
+            return response('Success: All betslips and relationships deleted.', 200);
+        } catch (\Throwable $e) {
+            return response('Fail: ' . $e->getMessage(), 500);
+        }
+    });
     // ── Marketplace ──
     // Guest browsing allowed via withoutMiddleware, but still scoped to
     // the auth group so that a logged-in user's personalised view renders.
@@ -188,6 +189,9 @@ Route::get('/deletebetslips', function () {
 
     Route::get('/watchlist', [WatchlistController::class, 'index'])
         ->name('watchlist.index');
+
+    Route::get('/watchlist/record', [WatchlistRecordController::class, 'index'])
+        ->name('watchlist.record');
 });
 
 /*

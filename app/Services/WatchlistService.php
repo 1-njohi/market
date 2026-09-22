@@ -115,4 +115,101 @@ class WatchlistService
 
         return true;
     }
+
+    /**
+     * The user's personal paper-trade record for watched betslips.
+     *
+     * Watched slips that have reached a terminal state contribute to the
+     * record. Each slip counts as a flat 1u stake at its listed total_odds:
+     *   - won     → +(total_odds - 1)
+     *   - lost    → -1
+     *   - voided  →  0
+     *
+     * The per-seller breakdown only includes sellers with at least 2 settled
+     * watched slips, sorted by units descending. Sellers with a single
+     * settled slip are shown in the aggregate but not broken out — one data
+     * point isn't a pattern.
+     */
+    public function getWatchRecord(User $user): array
+    {
+        $settled = $user->watchedBetslips()
+            ->whereIn('betslips.status', ['settled', 'voided'])
+            ->with('seller:id,name,code')
+            ->get();
+
+        $won = 0;
+        $lost = 0;
+        $voided = 0;
+        $units = 0.0;
+        $bySeller = [];
+
+        foreach ($settled as $betslip) {
+            $outcome = $betslip->status === 'voided'
+                ? 'voided'
+                : ($betslip->is_winner ? 'won' : 'lost');
+
+            $odds = (float) $betslip->total_odds;
+            $delta = match ($outcome) {
+                'won' => $odds - 1.0,
+                'lost' => -1.0,
+                'voided' => 0.0,
+            };
+
+            $units += $delta;
+
+            if ($outcome === 'won') {
+                $won++;
+            } elseif ($outcome === 'lost') {
+                $lost++;
+            } else {
+                $voided++;
+            }
+
+            $sellerId = (int) $betslip->user_id;
+
+            if (!isset($bySeller[$sellerId])) {
+                $bySeller[$sellerId] = [
+                    'seller_id' => $sellerId,
+                    'seller_name' => $betslip->seller->name ?? 'Unknown',
+                    'seller_code' => $betslip->seller->code ?? null,
+                    'settled_count' => 0,
+                    'won_count' => 0,
+                    'lost_count' => 0,
+                    'voided_count' => 0,
+                    'units' => 0.0,
+                ];
+            }
+
+            $bySeller[$sellerId]['settled_count']++;
+            $bySeller[$sellerId]['units'] += $delta;
+
+            if ($outcome === 'won') {
+                $bySeller[$sellerId]['won_count']++;
+            } elseif ($outcome === 'lost') {
+                $bySeller[$sellerId]['lost_count']++;
+            } else {
+                $bySeller[$sellerId]['voided_count']++;
+            }
+        }
+
+        $sellers = collect($bySeller)
+            ->filter(fn($s) => $s['settled_count'] >= 2)
+            ->sortByDesc('units')
+            ->values()
+            ->map(function ($s) {
+                $s['units'] = round($s['units'], 2);
+                return $s;
+            })
+            ->all();
+
+        return [
+            'settled_count' => $settled->count(),
+            'won_count' => $won,
+            'lost_count' => $lost,
+            'voided_count' => $voided,
+            'units' => round($units, 2),
+            'has_enough_data' => $settled->count() >= 3,
+            'sellers' => $sellers,
+        ];
+    }
 }

@@ -474,6 +474,171 @@
                             </div>
                         </div>
                     </div>
+                    <!-- WATCH RECORD -->
+                    <div
+                        v-if="buyer_data.watch_record.settled_count > 0"
+                        class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
+                    >
+                        <div
+                            class="flex items-center justify-between border-b border-gray-800/60 bg-[#111a30] p-4"
+                        >
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
+                                >
+                                    Watch Record
+                                </span>
+                                <InfoPopover title="How the record works">
+                                    <p>
+                                        Every slip you watch is logged here once
+                                        it settles. Each one counts as a flat 1
+                                        unit stake at the slip's listed total
+                                        odds.
+                                    </p>
+                                    <div
+                                        class="rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-[11px]"
+                                    >
+                                        <p class="text-emerald-400">
+                                            Win: + (odds − 1) units
+                                        </p>
+                                        <p class="text-rose-400">
+                                            Loss: − 1 unit
+                                        </p>
+                                        <p class="text-slate-400">
+                                            Void: 0 units
+                                        </p>
+                                    </div>
+                                    <p class="text-slate-400">
+                                        This is a hypothetical P/L — you never
+                                        staked real money on watched slips.
+                                    </p>
+                                </InfoPopover>
+                            </div>
+                            <Link
+                                href="/watchlist/record"
+                                class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
+                            >
+                                Full record →
+                            </Link>
+                        </div>
+
+                        <!-- Aggregate row -->
+                        <div
+                            class="grid grid-cols-3 divide-x divide-[#232d42]/60"
+                        >
+                            <div class="p-3">
+                                <span
+                                    class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                                >
+                                    Paper P/L
+                                </span>
+                                <p
+                                    class="mt-1 font-mono text-sm font-black"
+                                    :class="
+                                        buyer_data.watch_record.units > 0
+                                            ? 'text-emerald-400'
+                                            : buyer_data.watch_record.units < 0
+                                              ? 'text-rose-400'
+                                              : 'text-slate-400'
+                                    "
+                                >
+                                    {{
+                                        buyer_data.watch_record.units > 0
+                                            ? '+'
+                                            : ''
+                                    }}{{
+                                        buyer_data.watch_record.units.toFixed(
+                                            2,
+                                        )
+                                    }}u
+                                </p>
+                            </div>
+                            <div class="p-3">
+                                <span
+                                    class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                                >
+                                    Watched
+                                </span>
+                                <p
+                                    class="mt-1 font-mono text-sm font-black text-white"
+                                >
+                                    {{ buyer_data.watch_record.settled_count }}
+                                </p>
+                            </div>
+                            <div class="p-3">
+                                <span
+                                    class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                                >
+                                    Breakdown
+                                </span>
+                                <p class="mt-1 font-mono text-sm font-black">
+                                    <span class="text-emerald-400"
+                                        >{{
+                                            buyer_data.watch_record.won_count
+                                        }}W</span
+                                    >
+                                    <span class="mx-1 text-slate-600">·</span>
+                                    <span class="text-rose-400"
+                                        >{{
+                                            buyer_data.watch_record.lost_count
+                                        }}L</span
+                                    >
+                                    <span class="mx-1 text-slate-600">·</span>
+                                    <span class="text-slate-400"
+                                        >{{
+                                            buyer_data.watch_record
+                                                .voided_count
+                                        }}V</span
+                                    >
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Top sellers -->
+                        <div
+                            v-if="buyer_data.watch_record.sellers.length > 0"
+                            class="border-t border-[#232d42]/60"
+                        >
+                            <div class="divide-y divide-[#232d42]/40">
+                                <div
+                                    v-for="s in buyer_data.watch_record.sellers.slice(
+                                        0,
+                                        3,
+                                    )"
+                                    :key="s.seller_id"
+                                    class="flex items-center justify-between gap-3 p-3 transition-colors hover:bg-[#111a30]/40"
+                                >
+                                    <div class="min-w-0">
+                                        <p
+                                            class="truncate font-mono text-[11px] font-bold text-slate-300"
+                                        >
+                                            {{ s.seller_name }}
+                                        </p>
+                                        <p
+                                            class="mt-0.5 text-[10px] text-slate-500"
+                                        >
+                                            {{ s.settled_count }} settled ·
+                                            {{ s.won_count }}W ·
+                                            {{ s.lost_count }}L
+                                        </p>
+                                    </div>
+                                    <span
+                                        class="font-mono text-xs font-black"
+                                        :class="
+                                            s.units > 0
+                                                ? 'text-emerald-400'
+                                                : s.units < 0
+                                                  ? 'text-rose-400'
+                                                  : 'text-slate-400'
+                                        "
+                                    >
+                                        {{ s.units > 0 ? '+' : ''
+                                        }}{{ s.units.toFixed(2) }}u
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <!-- RECENT ACTIVITY AUDIT LOG -->
                     <div
                         class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
@@ -853,6 +1018,7 @@
 import BetslipsTable from '@/components/BetslipsTable.vue';
 import FollowingTable from '@/components/FollowingTable.vue';
 import TransactionsTable from '@/components/TransactionsTable.vue';
+import InfoPopover from '@/components/InfoPopover.vue';
 import DepositPopover from '@/components/DepositPopover.vue';
 import WithdrawalPopover from '@/components/WithdrawalPopover.vue';
 import NotificationBell from '@/components/NotificationBell.vue';
