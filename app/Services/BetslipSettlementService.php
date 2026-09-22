@@ -151,6 +151,9 @@ class BetslipSettlementService
             ->get();
 
         if ($purchases->isEmpty()) {
+            // No buyers, but watchers still exist. Notify them.
+            $outcome = $isWinner ? 'won' : $pivotStatus;
+            $this->notifyWatchers($betslip, $outcome);
             return;
         }
 
@@ -162,7 +165,7 @@ class BetslipSettlementService
             }
         }
 
-        // Cache invalidation — unchanged from the previous slice.
+        // Invalidate dashboard caches for everyone whose wallet just moved.
         $buyerIds = $purchases->pluck('buyer_id')->unique();
         $sellerIds = $purchases->pluck('seller_id')->unique();
 
@@ -172,6 +175,9 @@ class BetslipSettlementService
         foreach ($sellerIds as $id) {
             Cache::forget(DashboardController::cacheKey(User::find($id)));
         }
+
+        $outcome = $isWinner ? 'won' : $pivotStatus;
+        $this->notifyWatchers($betslip, $outcome);
     }
     /**
      * Winning purchase: release seller's pending balance.
@@ -264,5 +270,32 @@ class BetslipSettlementService
 
         $purchase->buyer->notify($notification);
         $purchase->seller->notify($notification);
+    }
+    /**
+     * Notify every watcher of the betslip except:
+     *   - the seller (they already get their own notification)
+     *   - any buyer who also watched (they already got the buyer notification)
+     *
+     * Called once per settlement, not per purchase.
+     */
+    protected function notifyWatchers(Betslip $betslip, string $outcome): void
+    {
+        $buyerIds = BetslipUserPurchase::where('betslip_id', $betslip->id)
+            ->pluck('buyer_id')
+            ->all();
+
+        $watchers = $betslip->watchers()
+            ->where('users.id', '!=', $betslip->user_id)
+            ->whereNotIn('users.id', $buyerIds)
+            ->get();
+
+        $notification = new \App\Notifications\WatcherSettlementNotification(
+            $betslip,
+            $outcome,
+        );
+
+        foreach ($watchers as $watcher) {
+            $watcher->notify($notification);
+        }
     }
 }

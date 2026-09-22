@@ -123,11 +123,11 @@
                                 <div
                                     :class="[
                                         'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded',
-                                        iconBg(n.type),
+                                        iconBg(n.type, n.outcome),
                                     ]"
                                 >
                                     <span class="text-sm">{{
-                                        iconEmoji(n.type)
+                                        iconEmoji(n.type, n.outcome)
                                     }}</span>
                                 </div>
 
@@ -292,7 +292,10 @@ const handleNotificationClick = async (n) => {
 };
 
 // Helpers
-const iconEmoji = (type) => {
+const iconEmoji = (type, outcome) => {
+    if (type === 'watch_settled') {
+        return outcome === 'won' ? '🏆' : outcome === 'voided' ? '↩️' : '💸';
+    }
     switch (type) {
         case 'betslip_won':
             return '🏆';
@@ -308,8 +311,14 @@ const iconEmoji = (type) => {
             return '🔔';
     }
 };
-
-const iconBg = (type) => {
+const iconBg = (type, outcome) => {
+    if (type === 'watch_settled') {
+        return outcome === 'won'
+            ? 'bg-emerald-500/15 text-emerald-400'
+            : outcome === 'voided'
+              ? 'bg-slate-500/15 text-slate-400'
+              : 'bg-rose-500/15 text-rose-400';
+    }
     switch (type) {
         case 'betslip_won':
             return 'bg-emerald-500/15 text-emerald-400';
@@ -325,6 +334,7 @@ const iconBg = (type) => {
             return 'bg-slate-500/15 text-slate-400';
     }
 };
+
 // Click-outside dismissal
 const handleClickOutside = (event) => {
     if (
