@@ -11,7 +11,8 @@ class BuyerDashboardService
 
     public function __construct(
         protected WalletService $walletService,
-        protected WatchlistService $watchlist
+        protected WatchlistService $watchlist,
+        protected ReferralService $referralService,
     ) {
     }
 
@@ -23,6 +24,7 @@ class BuyerDashboardService
             'purchases' => $this->getPurchaseManagement($user),
             'settled_outcomes' => $this->getSettledOutcomes($user),
             'watch_record' => $this->watchlist->getWatchRecord($user),
+            'referral_card' => $this->referralService->cardFor($user),
             'activity' => $this->getRecentActivity($user, 15),
             'financial' => $this->getFinancialSummary($user),
             'wallet' => $this->getWalletSummary($user),

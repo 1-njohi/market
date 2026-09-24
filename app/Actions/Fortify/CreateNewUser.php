@@ -25,7 +25,7 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        $code = Str::random(3) . "-" . Str::random(4) . "-" . Str::random(3);
+        $code = strtoupper(Str::random(3) . "-" . Str::random(4) . "-" . Str::random(3));
         
         return User::create([
             'name' => $input['name'],

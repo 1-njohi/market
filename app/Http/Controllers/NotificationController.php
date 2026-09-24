@@ -29,7 +29,10 @@ class NotificationController extends Controller
                     'message' => $data['body'] ?? '',
                     'betslip_id' => $data['betslip_id'] ?? null,
                     'betslip_code' => $data['betslip_code'] ?? null,
-                    'outcome' => $data['outcome'] ?? null,   // <— this one
+                    'outcome' => $data['outcome'] ?? null,
+                    'amount' => $data['amount'] ?? null,
+                    'referrer_name' => $data['referrer_name'] ?? null,
+                    'referee_name' => $data['referee_name'] ?? null,
                     'time' => $notification->created_at->diffForHumans(),
                     'created_at' => $notification->created_at->toISOString(),
                     'read' => !is_null($notification->read_at),

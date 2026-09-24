@@ -464,9 +464,7 @@
                                         d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                                     />
                                 </svg>
-                                {{
-                                    seller_data.betslips.total_watchers
-                                }}
+                                {{ seller_data.betslips.total_watchers }}
                                 watching
                             </span>
                             <span
@@ -821,6 +819,11 @@
                         </div>
                     </div>
 
+                    <ReferralCard
+                        v-if="seller_data.referral_card"
+                        :card="seller_data.referral_card"
+                    />
+
                     <!-- FEE TIER CARD -->
                     <div
                         class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
@@ -1010,6 +1013,7 @@ import TransactionsTable from '@/components/TransactionsTable.vue';
 import DepositPopover from '@/components/DepositPopover.vue';
 import WithdrawalPopover from '@/components/WithdrawalPopover.vue';
 import NotificationBell from '@/components/NotificationBell.vue';
+import ReferralCard from '@/components/ReferralCard.vue';
 import DashboardSwitcher from '@/components/DashboardSwitcher.vue';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';

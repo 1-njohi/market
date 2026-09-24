@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\URL;
+use App\Listeners\AttributeReferralOnRegistration;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Event;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('staging')) {
             URL::forceScheme('https');
         }
+        Event::listen(Registered::class, AttributeReferralOnRegistration::class);
     }
 
     /**

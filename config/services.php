@@ -63,6 +63,12 @@ return [
                 'percentage' => (float) env('PLATFORM_FEE_TIER_4_PERCENTAGE', 0.10),
             ],
         ],
-    ],
-
+        'referral_defaults' => [
+            'reward_percentage' => (float) env('REFERRAL_REWARD_PCT', 0.10),
+            'max_transactions' => (int) env('REFERRAL_MAX_TRANSACTIONS', 20),
+            'window_months' => (int) env('REFERRAL_WINDOW_MONTHS', 12),
+            'referee_discount_pct' => (float) env('REFERRAL_REFEREE_DISCOUNT_PCT', 0.20),
+            'referee_discount_cap' => (float) env('REFERRAL_REFEREE_DISCOUNT_CAP', 20.00),
+        ]
+    ]
 ];

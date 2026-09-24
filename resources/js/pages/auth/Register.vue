@@ -13,6 +13,7 @@ import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
 
 defineProps<{
     passwordRules: string;
+    referral_code?: string;
 }>();
 
 defineOptions({
@@ -26,7 +27,9 @@ defineOptions({
 <template>
     <Head title="Register" />
 
-    <div class="min-h-[90vh] pt-[10vh] overflow-y-hidden px-2 bg-[#070b14] flex items-center">
+    <div
+        class="flex min-h-[90vh] items-center overflow-y-hidden bg-[#070b14] px-2 pt-[10vh]"
+    >
         <AppSidebarHeader />
         <Form
             v-bind="store.form()"
@@ -145,6 +148,38 @@ defineOptions({
                     </div>
                     <InputError
                         :message="errors.phone"
+                        class="mt-1 text-xs font-bold text-red-400"
+                    />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label
+                        for="referral_code"
+                        class="text-[11px] font-bold tracking-wider text-[#64748b] uppercase"
+                    >
+                        Referral code
+                        <span
+                            class="ml-1 font-normal tracking-normal text-slate-500 normal-case"
+                        >
+                            (optional)
+                        </span>
+                    </Label>
+                    <Input
+                        id="referral_code"
+                        type="text"
+                        :tabindex="5"
+                        autocomplete="off"
+                        name="referral_code"
+                        :value="referral_code"
+                        placeholder="e.g. DENIS-XK4"
+                        class="w-full rounded border border-[#232d42] bg-[#111622] px-3 py-2.5 font-mono text-xs font-black tracking-widest text-[#ff8c00] uppercase transition-colors placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-600 focus:border-sky-500 focus:outline-none"
+                    />
+                    <p class="text-[10px] leading-relaxed text-slate-500">
+                        Got a code from a friend? You'll get 20% off your first
+                        purchase.
+                    </p>
+                    <InputError
+                        :message="errors.referral_code"
                         class="mt-1 text-xs font-bold text-red-400"
                     />
                 </div>

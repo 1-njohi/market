@@ -13,13 +13,11 @@ use App\Services\WalletService;
 
 class SellerDashboardService
 {
-    protected WalletService $walletService;
-    protected PlatformFeeService $platformFeeService;
-
-    public function __construct(WalletService $walletService, PlatformFeeService $platformFeeService)
-    {
-        $this->walletService = $walletService;
-        $this->platformFeeService = $platformFeeService;
+    public function __construct(
+        protected WalletService $walletService,
+        protected PlatformFeeService $platformFeeService,
+        protected ReferralService $referralService,
+    ) {
     }
 
     /**
@@ -33,6 +31,7 @@ class SellerDashboardService
             'betslips' => $this->getBetslipManagement($user),
             'wallet' => $this->getWalletSummary($user),
             'activity' => $this->getRecentActivity($user, 15),
+            'referral_card' => $this->referralService->cardFor($user),
             'settlements' => $this->getSettlements($user),
             'financial' => $this->getFinancialSummary($user),
             'insights' => $this->getInsights($user),

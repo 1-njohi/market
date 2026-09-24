@@ -43,6 +43,7 @@ const primaryLinks = [
 const accountLinks = [
     { label: 'Dashboard', href: '/dashboard' },
     { label: 'Notifications', href: '/notifications' },
+    { label: 'Referals', href: '/refer' },
     { label: 'Settings', href: '/settings' },
 ];
 

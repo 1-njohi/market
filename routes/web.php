@@ -17,6 +17,7 @@ use App\Http\Controllers\SellerLookupController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\WatchlistController;
 use App\Http\Controllers\WatchlistRecordController;
+use App\Http\Controllers\ReferralLinkController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -70,6 +71,9 @@ Route::get('/sellers/lookup', [SellerLookupController::class, 'show']);
 // ── Reporting ──
 Route::get('/report', fn() => Inertia::render('Report'))->name('report');
 Route::post('/report', [ReportController::class, 'store'])->name('report.submit');
+
+Route::get('/r/{code}', [ReferralLinkController::class, 'show'])
+    ->name('referral.link');
 
 /*
 |--------------------------------------------------------------------------
@@ -187,6 +191,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/watchlist/record', [WatchlistRecordController::class, 'index'])
         ->name('watchlist.record');
+
+    Route::get('/refer', [\App\Http\Controllers\ReferralDashboardController::class, 'index'])
+        ->name('refer');
 });
 
 /*

@@ -307,6 +307,12 @@ const iconEmoji = (type, outcome) => {
             return '💰';
         case 'withdrawal':
             return '🏦';
+        case 'referral_reward':
+            return '💰';
+        case 'referral_attributed':
+            return '🎁';
+        case 'referral_signup':
+            return '🎉';
         default:
             return '🔔';
     }
@@ -330,6 +336,12 @@ const iconBg = (type, outcome) => {
             return 'bg-sky-500/15 text-sky-400';
         case 'withdrawal':
             return 'bg-purple-500/15 text-purple-400';
+        case 'referral_reward':
+            return 'bg-amber-500/15 text-amber-400';
+        case 'referral_attributed':
+            return 'bg-amber-500/15 text-amber-400';
+        case 'referral_signup':
+            return 'bg-emerald-500/15 text-emerald-400';
         default:
             return 'bg-slate-500/15 text-slate-400';
     }

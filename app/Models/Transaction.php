@@ -47,7 +47,7 @@ class Transaction extends Model
     const TYPE_WITHDRAWAL = 'withdrawal';
     const TYPE_FEE = 'fee';
     const TYPE_WINNINGS = 'winnings';
-
+    const TYPE_REFERRAL_REWARD = 'referral_reward';
     /**
      * Transaction statuses
      */

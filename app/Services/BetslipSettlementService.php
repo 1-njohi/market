@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Cache;
 use App\Services\LeaderboardService;
+use App\Services\ReferralService;
 
 class BetslipSettlementService
 {
@@ -18,9 +19,9 @@ class BetslipSettlementService
         protected WalletService $walletService,
         protected PlatformFeeService $platformFeeService,
         protected PlatformAccount $platformAccount,
+        protected ReferralService $referralService,   // <— new
     ) {
     }
-
     /**
      * Evaluate and settle a betslip if all its odds are resolved.
      * Idempotent – safe to call multiple times.
@@ -160,6 +161,7 @@ class BetslipSettlementService
         foreach ($purchases as $purchase) {
             if ($isWinner) {
                 $this->payoutSeller($purchase, $betslip);
+                $this->rewardReferrers($purchase, $betslip);   // <— new
             } else {
                 $this->refundBuyer($purchase, $betslip, $pivotStatus);
             }
@@ -184,9 +186,13 @@ class BetslipSettlementService
      */
     protected function payoutSeller(BetslipUserPurchase $purchase, Betslip $betslip): void
     {
-        $gross = (float) $purchase->purchase_price;
+        // The seller's payout is computed from the betslip's listed price,
+        // not the buyer's paid price. A referee's welcome discount reduces
+        // what the buyer pays but never reduces what the seller earns.
+        $listedPrice = (float) $betslip->price;
+        $paidPrice = (float) $purchase->purchase_price;
 
-        $split = $this->platformFeeService->split($purchase->seller, $gross);
+        $split = $this->platformFeeService->split($purchase->seller, $listedPrice);
         $fee = (float) $split['fee'];
 
         $platform = $this->platformAccount->user();
@@ -195,14 +201,12 @@ class BetslipSettlementService
             buyer: $purchase->buyer,
             seller: $purchase->seller,
             platform: $platform,
-            gross: $gross,
+            gross: $listedPrice,
             fee: $fee,
             context: "Betslip #{$betslip->code}",
+            escrowed: $paidPrice,
         );
 
-        // Tag every money row with the originating purchase, so the ledger
-        // is walkable in both directions: pivot → transactions, and any
-        // single transaction → its pivot.
         foreach ($txs as $tx) {
             $tx->update([
                 'transactionable_type' => BetslipUserPurchase::class,
@@ -215,13 +219,23 @@ class BetslipSettlementService
             'settled_at' => now(),
         ]);
 
-        $this->notifyOutcome(
-            won: true,
-            betslip: $betslip,
-            purchase: $purchase,
-        );
+        $this->notifyOutcome(won: true, betslip: $betslip, purchase: $purchase);
     }
+    /**
+     * Reward referrers of both the buyer and the seller on a winning sale.
+     *
+     * Runs inside the settlement transaction — if either credit fails, the
+     * whole settlement rolls back. Uses the betslip's listed price, not the
+     * buyer's paid price, so a referee's welcome discount doesn't shrink
+     * their referrer's reward.
+     */
+    protected function rewardReferrers(BetslipUserPurchase $purchase, Betslip $betslip): void
+    {
+        $listedPrice = (float) $betslip->price;
 
+        $this->referralService->rewardFor($purchase->buyer, $listedPrice, $betslip);
+        $this->referralService->rewardFor($purchase->seller, $listedPrice, $betslip);
+    }
     /**
      * Losing/void purchase: return the buyer's escrowed funds and mark the
      * pivot with the appropriate status ('refunded' for a loss, 'voided' for

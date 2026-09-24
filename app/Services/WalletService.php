@@ -448,6 +448,7 @@ class WalletService
         float|int|string $gross,
         float|int|string $fee = 0.0,
         ?string $context = null,
+        float|int|string|null $escrowed = null,
     ): array {
         $gross = $this->normalizeAmount($gross);
 
@@ -457,7 +458,18 @@ class WalletService
         }
         $fee = $feeFloat > 0 ? $this->normalizeAmount($fee) : 0.0;
 
+        $escrowedAmount = $escrowed === null
+            ? $gross
+            : $this->normalizeAmount($escrowed);
+
         $ctx = $context !== null && $context !== '' ? $context : 'settlement';
+
+        // Seller net is always gross minus fee. The platform's actual
+        // revenue is what the buyer paid minus what the seller takes home —
+        // which equals the fee on an undiscounted sale, and less when a
+        // referral discount was applied.
+        $sellerNet = round($gross - $fee, 2);
+        $platformFee = round($escrowedAmount - $sellerNet, 2);
 
         // Build once, use per leg. Keeps wording consistent across the codebase.
         $buyerDesc = "Escrow released for {$ctx}";
@@ -465,7 +477,7 @@ class WalletService
         $sellerFeeDesc = "Platform fee for {$ctx}";
         $platformDesc = "Platform fee from {$ctx}";
 
-        return DB::transaction(function () use ($buyer, $seller, $platform, $gross, $fee, $buyerDesc, $sellerGrossDesc, $sellerFeeDesc, $platformDesc, ) {
+        return DB::transaction(function () use ($buyer, $seller, $platform, $gross, $fee, $buyerDesc, $sellerGrossDesc, $sellerFeeDesc, $platformDesc, $escrowedAmount, $platformFee) {
             $wallets = $this->lockWallets(
                 (int) $buyer->id,
                 (int) $seller->id,
@@ -476,18 +488,18 @@ class WalletService
             $sellerWallet = $wallets[(int) $seller->id];
             $platformWallet = $wallets[(int) $platform->id];
 
-            // 1. Buyer's escrow releases the gross.
+            // 1. Buyer's escrow releases the escrowed amount (what they paid).
             $buyerEscrowBefore = (float) $buyerWallet->escrow_balance;
-            if ($buyerEscrowBefore < $gross) {
+            if ($buyerEscrowBefore < (float) $escrowedAmount) {
                 throw new InsufficientBalanceException('Insufficient escrow balance.');
             }
-            $buyerEscrowAfter = $buyerEscrowBefore - $gross;
+            $buyerEscrowAfter = round($buyerEscrowBefore - $escrowedAmount, 2);
             $buyerWallet->escrow_balance = $buyerEscrowAfter;
             $buyerWallet->save();
 
             $buyerRow = $this->createTransaction(
                 $buyer,
-                -$gross,
+                -$escrowedAmount,
                 Transaction::TYPE_PURCHASE,
                 self::BALANCE_ESCROW,
                 $buyerEscrowBefore,
@@ -533,15 +545,15 @@ class WalletService
 
             // 4. Platform receives the fee.
             $platformRow = null;
-            if ($fee > 0) {
+            if (abs($platformFee) > 0.001) {
                 $platformAvailBefore = (float) $platformWallet->balance;
-                $platformAvailAfter = $platformAvailBefore + $fee;
+                $platformAvailAfter = round($platformAvailBefore + $platformFee, 2);
                 $platformWallet->balance = $platformAvailAfter;
                 $platformWallet->save();
 
                 $platformRow = $this->createTransaction(
                     $platform,
-                    $fee,
+                    $platformFee,
                     Transaction::TYPE_FEE,
                     self::BALANCE_AVAILABLE,
                     $platformAvailBefore,

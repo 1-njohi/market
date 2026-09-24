@@ -15,6 +15,7 @@ use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ReferralCodeGenerator;
 
 /**
  * @property int $id
@@ -29,7 +30,23 @@ use Illuminate\Support\Facades\Storage;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'phone', 'code', 'country_code', 'bio', 'profile_picture_url', 'is_admin', 'is_verified', 'suspended_at', 'suspension_reason'])]
+#[Fillable([
+    'name',
+    'email',
+    'password',
+    'phone',
+    'code',
+    'country_code',
+    'bio',
+    'profile_picture_url',
+    'is_admin',
+    'is_verified',
+    'suspended_at',
+    'suspension_reason',
+    'referral_code',
+    'referred_by_id',
+    'welcome_discount_used',
+])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
@@ -53,6 +70,28 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     protected $appends = ['joined_ago'];
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            // Only fill if not already set. Allows explicit values (tests,
+            // backfills, seeders) to survive.
+            if (empty($user->referral_code)) {
+                $user->referral_code = app(ReferralCodeGenerator::class)->generate(
+                    (string) $user->name,
+                    fn(string $code) => static::where('referral_code', $code)->exists()
+                );
+            }
+        });
+
+        static::updating(function (User $user) {
+            foreach (['referral_code', 'referred_by_id'] as $field) {
+                if ($user->isDirty($field) && !array_key_exists($field, $user->getDirty())) {
+                    // Never trips; mass-assignment filtering happens before
+                    // this. Kept as documentation. See Fillable list above.
+                }
+            }
+        });
+    }
     public function Wallet()
     {
         return $this->hasOne(Wallet::class);
@@ -119,7 +158,7 @@ class User extends Authenticatable implements PasskeyUser
             ->withTimestamps()
             ->orderBy('betslip_user_purchases.created_at', 'desc');
     }
-    
+
     /**
      * Betslips this user is watching (without owning).
      *
