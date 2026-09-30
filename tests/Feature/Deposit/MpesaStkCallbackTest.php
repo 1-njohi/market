@@ -3,8 +3,8 @@
 namespace Tests\Feature\Deposit;
 
 use App\Models\Deposit;
-use App\Models\User;
 use App\Services\MpesaDepositService;
+use FelixMuhoro\Mpesa\DTOs\CallbackPayload;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\Concerns\CreatesWalletUsers;
 use Tests\TestCase;
@@ -20,17 +20,24 @@ class MpesaStkCallbackTest extends TestCase
 
         $deposit = $this->makeProcessingDeposit($user->id, amount: 500.00, checkoutId: 'ws_CO_123');
 
-        app(MpesaDepositService::class)->handleCallback([
-            'CheckoutRequestID' => 'ws_CO_123',
-            'ResultCode' => 0,
-            'ResultDesc' => 'The service request is processed successfully.',
-            'CallbackMetadata' => [
-                'Item' => [
-                    ['Name' => 'Amount', 'Value' => 500],
-                    ['Name' => 'MpesaReceiptNumber', 'Value' => 'RECEIPT123'],
+        $payload = CallbackPayload::fromArray([
+            'Body' => [
+                'stkCallback' => [
+                    'MerchantRequestID' => 'MR_123',
+                    'CheckoutRequestID' => 'ws_CO_123',
+                    'ResultCode' => 0,
+                    'ResultDesc' => 'The service request is processed successfully.',
+                    'CallbackMetadata' => [
+                        'Item' => [
+                            ['Name' => 'Amount', 'Value' => 500],
+                            ['Name' => 'MpesaReceiptNumber', 'Value' => 'RECEIPT123'],
+                        ],
+                    ],
                 ],
             ],
         ]);
+
+        app(MpesaDepositService::class)->handleCallback($payload);
 
         $deposit->refresh();
 
@@ -46,11 +53,18 @@ class MpesaStkCallbackTest extends TestCase
 
         $deposit = $this->makeProcessingDeposit($user->id, amount: 500.00, checkoutId: 'ws_CO_456');
 
-        app(MpesaDepositService::class)->handleCallback([
-            'CheckoutRequestID' => 'ws_CO_456',
-            'ResultCode' => 1032,
-            'ResultDesc' => 'Request cancelled by user',
+        $payload = CallbackPayload::fromArray([
+            'Body' => [
+                'stkCallback' => [
+                    'MerchantRequestID' => 'MR_456',
+                    'CheckoutRequestID' => 'ws_CO_456',
+                    'ResultCode' => 1032,
+                    'ResultDesc' => 'Request cancelled by user',
+                ],
+            ],
         ]);
+
+        app(MpesaDepositService::class)->handleCallback($payload);
 
         $deposit->refresh();
 
@@ -64,17 +78,22 @@ class MpesaStkCallbackTest extends TestCase
 
         $deposit = $this->makeProcessingDeposit($user->id, amount: 500.00, checkoutId: 'ws_CO_789');
 
-        $payload = [
-            'CheckoutRequestID' => 'ws_CO_789',
-            'ResultCode' => 0,
-            'ResultDesc' => 'OK',
-            'CallbackMetadata' => [
-                'Item' => [
-                    ['Name' => 'Amount', 'Value' => 500],
-                    ['Name' => 'MpesaReceiptNumber', 'Value' => 'RECEIPT789'],
+        $payload = CallbackPayload::fromArray([
+            'Body' => [
+                'stkCallback' => [
+                    'MerchantRequestID' => 'MR_789',
+                    'CheckoutRequestID' => 'ws_CO_789',
+                    'ResultCode' => 0,
+                    'ResultDesc' => 'OK',
+                    'CallbackMetadata' => [
+                        'Item' => [
+                            ['Name' => 'Amount', 'Value' => 500],
+                            ['Name' => 'MpesaReceiptNumber', 'Value' => 'RECEIPT789'],
+                        ],
+                    ],
                 ],
             ],
-        ];
+        ]);
 
         $service = app(MpesaDepositService::class);
         $service->handleCallback($payload);
@@ -90,11 +109,18 @@ class MpesaStkCallbackTest extends TestCase
     {
         [$user, $wallet] = $this->makeUserWithWallet(balance: 0);
 
-        app(MpesaDepositService::class)->handleCallback([
-            'CheckoutRequestID' => 'ws_CO_does_not_exist',
-            'ResultCode' => 0,
-            'ResultDesc' => 'OK',
+        $payload = CallbackPayload::fromArray([
+            'Body' => [
+                'stkCallback' => [
+                    'MerchantRequestID' => 'MR_unknown',
+                    'CheckoutRequestID' => 'ws_CO_does_not_exist',
+                    'ResultCode' => 0,
+                    'ResultDesc' => 'OK',
+                ],
+            ],
         ]);
+
+        app(MpesaDepositService::class)->handleCallback($payload);
 
         $this->assertSame(0.00, (float) $wallet->fresh()->balance);
     }

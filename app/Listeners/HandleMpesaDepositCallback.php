@@ -31,4 +31,5 @@ class HandleMpesaDepositCallback
             Log::error('Deposit failure handler threw', ['error' => $e->getMessage()]);
         }
     }
+
 }

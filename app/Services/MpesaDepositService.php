@@ -9,6 +9,7 @@ use Exception;
 use FelixMuhoro\Mpesa\Facades\Mpesa;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use FelixMuhoro\Mpesa\DTOs\CallbackPayload;
 
 class MpesaDepositService
 {
@@ -98,18 +99,19 @@ class MpesaDepositService
         }
     }
 
+
     /**
      * Handle Safaricom's STK callback.
      *
      * Triggered by the package's PaymentSuccessful / PaymentFailed events.
      * Idempotent — a duplicate callback is a no-op.
      */
-    public function handleCallback(array $payload): void
+    public function handleCallback(CallbackPayload $payload): void
     {
-        $checkoutId = $payload['CheckoutRequestID'] ?? null;
+        $checkoutId = $payload->checkoutRequestId;
 
-        if (!$checkoutId) {
-            Log::warning('STK callback missing CheckoutRequestID', $payload);
+        if ($checkoutId === '') {
+            Log::warning('STK callback missing CheckoutRequestID', ['raw' => $payload->raw]);
             return;
         }
 
@@ -120,7 +122,7 @@ class MpesaDepositService
             return;
         }
 
-        // Idempotency: only process if still processing or pending.
+        // Idempotency: only process if still pending or processing.
         if (!in_array($deposit->status, [Deposit::STATUS_PENDING, Deposit::STATUS_PROCESSING], true)) {
             Log::info('STK callback ignored (already settled)', [
                 'reference' => $deposit->reference,
@@ -129,19 +131,15 @@ class MpesaDepositService
             return;
         }
 
-        $resultCode = (int) ($payload['ResultCode'] ?? -1);
-
-        if ($resultCode === 0) {
+        if ($payload->successful()) {
             $this->settleSuccess($deposit, $payload);
         } else {
             $this->settleFailure($deposit, $payload);
         }
     }
 
-    private function settleSuccess(Deposit $deposit, array $payload): void
+    private function settleSuccess(Deposit $deposit, CallbackPayload $payload): void
     {
-        $receipt = $payload['CallbackMetadata']['Item'][1]['Value'] ?? null;
-
         $this->walletService->credit(
             $deposit->user,
             (float) $deposit->amount,
@@ -153,29 +151,29 @@ class MpesaDepositService
         $deposit->update([
             'status' => Deposit::STATUS_COMPLETED,
             'completed_at' => now(),
-            'mpesa_receipt' => $receipt,
-            'mpesa_response' => $payload,
+            'mpesa_receipt' => $payload->mpesaReceiptNumber,
+            'mpesa_response' => $payload->raw,
         ]);
 
         $deposit->user->notify(new DepositConfirmedNotification($deposit->fresh()));
 
         Log::info('M-Pesa deposit completed', [
             'reference' => $deposit->reference,
-            'receipt' => $receipt,
+            'receipt' => $payload->mpesaReceiptNumber,
         ]);
     }
 
-    private function settleFailure(Deposit $deposit, array $payload): void
+    private function settleFailure(Deposit $deposit, CallbackPayload $payload): void
     {
         $deposit->update([
             'status' => Deposit::STATUS_FAILED,
-            'mpesa_response' => $payload,
+            'mpesa_response' => $payload->raw,
         ]);
 
         Log::warning('M-Pesa deposit failed', [
             'reference' => $deposit->reference,
-            'result_code' => $payload['ResultCode'] ?? null,
-            'result_desc' => $payload['ResultDesc'] ?? null,
+            'result_code' => $payload->resultCode,
+            'result_desc' => $payload->resultDesc,
         ]);
     }
 

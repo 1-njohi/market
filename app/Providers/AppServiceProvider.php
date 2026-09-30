@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\URL;
 use App\Listeners\AttributeReferralOnRegistration;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Event;
+use App\Listeners\HandleMpesaDepositCallback;
+use FelixMuhoro\Mpesa\Events\PaymentFailed;
+use FelixMuhoro\Mpesa\Events\PaymentSuccessful;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
         Event::listen(Registered::class, AttributeReferralOnRegistration::class);
+        Event::listen(PaymentSuccessful::class, [HandleMpesaDepositCallback::class, 'onSuccess']);
+        Event::listen(PaymentFailed::class, [HandleMpesaDepositCallback::class, 'onFailure']);
     }
 
     /**
