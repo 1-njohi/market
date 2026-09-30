@@ -91,6 +91,7 @@
                     </span>
                 </div>
             </button>
+            
 
             <!-- Mini-Heatmap (unchanged) -->
             <div class="flex flex-shrink-0 flex-col items-end">
@@ -124,7 +125,18 @@
                 </span>
             </div>
         </div>
-
+<!-- SELLER BIO -->
+<div
+    v-if="slip.seller.bio"
+    class="border-b border-marketplace-border/40 bg-marketplace-card/50 px-4 py-2.5"
+>
+    <p
+        class="text-[11px] leading-relaxed text-marketplace-muted"
+        :title="slip.seller.bio"
+    >
+        {{ truncate(slip.seller.bio, 140) }}
+    </p>
+</div>
         <!-- 2. Bet Summary: Multibet / Singlebet + Total Odds -->
         <div
             class="flex flex-col border-b border-marketplace-border/40 bg-marketplace-card/30 select-none"
@@ -417,6 +429,12 @@ const formatTime = (timeStr) => {
         date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
         ' UTC'
     );
+};
+
+const truncate = (text, max) => {
+    if (!text) return '';
+    if (text.length <= max) return text;
+    return text.slice(0, max).trimEnd() + '…';
 };
 
 const shareSlip = () => {

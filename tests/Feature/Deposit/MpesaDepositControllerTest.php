@@ -62,8 +62,6 @@ class MpesaDepositControllerTest extends TestCase
             'phone' => '254712345678',
         ]);
 
-        dump($response->status(), $response->json());
-
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['amount']);
 
@@ -77,8 +75,6 @@ class MpesaDepositControllerTest extends TestCase
             'amount' => 500,
             'phone' => 'abc',
         ]);
-
-        dump($response->status(), $response->json(), $response->headers->get('Content-Type'));
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['phone']);

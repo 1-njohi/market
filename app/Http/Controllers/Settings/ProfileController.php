@@ -32,8 +32,10 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $data = $request->safe()->only(['name', 'email']);
-
+        $data = $request->safe()->only(['name', 'email', 'bio']);
+        if (array_key_exists('bio', $data) && $data['bio'] !== null) {
+            $data['bio'] = trim(strip_tags($data['bio']));
+        }
         $user->fill($data);
 
         if ($user->isDirty('email')) {

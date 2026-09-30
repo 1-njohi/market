@@ -46,6 +46,7 @@ class BetslipCardPresenter
                 'name' => $seller->name ?? 'Unknown',
                 'code' => $seller->code,
                 'avatar' => $seller->profile_picture_url,
+                'bio' => $seller->bio,
                 'roi' => $this->calculateROI($seller),
                 'win_rate' => $this->calculateWinRate($seller),
                 'recent_form' => $this->getRecentForm($seller),

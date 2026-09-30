@@ -181,6 +181,25 @@ const clearPhoto = () => {
                 <InputError class="mt-2" :message="errors.email" />
             </div>
 
+            <!-- ═══ BIO ═══ -->
+            <div class="grid gap-2">
+                <Label for="bio">Bio</Label>
+                <textarea
+                    id="bio"
+                    name="bio"
+                    rows="4"
+                    maxlength="500"
+                    class="border-input bg-background mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm"
+                    :default-value="user.bio ?? ''"
+                    placeholder="Tell people about yourself. What do you focus on? How long have you been at it? Any track record you want to link?"
+                ></textarea>
+                <p class="text-muted-foreground text-xs">
+                    Optional. Up to 500 characters. Shown on your public
+                    profile.
+                </p>
+                <InputError class="mt-2" :message="errors.bio" />
+            </div>
+
             <div v-if="page.props.mustVerifyEmail && !user.email_verified_at">
                 <p class="text-muted-foreground -mt-4 text-sm">
                     Your email address is unverified.

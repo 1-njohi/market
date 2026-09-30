@@ -20,8 +20,14 @@ trait ProfileValidationRules
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
             'photo' => $this->photoRules(),
+            'bio' => $this->bioRules(),
             'remove_photo' => ['sometimes', 'boolean'],
         ];
+    }
+
+    protected function bioRules()
+    {
+        return ['nullable', 'string', 'max:500'];
     }
 
     protected function photoRules(): array
