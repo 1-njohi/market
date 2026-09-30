@@ -17,7 +17,7 @@
 
         <div
             v-if="!following || following.length === 0"
-            class="p-8 text-center text-xs uppercase font-mono text-slate-500 tracking-wider"
+            class="p-8 text-center text-xs font-mono text-slate-500 tracking-wider"
         >
             You are not following any sellers yet.
         </div>

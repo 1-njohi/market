@@ -488,7 +488,7 @@
                                 v-if="seller_data.betslips.active.length === 0"
                                 class="p-6 text-center font-mono text-xs text-slate-500"
                             >
-                                No active betslip. Create one
+                                No active betslip. Create one``
                                 <a href="/"> here </a>
                             </div>
                         </div>
