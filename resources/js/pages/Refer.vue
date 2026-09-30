@@ -16,7 +16,6 @@
 // 11. Native-share fallback copies text+URL instead of the bare code.
 
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import Footer from '@/components/Footer.vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 import { computed, onUnmounted, ref } from 'vue';
 
@@ -506,7 +505,5 @@ const triggerNativeShare = async () => {
                 </div>
             </section>
         </div>
-
-        <Footer />
     </div>
 </template>

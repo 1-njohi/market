@@ -1,6 +1,5 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import Footer from '@/components/Footer.vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 import { computed } from 'vue';
 
@@ -292,7 +291,5 @@ const unitsColor = computed(() => {
                 </section>
             </template>
         </div>
-
-        <Footer />
     </div>
 </template>

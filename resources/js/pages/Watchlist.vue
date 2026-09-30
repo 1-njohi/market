@@ -1,7 +1,6 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import BetSlipSummaryCard from '@/components/BetSlipSummaryCard.vue';
-import Footer from '@/components/Footer.vue';
 import { computed } from 'vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 
@@ -12,7 +11,7 @@ const betSlips = computed(() => page.props.bet_slips?.data ?? []);
 <template>
     <Head title="Watchlist — Betslip Pirates" />
 
-    <div class="min-h-screen bg-[#0000] font-sans text-slate-300">
+    <div class="bg-[#0000] font-sans text-slate-300">
         <div class="mx-auto w-full max-w-[1200px] px-2 py-12 md:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-8 border-b border-[#232d42] pb-6">
@@ -95,7 +94,5 @@ const betSlips = computed(() => page.props.bet_slips?.data ?? []);
                 />
             </div>
         </div>
-
-        <Footer />
     </div>
 </template>
