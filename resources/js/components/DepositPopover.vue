@@ -4,7 +4,7 @@
             type="button"
             @click.stop="togglePopover"
             :disabled="isProcessing"
-            class="flex w-full cursor-pointer items-center justify-center rounded border border-sky-500/40 bg-transparent py-2.5 text-[10px] font-black tracking-widest text-sky-400 uppercase transition-all duration-200 hover:border-sky-500 hover:bg-sky-500/10 disabled:pointer-events-none disabled:opacity-40"
+            class="flex w-full cursor-pointer items-center justify-center rounded border px-4 border-sky-500/40 bg-transparent py-2.5 text-[10px] font-black tracking-widest text-sky-400 uppercase transition-all duration-200 hover:border-sky-500 hover:bg-sky-500/10 disabled:pointer-events-none disabled:opacity-40"
         >
             <span>DEPOSIT</span>
         </button>
