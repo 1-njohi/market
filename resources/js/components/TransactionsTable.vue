@@ -20,7 +20,7 @@
 
         <div
             v-if="!transactions || transactions.length === 0"
-            class="p-8 text-center font-mono text-xs tracking-wider text-slate-500 uppercase"
+            class="p-8 text-center font-mono text-xs tracking-wider text-slate-500"
         >
             No transaction records found in this operational tracking cycle.
         </div>

@@ -370,7 +370,7 @@
                         <div class="divide-y divide-gray-800/40">
                             <div
                                 v-if="buyer_data.purchases.recent?.length === 0"
-                                class="p-6 text-center font-mono text-xs text-slate-500 uppercase"
+                                class="p-6 text-center font-mono text-xs text-slate-500"
                             >
                                 No active purchases currently.
                             </div>
@@ -471,7 +471,7 @@
 
                             <div
                                 v-if="buyer_data.settled_outcomes.length === 0"
-                                class="p-6 text-center font-mono text-xs text-slate-500 uppercase"
+                                class="p-6 text-center font-mono text-xs text-slate-500"
                             >
                                 No settled betslips yet.
                             </div>

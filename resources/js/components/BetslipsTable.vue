@@ -5,7 +5,7 @@
         <!-- Empty state -->
         <div
             v-if="!betslips || betslips.length === 0"
-            class="p-8 text-center font-mono text-xs tracking-wider text-slate-500 uppercase"
+            class="p-8 text-center font-mono text-xs tracking-wider text-slate-500"
         >
             No betslips to display yet.
         </div>
