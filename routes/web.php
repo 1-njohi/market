@@ -18,6 +18,7 @@ use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\WatchlistController;
 use App\Http\Controllers\WatchlistRecordController;
 use App\Http\Controllers\ReferralLinkController;
+use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -146,6 +147,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/deposit/mpesa/initiate', [\App\Http\Controllers\MpesaDepositController::class, 'store'])
         ->name('deposit.mpesa.initiate');
+
+    Route::get('/wallet/balance', function () {
+        $wallet = app(WalletService::class)
+            ->getWallet(auth()->user());
+
+        return response()->json(['balance' => (float) $wallet->balance]);
+    })->name('wallet.balance');
 
     // ── Social graph ──
     Route::prefix('users')->group(function () {

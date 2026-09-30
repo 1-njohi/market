@@ -356,11 +356,11 @@ const handleDepositSubmission = async () => {
  * above the pre-deposit snapshot, we treat the deposit as confirmed.
  * We rely on the callback doing the actual credit — this just detects it.
  */
+
 const startPolling = (depositAmount) => {
     stopPolling();
 
     const initialBalance = currentBalance;
-
     pollDeadline = Date.now() + 90_000;
 
     pollTimer = setInterval(async () => {
@@ -370,7 +370,7 @@ const startPolling = (depositAmount) => {
         }
 
         try {
-            const { data } = await axios.get('/buyer/dashboard/wallet', {
+            const { data } = await axios.get('/wallet/balance', {
                 headers: { Accept: 'application/json' },
             });
 
@@ -381,9 +381,18 @@ const startPolling = (depositAmount) => {
                 router.reload({ only: ['buyer_data'] });
             }
         } catch {
-            // Silent — the poll can fail transiently without breaking the flow.
+            // silent
         }
     }, 3000);
+};
+
+const captureBalance = () => {
+    axios
+        .get('/wallet/balance', { headers: { Accept: 'application/json' } })
+        .then(({ data }) => {
+            currentBalance = Number(data?.balance ?? 0);
+        })
+        .catch(() => {});
 };
 
 const stopPolling = () => {
@@ -396,17 +405,6 @@ const stopPolling = () => {
 
 // Snapshot the wallet balance at modal open so we can detect the delta.
 let currentBalance = 0;
-
-const captureBalance = () => {
-    axios
-        .get('/buyer/dashboard/wallet', {
-            headers: { Accept: 'application/json' },
-        })
-        .then(({ data }) => {
-            currentBalance = Number(data?.balance ?? 0);
-        })
-        .catch(() => {});
-};
 
 const handleClickOutside = (event) => {
     if (
