@@ -486,9 +486,9 @@
 
                             <div
                                 v-if="seller_data.betslips.active.length === 0"
-                                class="p-6 text-center font-mono text-xs text-slate-500 uppercase"
+                                class="p-6 text-center font-mono text-xs text-slate-500"
                             >
-                                No active betslip. Create one here
+                                No active betslip. Create one
                                 <a href="/"> here </a>
                             </div>
                         </div>
@@ -626,7 +626,7 @@
 
                             <div
                                 v-if="seller_data.settlements.length === 0"
-                                class="p-6 text-center font-mono text-xs text-slate-500 uppercase"
+                                class="p-6 text-center font-mono text-xs text-slate-500"
                             >
                                 No settlements yet.
                             </div>

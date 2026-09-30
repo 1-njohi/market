@@ -8,7 +8,7 @@
             <span class="text-[9px] font-mono font-bold text-slate-500 uppercase select-none">[ FOLLOWERS ]</span>
         </div>
 
-        <div v-if="!followers || followers.length === 0" class="p-8 text-center text-xs uppercase font-mono text-slate-500 tracking-wider">
+        <div v-if="!followers || followers.length === 0" class="p-8 text-center text-xs font-mono text-slate-500 tracking-wider">
             No followers yet.
         </div>
 
