@@ -185,7 +185,11 @@
                     </div>
 
                     <div class="flex flex-col gap-2 sm:flex-row">
-                        <DepositPopover />
+                        <DepositPopover
+                            :currency="`KES`"
+                            :initial_amount="100"
+                            :initial_phone="buyer_data?.user?.phone ?? ''"
+                        />
                         <WithdrawalPopover
                             :currency="seller_data.wallet.currency"
                             :available-balance="
@@ -724,8 +728,13 @@
                             </div>
 
                             <div class="flex flex-col gap-2 sm:flex-row">
-                                <DepositPopover />
-                                <WithdrawalPopover
+                                <DepositPopover
+                                    :currency="`KES`"
+                                    :initial_amount="100"
+                                    :initial_phone="
+                                        buyer_data?.user?.phone ?? ''
+                                    "
+                                /><WithdrawalPopover
                                     :currency="seller_data.wallet.currency"
                                     :available-balance="
                                         Number(seller_data.wallet.balance)

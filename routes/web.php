@@ -144,6 +144,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/withdrawal/initiate', [PaystackController::class, 'initiateWithdrawal'])->name('withdrawal.initiate');
     Route::post('/withdrawals', [WithdrawalController::class, 'store']);
 
+    Route::post('/deposit/mpesa/initiate', [\App\Http\Controllers\MpesaDepositController::class, 'store'])
+        ->name('deposit.mpesa.initiate');
+
     // ── Social graph ──
     Route::prefix('users')->group(function () {
         Route::get('/feed', [FollowController::class, 'feed'])->name('feed.index');

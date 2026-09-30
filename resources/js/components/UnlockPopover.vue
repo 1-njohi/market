@@ -144,6 +144,7 @@
 
                             <DepositPopover
                                 :currency="currency"
+                                :initial_phone="buyer_data?.user?.phone ?? ''"
                                 :initial_amount="
                                     Math.ceil(amount - userBalance)
                                 "

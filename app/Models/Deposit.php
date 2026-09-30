@@ -13,17 +13,21 @@ class Deposit extends Model
     protected $fillable = [
         'user_id',
         'reference',
+        'mpesa_checkout_request_id',
+        'mpesa_receipt',
         'amount',
         'currency',
         'payment_method',
         'status',
         'paystack_response',
+        'mpesa_response',
         'completed_at',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'paystack_response' => 'array',
+        'mpesa_response' => 'array',
         'completed_at' => 'datetime',
     ];
 
@@ -31,6 +35,7 @@ class Deposit extends Model
      * Deposit statuses
      */
     const STATUS_PENDING = 'pending';
+    const STATUS_PROCESSING = 'processing';
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
 
@@ -72,5 +77,10 @@ class Deposit extends Model
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isProcessing(): bool
+    {
+        return $this->status === self::STATUS_PROCESSING;
     }
 }

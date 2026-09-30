@@ -10,7 +10,11 @@
                     >Transactions</span
                 >
             </div>
-            <DepositPopover class="max-w-[10rem]" />
+            <DepositPopover
+                :currency="`KES`"
+                :initial_amount="100"
+                :initial_phone="buyer_data?.user?.phone ?? ''"
+            />
             <!-- <span class="text-[9px] font-mono font-bold text-slate-500 uppercase select-none">[ BALANCE_HISTOGRAM ]</span> -->
         </div>
 

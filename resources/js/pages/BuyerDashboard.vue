@@ -103,8 +103,11 @@
                     </div>
 
                     <div class="flex flex-col gap-2 sm:flex-row">
-                        <DepositPopover />
-
+                        <DepositPopover
+                            :currency="`KES`"
+                            :initial_amount="100"
+                            :initial_phone="buyer_data?.user?.phone ?? ''"
+                        />
                         <WithdrawalPopover
                             :currency="buyer_data.wallet.currency"
                             :available-balance="
@@ -744,8 +747,13 @@
                                 </div>
                             </div>
                             <div class="flex flex-col gap-2 sm:flex-row">
-                                <DepositPopover />
-
+                                <DepositPopover
+                                    :currency="`KES`"
+                                    :initial_amount="100"
+                                    :initial_phone="
+                                        buyer_data?.user?.phone ?? ''
+                                    "
+                                />
                                 <WithdrawalPopover
                                     :currency="buyer_data.wallet.currency"
                                     :available-balance="
@@ -842,11 +850,10 @@
                         </div>
                     </div>
 
-
                     <ReferralCard
-    v-if="buyer_data.referral_card"
-    :card="buyer_data.referral_card"
-/>
+                        v-if="buyer_data.referral_card"
+                        :card="buyer_data.referral_card"
+                    />
 
                     <!-- RECENT FORM RADAR STRIP -->
                     <div

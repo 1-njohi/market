@@ -41,7 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn(Request $request) => $request->is('api/*'),
+            fn(Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
         $exceptions->render(function (InsufficientBalanceException $e, $request) {
             return response()->json(['message' => $e->getMessage()], 422);
