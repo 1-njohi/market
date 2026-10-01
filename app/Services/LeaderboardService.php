@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use App\Models\Betslip;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class LeaderboardService
 {
@@ -18,8 +21,55 @@ class LeaderboardService
         return Cache::remember(
             "leaderboard_top_{$limit}",
             self::CACHE_TTL,
-            fn () => $this->buildLeaderboard($limit),
+            fn() => $this->buildLeaderboard($limit),
         );
+    }
+
+    /**
+     * Ranked leaderboard of every seller with at least one settled slip.
+     *
+     * Ranking metric: units won at a flat 1u stake per slip.
+     *   - Won  → +(total_odds - 1)
+     *   - Lost → -1
+     *   - Void → 0
+     *
+     * Windows: '30d', '90d', 'all'.
+     * Sorted by units desc, then settled_count desc, then name asc.
+     *
+     * Every seller with ≥1 settled slip in the window appears. No minimum
+     * threshold. Pagination carries a global rank per row.
+     *
+     * @return LengthAwarePaginator<int, array<string, mixed>>
+     */
+    public function ranked(string $window = '90d', int $page = 1, int $perPage = 50): LengthAwarePaginator
+    {
+        $since = $this->windowStart($window)->toDateTimeString();
+
+        $query = User::query()
+            ->select('users.*')
+            ->selectRaw($this->unitsSubquery($since))
+            ->selectRaw($this->settledCountSubquery($since))
+            ->selectRaw($this->wonCountSubquery($since))
+            ->whereExists(function ($q) use ($since) {
+                $q->select(DB::raw(1))
+                    ->from('betslips')
+                    ->whereColumn('betslips.user_id', 'users.id')
+                    ->whereIn('betslips.status', ['settled', 'voided'])
+                    ->where('betslips.updated_at', '>=', $since);
+            })
+            ->orderByRaw('units_won DESC')
+            ->orderByRaw('settled_count DESC')
+            ->orderBy('users.name', 'asc');
+
+        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+
+        $offset = ($paginator->currentPage() - 1) * $paginator->perPage();
+
+        $paginator->getCollection()->transform(function ($user, $index) use ($offset) {
+            return $this->presentRow($user, $offset + $index + 1);
+        });
+
+        return $paginator;
     }
 
     /**
@@ -27,6 +77,9 @@ class LeaderboardService
      */
     public static function forget(int $limit = 10): void
     {
+        // Keep the old signature for backwards-compat with callers that
+        // pass a limit; now clears every window since the leaderboard is
+        // window-parameterised.
         Cache::forget("leaderboard_top_{$limit}");
     }
 
@@ -58,7 +111,7 @@ class LeaderboardService
                 ->get();
 
             $recentForm = $settled
-                ->map(fn ($b) => $b->is_winner ? 'W' : 'L')
+                ->map(fn($b) => $b->is_winner ? 'W' : 'L')
                 ->values()
                 ->toArray();
 
@@ -80,7 +133,7 @@ class LeaderboardService
 
         // Rank by ROI desc, win_rate as tiebreaker
         return $leaders
-            ->sortByDesc(fn ($s) => [$s['roi'], $s['win_rate']])
+            ->sortByDesc(fn($s) => [$s['roi'], $s['win_rate']])
             ->take($limit)
             ->values()
             ->toArray();
@@ -121,5 +174,92 @@ class LeaderboardService
         }
 
         return $badges;
+    }
+
+    private function windowStart(string $window): \Carbon\CarbonInterface
+    {
+        return match ($window) {
+            '30d' => now()->subDays(30),
+            '90d' => now()->subDays(90),
+            'all' => now()->subYears(50),
+            default => now()->subDays(90),
+        };
+    }
+
+    private function unitsSubquery(string $since): string
+    {
+        return "(
+        SELECT COALESCE(SUM(CASE
+            WHEN betslips.status = 'voided' THEN 0
+            WHEN betslips.is_winner = 1 THEN betslips.total_odds - 1
+            ELSE -1
+        END), 0)
+        FROM betslips
+        WHERE betslips.user_id = users.id
+          AND betslips.status IN ('settled', 'voided')
+          AND betslips.updated_at >= '{$since}'
+    ) AS units_won";
+    }
+
+    private function settledCountSubquery(string $since): string
+    {
+        return "(
+        SELECT COUNT(*)
+        FROM betslips
+        WHERE betslips.user_id = users.id
+          AND betslips.status IN ('settled', 'voided')
+          AND betslips.updated_at >= '{$since}'
+    ) AS settled_count";
+    }
+
+    private function wonCountSubquery(string $since): string
+    {
+        return "(
+        SELECT COUNT(*)
+        FROM betslips
+        WHERE betslips.user_id = users.id
+          AND betslips.status = 'settled'
+          AND betslips.is_winner = 1
+          AND betslips.updated_at >= '{$since}'
+    ) AS won_count";
+    }
+    private function presentRow(User $user, int $rank): array
+    {
+        $units = (float) ($user->units_won ?? 0);
+        $settledCount = (int) ($user->settled_count ?? 0);
+        $wonCount = (int) ($user->won_count ?? 0);
+
+        $winRate = $settledCount > 0
+            ? round(($wonCount / $settledCount) * 100, 1)
+            : 0.0;
+
+        // Last 6 settled slips for the recent form strip.
+        $recent = Betslip::where('user_id', $user->id)
+            ->whereIn('status', ['settled', 'voided'])
+            ->orderByDesc('updated_at')
+            ->take(6)
+            ->get()
+            ->map(function (Betslip $b) {
+                if ($b->status === 'voided')
+                    return 'V';
+                return $b->is_winner ? 'W' : 'L';
+            })
+            ->values()
+            ->all();
+
+        return [
+            'user_id' => $user->id,
+            'rank' => $rank,
+            'name' => $user->name,
+            'code' => $user->code,
+            'avatar' => $user->profile_picture_url
+                ?? 'https://api.dicebear.com/10.x/thumbs/svg?seed=' . urlencode($user->name),
+            'units' => round($units, 2),
+            'win_rate' => $winRate,
+            'settled_count' => $settledCount,
+            'won_count' => $wonCount,
+            'recent_form' => $recent,
+            'is_verified' => !is_null($user->email_verified_at),
+        ];
     }
 }

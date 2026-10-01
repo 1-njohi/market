@@ -18,6 +18,8 @@ use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\WatchlistController;
 use App\Http\Controllers\WatchlistRecordController;
 use App\Http\Controllers\ReferralLinkController;
+use App\Http\Controllers\ReferralDashboardController;
+use App\Http\Controllers\LeaderboardController;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +70,8 @@ Route::get('/responsible-gaming', fn() => Inertia::render('Legal/ResponsibleGami
 Route::get('/fixture/{id}', [FixtureController::class, 'index'])->name('fixture');
 Route::get('/profile/{user_code}', [ProfileController::class, 'index'])->name('profile');
 Route::get('/sellers/lookup', [SellerLookupController::class, 'show']);
+ Route::get('/leaderboard', [LeaderboardController::class, 'index'])
+        ->name('leaderboard');
 
 // ── Reporting ──
 Route::get('/report', fn() => Inertia::render('Report'))->name('report');
@@ -203,7 +207,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/watchlist/record', [WatchlistRecordController::class, 'index'])
         ->name('watchlist.record');
 
-    Route::get('/refer', [\App\Http\Controllers\ReferralDashboardController::class, 'index'])
+    Route::get('/refer', [ReferralDashboardController::class, 'index'])
         ->name('refer');
 });
 
