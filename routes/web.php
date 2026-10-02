@@ -38,27 +38,34 @@ Route::get('/dev/shift-fixture-dates', function () {
     $earliest = \App\Models\Fixture::min('date');
 
     if (!$earliest) {
-        return response()->json([
-            'status'  => 'error',
-            'message' => 'No fixtures found in the database.',
-        ], 404);
+        return response()->json(['status' => 'error', 'message' => 'No fixtures found.'], 404);
     }
 
     $delta = (int) \Carbon\Carbon::parse($earliest)
         ->diffInDays(now()->addDay(), false);
 
+    $driver = \DB::connection()->getDriverName();
+
+    $dateExpr      = $driver === 'sqlite'
+        ? "datetime(date, '{$delta} days')"
+        : "DATE_ADD(date, INTERVAL {$delta} DAY)";
+
+    $timestampExpr = $driver === 'sqlite'
+        ? "strftime('%s', datetime(date, '{$delta} days'))"
+        : "UNIX_TIMESTAMP(DATE_ADD(date, INTERVAL {$delta} DAY))";
+
     $affected = \App\Models\Fixture::query()
         ->whereBetween('date', ['2022-06-06 00:00:00', '2022-08-06 23:59:59'])
         ->update([
-            'date'      => \DB::raw("datetime(date, '{$delta} days')"),
-            'timestamp' => \DB::raw("strftime('%s', datetime(date, '{$delta} days'))"),
+            'date'      => \DB::raw($dateExpr),
+            'timestamp' => \DB::raw($timestampExpr),
         ]);
 
     return response()->json([
-        'status'   => 'ok',
-        'shifted'  => $affected,
-        'delta'    => $delta,
-        'earliest_before' => $earliest,
+        'status'          => 'ok',
+        'driver'          => $driver,
+        'shifted'         => $affected,
+        'delta'           => $delta,
         'earliest_after'  => \App\Models\Fixture::min('date'),
         'latest_after'    => \App\Models\Fixture::max('date'),
         'upcoming_count'  => \App\Models\Fixture::whereBetween('date', [
