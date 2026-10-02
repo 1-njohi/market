@@ -428,8 +428,6 @@ const formDotClass = (mark) => {
                     <span v-else class="w-24"></span>
                 </div>
             </template>
-        </div>
-
-        <Footer />
+        </div> 
     </div>
 </template>
