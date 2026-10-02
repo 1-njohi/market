@@ -47,6 +47,12 @@ class HostContestController extends Controller
             abort(403);
         }
 
+        $contest->load([
+            'legs.fixture.homeTeam',
+            'legs.fixture.awayTeam',
+            'legs.market',
+        ]);
+
         $entries = ContestEntry::where('contest_id', $contest->id)
             ->where('user_id', '!=', $contest->host_id)
             ->with('user:id,name,code,email_verified_at')
@@ -70,6 +76,31 @@ class HostContestController extends Controller
             ->values()
             ->all();
 
+        $hostEntry = ContestEntry::where('contest_id', $contest->id)
+            ->where('user_id', $contest->host_id)
+            ->with('picks')
+            ->first();
+
+        $hostPicksByLeg = $hostEntry
+            ? $hostEntry->picks->keyBy('contest_leg_id')
+            : collect();
+
+        $hostPicks = $contest->legs->map(function ($leg) use ($hostPicksByLeg) {
+            $pick = $hostPicksByLeg->get($leg->id);
+
+            return [
+                'leg_id'    => $leg->id,
+                'market'    => $leg->market?->name ?? 'Unknown Market',
+                'home_team' => $leg->fixture?->homeTeam?->name ?? 'Unknown',
+                'away_team' => $leg->fixture?->awayTeam?->name ?? 'Unknown',
+                'kickoff'   => $leg->fixture?->date
+                    ? \Carbon\Carbon::parse($leg->fixture->date)->toISOString()
+                    : null,
+                'selection' => $pick?->selection,
+                'odds'      => $pick ? (float) $pick->odds_at_pick : null,
+            ];
+        })->values()->all();
+
         return Inertia::render('Contests/Manage', [
             'contest' => [
                 'id'                => $contest->id,
@@ -77,8 +108,9 @@ class HostContestController extends Controller
                 'name'              => $contest->name,
                 'status'            => $contest->status,
                 'entry_deadline_at' => $contest->entry_deadline_at->toISOString(),
-                'legs_count'        => $contest->legs()->count(),
+                'legs_count'        => $contest->legs->count(),
                 'entries'           => $entries,
+                'host_picks'        => $hostPicks,
             ],
         ]);
     }

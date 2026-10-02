@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 
 const page = usePage();
@@ -11,9 +11,19 @@ const initialPicks = computed(() => page.props.picks);
 const picks = ref({});
 const isProcessing = ref(false);
 
-for (const p of initialPicks.value) {
-    picks.value[p.leg_id] = p.selection;
-}
+// Seed from the payload, and re-seed any time the payload changes
+// (e.g. after a successful save reloads the page with fresh props).
+watch(
+    initialPicks,
+    (list) => {
+        const next = {};
+        for (const p of list ?? []) {
+            next[p.leg_id] = p.selection;
+        }
+        picks.value = next;
+    },
+    { immediate: true },
+);
 
 const isLocked = computed(() => contest.value.is_locked);
 
@@ -74,28 +84,40 @@ const formatKickoff = (iso) => {
             <!-- Header -->
             <div class="mt-6 mb-8 border-b border-[#232d42] pb-6">
                 <div class="flex items-center gap-2">
-                    <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
+                    <p
+                        class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
+                    >
                         Your picks
                     </p>
                     <InfoPopover title="How picks are scored">
                         <p>
-                            Pick one selection for each leg. Correct picks earn the
-                            odds value as points, wrong picks earn zero.
+                            Pick one selection for each leg. Correct picks
+                            earn the odds value as points, wrong picks earn
+                            zero.
                         </p>
-                        <div class="rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-[11px]">
-                            <p class="text-emerald-400">Correct: +odds as points</p>
+                        <div
+                            class="rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-[11px]"
+                        >
+                            <p class="text-emerald-400">
+                                Correct: +odds as points
+                            </p>
                             <p class="text-rose-400">Wrong: 0 points</p>
-                            <p class="text-slate-400">Void: 0 points, excluded</p>
+                            <p class="text-slate-400">
+                                Void: 0 points, excluded
+                            </p>
                         </div>
                         <p>
                             Ranked by correct count first, then total points.
                         </p>
                         <p class="text-slate-400">
-                            You can change your picks any time before the deadline.
+                            You can change your picks any time before the
+                            deadline.
                         </p>
                     </InfoPopover>
                 </div>
-                <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
+                <h1
+                    class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl"
+                >
                     {{ contest.name }}
                 </h1>
                 <p class="mt-3 text-sm text-slate-400">
@@ -132,7 +154,8 @@ const formatKickoff = (iso) => {
                                 {{ leg.fixture.away_team }}
                             </p>
                             <p class="mt-0.5 text-[10px] text-slate-500">
-                                Kickoff {{ formatKickoff(leg.fixture.kickoff) }}
+                                Kickoff
+                                {{ formatKickoff(leg.fixture.kickoff) }}
                             </p>
                         </div>
                     </div>

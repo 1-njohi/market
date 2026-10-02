@@ -55,7 +55,8 @@ Route::get('/dev/shift-fixture-dates', function () {
         : "UNIX_TIMESTAMP(DATE_ADD(date, INTERVAL {$delta} DAY))";
 
     $affected = \App\Models\Fixture::query()
-        ->whereBetween('date', ['2022-06-06 00:00:00', '2022-08-06 23:59:59'])
+        // ->whereBetween('date', ['2022-06-06 00:00:00', '2022-08-06 23:59:59'])
+        ->where('id_on_api', 867946)
         ->update([
             'date'      => \DB::raw($dateExpr),
             'timestamp' => \DB::raw($timestampExpr),

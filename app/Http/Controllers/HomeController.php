@@ -29,81 +29,98 @@ class HomeController extends Controller
     }
     private function getFixtures()
     {
-        // 1. Get the local market IDs for the markets we care about
-        $marketNames = [
-            'Match Winner',      // three_way
-            'Double Chance',     // double_chance
-            'Goals Over/Under',  // over_under
-            'Both Teams Score',  // both_team_to_score
+        // 1. Resolve the four primary market IDs by name (case-insensitive,
+        //    name-driven so seeders or renames don't break the mapping).
+        $primaryMarkets = [
+            'three_way'           => 'Match Winner',
+            'double_chance'       => 'Double Chance',
+            'over_under'          => 'Goals Over/Under',
+            'both_team_to_score'  => 'Both Teams Score',
         ];
 
-        $marketIds = \App\Models\Market::whereIn('name', $marketNames)->pluck('id')->toArray();
+        $marketMap = \App\Models\Market::whereIn('name', array_values($primaryMarkets))
+            ->get()
+            ->keyBy('name');
 
-        // If some markets are missing, handle gracefully (maybe fallback to API IDs or skip)
-        // For safety, we can map by name to ensure correct IDs.
-        $marketMap = \App\Models\Market::whereIn('name', $marketNames)->get()->keyBy('name');
+        // Bail early if the markets aren't seeded — surface a clear signal
+        // instead of shipping an empty payload that silently looks OK.
+        if ($marketMap->count() < 4) {
+            \Log::warning('getFixtures: primary markets missing', [
+                'found' => $marketMap->keys()->all(),
+            ]);
+            return collect();
+        }
 
-        // Use the actual IDs for the query
-        $marketIds = $marketMap->pluck('id')->toArray();
+        $marketIdMap = [];
+        foreach ($primaryMarkets as $key => $name) {
+            $marketIdMap[$key] = $marketMap[$name]->id;
+        }
 
-        // 2. Eager load odds with these markets
+        $marketIds = array_values($marketIdMap);
+
+        // 2. Live time window. Today through two weeks from now, capped so
+        //    the homepage never renders a thousand hidden rows.
+        $from = now();
+        $to   = now()->addDays(14);
+
         $fixtures = Fixture::with([
             'odds' => function ($query) use ($marketIds) {
-                $query->whereIn('market_id', $marketIds);
+                // Only pull the primary markets plus enough extra rows to
+                // support the "additional markets" counter.
+                $query->whereIn('market_id', $marketIds)
+                    ->orWhere(function ($q) use ($marketIds) {
+                        $q->whereNotIn('market_id', $marketIds);
+                    });
             },
             'homeTeam',
             'awayTeam',
             'league',
-            'league.Country', // if you have this relationship
+            'league.Country',
         ])
             ->whereHas('odds', function ($query) use ($marketIds) {
                 $query->whereIn('market_id', $marketIds);
             })
-            ->whereBetween('date', ['2022-06-06 17:00:00', '2022-08-06 17:00:00'])
-            ->orderBy('id', 'ASC')
+            ->whereBetween('date', [$from, $to])
+            ->where('status_short', 'NS')
+            ->orderBy('date')
+            ->limit(200)
             ->get();
 
-        // 3. Build a mapping from market name to its local ID for use in keys
-        //    We'll use the same mapping to generate the keys for oddsKeyed.
-        //    For example: "{$marketMap['Match Winner']->id}-Home" etc.
-        $marketIdMap = [
-            'three_way' => $marketMap['Match Winner']->id ?? null,
-            'double_chance' => $marketMap['Double Chance']->id ?? null,
-            'over_under' => $marketMap['Goals Over/Under']->id ?? null,
-            'both_team_to_score' => $marketMap['Both Teams Score']->id ?? null,
-        ];
+        if ($fixtures->isEmpty()) {
+            return collect();
+        }
 
-        // 4. Group fixtures by league_id
+        // 3. Group fixtures by league. Preserve the sort order within groups.
         $groupedFixtures = $fixtures->groupBy('league_id');
 
-        // 5. Transform each group
+        // 4. Transform each group.
         return $groupedFixtures->map(function ($leagueFixtures, $leagueId) use ($marketIdMap) {
             $league = $leagueFixtures->first()->league;
 
             $mappedFixtures = $leagueFixtures->map(function ($fixture) use ($marketIdMap) {
-                // Key the odds by market_id and value
                 $oddsKeyed = $fixture->odds->keyBy(function ($odd) {
                     return "{$odd->market_id}-{$odd->value}";
                 });
 
-                // Calculate additional markets count
+                // Count markets we didn't surface in the four fixed panels.
                 $uniqueMarketsCount = $fixture->odds->pluck('market_id')->unique()->count();
                 $additionalMarketsCount = max(0, $uniqueMarketsCount - 4);
 
-                // Helper to get odd data
                 $getOdd = function ($marketId, $value) use ($oddsKeyed) {
-                    $key = "{$marketId}-{$value}";
-                    $odd = $oddsKeyed->get($key);
-                    return $odd ? ['id' => $odd->id, 'value' => $odd->odd] : null;
+                    $odd = $oddsKeyed->get("{$marketId}-{$value}");
+                    return $odd ? ['id' => $odd->id, 'value' => (float) $odd->odd] : null;
                 };
 
                 return [
-                    'id' => $fixture->id,
-                    'id_on_api' => $fixture->id_on_api,
-                    'date' => $fixture->date ? \Carbon\Carbon::parse($fixture->date)->format('d/m/y - H:i') : null,
-                    'home_team' => $fixture->homeTeam->name ?? 'Unknown',
-                    'away_team' => $fixture->awayTeam->name ?? 'Unknown',
-                    'boosted' => false,
+                    'id'         => $fixture->id,
+                    'id_on_api'  => $fixture->id_on_api,
+                    'date'       => $fixture->date
+                        ? \Carbon\Carbon::parse($fixture->date)->format('d/m/y - H:i')
+                        : null,
+                    'kickoff'    => $fixture->date?->toIso8601String(),
+                    'home_team'  => $fixture->homeTeam?->name ?? 'Unknown',
+                    'away_team'  => $fixture->awayTeam?->name ?? 'Unknown',
+                    'boosted'    => false,
                     'additional_markets_count' => $additionalMarketsCount,
                     'odds' => [
                         'three_way' => [
@@ -112,29 +129,29 @@ class HomeController extends Controller
                             'away' => $getOdd($marketIdMap['three_way'], 'Away'),
                         ],
                         'double_chance' => [
-                            'one_x' => $getOdd($marketIdMap['double_chance'], 'Home/Draw'),
-                            'x_two' => $getOdd($marketIdMap['double_chance'], 'Draw/Away'),
+                            'one_x'   => $getOdd($marketIdMap['double_chance'], 'Home/Draw'),
+                            'x_two'   => $getOdd($marketIdMap['double_chance'], 'Draw/Away'),
                             'one_two' => $getOdd($marketIdMap['double_chance'], 'Home/Away'),
                         ],
                         'over_under' => [
-                            'over' => $getOdd($marketIdMap['over_under'], 'Over 2.5'),
+                            'over'  => $getOdd($marketIdMap['over_under'], 'Over 2.5'),
                             'under' => $getOdd($marketIdMap['over_under'], 'Under 2.5'),
                         ],
                         'both_team_to_score' => [
                             'yes' => $getOdd($marketIdMap['both_team_to_score'], 'Yes'),
-                            'no' => $getOdd($marketIdMap['both_team_to_score'], 'No'),
+                            'no'  => $getOdd($marketIdMap['both_team_to_score'], 'No'),
                         ],
                     ],
                 ];
             });
 
             return [
-                'name' => $league->name,
-                'id' => $league->id,
-                'country' => $league->Country->name ?? 'Unknown',
-                'logo' => $league->logo,
+                'name'      => $league->name,
+                'id'        => $league->id,
+                'country'   => $league->Country?->name ?? 'Unknown',
+                'logo'      => $league->logo,
                 'league_id' => $leagueId,
-                'fixtures' => $mappedFixtures->values()
+                'fixtures'  => $mappedFixtures->values(),
             ];
         })->values();
     }

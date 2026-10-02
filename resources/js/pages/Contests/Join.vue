@@ -73,7 +73,10 @@ const formatKickoff = (iso) => {
                     {{ contest.description }}
                 </p>
             </div>
-
+            <p class="mt-4 text-[11px] leading-relaxed text-slate-500">
+                The host's picks are shown above. Yours stay private until the deadline —
+                nobody can copy anyone else's slate.
+            </p>
             <!-- Join card -->
             <div
                 class="mb-8 rounded-lg border border-[#232d42] bg-[#161c2a] p-5"
@@ -186,25 +189,33 @@ const formatKickoff = (iso) => {
                     <li
                         v-for="(leg, i) in contest.legs"
                         :key="leg.id"
-                        class="flex items-center justify-between gap-4 px-5 py-3"
+                        class="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
                     >
-                        <div class="min-w-0">
-                            <p
-                                class="text-[10px] font-bold tracking-widest text-slate-500 uppercase"
-                            >
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
                                 Leg {{ i + 1 }} · {{ leg.market }}
                             </p>
-                            <p
-                                class="mt-0.5 truncate text-sm font-bold text-slate-200"
-                            >
+                            <p class="mt-0.5 truncate text-sm font-bold text-slate-200">
                                 {{ leg.fixture.home_team }}
                                 <span class="text-slate-500">vs</span>
                                 {{ leg.fixture.away_team }}
                             </p>
+                            <p
+                                v-if="leg.host_pick"
+                                class="mt-1 inline-flex items-center gap-2 text-[10px] font-bold tracking-wide text-slate-400 uppercase"
+                            >
+                                <span
+                                    class="rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-black tracking-widest text-amber-400"
+                                >
+                                    Host
+                                </span>
+                                <span class="text-white">{{ leg.host_pick.selection }}</span>
+                                <span class="font-mono text-slate-500">
+                                    @{{ leg.host_pick.odds.toFixed(2) }}
+                                </span>
+                            </p>
                         </div>
-                        <span
-                            class="whitespace-nowrap font-mono text-[10px] text-slate-500"
-                        >
+                        <span class="whitespace-nowrap font-mono text-[10px] text-slate-500">
                             {{ formatKickoff(leg.fixture.kickoff) }}
                         </span>
                     </li>

@@ -297,9 +297,9 @@ const iconEmoji = (type, outcome) => {
         return outcome === 'won' ? '🏆' : outcome === 'voided' ? '↩️' : '💸';
     }
     if (type === 'contest_settled') {
-        if (rank === 1) return '🏆';
-        if (rank === 2) return '🥈';
-        if (rank === 3) return '🥉';
+        //if (rank === 1) return '🏆';
+        //if (rank === 2) return '🥈';
+        //if (rank === 3) return '🥉';
         return '🎯';
     }
     switch (type) {

@@ -23,6 +23,8 @@ const socialLinks = computed(() => ({
     twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(shareText.value)}`,
 }));
 
+const resultsUrl = computed(() => `/contests/${contest.value.uuid}/results`);
+
 const copyToClipboard = async (text) => {
     try {
         await navigator.clipboard.writeText(text);
@@ -117,37 +119,58 @@ const statusPill = (status) => {
             </Link>
 
             <!-- HEADER -->
-            <div>
-                <div class="flex items-center gap-2">
-                    <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
-                        Managing
-                    </p>
-                    <InfoPopover title="Managing your contest">
-                        <p>
-                            Share the invite link with anyone you want in the contest.
-                            Their requests appear below for you to approve or reject.
-                        </p>
-                        <p>
-                            You don't pick in your own contest — you're the host. If you
-                            want to play too, ask someone else to host.
-                        </p>
-                        <p class="text-slate-400">
-                            Everyone's picks stay hidden from you and each other until
-                            the contest settles.
-                        </p>
-                    </InfoPopover>
-                </div>
-                <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
-                    {{ contest.name }}
-                </h1>
-                <p class="mt-3 text-sm text-slate-400">
-                    {{ contest.legs_count }} legs · Deadline
-                    {{ formatDate(contest.entry_deadline_at) }}
+            <div class="mt-6 mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-[#232d42] pb-6">
+    <div>
+        <div class="flex items-center gap-2">
+            <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
+                Managing
+            </p>
+            <InfoPopover title="Managing your contest">
+                <p>
+                    Share the invite link with anyone you want in the contest. Their
+                    requests appear below for you to approve or reject.
                 </p>
-            </div>
+                <p>
+                    You've already made your picks at creation — they're locked in and
+                    shown above. You play against everyone you accept.
+                </p>
+                <p class="text-slate-400">
+                    Everyone else's picks stay hidden until the contest settles.
+                </p>
+            </InfoPopover>
+        </div>
+        <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
+            {{ contest.name }}
+        </h1>
+        <p class="mt-3 text-sm text-slate-400">
+            {{ contest.legs_count }} legs · Deadline
+            {{ formatDate(contest.entry_deadline_at) }}
+        </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+        <button
+            v-if="contest.status === 'open'"
+            type="button"
+            @click="scrollToShare"
+            class="cursor-pointer rounded-lg border border-[#232d42] bg-[#111622] px-5 py-2.5 text-[10px] font-black tracking-widest text-slate-300 uppercase transition-colors hover:border-sky-500/40 hover:text-sky-400"
+        >
+            Share invite
+        </button>
+
+        <Link
+            v-if="contest.status === 'settled'"
+            :href="resultsUrl"
+            class="rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
+        >
+            View results →
+        </Link>
+    </div>
+</div>
 
             <!-- SHARE CARD -->
             <section
+                v-if="contest.status === 'open'"
                 id="share-section"
                 class="mb-8 overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
             >
@@ -288,6 +311,74 @@ const statusPill = (status) => {
                             </button>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- YOUR PICKS (locked) -->
+            <section
+                v-if="contest.host_picks.length > 0"
+                class="mb-8 overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
+            >
+                <div
+                    class="flex items-center justify-between border-b border-[#232d42] bg-[#111a30] px-5 py-3"
+                >
+                    <span
+                        class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
+                    >
+                        Your picks (locked)
+                    </span>
+                    <span
+                        class="font-mono text-[10px] tracking-widest text-slate-500 uppercase"
+                    >
+                        {{ contest.host_picks.length }} legs
+                    </span>
+                </div>
+
+                <ul class="divide-y divide-[#232d42]/60">
+                    <li
+                        v-for="(pick, i) in contest.host_picks"
+                        :key="pick.leg_id"
+                        class="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+                    >
+                        <div class="min-w-0 flex-1">
+                            <p
+                                class="text-[10px] font-bold tracking-widest text-slate-500 uppercase"
+                            >
+                                Leg {{ i + 1 }} · {{ pick.market }}
+                            </p>
+                            <p class="mt-0.5 truncate text-sm font-bold text-slate-200">
+                                {{ pick.home_team }}
+                                <span class="text-slate-500">vs</span>
+                                {{ pick.away_team }}
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <template v-if="pick.selection">
+                                <span
+                                    class="rounded border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-[10px] font-black tracking-wide text-emerald-400 uppercase"
+                                >
+                                    {{ pick.selection }}
+                                </span>
+                                <span class="font-mono text-[10px] text-amber-400">
+                                    @{{ Number(pick.odds).toFixed(2) }}
+                                </span>
+                            </template>
+                            <span
+                                v-else
+                                class="text-[10px] font-bold tracking-widest text-slate-600 uppercase"
+                            >
+                                —
+                            </span>
+                        </div>
+                    </li>
+                </ul>
+
+                <div
+                    class="border-t border-[#232d42] bg-[#0a101f] px-5 py-2 text-[10px] text-slate-500"
+                >
+                    Your picks are locked at creation. To change them, start a new
+                    contest.
                 </div>
             </section>
 

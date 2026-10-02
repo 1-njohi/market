@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Contest;
 use App\Models\ContestEntry;
+use App\Models\ContestPick;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use App\Notifications\ContestJoinRequestedNotification;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -32,6 +32,16 @@ class ContestJoinController extends Controller
                 ->first()
             : null;
 
+        // Host's picks, keyed by leg id, for the invite preview.
+        $hostEntry = ContestEntry::where('contest_id', $contest->id)
+            ->where('user_id', $contest->host_id)
+            ->with('picks')
+            ->first();
+
+        $hostPicksByLeg = $hostEntry
+            ? $hostEntry->picks->keyBy('contest_leg_id')
+            : collect();
+
         $canJoin = $user
             && !$isHost
             && $contest->isOpen()
@@ -48,17 +58,23 @@ class ContestJoinController extends Controller
                 'entry_deadline_at' => $contest->entry_deadline_at->toISOString(),
                 'starts_at'         => $contest->starts_at->toISOString(),
                 'ends_at'           => $contest->ends_at->toISOString(),
-                'legs' => $contest->legs->map(function ($leg) {
+                'legs' => $contest->legs->map(function ($leg) use ($hostPicksByLeg) {
+                    $hostPick = $hostPicksByLeg->get($leg->id);
+
                     return [
-                        'id'       => $leg->id,
-                        'fixture'  => [
+                        'id'      => $leg->id,
+                        'fixture' => [
                             'home_team' => $leg->fixture?->homeTeam?->name ?? 'Unknown',
                             'away_team' => $leg->fixture?->awayTeam?->name ?? 'Unknown',
                             'kickoff'   => $leg->fixture?->date
                                 ? \Carbon\Carbon::parse($leg->fixture->date)->toISOString()
                                 : null,
                         ],
-                        'market'   => $leg->market?->name ?? 'Unknown Market',
+                        'market'    => $leg->market?->name ?? 'Unknown Market',
+                        'host_pick' => $hostPick ? [
+                            'selection' => $hostPick->selection,
+                            'odds'      => (float) $hostPick->odds_at_pick,
+                        ] : null,
                     ];
                 })->values()->all(),
             ],
@@ -103,7 +119,9 @@ class ContestJoinController extends Controller
             'joined_at'  => now(),
         ]);
 
-        $contest->host->notify(new ContestJoinRequestedNotification($contest, $user));
+        $contest->host->notify(
+            new \App\Notifications\ContestJoinRequestedNotification($contest, $user)
+        );
 
         return redirect("/contests/join/{$contest->uuid}");
     }

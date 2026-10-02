@@ -57,9 +57,6 @@ const totalFixtures = computed(() =>
     props.leagues.reduce((sum, l) => sum + (l.fixtures?.length ?? 0), 0),
 );
 
-/**
- * Find the selected leg for a (fixture, market) pair, or null.
- */
 const currentSelection = (fixtureId, marketId) => {
     const leg = props.selectedLegs.find(
         (l) => l.fixture_id === fixtureId && l.market_id === marketId,
@@ -67,15 +64,9 @@ const currentSelection = (fixtureId, marketId) => {
     return leg?.selection ?? null;
 };
 
-/**
- * Is this fixture already picked in any market?
- */
 const fixtureIsPicked = (fixtureId) =>
     props.selectedLegs.some((l) => l.fixture_id === fixtureId);
 
-/**
- * Are we at the leg cap and this fixture isn't already in the list?
- */
 const fixtureIsLocked = (fixtureId) =>
     props.selectedLegs.length >= props.maxLegs &&
     !fixtureIsPicked(fixtureId);
@@ -91,6 +82,13 @@ const onPick = (fixture, market, option) => {
         kickoff: fixture.kickoff,
         options: market.options ?? [],
     });
+};
+
+const gridClass = (optionCount) => {
+    if (optionCount === 3) return 'grid-cols-3';
+    if (optionCount === 2) return 'grid-cols-2';
+    if (optionCount === 4) return 'grid-cols-4';
+    return 'grid-cols-3';
 };
 
 const formatKickoff = (iso) => {
@@ -224,37 +222,36 @@ const formatOdd = (value) => {
                     <div
                         v-for="fixture in league.fixtures"
                         :key="fixture.id"
-                        class="p-4 transition-colors"
+                        class="p-4 transition-opacity"
                         :class="
-                            fixtureIsLocked(fixture.id)
-                                ? 'opacity-40'
-                                : ''
+                            fixtureIsLocked(fixture.id) ? 'opacity-40' : ''
                         "
                     >
                         <!-- FIXTURE HEADER -->
-                        <div
-                            class="mb-3 flex items-center justify-between gap-3"
-                        >
-                            <div class="min-w-0">
-                                <p
-                                    class="text-[10px] font-bold tracking-widest text-slate-500 uppercase"
-                                >
-                                    {{ formatKickoff(fixture.kickoff) }}
-                                </p>
-                                <p
-                                    class="mt-0.5 truncate text-sm font-bold text-slate-200"
-                                >
-                                    {{ fixture.home_team }}
-                                    <span class="text-slate-500">vs</span>
-                                    {{ fixture.away_team }}
-                                </p>
-                            </div>
-                            <span
-                                v-if="fixtureIsPicked(fixture.id)"
-                                class="flex-shrink-0 rounded border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] font-black tracking-widest text-emerald-400 uppercase"
+                        <div class="mb-3">
+                            <div
+                                class="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-slate-500 uppercase"
                             >
-                                Picked
-                            </span>
+                                <span class="text-amber-400">
+                                    {{ formatKickoff(fixture.kickoff) }}
+                                </span>
+                                <span
+                                    v-if="fixtureIsPicked(fixture.id)"
+                                    class="ml-auto rounded border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] font-black tracking-widest text-emerald-400"
+                                >
+                                    Picked
+                                </span>
+                            </div>
+                            <p
+                                class="mt-1 text-[11px] font-bold tracking-wide text-white uppercase"
+                            >
+                                <span class="block">{{
+                                    fixture.home_team
+                                }}</span>
+                                <span class="block">{{
+                                    fixture.away_team
+                                }}</span>
+                            </p>
                         </div>
 
                         <!-- MARKETS -->
@@ -268,7 +265,10 @@ const formatOdd = (value) => {
                                 >
                                     {{ market.label }}
                                 </p>
-                                <div class="flex flex-wrap gap-2">
+                                <div
+                                    class="grid gap-1"
+                                    :class="gridClass(market.options.length)"
+                                >
                                     <button
                                         v-for="option in market.options"
                                         :key="option.value"
@@ -276,28 +276,32 @@ const formatOdd = (value) => {
                                         :disabled="fixtureIsLocked(fixture.id)"
                                         @click="onPick(fixture, market, option)"
                                         :class="[
-                                            'flex flex-1 min-w-[6rem] items-center justify-between gap-2 rounded border px-3 py-2 text-[11px] font-bold tracking-wide uppercase transition-all',
-                                            currentSelection(fixture.id, market.id) ===
-                                            option.value
-                                                ? 'border-amber-500/60 bg-amber-500/10 text-white ring-1 ring-amber-500/40'
-                                                : 'border-[#232d42] bg-[#0a101f] text-slate-300 hover:border-sky-500/40 hover:text-sky-400',
+                                            'flex flex-col items-center justify-center rounded border px-2 py-2 text-center transition-all',
+                                            currentSelection(
+                                                fixture.id,
+                                                market.id,
+                                            ) === option.value
+                                                ? 'border-amber-500 bg-amber-500/20 text-white ring-1 ring-amber-500/40'
+                                                : 'border-transparent bg-[#111a30]/80 text-slate-300 hover:bg-[#232d42]/60',
                                             fixtureIsLocked(fixture.id)
                                                 ? 'cursor-not-allowed'
                                                 : 'cursor-pointer',
                                         ]"
                                     >
-                                        <span class="truncate">
+                                        <span
+                                            class="truncate text-[9px] font-bold tracking-wider text-slate-500 uppercase"
+                                        >
                                             {{ option.value }}
                                         </span>
                                         <span
-                                            class="font-mono text-[10px]"
+                                            class="mt-0.5 font-mono text-sm font-black"
                                             :class="
                                                 currentSelection(
                                                     fixture.id,
                                                     market.id,
                                                 ) === option.value
-                                                    ? 'text-amber-400'
-                                                    : 'text-slate-500'
+                                                    ? 'text-white'
+                                                    : 'text-amber-400'
                                             "
                                         >
                                             {{ formatOdd(option.odd) }}
