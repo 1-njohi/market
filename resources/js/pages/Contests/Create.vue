@@ -108,7 +108,7 @@ const formatKickoff = (iso) => {
     <Head title="Create Contest — Betslip Pirates" />
 
     <div class="min-h-screen font-sans text-slate-300">
-        <div class="mx-auto w-full max-w-4xl px-4 py-12 md:px-6 lg:px-8">
+        <div class="mx-auto w-full max-w-4xl px-2 py-12 md:px-6 lg:px-8">
             <Link
                 href="/contests/mine"
                 class="text-[10px] font-black tracking-widest text-sky-400 uppercase hover:underline"

@@ -30,7 +30,7 @@ const statusClass = (status) => {
     <Head title="My Contests — Betslip Pirates" />
 
     <div class="min-h-screen font-sans text-slate-300">
-        <div class="mx-auto w-full max-w-4xl px-4 py-12 md:px-6 lg:px-8">
+        <div class="mx-auto w-full max-w-4xl px-2 py-12 md:px-6 lg:px-8">
             <div class="mb-8 flex items-end justify-between border-b border-[#232d42] pb-6">
                 <div>
                     <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
