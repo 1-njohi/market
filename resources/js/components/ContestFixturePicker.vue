@@ -12,7 +12,6 @@ const emit = defineEmits(['toggle-leg']);
 const search = ref('');
 const expandedLeagueIds = ref(new Set());
 
-// Auto-expand the first league that has fixtures.
 const firstLeagueId = computed(() => {
     const first = props.leagues.find((l) => (l.fixtures ?? []).length > 0);
     return first?.id ?? null;
@@ -85,8 +84,8 @@ const onPick = (fixture, market, option) => {
 };
 
 const gridClass = (optionCount) => {
-    if (optionCount === 3) return 'grid-cols-3';
     if (optionCount === 2) return 'grid-cols-2';
+    if (optionCount === 3) return 'grid-cols-3';
     if (optionCount === 4) return 'grid-cols-4';
     return 'grid-cols-3';
 };
@@ -281,7 +280,7 @@ const formatOdd = (value) => {
                                                 fixture.id,
                                                 market.id,
                                             ) === option.value
-                                                ? 'border-amber-500 bg-amber-500/20 text-white ring-1 ring-amber-500/40'
+                                                ? 'border-marketplace-gold bg-marketplace-gold/20 text-white ring-1 ring-marketplace-gold/40'
                                                 : 'border-transparent bg-[#111a30]/80 text-slate-300 hover:bg-[#232d42]/60',
                                             fixtureIsLocked(fixture.id)
                                                 ? 'cursor-not-allowed'

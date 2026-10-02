@@ -1,102 +1,93 @@
 <template>
     <div class="w-full font-sans">
-        <!-- ═══════ SECTION HEADER (outside the cards) ═══════ -->
+        <!-- ═══════ SECTION HEADER ═══════ -->
         <div
-            class="block items-center justify-between border-b border-marketplace-border/60 p-4 md:flex md:rounded-t-xl md:bg-marketplace-card/40"
+            class="mb-4 flex flex-col items-start justify-between gap-3 border-b border-[#232d42] pb-4 md:flex-row md:items-center"
         >
-            <div class="flex items-center space-x-3">
-                <div
-                    class="flex h-10 w-10 items-center justify-center rounded-full border border-marketplace-gold/30 bg-marketplace-gold/10"
+            <div class="flex items-center gap-2 text-sky-400">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="2.5"
+                    stroke="currentColor"
+                    class="h-4 w-4"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="2.5"
-                        stroke="currentColor"
-                        class="h-4 w-4 text-marketplace-gold"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-6.75c-.621 0-1.125.504-1.125 1.125v3.375m9 0h-9M9 3.75h6M9 3.75a3 3 0 0 0-3 3v2.25c0 .621.503 1.125 1.125 1.125h6.75A1.125 1.125 0 0 0 15 9.375V6.75a3 3 0 0 0-3-3Z"
-                        />
-                    </svg>
-                </div>
-                <div>
-                    <h3
-                        class="text-xs font-bold tracking-widest text-white uppercase"
-                    >
-                        Top Tipsters
-                    </h3>
-                    <div
-                        class="mt-0.5 text-[10px] font-semibold tracking-wide text-marketplace-muted uppercase"
-                    >
-                        Monthly Standings
-                    </div>
-                </div>
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-6.75c-.621 0-1.125.504-1.125 1.125v3.375m9 0h-9M9 3.75h6M9 3.75a3 3 0 0 0-3 3v2.25c0 .621.503 1.125 1.125 1.125h6.75A1.125 1.125 0 0 0 15 9.375V6.75a3 3 0 0 0-3-3ZM9 3.75h6m-6 0c0-.621.503-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125"
+                    />
+                </svg>
+                <h3
+                    class="text-xs font-black tracking-widest text-white uppercase"
+                >
+                    Top Tipsters
+                </h3>
+                <span
+                    class="ml-2 rounded border border-sky-500/30 bg-sky-500/5 px-1.5 py-0.5 font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase"
+                >
+                    Monthly
+                </span>
             </div>
 
-            <span
-                class="mt-2 block text-[10px] font-bold tracking-wider text-marketplace-muted uppercase md:mt-0 md:block"
-            >
-                {{ leaders.length }} Ranked
-            </span>
-        </div>
-
-        <!-- ═══════ SEARCH BAR (outside the cards) ═══════ -->
-        <div
-            class="marketplace-border/40 mb-6 border-b border-[#232d42] bg-marketplace-card/30 p-3 pb-6"
-        >
-            <div class="relative w-full select-none">
-                <div
-                    class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-marketplace-muted"
+            <div class="flex w-full items-center gap-3 md:w-auto">
+                <span
+                    class="hidden text-[10px] font-bold tracking-wider text-slate-500 uppercase md:inline"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="2.5"
-                        stroke="currentColor"
-                        class="h-4 w-4"
+                    {{ leaders.length }} Ranked
+                </span>
+
+                <div class="relative w-full select-none md:w-72">
+                    <div
+                        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.604 10.604Z"
-                        />
-                    </svg>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="2.5"
+                            stroke="currentColor"
+                            class="h-4 w-4"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.604 10.604Z"
+                            />
+                        </svg>
+                    </div>
+
+                    <input
+                        type="text"
+                        v-model="searchQuery"
+                        @keyup.enter="submitSearch"
+                        placeholder="Search seller by code"
+                        class="w-full rounded-lg border border-[#232d42] bg-[#111622] py-2 pr-9 pl-10 text-xs font-semibold tracking-wide text-white placeholder-slate-500 transition-all duration-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 focus:outline-none"
+                    />
+
+                    <button
+                        v-if="searchQuery"
+                        type="button"
+                        @click="clearSearch"
+                        class="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-slate-500 transition-colors hover:text-slate-300"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="2.5"
+                            stroke="currentColor"
+                            class="h-4 w-4"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M6 18 18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </button>
                 </div>
-
-                <input
-                    type="text"
-                    v-model="searchQuery"
-                    @keyup.enter="submitSearch"
-                    placeholder="Search seller by code"
-                    class="w-full rounded-lg border border-[#232d42] bg-[#111622] py-2 pr-9 pl-10 text-xs font-semibold tracking-wide text-white placeholder-slate-500 transition-all duration-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 focus:outline-none"
-                />
-
-                <button
-                    v-if="searchQuery"
-                    type="button"
-                    @click="clearSearch"
-                    class="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-marketplace-muted transition-colors hover:text-white"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="2.5"
-                        stroke="currentColor"
-                        class="h-4 w-4"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M6 18 18 6M6 6l12 12"
-                        />
-                    </svg>
-                </button>
             </div>
         </div>
 
@@ -111,7 +102,7 @@
         >
             <div
                 v-if="searchedSeller"
-                class="overflow-hidden border-b border-marketplace-gold/30 bg-marketplace-gold/5"
+                class="mb-3 overflow-hidden rounded-lg border border-marketplace-gold/30 bg-marketplace-gold/5"
             >
                 <div
                     class="flex items-center justify-between border-b border-marketplace-gold/20 px-4 py-2"
@@ -123,7 +114,7 @@
                     </span>
                     <button
                         @click="clearSearch"
-                        class="cursor-pointer text-[10px] font-black tracking-wider text-marketplace-muted uppercase hover:text-white"
+                        class="cursor-pointer text-[10px] font-black tracking-wider text-slate-400 uppercase hover:text-white"
                     >
                         Dismiss
                     </button>
@@ -153,14 +144,14 @@
         <!-- ═══════ EMPTY STATE ═══════ -->
         <div
             v-else-if="!searchedSeller"
-            class="p-8 text-center font-mono text-xs tracking-wider text-marketplace-muted uppercase"
+            class="rounded-lg border border-[#232d42] bg-[#161c2a] p-8 text-center font-mono text-xs tracking-wider text-slate-500 uppercase"
         >
             No tipsters on the board yet.
         </div>
 
-        <!-- ═══════ FOOTER — matches "View More Betslips" ═══════ -->
+        <!-- ═══════ FOOTER ═══════ -->
         <div
-            class="w-full rounded-b-xl border-t border-marketplace-border/50 bg-marketplace-card/40 p-4 text-center"
+            class="mt-4 w-full rounded-lg border border-[#232d42] bg-[#111622]/40 p-4 text-center"
         >
             <button
                 @click="$emit('view-all-clicked')"

@@ -15,7 +15,7 @@
             >
                 <!-- Seller Avatar -->
                 <div
-                    class="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-marketplace-gold/30 bg-marketplace-gold/10"
+                    class="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-marketplace-border bg-marketplace-muted/10"
                 >
                     <img
                         :src="
@@ -63,7 +63,7 @@
                         <span class="text-marketplace-border">•</span>
                         <span>
                             Win Rate:
-                            <span class="font-bold text-marketplace-gold">
+                            <span class="font-bold text-white">
                                 {{ slip.seller.win_rate }}%
                             </span>
                         </span>
@@ -71,7 +71,7 @@
 
                     <!-- Explicit "View profile" hint -->
                     <span
-                        class="mt-1 inline-flex items-center gap-1 text-[9px] font-black tracking-widest text-marketplace-gold/70 uppercase transition-colors group-hover:text-marketplace-gold"
+                        class="mt-1 inline-flex items-center gap-1 text-[9px] font-black tracking-widest text-marketplace-muted uppercase transition-colors group-hover:text-marketplace-gold"
                     >
                         View profile
                         <svg
@@ -91,9 +91,8 @@
                     </span>
                 </div>
             </button>
-            
 
-            <!-- Mini-Heatmap (unchanged) -->
+            <!-- Mini-Heatmap -->
             <div class="flex flex-shrink-0 flex-col items-end">
                 <div class="flex space-x-1">
                     <span
@@ -125,18 +124,7 @@
                 </span>
             </div>
         </div>
-<!-- SELLER BIO -->
-<div
-    v-if="slip.seller.bio"
-    class="border-b border-marketplace-border/40 bg-marketplace-card/50 px-4 py-2.5"
->
-    <p
-        class="text-[11px] leading-relaxed text-marketplace-muted"
-        :title="slip.seller.bio"
-    >
-        {{ truncate(slip.seller.bio, 140) }}
-    </p>
-</div>
+
         <!-- 2. Bet Summary: Multibet / Singlebet + Total Odds -->
         <div
             class="flex flex-col border-b border-marketplace-border/40 bg-marketplace-card/30 select-none"
@@ -144,7 +132,7 @@
             <div
                 class="flex items-center justify-between px-4 pt-3 pb-1.5 text-xs font-bold tracking-wider uppercase"
             >
-                <div class="flex items-center space-x-2 text-marketplace-gold">
+                <div class="flex items-center space-x-2 text-slate-400">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -200,7 +188,7 @@
                         type="button"
                         @click="copyToClipboard(slip.code)"
                         title="Copy tracking code"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-marketplace-gold uppercase transition-all hover:border-marketplace-gold/50 hover:bg-marketplace-gold/10 active:scale-95"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-slate-300 uppercase transition-all hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-400 active:scale-95"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -224,7 +212,7 @@
                         type="button"
                         @click="shareSlip"
                         title="Share this betslip"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-marketplace-gold uppercase transition-all hover:border-marketplace-gold/50 hover:bg-marketplace-gold/10 active:scale-95"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-slate-300 uppercase transition-all hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-400 active:scale-95"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -282,7 +270,7 @@
                             >Market</span
                         >
                         <span
-                            class="text-xs font-semibold tracking-wide text-marketplace-gold"
+                            class="text-xs font-semibold tracking-wide text-slate-200"
                             >{{ leg.market_name }}</span
                         >
                     </div>
@@ -291,14 +279,14 @@
                     <div class="col-span-2 text-right">
                         <div
                             v-if="isLocked"
-                            class="flex w-full cursor-pointer flex-col items-center justify-center rounded border border-dashed border-marketplace-gold/40 bg-marketplace-card/50 py-1.5 text-marketplace-gold select-none"
+                            class="flex w-full cursor-pointer flex-col items-center justify-center rounded border border-dashed border-marketplace-border bg-marketplace-card/50 py-1.5 text-slate-500 select-none"
                             @click="$emit('unlock-clicked', slip)"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
-                                class="h-3 w-3 text-marketplace-amber"
+                                class="h-3 w-3 text-slate-500"
                             >
                                 <path
                                     fill-rule="evenodd"
@@ -327,14 +315,11 @@
             class="relative mx-2 mt-1 mb-2 overflow-hidden rounded-xl bg-gradient-to-br from-marketplace-card/80 to-marketplace-card p-4 shadow-sm"
         >
             <div
-                class="absolute -top-2 -left-2 text-7xl font-black text-marketplace-gold/10 select-none"
+                class="absolute -top-2 -left-2 text-7xl font-black text-white/5 select-none"
             >
                 "
             </div>
-            <div
-                class="relative flex items-start space-x-3"
-                v-if="slip.caption"
-            >
+            <div class="relative flex items-start space-x-3">
                 <div class="flex-1">
                     <p
                         class="text-sm leading-relaxed font-medium text-white/90"
@@ -342,7 +327,7 @@
                         {{ slip.caption }}
                     </p>
                     <span
-                        class="mt-1 block text-[10px] font-bold tracking-widest text-marketplace-gold/60 uppercase"
+                        class="mt-1 block text-[10px] font-bold tracking-widest text-marketplace-muted uppercase"
                     >
                         — Seller's insight
                     </span>
@@ -429,13 +414,6 @@ const formatTime = (timeStr) => {
         date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
         ' UTC'
     );
-};
-
-const truncate = (text, max) => {
-    if (!text) return '';
-    if (text.length <= max) return text;
-    return text.slice(0, max).trimEnd() + '…';
-    
 };
 
 const shareSlip = () => {
