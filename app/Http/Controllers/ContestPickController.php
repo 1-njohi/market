@@ -98,20 +98,16 @@ class ContestPickController extends Controller
         if (!$user) {
             abort(403);
         }
-
-        if ((int) $contest->host_id === (int) $user->id) {
-            abort(403);
-        }
-
+    
         $entry = ContestEntry::where('contest_id', $contest->id)
             ->where('user_id', $user->id)
             ->where('status', 'accepted')
             ->first();
-
+    
         if (!$entry) {
             abort(403);
         }
-
+    
         return $entry;
     }
 }

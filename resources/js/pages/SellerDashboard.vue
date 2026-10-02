@@ -632,6 +632,7 @@
                             </div>
                         </div>
                     </div>
+                    <ContestsCard :contests="seller_data.contests ?? []" />
                     <!-- ACTIVITY -->
                     <div
                         class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
@@ -1024,6 +1025,7 @@ import WithdrawalPopover from '@/components/WithdrawalPopover.vue';
 import NotificationBell from '@/components/NotificationBell.vue';
 import ReferralCard from '@/components/ReferralCard.vue';
 import DashboardSwitcher from '@/components/DashboardSwitcher.vue';
+import ContestsCard from '@/components/ContestsCard.vue';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 

@@ -642,6 +642,7 @@
                             </div>
                         </div>
                     </div>
+                    <ContestsCard :contests="buyer_data.contests ?? []" />
                     <!-- RECENT ACTIVITY AUDIT LOG -->
                     <div
                         class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"

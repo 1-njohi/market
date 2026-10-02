@@ -48,6 +48,7 @@ class HostContestController extends Controller
         }
 
         $entries = ContestEntry::where('contest_id', $contest->id)
+            ->where('user_id', '!=', $contest->host_id)
             ->with('user:id,name,code,email_verified_at')
             ->orderByRaw("CASE status WHEN 'pending' THEN 1 WHEN 'accepted' THEN 2 WHEN 'rejected' THEN 3 ELSE 4 END")
             ->orderByDesc('joined_at')

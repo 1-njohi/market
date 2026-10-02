@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import InfoPopover from '@/components/InfoPopover.vue';
 
 const page = usePage();
 const contest = computed(() => page.props.contest);
@@ -33,14 +34,25 @@ const formatKickoff = (iso) => {
         <div class="mx-auto w-full max-w-3xl px-2 py-12 md:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-8 border-b border-[#232d42] pb-6">
-                <p
-                    class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
-                >
-                    Contest Invite
-                </p>
-                <h1
-                    class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl"
-                >
+                <div class="flex items-center gap-2">
+                    <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
+                        Contest Invite
+                    </p>
+                    <InfoPopover title="How contests work">
+                        <p>
+                            A private challenge hosted by someone you know. Everyone
+                            picks the same fixtures and competes on who does better.
+                        </p>
+                        <p>
+                            When you request to join, the host approves. Once accepted,
+                            make your picks for each leg before the deadline.
+                        </p>
+                        <p class="text-slate-400">
+                            Free to play. No money changes hands.
+                        </p>
+                    </InfoPopover>
+                </div>
+                <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
                     {{ contest.name }}
                 </h1>
                 <p class="mt-3 text-sm text-slate-400">
@@ -83,12 +95,17 @@ const formatKickoff = (iso) => {
                     >
                         Your request is waiting for the host to approve it.
                     </p>
-                    <p
-                        v-else-if="entry.status === 'accepted'"
-                        class="mt-2 text-xs text-slate-400"
-                    >
-                        You're in. Head to the contest page to make your picks.
+                    <div v-else-if="entry.status === 'accepted'" class="mt-3">
+                    <p class="text-xs text-slate-400">
+                        You're in. Make your picks before the deadline.
                     </p>
+                    <Link
+                        :href="`/contests/${contest.uuid}/picks`"
+                        class="mt-3 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
+                    >
+                        Make picks →
+                    </Link>
+                </div>
                     <p v-else class="mt-2 text-xs text-slate-400">
                         Your request was not approved.
                     </p>
@@ -126,6 +143,19 @@ const formatKickoff = (iso) => {
                     >
                         Request to join
                     </button>
+                </template>
+
+                <template v-else-if="page.props.is_host">
+                    <p class="text-xs text-slate-400">
+                        You're hosting this contest. Manage entries and share the invite
+                        from your management page.
+                    </p>
+                    <Link
+                        :href="`/contests/${contest.uuid}/manage`"
+                        class="mt-4 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
+                    >
+                        Manage contest
+                    </Link>
                 </template>
 
                 <template v-else>

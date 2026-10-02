@@ -43,13 +43,23 @@ class ContestCreateTest extends TestCase
         $host = $this->makeUser('Host');
         $s    = $this->fixtureSet();
 
+        // Need 5 legs — minimum is 5.
+        $extraFixtures = [
+            $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(6)),
+            $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(8)),
+            $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(10)),
+        ];
+
         $response = $this->actingAs($host)->post('/contests', [
             'name'              => 'Sunday Crew',
             'description'       => 'Weekly challenge.',
             'entry_deadline_at' => now()->addHour()->toDateTimeString(),
             'legs' => [
-                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id],
-                ['fixture_id' => $s['fixtures'][1]->id, 'market_id' => $s['market2']->id],
+                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => $s['fixtures'][1]->id, 'market_id' => $s['market2']->id, 'selection' => 'Over 2.5'],
+                ['fixture_id' => $extraFixtures[0]->id, 'market_id' => $s['market1']->id, 'selection' => 'Away'],
+                ['fixture_id' => $extraFixtures[1]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => $extraFixtures[2]->id, 'market_id' => $s['market1']->id, 'selection' => 'Away'],
             ],
         ]);
 
@@ -59,10 +69,8 @@ class ContestCreateTest extends TestCase
         $this->assertSame('Sunday Crew', $contest->name);
         $this->assertSame('private', $contest->visibility);
         $this->assertSame('open', $contest->status);
-        $this->assertCount(2, $contest->legs);
+        $this->assertCount(5, $contest->legs);
 
-        // Starts_at / ends_at are computed from the earliest and latest
-        // fixture kickoffs among the legs.
         $this->assertEquals(
             $s['fixtures'][0]->date,
             $contest->starts_at->toDateTimeString()
@@ -122,12 +130,22 @@ class ContestCreateTest extends TestCase
         $host = $this->makeUser('Host');
         $s    = $this->fixtureSet();
 
+        $extras = [
+            $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(6)),
+            $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(8)),
+            $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(10)),
+        ];
+
         // Fixture kicks off in 2 hours; deadline is 3 hours from now.
         $response = $this->actingAs($host)->post('/contests', [
             'name'              => 'Bad deadline',
             'entry_deadline_at' => now()->addHours(3)->toDateTimeString(),
             'legs' => [
-                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id],
+                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => $s['fixtures'][1]->id, 'market_id' => $s['market1']->id, 'selection' => 'Away'],
+                ['fixture_id' => $extras[0]->id,        'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => $extras[1]->id,        'market_id' => $s['market1']->id, 'selection' => 'Away'],
+                ['fixture_id' => $extras[2]->id,        'market_id' => $s['market1']->id, 'selection' => 'Home'],
             ],
         ]);
 
@@ -168,7 +186,7 @@ class ContestCreateTest extends TestCase
         $this->assertSame(0, Contest::count());
     }
 
-    public function test_leg_cap_enforced_at_twenty(): void
+    public function test_leg_cap_enforced_at_fifty(): void
     {
         $host   = $this->makeUser('Host');
         $s      = $this->fixtureSet();
@@ -177,7 +195,7 @@ class ContestCreateTest extends TestCase
         $away   = $s['away'];
 
         $legs = [];
-        for ($i = 0; $i < 25; $i++) {
+        for ($i = 0; $i < 55; $i++) {
             $fx = $this->makeFixture($league, $home, $away);
             $legs[] = ['fixture_id' => $fx->id, 'market_id' => $s['market1']->id];
         }
@@ -190,7 +208,6 @@ class ContestCreateTest extends TestCase
 
         $response->assertSessionHasErrors('legs');
     }
-
     // ------------------ helpers ------------------
 
     private function fixtureSet(): array

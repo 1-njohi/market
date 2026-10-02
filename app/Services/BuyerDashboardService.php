@@ -13,6 +13,7 @@ class BuyerDashboardService
         protected WalletService $walletService,
         protected WatchlistService $watchlist,
         protected ReferralService $referralService,
+        protected ContestService $contestService,
     ) {
     }
 
@@ -33,6 +34,7 @@ class BuyerDashboardService
             'quick_stats' => $this->getQuickStats($user),
             'notifications' => $this->getNotifications($user),
             'following_stats' => $this->getFollowingStats($user),
+            'contests' => $this->contestService->activeForUser($user),
         ];
     }
 

@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import InfoPopover from '@/components/InfoPopover.vue';
 
 const page = usePage();
 const contest = computed(() => page.props.contest);
@@ -72,14 +73,29 @@ const formatKickoff = (iso) => {
 
             <!-- Header -->
             <div class="mt-6 mb-8 border-b border-[#232d42] pb-6">
-                <p
-                    class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
-                >
-                    Your picks
-                </p>
-                <h1
-                    class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl"
-                >
+                <div class="flex items-center gap-2">
+                    <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
+                        Your picks
+                    </p>
+                    <InfoPopover title="How picks are scored">
+                        <p>
+                            Pick one selection for each leg. Correct picks earn the
+                            odds value as points, wrong picks earn zero.
+                        </p>
+                        <div class="rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-[11px]">
+                            <p class="text-emerald-400">Correct: +odds as points</p>
+                            <p class="text-rose-400">Wrong: 0 points</p>
+                            <p class="text-slate-400">Void: 0 points, excluded</p>
+                        </div>
+                        <p>
+                            Ranked by correct count first, then total points.
+                        </p>
+                        <p class="text-slate-400">
+                            You can change your picks any time before the deadline.
+                        </p>
+                    </InfoPopover>
+                </div>
+                <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
                     {{ contest.name }}
                 </h1>
                 <p class="mt-3 text-sm text-slate-400">

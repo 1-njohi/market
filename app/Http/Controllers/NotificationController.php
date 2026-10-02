@@ -31,13 +31,17 @@ class NotificationController extends Controller
                     'betslip_code' => $data['betslip_code'] ?? null,
                     'outcome' => $data['outcome'] ?? null,
                     'amount' => $data['amount'] ?? null,
-                    'contest_uuid' => $data['contest_uuid'] ?? null,
                     'referrer_name' => $data['referrer_name'] ?? null,
                     'referee_name' => $data['referee_name'] ?? null,
                     'time' => $notification->created_at->diffForHumans(),
                     'created_at' => $notification->created_at->toISOString(),
                     'read' => !is_null($notification->read_at),
                     'read_at' => $notification->read_at?->toISOString(),
+                    'contest_uuid'   => $data['contest_uuid'] ?? null,
+                    'contest_name'   => $data['contest_name'] ?? null,
+                    'requester_name' => $data['requester_name'] ?? null,
+                    'host_name'      => $data['host_name'] ?? null,
+                    'status'         => $data['status'] ?? null,
                 ];
             });
 

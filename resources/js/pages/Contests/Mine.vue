@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import InfoPopover from '@/components/InfoPopover.vue';
 
 const page = usePage();
 const contests = computed(() => page.props.contests);
@@ -33,9 +34,25 @@ const statusClass = (status) => {
         <div class="mx-auto w-full max-w-4xl px-2 py-12 md:px-6 lg:px-8">
             <div class="mb-8 flex items-end justify-between border-b border-[#232d42] pb-6">
                 <div>
-                    <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
-                        Your contests
-                    </p>
+                    <div class="flex items-center gap-2">
+                        <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
+                            Your contests
+                        </p>
+                        <InfoPopover title="What are private contests?">
+                            <p>
+                                Private contests are challenges you run with people you
+                                invite. You pick a set of fixtures, they join, and
+                                everyone competes on the same picks.
+                            </p>
+                            <p>
+                                When the matches settle, we score everyone and publish
+                                the leaderboard.
+                            </p>
+                            <div class="rounded border border-[#232d42] bg-[#070b14] px-3 py-2 text-[11px] text-slate-400">
+                                Free to run. No wallet, no entry fee.
+                            </div>
+                        </InfoPopover>
+                    </div>
                     <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
                         My Contests
                     </h1>
@@ -50,15 +67,64 @@ const statusClass = (status) => {
 
             <div
                 v-if="contests.length === 0"
-                class="rounded-lg border border-[#232d42] bg-[#161c2a] p-12 text-center"
+                class="overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
             >
-                <p class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
-                    No contests yet
-                </p>
-                <p class="mt-3 text-sm text-slate-400">
-                    Create a private challenge, invite friends, and score picks
-                    against each other. Free to run.
-                </p>
+                <div class="border-b border-[#232d42] bg-[#111a30] p-6 text-center">
+                    <p class="text-3xl">🏴‍☠️</p>
+                    <p
+                        class="mt-3 text-[10px] font-black tracking-widest text-amber-400 uppercase"
+                    >
+                        Private Contests
+                    </p>
+                    <h2
+                        class="mt-2 text-xl font-black tracking-wider text-white uppercase"
+                    >
+                        No contests yet
+                    </h2>
+                </div>
+
+                <div class="space-y-4 p-6 text-center">
+                    <p class="mx-auto max-w-md text-sm leading-relaxed text-slate-400">
+                        Create a private challenge where you and your friends pick
+                        the same fixtures and compete on who does better. Free to run —
+                        no wallet, no entry fee.
+                    </p>
+
+                    <div class="mx-auto max-w-sm space-y-2 text-left">
+                        <div class="flex items-start gap-3">
+                            <span
+                                class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/20 font-mono text-[10px] font-black text-amber-400"
+                            >1</span>
+                            <p class="text-xs text-slate-400">
+                                Pick 5–50 fixtures and set a deadline.
+                            </p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span
+                                class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/20 font-mono text-[10px] font-black text-amber-400"
+                            >2</span>
+                            <p class="text-xs text-slate-400">
+                                Share the invite link. Approve who joins.
+                            </p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span
+                                class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/20 font-mono text-[10px] font-black text-amber-400"
+                            >3</span>
+                            <p class="text-xs text-slate-400">
+                                Everyone makes their picks. We score them when the
+                                matches settle.
+                            </p>
+                        </div>
+                    </div>
+
+                    <Link
+                        href="/contests/create"
+                        class="mt-4 inline-block rounded-lg bg-amber-500 px-6 py-3 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
+                    >
+                        Create your first contest
+                    </Link>
+                </div>
             </div>
 
             <div v-else class="space-y-3">

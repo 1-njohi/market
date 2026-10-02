@@ -6,6 +6,9 @@ use App\Models\Contest;
 use App\Models\ContestLeg;
 use App\Models\Fixture;
 use App\Models\League;
+use App\Models\ContestEntry;
+use App\Models\ContestPick;
+use App\Models\Odd;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -48,15 +51,19 @@ class ContestCreateController extends Controller
                 'id'   => $l->id,
                 'name' => $l->name,
                 'fixtures' => $l->fixtures->map(fn (Fixture $f) => [
-                    'id'         => $f->id,
-                    'home_team'  => $f->homeTeam?->name ?? 'Unknown',
-                    'away_team'  => $f->awayTeam?->name ?? 'Unknown',
-                    'kickoff'    => $f->date,
-                    'markets' => $f->Odds
+                    'id'        => $f->id,
+                    'home_team' => $f->homeTeam?->name ?? 'Unknown',
+                    'away_team' => $f->awayTeam?->name ?? 'Unknown',
+                    'kickoff'   => $f->date,
+                    'markets'   => $f->Odds
                         ->groupBy('market_id')
-                        ->map(fn ($group, $marketId) => [
-                            'id'    => (int) $marketId,
-                            'label' => 'Market ' . $marketId,
+                        ->map(fn ($odds, $marketId) => [
+                            'id'      => (int) $marketId,
+                            'label'   => 'Market ' . $marketId,
+                            'options' => $odds->map(fn ($o) => [
+                                'value' => $o->value,
+                                'odd'   => (float) $o->odd,
+                            ])->values()->all(),
                         ])
                         ->values()
                         ->all(),
@@ -86,12 +93,13 @@ class ContestCreateController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'                 => ['required', 'string', 'max:80'],
-            'description'          => ['nullable', 'string', 'max:500'],
-            'entry_deadline_at'    => ['required', 'date', 'after:now'],
-            'legs' => ['required', 'array', 'min:' . self::MIN_LEGS, 'max:' . self::MAX_LEGS],
-            'legs.*.fixture_id'    => ['required', 'integer'],
-            'legs.*.market_id'     => ['required', 'integer'],
+            'name'                    => ['required', 'string', 'max:80'],
+            'description'             => ['nullable', 'string', 'max:500'],
+            'entry_deadline_at'       => ['required', 'date', 'after:now'],
+            'legs'                    => ['required', 'array', 'min:' . self::MIN_LEGS, 'max:' . self::MAX_LEGS],
+            'legs.*.fixture_id'       => ['required', 'integer'],
+            'legs.*.market_id'        => ['required', 'integer'],
+            'legs.*.selection'        => ['required', 'string', 'max:50'],
         ]);
 
         $deadline = \Carbon\Carbon::parse($validated['entry_deadline_at']);
@@ -108,11 +116,8 @@ class ContestCreateController extends Controller
             ]);
         }
 
-        // Load the fixtures we're actually using.
         $fixtureIds = array_column($validated['legs'], 'fixture_id');
-        $fixtures = Fixture::whereIn('id', $fixtureIds)
-            ->get()
-            ->keyBy('id');
+        $fixtures = Fixture::whereIn('id', $fixtureIds)->get()->keyBy('id');
 
         if ($fixtures->count() !== count(array_unique($fixtureIds))) {
             throw ValidationException::withMessages([
@@ -120,21 +125,29 @@ class ContestCreateController extends Controller
             ]);
         }
 
-        // Validate every market belongs to the fixture.
-        foreach ($validated['legs'] as $leg) {
+        // Confirm each fixture has the requested market and the selection
+        // is a valid option for it.
+        foreach ($validated['legs'] as $i => $leg) {
             $fixture = $fixtures[$leg['fixture_id']];
-            $hasOdd = $fixture->odds()
-                ->where('market_id', $leg['market_id'])
-                ->exists();
 
-            if (!$hasOdd) {
+            $validSelections = $fixture->odds()
+                ->where('market_id', $leg['market_id'])
+                ->pluck('value')
+                ->all();
+
+            if (empty($validSelections)) {
                 throw ValidationException::withMessages([
-                    'legs' => "Market {$leg['market_id']} has no odds for fixture {$leg['fixture_id']}.",
+                    "legs.{$i}.market_id" => "Market {$leg['market_id']} has no odds for this fixture.",
+                ]);
+            }
+
+            if (!in_array($leg['selection'], $validSelections, true)) {
+                throw ValidationException::withMessages([
+                    "legs.{$i}.selection" => "'{$leg['selection']}' is not a valid selection for this leg.",
                 ]);
             }
         }
 
-        // Deadline must precede the earliest kickoff.
         $earliest = $fixtures->min('date');
         if ($deadline->greaterThanOrEqualTo($earliest)) {
             throw ValidationException::withMessages([
@@ -142,11 +155,10 @@ class ContestCreateController extends Controller
             ]);
         }
 
-        // Starts at the earliest kickoff, ends at the latest.
         $latest = $fixtures->max('date');
 
         $contest = DB::transaction(function () use (
-            $validated, $deadline, $fixtures, $earliest, $latest
+            $validated, $deadline, $earliest, $latest
         ) {
             $contest = Contest::create([
                 'host_id'           => Auth::id(),
@@ -159,12 +171,44 @@ class ContestCreateController extends Controller
                 'ends_at'           => $latest,
             ]);
 
+            $legsByFixture = [];
+
             foreach ($validated['legs'] as $leg) {
-                ContestLeg::create([
+                $contestLeg = ContestLeg::create([
                     'contest_id' => $contest->id,
                     'fixture_id' => $leg['fixture_id'],
                     'market_id'  => $leg['market_id'],
                     'status'     => 'pending',
+                ]);
+
+                $legsByFixture[] = [
+                    'contest_leg_id' => $contestLeg->id,
+                    'selection'      => $leg['selection'],
+                ];
+            }
+
+            // Host auto-entry, accepted, with picks.
+            $entry = ContestEntry::create([
+                'contest_id' => $contest->id,
+                'user_id'    => Auth::id(),
+                'status'     => 'accepted',
+                'joined_at'  => now(),
+            ]);
+
+            foreach ($legsByFixture as $leg) {
+                $contestLeg = ContestLeg::find($leg['contest_leg_id']);
+
+                $odd = Odd::where('fixture_id', $contestLeg->fixture_id)
+                    ->where('market_id', $contestLeg->market_id)
+                    ->where('value', $leg['selection'])
+                    ->firstOrFail();
+
+                ContestPick::create([
+                    'contest_entry_id' => $entry->id,
+                    'contest_leg_id'   => $contestLeg->id,
+                    'selection'        => $leg['selection'],
+                    'odds_at_pick'     => $odd->odd,
+                    'status'           => 'pending',
                 ]);
             }
 

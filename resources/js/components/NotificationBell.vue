@@ -319,6 +319,10 @@ const iconEmoji = (type, outcome) => {
             return '🎁';
         case 'referral_signup':
             return '🎉';
+        case 'contest_join_requested': 
+            return '🙋';
+        case 'contest_entry_status':   
+            return '✅';
         default:
             return '🔔';
     }
@@ -350,6 +354,10 @@ const iconBg = (type, outcome) => {
             return 'bg-emerald-500/15 text-emerald-400';
         case 'contest_settled': 
             return 'bg-amber-500/15 text-amber-400';
+        case 'contest_join_requested': 
+            return 'bg-purple-500/15 text-purple-400';
+        case 'contest_entry_status':   
+            return 'bg-sky-500/15 text-sky-400';
         default:
             return 'bg-slate-500/15 text-slate-400';
     }

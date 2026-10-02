@@ -7,6 +7,7 @@ use App\Models\ContestEntry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\ContestJoinRequestedNotification;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,11 +15,16 @@ class ContestJoinController extends Controller
 {
     public function show(string $uuid): Response
     {
-        $contest = Contest::with(['host:id,name,code', 'legs.fixture.homeTeam', 'legs.fixture.awayTeam', 'legs.market'])
-            ->where('uuid', $uuid)
-            ->firstOrFail();
+        $contest = Contest::with([
+            'host:id,name,code',
+            'legs.fixture.homeTeam',
+            'legs.fixture.awayTeam',
+            'legs.market',
+        ])->where('uuid', $uuid)->firstOrFail();
 
         $user = Auth::user();
+
+        $isHost = $user && (int) $user->id === (int) $contest->host_id;
 
         $entry = $user
             ? ContestEntry::where('contest_id', $contest->id)
@@ -27,21 +33,21 @@ class ContestJoinController extends Controller
             : null;
 
         $canJoin = $user
-            && $user->id !== $contest->host_id
+            && !$isHost
             && $contest->isOpen()
             && $entry === null;
 
         return Inertia::render('Contests/Join', [
             'contest' => [
-                'uuid'        => $contest->uuid,
-                'name'        => $contest->name,
-                'description' => $contest->description,
-                'status'      => $contest->status,
-                'host_name'   => $contest->host->name,
-                'host_code'   => $contest->host->code,
+                'uuid'              => $contest->uuid,
+                'name'              => $contest->name,
+                'description'       => $contest->description,
+                'status'            => $contest->status,
+                'host_name'         => $contest->host->name,
+                'host_code'         => $contest->host->code,
                 'entry_deadline_at' => $contest->entry_deadline_at->toISOString(),
-                'starts_at'   => $contest->starts_at->toISOString(),
-                'ends_at'     => $contest->ends_at->toISOString(),
+                'starts_at'         => $contest->starts_at->toISOString(),
+                'ends_at'           => $contest->ends_at->toISOString(),
                 'legs' => $contest->legs->map(function ($leg) {
                     return [
                         'id'       => $leg->id,
@@ -60,6 +66,7 @@ class ContestJoinController extends Controller
                 'id'     => $entry->id,
                 'status' => $entry->status,
             ] : null,
+            'is_host'  => $isHost,
             'can_join' => $canJoin,
         ]);
     }
@@ -95,6 +102,8 @@ class ContestJoinController extends Controller
             'status'     => 'pending',
             'joined_at'  => now(),
         ]);
+
+        $contest->host->notify(new ContestJoinRequestedNotification($contest, $user));
 
         return redirect("/contests/join/{$contest->uuid}");
     }

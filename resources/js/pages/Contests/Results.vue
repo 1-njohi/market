@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import InfoPopover from '@/components/InfoPopover.vue';
 
 const page = usePage();
 const contest = computed(() => page.props.contest);
@@ -32,14 +33,25 @@ const formatKickoff = (iso) => {
         <div class="mx-auto w-full max-w-4xl px-2 py-12 md:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-8 border-b border-[#232d42] pb-6">
-                <p
-                    class="text-[10px] font-black tracking-widest text-amber-400 uppercase"
-                >
-                    Contest Results
-                </p>
-                <h1
-                    class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl"
-                >
+                <div class="flex items-center gap-2">
+                    <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
+                        Contest Results
+                    </p>
+                    <InfoPopover title="How these results are calculated">
+                        <p>
+                            Each correct pick earns the odds value as points. Ties are
+                            broken by total points, then by who joined earliest.
+                        </p>
+                        <p>
+                            Void legs are excluded from scoring — they neither help nor
+                            hurt.
+                        </p>
+                        <p class="text-slate-400">
+                            Click any row to see that player's individual picks.
+                        </p>
+                    </InfoPopover>
+                </div>
+                <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
                     {{ contest.name }}
                 </h1>
                 <p class="mt-3 text-sm text-slate-400">
