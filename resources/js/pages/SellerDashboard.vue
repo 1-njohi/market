@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex min-h-screen flex-col bg-[#070b14] px-4 py-6 font-sans text-slate-200 selection:bg-sky-500/30 selection:text-white lg:px-8 lg:py-10"
+        class="flex min-h-screen flex-col bg-[#070b14] px-2 py-6 font-sans text-slate-200 selection:bg-sky-500/30 selection:text-white lg:px-8 lg:py-10"
     >
         <div class="mx-auto w-full max-w-7xl space-y-6">
             <!-- ═══════════════ HEADER ═══════════════ -->
