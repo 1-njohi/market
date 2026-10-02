@@ -171,7 +171,7 @@ const clearSearch = () => {
     <div class="min-h-screen bg-[#0a1628] font-sans text-slate-300">
         <!-- ═══════════════ HEADER ═══════════════ -->
         <header
-            class="[#070b14] transparent fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1200px] justify-center bg-[#070b14] text-sm not-has-[nav]:hidden md:px-6 lg:px-0"
+            class="[#070b14] transparent fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1200px] justify-center bg-[#] text-sm not-has-[nav]:hidden md:px-6 lg:px-0"
         >
             <nav
                 class="flex w-[95%] items-center justify-between rounded-lg border border-[#232d42] bg-[#161c2a] p-4 shadow-lg md:w-[75rem]"
@@ -261,7 +261,7 @@ const clearSearch = () => {
         <main
             :class="[
                 'mx-auto w-full max-w-[1200px] space-y-8 px-2 md:px-6 lg:px-8',
-                $page.props.auth.user ? 'pt-24' : 'pt-8',
+                $page.props.auth.user ? 'pt-' : 'pt-8',
             ]"
         >
             <!-- ─── Featured Betslips ─── -->
