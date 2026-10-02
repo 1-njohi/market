@@ -1,6 +1,5 @@
 <script setup>
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import Footer from '@/components/Footer.vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 import { computed } from 'vue';
 

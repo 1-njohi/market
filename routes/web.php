@@ -25,32 +25,100 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\Betslip;
+
 /*
 |--------------------------------------------------------------------------
-| Public Routes
+| PUBLIC ROUTES (No authentication required)
 |--------------------------------------------------------------------------
-| No authentication required. Marketing, legal, content, and
-| read-only public pages.
 */
 
+
+// -----Dev ----
+Route::get('/dev/shift-fixture-dates', function () {
+    $earliest = \App\Models\Fixture::min('date');
+
+    if (!$earliest) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'No fixtures found in the database.',
+        ], 404);
+    }
+
+    $delta = (int) \Carbon\Carbon::parse($earliest)
+        ->diffInDays(now()->addDay(), false);
+
+    $affected = \App\Models\Fixture::query()
+        ->whereBetween('date', ['2022-06-06 00:00:00', '2022-08-06 23:59:59'])
+        ->update([
+            'date'      => \DB::raw("datetime(date, '{$delta} days')"),
+            'timestamp' => \DB::raw("strftime('%s', datetime(date, '{$delta} days'))"),
+        ]);
+
+    return response()->json([
+        'status'   => 'ok',
+        'shifted'  => $affected,
+        'delta'    => $delta,
+        'earliest_before' => $earliest,
+        'earliest_after'  => \App\Models\Fixture::min('date'),
+        'latest_after'    => \App\Models\Fixture::max('date'),
+        'upcoming_count'  => \App\Models\Fixture::whereBetween('date', [
+            now(), now()->addDays(14),
+        ])->count(),
+    ]);
+})->name('dev.shift-fixture-dates');
+
+Route::get('/dev/shift-fixture-dates/revert', function () {
+    $earliest = \App\Models\Fixture::min('date');
+
+    if (!$earliest) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'No fixtures found.',
+        ], 404);
+    }
+
+    // Reverse by shifting the shifted set back by the same delta.
+    // We compute delta by comparing "should be tomorrow" against the
+    // current earliest.
+    $delta = (int) \Carbon\Carbon::parse($earliest)
+        ->diffInDays(now()->addDay(), false);
+
+    $affected = \App\Models\Fixture::query()
+        ->whereBetween('date', [now(), now()->addDays(365)])
+        ->update([
+            'date'      => \DB::raw("datetime(date, '{$delta} days')"),
+            'timestamp' => \DB::raw("strftime('%s', datetime(date, '{$delta} days'))"),
+        ]);
+
+    return response()->json([
+        'status'  => 'ok',
+        'shifted' => $affected,
+        'delta'   => $delta,
+    ]);
+})->name('dev.shift-fixture-dates.revert');
+
+
+
+// ── Landing ──
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// ── Marketing / company ──
+// ── Marketing / Company ──
 Route::get('/about', fn() => Inertia::render('About'))->name('about');
 Route::get('/careers', fn() => Inertia::render('Careers'))->name('careers');
 Route::get('/press', fn() => Inertia::render('Press'))->name('press');
 Route::get('/community', fn() => Inertia::render('Community'))->name('community');
 
-// ── Help / support ──
+// ── Help / Support ──
 Route::get('/help', fn() => Inertia::render('HelpCenter'))->name('help');
 Route::get('/faq', fn() => Inertia::render('Faq'))->name('faq');
 Route::get('/how-it-works', fn() => Inertia::render('HowItWorks'))->name('how-it-works');
 
+// ── Contact ──
 Route::get('/contact', fn() => Inertia::render('Contact'))->name('contact');
 Route::post('/contact', function (Request $request) {
     $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
+        'name'    => 'required|string|max:255',
+        'email'   => 'required|email|max:255',
         'subject' => 'required|string|max:255',
         'message' => 'required|string|min:10',
     ]);
@@ -66,33 +134,37 @@ Route::get('/privacy', fn() => Inertia::render('Legal/Privacy'))->name('privacy'
 Route::get('/cookies', fn() => Inertia::render('Legal/Cookies'))->name('cookies');
 Route::get('/responsible-gaming', fn() => Inertia::render('Legal/ResponsibleGaming'))->name('responsible-gaming');
 
-// ── Public data pages ──
+// ── Public Data / Profile Pages ──
 Route::get('/fixture/{id}', [FixtureController::class, 'index'])->name('fixture');
 Route::get('/profile/{user_code}', [ProfileController::class, 'index'])->name('profile');
 Route::get('/sellers/lookup', [SellerLookupController::class, 'show']);
- Route::get('/leaderboard', [LeaderboardController::class, 'index'])
-        ->name('leaderboard');
+Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard');
 
 // ── Reporting ──
 Route::get('/report', fn() => Inertia::render('Report'))->name('report');
 Route::post('/report', [ReportController::class, 'store'])->name('report.submit');
 
-Route::get('/r/{code}', [ReferralLinkController::class, 'show'])
-    ->name('referral.link');
+// ── Referral Links ──
+Route::get('/r/{code}', [ReferralLinkController::class, 'show'])->name('referral.link');
+
+// ── Contest Join (Public View) ──
+Route::get('/contests/join/{uuid}', [\App\Http\Controllers\ContestJoinController::class, 'show'])
+    ->name('contests.join');
+Route::get('/contests/{uuid}/results', [\App\Http\Controllers\ContestResultsController::class, 'show'])
+    ->name('contests.results');
 
 /*
 |--------------------------------------------------------------------------
-| Webhooks
+| WEBHOOKS (Must stay outside auth middleware)
 |--------------------------------------------------------------------------
-| Must stay OUTSIDE the auth middleware — third-party providers
-| (Paystack, etc.) cannot authenticate with session cookies.
+| Third-party providers (Paystack, etc.) cannot authenticate via session.
 */
 
 Route::post('/paystack/webhook', [PaystackController::class, 'webhook'])->name('paystack.webhook');
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated Routes
+| AUTHENTICATED ROUTES (auth + verified)
 |--------------------------------------------------------------------------
 */
 
@@ -100,9 +172,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ── Dashboard ──
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // ── Dev / Maintenance ──
     Route::get('/deletebetslips', function () {
         try {
-            // Load relationships if needed so model events fire (deleting/deleted)
             Betslip::truncate();
 
             return response('Success: All betslips and relationships deleted.', 200);
@@ -110,9 +183,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return response('Fail: ' . $e->getMessage(), 500);
         }
     });
-    // ── Marketplace ──
-    // Guest browsing allowed via withoutMiddleware, but still scoped to
-    // the auth group so that a logged-in user's personalised view renders.
+
+    // ── Marketplace (guest browsing allowed) ──
     Route::prefix('marketplace')->group(function () {
         Route::get('/', [MarketplaceController::class, 'index'])
             ->withoutMiddleware(['auth', 'verified'])
@@ -121,6 +193,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ── Betslips ──
     Route::prefix('betslip')->group(function () {
+        // CRUD / flow
         Route::post('/', [BetslipController::class, 'store'])->name('betslip.store');
         Route::post('/draft', [BetslipController::class, 'draft'])->name('betslip.draft');
         Route::get('/confirm', [BetslipController::class, 'confirm'])->name('betslip.confirm');
@@ -128,38 +201,71 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Legacy alias — kept so existing forms don't break.
         Route::post('/betslip', [BetslipController::class, 'store']);
 
+        // Success / public view
         Route::get('/success/{code}', [BetslipController::class, 'success'])->name('betslip.success');
         Route::get('/view/g/{code}', [BetslipController::class, 'show'])
             ->withoutMiddleware(['auth', 'verified'])
             ->name('betslip.show_guest');
+
+        // Purchase / unlock
         Route::post('/unlock', [BetslipPurchaseController::class, 'purchase'])->name('betslip.purchase');
 
-        // watch routes
+        // Watch / unwatch
         Route::post('/{code}/watch', [\App\Http\Controllers\BetslipWatchController::class, 'store'])
             ->name('betslip.watch');
-
         Route::delete('/{code}/watch', [\App\Http\Controllers\BetslipWatchController::class, 'destroy'])
             ->name('betslip.unwatch');
     });
 
-    // ── Wallet: deposits & withdrawals ──
+    // ── Wallet: Deposits ──
     Route::post('/deposit/initiate', [PaystackController::class, 'initiateDeposit'])->name('deposit.initiate');
     Route::get('/deposit/callback', [PaystackController::class, 'callback'])->name('deposit.callback');
-
-    Route::post('/withdrawal/initiate', [PaystackController::class, 'initiateWithdrawal'])->name('withdrawal.initiate');
-    Route::post('/withdrawals', [WithdrawalController::class, 'store']);
 
     Route::post('/deposit/mpesa/initiate', [\App\Http\Controllers\MpesaDepositController::class, 'store'])
         ->name('deposit.mpesa.initiate');
 
+    // ── Wallet: Withdrawals ──
+    Route::post('/withdrawal/initiate', [PaystackController::class, 'initiateWithdrawal'])->name('withdrawal.initiate');
+    Route::post('/withdrawals', [WithdrawalController::class, 'store']);
+
+    // ── Wallet: Balance ──
     Route::get('/wallet/balance', function () {
-        $wallet = app(WalletService::class)
-            ->getWallet(auth()->user());
+        $wallet = app(WalletService::class)->getWallet(auth()->user());
 
         return response()->json(['balance' => (float) $wallet->balance]);
     })->name('wallet.balance');
 
-    // ── Social graph ──
+    // ── Contests (Authenticated actions) ──
+    Route::get('/contests/mine', [\App\Http\Controllers\HostContestController::class, 'index'])
+    ->name('contests.mine');
+
+    
+    Route::post('/contests/{contest}/entries/{entry}/accept', [\App\Http\Controllers\ContestEntryController::class, 'accept'])
+        ->name('contests.entries.accept');
+
+    Route::post('/contests/{contest}/entries/{entry}/reject', [\App\Http\Controllers\ContestEntryController::class, 'reject'])
+        ->name('contests.entries.reject');
+
+    Route::get('/contests/{uuid}/picks', [\App\Http\Controllers\ContestPickController::class, 'show'])
+    ->name('contests.picks');
+
+    Route::post('/contests/{uuid}/picks', [\App\Http\Controllers\ContestPickController::class, 'store'])
+    ->name('contests.picks.store');
+
+    Route::post('/contests/join/{uuid}', [\App\Http\Controllers\ContestJoinController::class, 'store'])
+    ->name('contests.join.store');
+
+
+    Route::get('/contests/{contest}/manage', [\App\Http\Controllers\HostContestController::class, 'manage'])
+        ->name('contests.manage');
+
+        Route::get('/contests/create', [\App\Http\Controllers\ContestCreateController::class, 'create'])
+    ->name('contests.create');
+
+Route::post('/contests', [\App\Http\Controllers\ContestCreateController::class, 'store'])
+    ->name('contests.store');
+
+    // ── Social Graph (Follow / Feed) ──
     Route::prefix('users')->group(function () {
         Route::get('/feed', [FollowController::class, 'feed'])->name('feed.index');
 
@@ -171,7 +277,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{user_id}/follow-notifications', [FollowController::class, 'updateNotification'])->name('users.follow-notifications');
     });
 
-    // ── Seller dashboard ──
+    // ── Seller Dashboard ──
     Route::prefix('seller/dashboard')->group(function () {
         Route::get('/', [SellerDashboardController::class, 'index'])->name('seller.dashboard');
         Route::get('/realtime', [SellerDashboardController::class, 'getRealtimeData'])->name('seller.dashboard.realtime');
@@ -183,7 +289,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/followers', [SellerDashboardController::class, 'getFollowerStats'])->name('seller.dashboard.followers');
     });
 
-    // ── Buyer dashboard ──
+    // ── Buyer Dashboard ──
     Route::prefix('buyer/dashboard')->group(function () {
         Route::get('/', [BuyerDashboardController::class, 'index'])->name('buyer.dashboard');
         Route::get('/performance', [BuyerDashboardController::class, 'getPerformanceData'])->name('buyer.dashboard.performance');
@@ -201,19 +307,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [NotificationController::class, 'destroy']);
     });
 
+    // ── Watchlist ──
     Route::get('/watchlist', [WatchlistController::class, 'index'])
         ->name('watchlist.index');
 
     Route::get('/watchlist/record', [WatchlistRecordController::class, 'index'])
         ->name('watchlist.record');
 
+    // ── Referral Dashboard ──
     Route::get('/refer', [ReferralDashboardController::class, 'index'])
         ->name('refer');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Settings
+| SETTINGS
 |--------------------------------------------------------------------------
 */
 

@@ -79,12 +79,12 @@ class Fixture extends Model
         return $this->hasOne(FixtureStatus::class);
     }
 
-    public function HomeTeam()
+    public function homeTeam()
     {
         return $this->belongsTo(Team::class, 'home_team_id', 'id_on_api');
     }
 
-    public function AwayTeam()
+    public function awayTeam()
     {
         return $this->belongsTo(Team::class, 'away_team_id', 'id_on_api');
     }

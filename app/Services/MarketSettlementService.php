@@ -12,6 +12,10 @@ use Illuminate\Support\Str;
 
 class MarketSettlementService
 {
+    public function __construct(
+        protected ContestLegResolver $contestLegResolver,
+    ) {}
+
     /**
      * Settle all pending odds for a fixture.
      */
@@ -22,7 +26,6 @@ class MarketSettlementService
             return;
         }
 
-        // \Log::info($apiData);
         $match = $this->extractMatchData($apiData);
         $odds = $fixture->Odds;
 
@@ -34,8 +37,17 @@ class MarketSettlementService
             foreach ($odds as $odd) {
                 $this->settleOdd($odd, $match);
             }
+
+            // Contest legs referencing these odds are updated inside the same
+            // transaction. Scoring is deferred until after commit — see below.
+            $this->contestLegResolver->resolveMany($odds);
+
             $this->updateBetslips($fixture);
         });
+
+        // Fires after the transaction commits. If scoring throws here, the
+        // fixture settlement has already been persisted.
+        $this->contestLegResolver->drainPendingScores();
     }
 
     /**

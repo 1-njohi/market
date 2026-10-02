@@ -18,7 +18,9 @@ const columns = [
         links: [
             { label: 'Fixtures', href: '/fixtures' },
             { label: 'Marketplace', href: '/marketplace' },
+            { label: 'Watchlist', href: '/watchlist' },
             { label: 'Leaderboard', href: '/leaderboard' },
+            { label: 'Contests', href: '/contests/mine' },
             { label: 'How It Works', href: '/how-it-works' },
         ],
     },

@@ -1,0 +1,250 @@
+<?php
+
+namespace Tests\Feature\Contests;
+
+use App\Models\Contest;
+use App\Models\ContestEntry;
+use App\Models\ContestLeg;
+use App\Models\ContestPick;
+use App\Models\Fixture;
+use App\Models\League;
+use App\Models\Market;
+use App\Models\Odd;
+use App\Models\Team;
+use App\Models\User;
+use App\Services\ContestScoringService;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\DB;
+use Tests\TestCase;
+
+class ContestSettlementNotificationTest extends TestCase
+{
+    use DatabaseMigrations;
+
+    public function test_every_participant_gets_a_notification_when_contest_settles(): void
+    {
+        $s = $this->scenario(participants: 3);
+
+        $this->resolveAndScore($s);
+
+        foreach ($s['entries'] as $entry) {
+            $row = DB::table('notifications')
+                ->where('notifiable_id', $entry->user_id)
+                ->where('notifiable_type', User::class)
+                ->where('data', 'like', '%"type":"contest_settled"%')
+                ->first();
+
+            $this->assertNotNull($row, "User {$entry->user_id} did not receive a notification.");
+        }
+    }
+
+    public function test_notification_carries_correct_rank_and_score(): void
+    {
+        $s = $this->scenario(participants: 2);
+
+        // Entry A: 2 correct, +4.35u. Entry B: 1 correct, +2.50u.
+        $this->submitPicks($s['entries'][0], [
+            [$s['legs'][0], 'Home'],
+            [$s['legs'][1], 'Over 2.5'],
+        ]);
+        $this->submitPicks($s['entries'][1], [
+            [$s['legs'][0], 'Home'],
+            [$s['legs'][1], 'Under 2.5'],
+        ]);
+
+        $this->resolveAndScore($s);
+
+        // Entry A's user should be rank 1.
+        $rowA = DB::table('notifications')
+            ->where('notifiable_id', $s['entries'][0]->user_id)
+            ->where('data', 'like', '%"type":"contest_settled"%')
+            ->first();
+
+        $dataA = json_decode($rowA->data, true);
+        $this->assertSame(1, $dataA['rank']);
+        $this->assertSame(2, $dataA['correct']);
+        $this->assertSame(4.35, (float) $dataA['units']);
+        $this->assertSame($s['contest']->uuid, $dataA['contest_uuid']);
+
+        // Entry B's user should be rank 2.
+        $rowB = DB::table('notifications')
+            ->where('notifiable_id', $s['entries'][1]->user_id)
+            ->where('data', 'like', '%"type":"contest_settled"%')
+            ->first();
+
+        $dataB = json_decode($rowB->data, true);
+        $this->assertSame(2, $dataB['rank']);
+        $this->assertSame(1, $dataB['correct']);
+    }
+
+    public function test_no_notification_when_contest_still_open(): void
+    {
+        $s = $this->scenario(participants: 1);
+
+        // Score without resolving legs — the scoring service should refuse.
+        // We test the guard indirectly: only one leg resolved.
+        $this->resolveLeg($s['legs'][0], 'Home');
+
+        try {
+            app(ContestScoringService::class)->score($s['contest']);
+        } catch (\RuntimeException) {
+            // expected
+        }
+
+        $count = DB::table('notifications')
+            ->where('notifiable_type', User::class)
+            ->where('data', 'like', '%"type":"contest_settled"%')
+            ->count();
+
+        $this->assertSame(0, $count);
+    }
+
+    // ------------------ helpers ------------------
+
+    private function resolveAndScore(array $s): void
+    {
+        $this->resolveLeg($s['legs'][0], 'Home');
+        $this->resolveLeg($s['legs'][1], 'Over 2.5');
+
+        app(ContestScoringService::class)->score($s['contest']);
+    }
+
+    private function scenario(int $participants = 1): array
+    {
+        $host = $this->makeUser('Host');
+        $contest = Contest::create([
+            'host_id'           => $host->id,
+            'name'              => 'Sunday Crew',
+            'visibility'        => 'private',
+            'status'            => 'open',
+            'entry_deadline_at' => now()->addHour(),
+            'starts_at'         => now()->addHours(2),
+            'ends_at'           => now()->addHours(4),
+        ]);
+
+        $league = $this->makeLeague();
+        $home   = $this->makeTeam('Home FC', 900001);
+        $away   = $this->makeTeam('Away FC', 900002);
+
+        $fx1 = $this->makeFixture($league, $home, $away);
+        $fx2 = $this->makeFixture($league, $home, $away);
+
+        $market1 = $this->makeMarket(1, 'Match Winner');
+        $market2 = $this->makeMarket(2, 'Over/Under');
+
+        $legs = [
+            ContestLeg::create([
+                'contest_id' => $contest->id,
+                'fixture_id' => $fx1->id,
+                'market_id'  => $market1->id,
+                'status'     => 'pending',
+            ]),
+            ContestLeg::create([
+                'contest_id' => $contest->id,
+                'fixture_id' => $fx2->id,
+                'market_id'  => $market2->id,
+                'status'     => 'pending',
+            ]),
+        ];
+
+        $entries = [];
+        for ($i = 0; $i < $participants; $i++) {
+            $user = $this->makeUser("Player {$i}");
+            $entries[] = ContestEntry::create([
+                'contest_id' => $contest->id,
+                'user_id'    => $user->id,
+                'status'     => 'accepted',
+                'joined_at'  => now()->subMinutes($participants - $i),
+            ]);
+        }
+
+        return [
+            'host'    => $host,
+            'contest' => $contest,
+            'legs'    => $legs,
+            'entries' => $entries,
+        ];
+    }
+
+    private function submitPicks(ContestEntry $entry, array $picks): void
+    {
+        foreach ($picks as [$leg, $selection]) {
+            $odd = Odd::where('fixture_id', $leg->fixture_id)
+                ->where('market_id', $leg->market_id)
+                ->where('value', $selection)
+                ->firstOrFail();
+
+            ContestPick::create([
+                'contest_entry_id' => $entry->id,
+                'contest_leg_id'   => $leg->id,
+                'selection'        => $selection,
+                'odds_at_pick'     => $odd->odd,
+                'status'           => 'pending',
+            ]);
+        }
+    }
+
+    private function resolveLeg(ContestLeg $leg, string $result): void
+    {
+        $leg->update([
+            'status'           => 'won',
+            'result_selection' => $result,
+            'resolved_at'      => now(),
+        ]);
+    }
+
+    private function makeUser(string $name): User
+    {
+        return User::factory()->create([
+            'name' => $name,
+            'code' => strtoupper(\Illuminate\Support\Str::random(8)),
+        ]);
+    }
+
+    private function makeLeague(): League
+    {
+        return League::firstOrCreate(
+            ['id_on_api' => 900100],
+            [
+                'sport_id'   => 1,
+                'name'       => 'Test League',
+                'country_id' => 1,
+                'country'    => 'Test Country',
+                'season'     => 2026,
+            ]
+        );
+    }
+
+    private function makeTeam(string $name, int $idOnApi): Team
+    {
+        return Team::firstOrCreate(
+            ['id_on_api' => $idOnApi],
+            ['name' => $name]
+        );
+    }
+
+    private function makeFixture(League $league, Team $home, Team $away): Fixture
+    {
+        $fixture = Fixture::create([
+            'id_on_api'    => 900000 + random_int(1, 99999),
+            'date'         => now()->addHours(2)->toDateTimeString(),
+            'timestamp'    => now()->addHours(2)->timestamp,
+            'status_short' => 'NS',
+            'league_id'    => $league->id,
+            'home_team_id' => $home->id,
+            'away_team_id' => $away->id,
+        ]);
+
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Home',      'odd' => 2.50, 'status' => 'pending']);
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Away',      'odd' => 3.20, 'status' => 'pending']);
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 2, 'value' => 'Over 2.5',  'odd' => 1.85, 'status' => 'pending']);
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 2, 'value' => 'Under 2.5', 'odd' => 2.05, 'status' => 'pending']);
+
+        return $fixture;
+    }
+
+    private function makeMarket(int $id, string $name): Market
+    {
+        return Market::firstOrCreate(['id' => $id], ['name' => $name]);
+    }
+}

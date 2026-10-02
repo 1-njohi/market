@@ -38,6 +38,7 @@ const primaryLinks = [
     { label: 'Marketplace', href: '/marketplace' },
     { label: 'Watchlist', href: '/watchlist' },
     { label: 'Leaderboard', href: '/leaderboard' },
+    { label: 'Contests', href: '/contests/mine' },
 ];
 
 const accountLinks = [

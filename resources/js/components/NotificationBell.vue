@@ -296,6 +296,12 @@ const iconEmoji = (type, outcome) => {
     if (type === 'watch_settled') {
         return outcome === 'won' ? '🏆' : outcome === 'voided' ? '↩️' : '💸';
     }
+    if (type === 'contest_settled') {
+        if (rank === 1) return '🏆';
+        if (rank === 2) return '🥈';
+        if (rank === 3) return '🥉';
+        return '🎯';
+    }
     switch (type) {
         case 'betslip_won':
             return '🏆';
@@ -342,6 +348,8 @@ const iconBg = (type, outcome) => {
             return 'bg-amber-500/15 text-amber-400';
         case 'referral_signup':
             return 'bg-emerald-500/15 text-emerald-400';
+        case 'contest_settled': 
+            return 'bg-amber-500/15 text-amber-400';
         default:
             return 'bg-slate-500/15 text-slate-400';
     }
