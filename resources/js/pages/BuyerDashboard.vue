@@ -1031,6 +1031,7 @@
 <script setup>
 import BetslipsTable from '@/components/BetslipsTable.vue';
 import FollowingTable from '@/components/FollowingTable.vue';
+import ContestsCard from '@/components/ContestsCard.vue';
 import TransactionsTable from '@/components/TransactionsTable.vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 import DepositPopover from '@/components/DepositPopover.vue';

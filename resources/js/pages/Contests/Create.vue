@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import Footer from '@/components/Footer.vue';
+import ContestFixturePicker from '@/components/ContestFixturePicker.vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 import { computed, ref } from 'vue';
 
@@ -46,27 +46,37 @@ const isSelected = (fixtureId, marketId) =>
         (l) => l.fixture_id === fixtureId && l.market_id === marketId,
     );
 
-const toggleLeg = (fixture, market) => {
+const handleToggleLeg = (pick) => {
     const idx = selectedLegs.value.findIndex(
-        (l) => l.fixture_id === fixture.id && l.market_id === market.id,
+        (l) =>
+            l.fixture_id === pick.fixture_id &&
+            l.market_id === pick.market_id,
     );
 
     if (idx >= 0) {
-        selectedLegs.value.splice(idx, 1);
+        // Same selection clicked → remove the leg entirely.
+        if (selectedLegs.value[idx].selection === pick.selection) {
+            selectedLegs.value.splice(idx, 1);
+            return;
+        }
+        // Different selection in the same market → replace.
+        selectedLegs.value[idx].selection = pick.selection;
+        selectedLegs.value = [...selectedLegs.value];
         return;
     }
 
+    // New leg.
     if (selectedLegs.value.length >= maxLegs.value) return;
 
     selectedLegs.value.push({
-        fixture_id: fixture.id,
-        market_id: market.id,
-        selection: null,
-        home_team: fixture.home_team,
-        away_team: fixture.away_team,
-        market_label: market.label,
-        kickoff: fixture.kickoff,
-        options: market.options ?? [],
+        fixture_id: pick.fixture_id,
+        market_id: pick.market_id,
+        selection: pick.selection,
+        home_team: pick.home_team,
+        away_team: pick.away_team,
+        market_label: pick.market_label,
+        kickoff: pick.kickoff,
+        options: pick.options,
     });
 };
 
@@ -225,84 +235,13 @@ const formatKickoff = (iso) => {
             </div>
 
             <!-- FIXTURE PICKER -->
-            <div class="mb-6 overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]">
-                <div class="flex items-center justify-between border-b border-[#232d42] bg-[#111a30] px-5 py-3">
-                    <span class="text-[10px] font-black tracking-widest text-sky-400 uppercase">
-                        Add fixtures
-                    </span>
-                    <span
-                        class="font-mono text-[10px] tracking-widest uppercase"
-                        :class="
-                            selectedLegs.length >= maxLegs
-                                ? 'text-rose-400'
-                                : selectedLegs.length >= minLegs
-                                  ? 'text-emerald-400'
-                                  : 'text-slate-500'
-                        "
-                    >
-                        {{ selectedLegs.length }} / {{ maxLegs }}
-                    </span>
-                </div>
-
-                <div class="p-5">
-                    <input
-                        v-model="search"
-                        type="text"
-                        placeholder="Search by team name…"
-                        class="mb-4 w-full rounded border border-[#232d42] bg-[#0a101f] px-3 py-2 text-sm text-white placeholder-slate-600 focus:border-sky-500 focus:outline-none"
-                    />
-
-                    <div v-if="filteredFixtures.length === 0" class="py-6 text-center text-xs text-slate-500">
-                        No fixtures match your search.
-                    </div>
-
-                    <div v-else class="space-y-2">
-                        <div
-                            v-for="fixture in filteredFixtures"
-                            :key="fixture.id"
-                            class="rounded border border-[#232d42]/60 bg-[#0a101f] p-3"
-                        >
-                            <div class="flex items-center justify-between gap-3">
-                                <div class="min-w-0">
-                                    <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
-                                        {{ fixture.league_name }} ·
-                                        {{ formatKickoff(fixture.kickoff) }}
-                                    </p>
-                                    <p class="mt-0.5 truncate text-sm font-bold text-slate-200">
-                                        {{ fixture.home_team }}
-                                        <span class="text-slate-500">vs</span>
-                                        {{ fixture.away_team }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="mt-2 flex flex-wrap gap-2">
-                                <button
-                                    v-for="market in fixture.markets"
-                                    :key="market.id"
-                                    type="button"
-                                    :disabled="
-                                        !isSelected(fixture.id, market.id) &&
-                                        selectedLegs.length >= maxLegs
-                                    "
-                                    @click="toggleLeg(fixture, market)"
-                                    :class="[
-                                        'rounded border px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase transition-all',
-                                        isSelected(fixture.id, market.id)
-                                            ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-400'
-                                            : 'border-[#232d42] bg-[#111622] text-slate-300 hover:border-sky-500/40 hover:text-sky-400',
-                                        !isSelected(fixture.id, market.id) &&
-                                        selectedLegs.length >= maxLegs
-                                            ? 'cursor-not-allowed opacity-40'
-                                            : '',
-                                    ]"
-                                >
-                                    {{ market.label }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="mb-6">
+                <ContestFixturePicker
+                    :leagues="leagues"
+                    :selected-legs="selectedLegs"
+                    :max-legs="maxLegs"
+                    @toggle-leg="handleToggleLeg"
+                />
             </div>
 
             <!-- YOUR PICKS -->
