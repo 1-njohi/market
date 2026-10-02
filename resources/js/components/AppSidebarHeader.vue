@@ -80,7 +80,7 @@ watch(
         class="[#070b14] transparent fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1200px] justify-center bg-[#070b14] text-sm not-has-[nav]:hidden md:px-6 lg:px-0"
     >
         <nav
-            class="flex w-[95%] items-center justify-between rounded-lg border border-[#232d42] bg-[#161c2a] p-4 shadow-lg md:w-[75rem]"
+            class="flex w-[95%] items-center justify-between rounded-lg border border-[#232d42] p-4 shadow-lg md:w-[75rem]"
         >
             <!-- BRAND -->
             <Link href="/" class="flex items-center space-x-2 text-sky-400">
