@@ -73,10 +73,6 @@ const formatKickoff = (iso) => {
                     {{ contest.description }}
                 </p>
             </div>
-            <p class="mt-4 text-[11px] leading-relaxed text-slate-500">
-                The host's picks are shown above. Yours stay private until the deadline —
-                nobody can copy anyone else's slate.
-            </p>
             <!-- Join card -->
             <div
                 class="mb-8 rounded-lg border border-[#232d42] bg-[#161c2a] p-5"
@@ -221,6 +217,11 @@ const formatKickoff = (iso) => {
                     </li>
                 </ul>
             </div>
+
+            <p class="mt-4 text-[11px] leading-relaxed text-slate-500">
+                The host's picks are shown above. Yours stay private until the deadline —
+                nobody can copy anyone else's slate.
+            </p>
         </div>
     </div>
 </template>
