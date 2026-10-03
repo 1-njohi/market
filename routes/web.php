@@ -228,6 +228,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('betslip.unwatch');
     });
 
+    Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])
+        ->name('push.subscribe');
+    Route::delete('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])
+        ->name('push.unsubscribe');
+
+    Route::get('/push/status', [\App\Http\Controllers\PushSubscriptionController::class, 'status'])
+        ->name('push.status');
     // ── Wallet: Deposits ──
     Route::post('/deposit/initiate', [PaystackController::class, 'initiateDeposit'])->name('deposit.initiate');
     Route::get('/deposit/callback', [PaystackController::class, 'callback'])->name('deposit.callback');

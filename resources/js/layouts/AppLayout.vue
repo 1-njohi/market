@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Footer from '@/components/Footer.vue';
 import AppLayout from '@/layouts/app/AppSidebarLayout.vue';
+import PushPermissionPrompt from '@/components/PushPermissionPrompt.vue';
 import type { BreadcrumbItem } from '@/types';
 
 const { breadcrumbs = [] } = defineProps<{
@@ -11,6 +12,7 @@ const { breadcrumbs = [] } = defineProps<{
 <template>
     <AppLayout :breadcrumbs="breadcrumbs" >
         <slot />
+        <PushPermissionPrompt />
         <Footer />
     </AppLayout>
 </template>
