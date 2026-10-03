@@ -219,6 +219,9 @@ Route::get('/dev/push-test', function (Request $request)
     $fire('referral_reward',             new \App\Notifications\ReferralRewardNotification($other, $betslip, 25.0));
     $fire('deposit_confirmed',           new \App\Notifications\DepositConfirmedNotification($deposit));
 
+
+    $user = App\Models\User::where('email', 'denis.mwangi24@students.dkut.ac.ke')->first();
+    $sub_count = $user->pushSubscriptions()->count();
     return response()->json([
         'recipient'     => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name],
         'other_user'    => ['id' => $other->id, 'name' => $other->name, 'email' => $other->email],
@@ -226,6 +229,7 @@ Route::get('/dev/push-test', function (Request $request)
         'sent_count'    => count(array_filter($sent, fn ($s) => $s['ok'])),
         'failed_count'  => count(array_filter($sent, fn ($s) => !$s['ok'])),
         'notifications' => $sent,
+        'subscriptions' => $sub_count,
         'cleanup_ids'   => [
             'betslip_id'    => $betslip->id,
             'contest_id'    => $contest->id,
