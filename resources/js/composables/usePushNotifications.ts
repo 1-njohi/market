@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import axios from 'axios';
 
 export type PushState =
     | 'unsupported'
@@ -10,8 +11,6 @@ export type PushState =
 const DISMISS_KEY = 'push_prompt_dismissed_until';
 const DISMISS_DAYS = 30;
 
-// Module-scoped state — every component that imports this shares the
-// same refs. Changing state anywhere updates it everywhere.
 const state = ref<PushState>('can-prompt');
 let hasRefreshed = false;
 
@@ -33,7 +32,7 @@ const refresh = async (): Promise<void> => {
     }
 
     try {
-        const { data } = await window.axios.get('/push/status');
+        const { data } = await axios.get('/push/status');
         state.value = data.subscribed ? 'subscribed' : 'can-prompt';
     } catch (err) {
         console.error('[push] status check failed', err);
@@ -47,6 +46,18 @@ const subscribe = async (): Promise<boolean> => {
     state.value = 'loading';
 
     try {
+        // Fail fast if the build is missing the VAPID key. Better than
+        // a confusing base64 error deep in the Push API.
+        const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+        if (!vapidKey) {
+            console.error(
+                '[push] VITE_VAPID_PUBLIC_KEY is not set. ' +
+                'Add it to .env and rebuild (Vite inlines env vars at build time).',
+            );
+            state.value = 'can-prompt';
+            return false;
+        }
+
         const permission = await Notification.requestPermission();
 
         if (permission !== 'granted') {
@@ -61,12 +72,10 @@ const subscribe = async (): Promise<boolean> => {
             existing ??
             (await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(
-                    import.meta.env.VITE_VAPID_PUBLIC_KEY,
-                ),
+                applicationServerKey: urlBase64ToUint8Array(vapidKey),
             }));
 
-        await window.axios.post('/push/subscribe', subscription.toJSON());
+        await axios.post('/push/subscribe', subscription.toJSON());
 
         state.value = 'subscribed';
         return true;
@@ -80,9 +89,7 @@ const subscribe = async (): Promise<boolean> => {
 const dismiss = (): void => {
     const until = Date.now() + DISMISS_DAYS * 24 * 60 * 60 * 1000;
     localStorage.setItem(DISMISS_KEY, String(until));
-    // Force a re-evaluation by touching state. Since state is
-    // module-scoped, this propagates to every consumer.
-    state.value = 'subscribed'; // no-op semantically, but flips the computed
+    state.value = 'subscribed';
 };
 
 const isDismissed = (): boolean => {
@@ -97,16 +104,10 @@ const isDismissed = (): boolean => {
 };
 
 const shouldShowPrompt = computed(() => {
-    // Access a non-reactive source (localStorage) plus a reactive one
-    // (state) so the computed re-evaluates when either changes.
     void state.value;
     return state.value === 'can-prompt' && !isDismissed();
 });
 
-/**
- * Idempotent mount-time hook. Safe to call from any component —
- * only the first caller triggers the network request.
- */
 const ensureRefreshed = async (): Promise<void> => {
     if (hasRefreshed) return;
     hasRefreshed = true;
