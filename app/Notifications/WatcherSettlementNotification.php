@@ -3,16 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\Betslip;
+use App\Notifications\Concerns\ResolvesWebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class WatcherSettlementNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesWebPushChannel;
 
-    /**
-     * @param  string  $outcome  'won' | 'refunded' | 'voided'
-     */
     public function __construct(
         public Betslip $betslip,
         public string $outcome,
@@ -21,7 +20,7 @@ class WatcherSettlementNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return $this->withWebPush(['database'], $notifiable);
     }
 
     public function toArray($notifiable): array
@@ -36,6 +35,18 @@ class WatcherSettlementNotification extends Notification
             'betslip_code' => $this->betslip->code,
             'type' => 'watch_settled',
         ];
+    }
+
+    public function toWebPush($notifiable, $notification): WebPushMessage
+    {
+        [$title, $body] = $this->copy();
+
+        return (new WebPushMessage)
+            ->title($title)
+            ->body($body)
+            ->icon('/img/logo-192.png')
+            ->badge('/img/badge-72.png')
+            ->data(['url' => "/betslip/view/g/{$this->betslip->code}"]);
     }
 
     /**

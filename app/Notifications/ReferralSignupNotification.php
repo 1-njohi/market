@@ -3,21 +3,24 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Concerns\ResolvesWebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class ReferralSignupNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesWebPushChannel;
 
     public function __construct(
         public User $referee,
         public float $rewardPct,
     ) {
     }
+
     public function via($notifiable): array
     {
-        return ['database'];
+        return $this->withWebPush(['database'], $notifiable);
     }
 
     public function toArray($notifiable): array
@@ -31,5 +34,17 @@ class ReferralSignupNotification extends Notification
             'referee_name' => $this->referee->name,
             'type' => 'referral_signup',
         ];
+    }
+
+    public function toWebPush($notifiable, $notification): WebPushMessage
+    {
+        $pct = (int) round($this->rewardPct * 100);
+
+        return (new WebPushMessage)
+            ->title('🎉 Someone joined with your code')
+            ->body("{$this->referee->name} signed up with your code. Earn {$pct}% on their wins.")
+            ->icon('/img/logo-192.png')
+            ->badge('/img/badge-72.png')
+            ->data(['url' => '/refer']);
     }
 }

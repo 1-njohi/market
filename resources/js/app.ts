@@ -9,6 +9,11 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+import axios from 'axios';
+
+window.axios = axios;
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     layout: (name) => {

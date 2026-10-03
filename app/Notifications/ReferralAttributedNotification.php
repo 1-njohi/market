@@ -3,12 +3,14 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Concerns\ResolvesWebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class ReferralAttributedNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesWebPushChannel;
 
     public function __construct(
         public User $referrer,
@@ -19,7 +21,7 @@ class ReferralAttributedNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return $this->withWebPush(['database'], $notifiable);
     }
 
     public function toArray($notifiable): array
@@ -34,5 +36,18 @@ class ReferralAttributedNotification extends Notification
             'referrer_name' => $this->referrer->name,
             'type' => 'referral_attributed',
         ];
+    }
+
+    public function toWebPush($notifiable, $notification): WebPushMessage
+    {
+        $pct = (int) round($this->discountPct * 100);
+        $cap = number_format($this->discountCap, 0);
+
+        return (new WebPushMessage)
+            ->title('🎁 You were referred')
+            ->body("Welcome! Your first purchase is {$pct}% off (capped at KES {$cap}).")
+            ->icon('/img/logo-192.png')
+            ->badge('/img/badge-72.png')
+            ->data(['url' => '/dashboard']);
     }
 }

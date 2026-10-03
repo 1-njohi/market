@@ -3,12 +3,14 @@
 namespace App\Notifications;
 
 use App\Models\Contest;
+use App\Notifications\Concerns\ResolvesWebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class ContestSettledNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesWebPushChannel;
 
     public function __construct(
         public Contest $contest,
@@ -20,7 +22,7 @@ class ContestSettledNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return $this->withWebPush(['database'], $notifiable);
     }
 
     public function toArray($notifiable): array
@@ -40,6 +42,18 @@ class ContestSettledNotification extends Notification
         ];
     }
 
+    public function toWebPush($notifiable, $notification): WebPushMessage
+    {
+        [$title, $body] = $this->copy();
+
+        return (new WebPushMessage)
+            ->title($title)
+            ->body($body)
+            ->icon('/img/logo-192.png')
+            ->badge('/img/badge-72.png')
+            ->data(['url' => "/contests/{$this->contest->uuid}/results"]);
+    }
+
     /**
      * @return array{0: string, 1: string}
      */
@@ -51,7 +65,6 @@ class ContestSettledNotification extends Notification
         $total   = $this->totalParticipants;
         $units   = number_format($this->units, 2);
 
-        // Determine legs count from the contest — cached relation is fine.
         $legs = $this->contest->legs()->count();
         $denominator = $legs > 0 ? $legs : $correct;
 

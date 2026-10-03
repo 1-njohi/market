@@ -6,10 +6,13 @@ use App\Models\Contest;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushChannel;
+use NotificationChannels\WebPush\WebPushMessage;
+use App\Notifications\Concerns\ResolvesWebPushChannel;
 
 class ContestJoinRequestedNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesWebPushChannel;
 
     public function __construct(
         public Contest $contest,
@@ -18,7 +21,13 @@ class ContestJoinRequestedNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        $channels = ['database'];
+
+        if ($notifiable->pushSubscriptions()->exists()) {
+            $channels[] = WebPushChannel::class;
+        }
+
+        return $channels;
     }
 
     public function toArray($notifiable): array
@@ -33,5 +42,17 @@ class ContestJoinRequestedNotification extends Notification
             'requester_id'   => $this->requester->id,
             'requester_name' => $this->requester->name,
         ];
+    }
+
+    public function toWebPush($notifiable, $notification): WebPushMessage
+    {
+        return (new WebPushMessage)
+            ->title('🙋 New contest request')
+            ->body("{$this->requester->name} wants to join {$this->contest->name}.")
+            ->icon('/img/logo-192.png')
+            ->badge('/img/badge-72.png')
+            ->data([
+                'url' => "/contests/{$this->contest->id}/manage",
+            ]);
     }
 }

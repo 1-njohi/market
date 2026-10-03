@@ -3,12 +3,14 @@
 namespace App\Notifications;
 
 use App\Models\Deposit;
+use App\Notifications\Concerns\ResolvesWebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class DepositConfirmedNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesWebPushChannel;
 
     public function __construct(public Deposit $deposit)
     {
@@ -16,7 +18,7 @@ class DepositConfirmedNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return $this->withWebPush(['database'], $notifiable);
     }
 
     public function toArray($notifiable): array
@@ -30,5 +32,17 @@ class DepositConfirmedNotification extends Notification
             'reference' => $this->deposit->reference,
             'type' => 'deposit',
         ];
+    }
+
+    public function toWebPush($notifiable, $notification): WebPushMessage
+    {
+        $amount = number_format((float) $this->deposit->amount, 2);
+
+        return (new WebPushMessage)
+            ->title('💰 Deposit confirmed')
+            ->body("KES {$amount} added to your wallet.")
+            ->icon('/img/logo-192.png')
+            ->badge('/img/badge-72.png')
+            ->data(['url' => '/dashboard']);
     }
 }

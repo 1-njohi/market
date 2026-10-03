@@ -4,12 +4,14 @@ namespace App\Notifications;
 
 use App\Models\Betslip;
 use App\Models\User;
+use App\Notifications\Concerns\ResolvesWebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class ReferralRewardNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesWebPushChannel;
 
     public function __construct(
         public User $referee,
@@ -20,7 +22,7 @@ class ReferralRewardNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return $this->withWebPush(['database'], $notifiable);
     }
 
     public function toArray($notifiable): array
@@ -38,5 +40,18 @@ class ReferralRewardNotification extends Notification
             'betslip_code' => $code,
             'type' => 'referral_reward',
         ];
+    }
+
+    public function toWebPush($notifiable, $notification): WebPushMessage
+    {
+        $amount = number_format($this->amount, 2);
+        $code = $this->betslip->code;
+
+        return (new WebPushMessage)
+            ->title('💰 Referral reward earned')
+            ->body("You earned KES {$amount} from {$this->referee->name}'s winning betslip #{$code}.")
+            ->icon('/img/logo-192.png')
+            ->badge('/img/badge-72.png')
+            ->data(['url' => '/refer']);
     }
 }

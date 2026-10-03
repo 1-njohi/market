@@ -3,14 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\Contest;
-use App\Models\ContestEntry;
 use App\Models\User;
+use App\Notifications\Concerns\ResolvesWebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class ContestEntryStatusNotification extends Notification
 {
-    use Queueable;
+    use Queueable, ResolvesWebPushChannel;
 
     public function __construct(
         public Contest $contest,
@@ -20,7 +21,7 @@ class ContestEntryStatusNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return $this->withWebPush(['database'], $notifiable);
     }
 
     public function toArray($notifiable): array
@@ -37,6 +38,22 @@ class ContestEntryStatusNotification extends Notification
             'contest_name' => $this->contest->name,
             'host_name'    => $this->host->name,
         ];
+    }
+
+    public function toWebPush($notifiable, $notification): WebPushMessage
+    {
+        [$title, $body] = $this->copy();
+
+        $url = $this->status === 'accepted'
+            ? "/contests/{$this->contest->uuid}/picks"
+            : '/contests/mine';
+
+        return (new WebPushMessage)
+            ->title($title)
+            ->body($body)
+            ->icon('/img/logo-192.png')
+            ->badge('/img/badge-72.png')
+            ->data(['url' => $url]);
     }
 
     /**
