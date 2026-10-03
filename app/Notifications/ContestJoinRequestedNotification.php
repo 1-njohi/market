@@ -33,7 +33,7 @@ class ContestJoinRequestedNotification extends Notification
     public function toArray($notifiable): array
     {
         return [
-            'title'          => '🙋 New contest request',
+            'title'          => 'New contest request',
             'body'           => "{$this->requester->name} wants to join {$this->contest->name}.",
             'type'           => 'contest_join_requested',
             'contest_uuid'   => $this->contest->uuid,
@@ -47,7 +47,7 @@ class ContestJoinRequestedNotification extends Notification
     public function toWebPush($notifiable, $notification): WebPushMessage
     {
         return (new WebPushMessage)
-            ->title('🙋 New contest request')
+            ->title('New contest request')
             ->body("{$this->requester->name} wants to join {$this->contest->name}.")
             ->icon('/img/logo-192.png')
             ->badge('/img/badge-72.png')

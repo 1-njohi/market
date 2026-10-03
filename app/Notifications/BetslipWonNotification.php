@@ -28,8 +28,8 @@ class BetslipWonNotification extends Notification
 
         return [
             'title' => $isSeller
-                ? '🎉 Your betslip won!'
-                : '🎉 Betslip you bought won!',
+                ? 'Your betslip won!'
+                : 'Betslip you bought won!',
             'body' => $isSeller
                 ? "Betslip #{$this->betslip->code} won. Your payout has been released to your wallet."
                 : "Betslip #{$this->betslip->code} won. You kept the tip — no refund was issued.",
@@ -44,7 +44,7 @@ class BetslipWonNotification extends Notification
         $isSeller = $notifiable->id === $this->betslip->user_id;
 
         return (new WebPushMessage)
-            ->title($isSeller ? '🎉 Your betslip won!' : '🎉 Betslip you bought won!')
+            ->title($isSeller ? 'Your betslip won!' : 'Betslip you bought won!')
             ->body($isSeller
                 ? "Betslip #{$this->betslip->code} won. Your payout has been released."
                 : "Betslip #{$this->betslip->code} won. You kept the tip.")
@@ -58,7 +58,7 @@ class BetslipWonNotification extends Notification
         $role = $notifiable->id === $this->betslip->user_id ? 'seller' : 'buyer';
 
         return (new MailMessage)
-            ->subject("🎉 Betslip #{$this->betslip->code} won!")
+            ->subject("Betslip #{$this->betslip->code} won!")
             ->greeting("Hi {$notifiable->name},")
             ->line($role === 'seller'
                 ? "Your betslip #{$this->betslip->code} won. Your payout has been released to your wallet."

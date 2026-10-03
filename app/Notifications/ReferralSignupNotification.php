@@ -28,7 +28,7 @@ class ReferralSignupNotification extends Notification
         $pct = (int) round($this->rewardPct * 100);
 
         return [
-            'title' => '🎉 Someone joined with your code',
+            'title' => 'Someone joined with your code',
             'body' => "{$this->referee->name} just signed up using your referral code. You'll earn {$pct}% of the listed price every time they make a winning purchase.",
             'referee_id' => $this->referee->id,
             'referee_name' => $this->referee->name,
@@ -41,7 +41,7 @@ class ReferralSignupNotification extends Notification
         $pct = (int) round($this->rewardPct * 100);
 
         return (new WebPushMessage)
-            ->title('🎉 Someone joined with your code')
+            ->title('Someone joined with your code')
             ->body("{$this->referee->name} signed up with your code. Earn {$pct}% on their wins.")
             ->icon('/img/logo-192.png')
             ->badge('/img/badge-72.png')
