@@ -156,6 +156,7 @@ Route::get('/dev/push-test', function (Request $request)
         'password'          => \Illuminate\Support\Facades\Hash::make(
             \Illuminate\Support\Str::random(32),
         ),
+        'country_code' => '+254',
         'code'              => 'PUSH' . strtoupper(\Illuminate\Support\Str::random(6)),
         'email_verified_at' => now(),
     ]);
