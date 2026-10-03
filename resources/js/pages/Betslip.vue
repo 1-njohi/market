@@ -101,14 +101,12 @@
                         <span
                             class="block text-[10px] font-black tracking-widest text-slate-500 uppercase"
                         >
-                            If it wins
+                            Markets
                         </span>
                         <span
-                            class="mt-1 block font-mono text-lg font-black text-emerald-400"
+                            class="mt-1 block font-mono text-lg font-black text-sky-400"
                         >
-                            {{
-                                fmtCompact(slip.purchase_info.potential_winning)
-                            }}
+                            {{ slip.statistics.unique_markets }}
                         </span>
                     </div>
                 </div>
@@ -413,14 +411,6 @@ const statusLabel = computed(() => {
     if (s === 'pending' || s === 'underway') return s;
     return slip.value.is_winner ? 'Won' : 'Lost';
 });
-
-const fmtCompact = (n) => {
-    const v = Number(n || 0);
-    if (Math.abs(v) >= 1_000_000)
-        return 'KES ' + (v / 1_000_000).toFixed(2) + 'M';
-    if (Math.abs(v) >= 1_000) return 'KES ' + (v / 1_000).toFixed(1) + 'K';
-    return 'KES ' + v.toFixed(0);
-};
 
 const copyToClipboard = (text) => {
     if (typeof window === 'undefined' || !navigator) return;
