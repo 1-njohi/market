@@ -150,6 +150,37 @@ class BetslipController extends Controller
         ]);
     }
 
+    /**
+     * Public lookup: given a tracking code, return the URL to view that
+     * betslip. Used by the homepage "Enter Betslip Tracking Code" search.
+     */
+    public function lookup(Request $request)
+    {
+        $code = strtoupper(trim((string) $request->query('code', '')));
+
+        if ($code === '') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please enter a tracking code.',
+            ], 422);
+        }
+
+        $betslip = Betslip::where('code', $code)->first();
+
+        if (!$betslip) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No betslip found with that code.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'code'    => $betslip->code,
+            'url'     => "/betslip/view/g/{$betslip->code}",
+        ]);
+    }
+
     public function show(Request $request)
     {
         $code = $request->code;

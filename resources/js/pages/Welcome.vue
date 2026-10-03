@@ -160,6 +160,34 @@ const searchQuery = ref('');
 const clearSearch = () => {
     searchQuery.value = '';
 };
+
+/**
+ * Look up a betslip by tracking code and navigate to its public view.
+ * Codes are stored uppercased server-side, so we normalize before the
+ * request. The lookup endpoint returns a relative URL on success.
+ */
+const submitBetslipSearch = async () => {
+    const code = searchQuery.value.trim().toUpperCase();
+    if (!code) return;
+
+    try {
+        const { data } = await axios.get('/betslips/lookup', {
+            params: { code },
+        });
+
+        if (data.success && data.url) {
+            router.visit(data.url);
+            return;
+        }
+
+        alert(data.message ?? 'No betslip found with that code.');
+    } catch (err) {
+        const msg =
+            err.response?.data?.message ??
+            'Lookup failed. Please try again.';
+        alert(msg);
+    }
+};
 </script>
 
 <template>
@@ -316,6 +344,7 @@ const clearSearch = () => {
                         <input
                             type="text"
                             v-model="searchQuery"
+                            @keyup.enter="submitBetslipSearch"
                             placeholder="Enter Betslip Tracking Code"
                             class="w-full rounded-lg border border-[#232d42] bg-[#111622] py-2 pr-9 pl-10 text-xs font-semibold tracking-wide text-white placeholder-slate-500 transition-all duration-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 focus:outline-none"
                         />

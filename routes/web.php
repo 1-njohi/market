@@ -155,6 +155,9 @@ Route::post('/report', [ReportController::class, 'store'])->name('report.submit'
 // ── Referral Links ──
 Route::get('/r/{code}', [ReferralLinkController::class, 'show'])->name('referral.link');
 
+// ── Bet slip Code Lookup ──
+Route::get('/betslips/lookup', [BetslipController::class, 'lookup'])->name('betslip.lookup');
+
 // ── Contest Join (Public View) ──
 Route::get('/contests/join/{uuid}', [\App\Http\Controllers\ContestJoinController::class, 'show'])
     ->name('contests.join');
