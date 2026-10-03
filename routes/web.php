@@ -152,6 +152,7 @@ Route::get('/dev/push-test', function (Request $request)
     $other = \App\Models\User::create([
         'name'              => 'Push Test Other',
         'email'             => 'push-test-' . time() . '@betslip-pirates.test',
+        'phone' => '07' . str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT),
         'password'          => \Illuminate\Support\Facades\Hash::make(
             \Illuminate\Support\Str::random(32),
         ),
