@@ -185,7 +185,7 @@ Route::get('/dev/push-test', function (Request $request)
     $deposit = \App\Models\Deposit::create([
         'user_id'   => $user->id,
         'amount'    => 500,
-        'reference' => 'PUSH-TEST-DEP',
+        'reference' => 'DEP-' . time(),
         'status'    => 'confirmed',
     ]);
 
