@@ -164,7 +164,7 @@ Route::get('/dev/push-test', function (Request $request)
     // ── Build supporting models ──────────────────────────────
     $betslip = \App\Models\Betslip::create([
         'user_id'    => $user->id,
-        'code'       => 'PUSH-TEST-CDE',
+        'code'       => 'PT-' . time(),
         'price'      => 100,
         'total_odds' => 2.50,
         'status'     => 'pending',
