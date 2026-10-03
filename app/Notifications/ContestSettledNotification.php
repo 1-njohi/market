@@ -70,21 +70,21 @@ class ContestSettledNotification extends Notification
 
         if ($rank === 1) {
             return [
-                '🏆 You won ' . $name,
+                'You won ' . $name,
                 "Top of {$total}! You got {$correct}/{$denominator} correct, +{$units}u.",
             ];
         }
 
         if ($rank === 2) {
             return [
-                '🥈 Runner-up in ' . $name,
+                'unner-up in ' . $name,
                 "2nd of {$total}. {$correct}/{$denominator} correct, +{$units}u.",
             ];
         }
 
         if ($rank === 3) {
             return [
-                '🥉 Third place in ' . $name,
+                'Third place in ' . $name,
                 "3rd of {$total}. {$correct}/{$denominator} correct, +{$units}u.",
             ];
         }

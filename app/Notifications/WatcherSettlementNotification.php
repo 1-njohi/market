@@ -58,15 +58,15 @@ class WatcherSettlementNotification extends Notification
 
         return match ($this->outcome) {
             'won' => [
-                '🏆 Watched slip won',
+                'Watched slip won',
                 "Betslip #{$code} settled as a win. The seller's picks landed. Open the slip to see what they picked.",
             ],
             'refunded' => [
-                '💸 Watched slip lost',
+                'Watched slip lost',
                 "Betslip #{$code} settled as a loss. The seller's picks missed. Open the slip to see what they picked.",
             ],
             'voided' => [
-                '↩️ Watched slip voided',
+                'Watched slip voided',
                 "Betslip #{$code} was voided. No result was recorded. Open the slip to see the picks.",
             ],
             default => [
