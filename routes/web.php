@@ -161,6 +161,19 @@ Route::get('/dev/push-test', function (Request $request)
         'email_verified_at' => now(),
     ]);
 
+    Route::get('/dev/clear-push-dismiss', function () {
+        return response(<<<'HTML'
+            <!doctype html>
+            <body>
+                <p>Clearing push prompt dismissal...</p>
+                <script>
+                    localStorage.removeItem('push_prompt_dismissed_until');
+                    document.body.insertAdjacentHTML('beforeend', '<p>Done. <a href="/dashboard">Go to dashboard</a></p>');
+                </script>
+            </body>
+            HTML, 200, ['Content-Type' => 'text/html']);
+    });
+
     // ── Build supporting models ──────────────────────────────
     $betslip = \App\Models\Betslip::create([
         'user_id'    => $user->id,
