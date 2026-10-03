@@ -222,10 +222,10 @@ class BetslipController extends Controller
                 $query->select('id', 'id_on_api', 'date', 'timestamp', 'league_id', 'home_team_id', 'away_team_id');
             },
             'odds.fixture.homeTeam' => function ($query) {
-                $query->select('id', 'name');
+                $query->select('id', 'id_on_api', 'name');
             },
             'odds.fixture.awayTeam' => function ($query) {
-                $query->select('id', 'name');
+                $query->select('id', 'id_on_api', 'name');
             },
             'odds.fixture.league' => function ($query) {
                 $query->select('id', 'name', 'country');
@@ -233,7 +233,7 @@ class BetslipController extends Controller
             'odds.market' => function ($query) {
                 $query->select('id', 'name');
             },
-            'buyers' // Load buyers relationship
+            'buyers',
         ])
             ->where('code', $code)
             ->firstOrFail();
