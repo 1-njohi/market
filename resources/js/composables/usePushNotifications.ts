@@ -20,6 +20,14 @@ const isSupported = (): boolean =>
     'PushManager' in window &&
     'Notification' in window;
 
+/**
+ * Reconcile three signals:
+ *   - Browser support (static)
+ *   - Notification.permission (browser-level, per-profile)
+ *   - Whether THIS BROWSER has a push subscription (not "does this user
+ *     have any subscriptions anywhere" — that's a different question
+ *     and would permanently hide the prompt on a second device).
+ */
 const refresh = async (): Promise<void> => {
     if (!isSupported()) {
         state.value = 'unsupported';
@@ -32,8 +40,26 @@ const refresh = async (): Promise<void> => {
     }
 
     try {
-        const { data } = await axios.get('/push/status');
-        state.value = data.subscribed ? 'subscribed' : 'can-prompt';
+        const registration = await navigator.serviceWorker.ready;
+        const localSub = await registration.pushManager.getSubscription();
+
+        if (localSub) {
+            // Local subscription exists. Make sure the server knows
+            // about it — reconciliation for the case where the POST
+            // failed on a previous attempt.
+            try {
+                await axios.post('/push/subscribe', localSub.toJSON());
+            } catch (syncErr) {
+                console.warn('[push] failed to sync existing subscription', syncErr);
+            }
+            state.value = 'subscribed';
+            return;
+        }
+
+        // No local subscription. This browser can be prompted,
+        // regardless of whether the user has subscriptions on other
+        // devices.
+        state.value = 'can-prompt';
     } catch (err) {
         console.error('[push] status check failed', err);
         state.value = 'can-prompt';
@@ -46,8 +72,6 @@ const subscribe = async (): Promise<boolean> => {
     state.value = 'loading';
 
     try {
-        // Fail fast if the build is missing the VAPID key. Better than
-        // a confusing base64 error deep in the Push API.
         const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
         if (!vapidKey) {
             console.error(
