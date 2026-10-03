@@ -273,6 +273,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::post('/contests', [\App\Http\Controllers\ContestCreateController::class, 'store'])
     ->name('contests.store');
 
+
+    Route::post('/contests/draft',  [\App\Http\Controllers\ContestCreateController::class, 'draft'])->name('contests.draft');
+Route::get('/contests/confirm', [\App\Http\Controllers\ContestCreateController::class, 'confirm'])->name('contests.confirm');
+Route::get('/contests/{contest}/created', [\App\Http\Controllers\ContestCreateController::class, 'created'])
+    ->name('contests.created');
+
     // ── Social Graph (Follow / Feed) ──
     Route::prefix('users')->group(function () {
         Route::get('/feed', [FollowController::class, 'feed'])->name('feed.index');

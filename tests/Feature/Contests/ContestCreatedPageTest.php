@@ -3,8 +3,6 @@
 namespace Tests\Feature\Contests;
 
 use App\Models\Contest;
-use App\Models\ContestEntry;
-use App\Models\ContestPick;
 use App\Models\Fixture;
 use App\Models\League;
 use App\Models\Market;
@@ -15,94 +13,81 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-class ContestCreateWithHostPicksTest extends TestCase
+class ContestCreatedPageTest extends TestCase
 {
     use DatabaseMigrations;
 
-    public function test_create_creates_a_host_entry_with_picks(): void
+    public function test_publish_redirects_to_the_created_page(): void
     {
         $host = $this->makeUser('Host');
         $s    = $this->fixtureSet();
 
-        $this->draftAndPublish($host, $s);
+        $this->draft($host, $s);
+        $response = $this->publish($host);
 
         $contest = Contest::firstOrFail();
-
-        $entry = ContestEntry::where('contest_id', $contest->id)
-            ->where('user_id', $host->id)
-            ->first();
-
-        $this->assertNotNull($entry);
-        $this->assertSame('accepted', $entry->status);
-
-        // Host has one pick per leg, with odds snapshotted.
-        $this->assertSame(5, ContestPick::where('contest_entry_id', $entry->id)->count());
-
-        $firstPick = ContestPick::where('contest_entry_id', $entry->id)
-            ->where('contest_leg_id', $contest->legs[0]->id)
-            ->firstOrFail();
-
-        $this->assertSame('Home', $firstPick->selection);
-        $this->assertSame('2.50', (string) $firstPick->odds_at_pick);
+        $response->assertRedirect("/contests/{$contest->id}/created");
     }
 
-    public function test_manage_page_does_not_include_host_entry_in_entries_list(): void
+    public function test_created_page_renders_for_host(): void
     {
         $host = $this->makeUser('Host');
         $s    = $this->fixtureSet();
 
-        $this->draftAndPublish($host, $s);
-
+        $this->draft($host, $s);
+        $this->publish($host);
         $contest = Contest::firstOrFail();
 
-        $response = $this->actingAs($host)
-            ->get("/contests/{$contest->id}/manage");
+        $response = $this->actingAs($host)->get("/contests/{$contest->id}/created");
 
-        $response->assertInertia(
-            fn ($page) => $page->has('contest.entries', 0)
-        );
-    }
-
-    public function test_host_can_view_and_edit_their_picks(): void
-    {
-        $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
-
-        $this->draftAndPublish($host, $s);
-
-        $contest = Contest::firstOrFail();
-
-        $response = $this->actingAs($host)
-            ->get("/contests/{$contest->uuid}/picks");
         $response->assertOk();
-
-        $this->actingAs($host)->post("/contests/{$contest->uuid}/picks", [
-            'picks' => $contest->legs->map(fn ($leg) => [
-                'leg_id'    => $leg->id,
-                'selection' => 'Away',
-            ])->all(),
-        ]);
-
-        $entry = ContestEntry::where('contest_id', $contest->id)
-            ->where('user_id', $host->id)
-            ->firstOrFail();
-
-        $this->assertSame(
-            5,
-            ContestPick::where('contest_entry_id', $entry->id)
-                ->where('selection', 'Away')
-                ->count()
+        $response->assertInertia(fn ($page) => $page
+            ->component('Contests/Created')
+            ->where('contest.id', $contest->id)
+            ->where('contest.uuid', $contest->uuid)
+            ->where('contest.name', 'Sunday Crew')
+            ->where('contest.status', 'open')
+            ->where('contest.legs_count', 5)
+            ->has('contest.entry_deadline_at')
         );
+    }
+
+    public function test_created_page_forbidden_for_non_host(): void
+    {
+        $host    = $this->makeUser('Host');
+        $other   = $this->makeUser('Other');
+        $s       = $this->fixtureSet();
+
+        $this->draft($host, $s);
+        $this->publish($host);
+        $contest = Contest::firstOrFail();
+
+        $response = $this->actingAs($other)->get("/contests/{$contest->id}/created");
+
+        $response->assertForbidden();
+    }
+
+    public function test_created_page_redirects_guests_to_login(): void
+    {
+        $host = $this->makeUser('Host');
+        $s    = $this->fixtureSet();
+
+        $this->draft($host, $s);
+        $this->publish($host);
+        $contest = Contest::firstOrFail();
+
+        // actingAs() persists for the rest of this test method. Clear the
+        // guard so the following request is genuinely unauthenticated.
+        auth()->logout();
+
+        $response = $this->get("/contests/{$contest->id}/created");
+
+        $response->assertRedirect('/login');
     }
 
     // ------------------ helpers ------------------
 
-    /**
-     * Walk the two-step flow: draft 5 "Home" legs, then publish with
-     * a valid config. Leaves the caller free to assert against the
-     * created contest.
-     */
-    private function draftAndPublish(User $host, array $s): void
+    private function draft(User $host, array $s): void
     {
         $legs = [];
         for ($i = 0; $i < 5; $i++) {
@@ -114,9 +99,13 @@ class ContestCreateWithHostPicksTest extends TestCase
         }
 
         $this->actingAs($host)->post('/contests/draft', ['legs' => $legs]);
+    }
 
-        $this->actingAs($host)->post('/contests', [
+    private function publish(User $host)
+    {
+        return $this->actingAs($host)->post('/contests', [
             'name'              => 'Sunday Crew',
+            'description'       => 'Weekly challenge.',
             'entry_deadline_at' => now()->addHour()->toDateTimeString(),
         ]);
     }

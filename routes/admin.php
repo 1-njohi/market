@@ -24,6 +24,12 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::post('/users/{id}/unsuspend', [AdminUserController::class, 'unsuspend'])->name('users.unsuspend');
         Route::post('/users/{id}/adjust-balance', [AdminUserController::class, 'adjustBalance'])->name('users.adjust-balance');
 
+        Route::post('/users/{user}/referral-terms', [\App\Http\Controllers\Admin\ReferralTermsController::class, 'store'])
+            ->name('users.referral-terms.store');
+
+        Route::delete('/users/{user}/referral-terms', [\App\Http\Controllers\Admin\ReferralTermsController::class, 'destroy'])
+            ->name('users.referral-terms.destroy');
+
 
         Route::get('/withdrawals', [WithdrawalController::class, 'index'])->name('withdrawals.index');
         Route::post('/withdrawals/{withdrawal}/approve', [WithdrawalController::class, 'approve'])->name('withdrawals.approve');

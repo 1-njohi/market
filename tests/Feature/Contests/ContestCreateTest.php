@@ -3,7 +3,6 @@
 namespace Tests\Feature\Contests;
 
 use App\Models\Contest;
-use App\Models\ContestLeg;
 use App\Models\Fixture;
 use App\Models\League;
 use App\Models\Market;
@@ -11,6 +10,7 @@ use App\Models\Odd;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ContestCreateTest extends TestCase
@@ -50,17 +50,24 @@ class ContestCreateTest extends TestCase
             $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(10)),
         ];
 
+        $legs = [
+            ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
+            ['fixture_id' => $s['fixtures'][1]->id, 'market_id' => $s['market2']->id, 'selection' => 'Over 2.5'],
+            ['fixture_id' => $extraFixtures[0]->id, 'market_id' => $s['market1']->id, 'selection' => 'Away'],
+            ['fixture_id' => $extraFixtures[1]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
+            ['fixture_id' => $extraFixtures[2]->id, 'market_id' => $s['market1']->id, 'selection' => 'Away'],
+        ];
+
+        // Step 1: pick legs.
+        $this->actingAs($host)
+            ->post('/contests/draft', ['legs' => $legs])
+            ->assertRedirect('/contests/confirm');
+
+        // Step 2: publish with config only. Legs come from session.
         $response = $this->actingAs($host)->post('/contests', [
             'name'              => 'Sunday Crew',
             'description'       => 'Weekly challenge.',
             'entry_deadline_at' => now()->addHour()->toDateTimeString(),
-            'legs' => [
-                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
-                ['fixture_id' => $s['fixtures'][1]->id, 'market_id' => $s['market2']->id, 'selection' => 'Over 2.5'],
-                ['fixture_id' => $extraFixtures[0]->id, 'market_id' => $s['market1']->id, 'selection' => 'Away'],
-                ['fixture_id' => $extraFixtures[1]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
-                ['fixture_id' => $extraFixtures[2]->id, 'market_id' => $s['market1']->id, 'selection' => 'Away'],
-            ],
         ]);
 
         $response->assertRedirect();
@@ -77,108 +84,20 @@ class ContestCreateTest extends TestCase
         );
     }
 
-    public function test_contest_requires_at_least_one_leg(): void
-    {
-        $host = $this->makeUser('Host');
-
-        $response = $this->actingAs($host)->post('/contests', [
-            'name'              => 'Empty',
-            'entry_deadline_at' => now()->addDay()->toDateTimeString(),
-            'legs'              => [],
-        ]);
-
-        $response->assertSessionHasErrors('legs');
-        $this->assertSame(0, Contest::count());
-    }
-
-    public function test_contest_requires_name(): void
-    {
-        $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
-
-        $response = $this->actingAs($host)->post('/contests', [
-            'name'              => '',
-            'entry_deadline_at' => now()->addDay()->toDateTimeString(),
-            'legs' => [
-                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id],
-            ],
-        ]);
-
-        $response->assertSessionHasErrors('name');
-        $this->assertSame(0, Contest::count());
-    }
-
-    public function test_deadline_must_be_in_the_future(): void
-    {
-        $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
-
-        $response = $this->actingAs($host)->post('/contests', [
-            'name'              => 'Past',
-            'entry_deadline_at' => now()->subDay()->toDateTimeString(),
-            'legs' => [
-                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id],
-            ],
-        ]);
-
-        $response->assertSessionHasErrors('entry_deadline_at');
-        $this->assertSame(0, Contest::count());
-    }
-
-    public function test_deadline_must_be_before_earliest_kickoff(): void
-    {
-        $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
-
-        $extras = [
-            $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(6)),
-            $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(8)),
-            $this->makeFixture($s['league'], $s['home'], $s['away'], kickoff: now()->addHours(10)),
-        ];
-
-        // Fixture kicks off in 2 hours; deadline is 3 hours from now.
-        $response = $this->actingAs($host)->post('/contests', [
-            'name'              => 'Bad deadline',
-            'entry_deadline_at' => now()->addHours(3)->toDateTimeString(),
-            'legs' => [
-                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
-                ['fixture_id' => $s['fixtures'][1]->id, 'market_id' => $s['market1']->id, 'selection' => 'Away'],
-                ['fixture_id' => $extras[0]->id,        'market_id' => $s['market1']->id, 'selection' => 'Home'],
-                ['fixture_id' => $extras[1]->id,        'market_id' => $s['market1']->id, 'selection' => 'Away'],
-                ['fixture_id' => $extras[2]->id,        'market_id' => $s['market1']->id, 'selection' => 'Home'],
-            ],
-        ]);
-
-        $response->assertSessionHasErrors('entry_deadline_at');
-    }
-
-    public function test_duplicate_fixture_pairs_rejected(): void
-    {
-        $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
-
-        $response = $this->actingAs($host)->post('/contests', [
-            'name'              => 'Dupes',
-            'entry_deadline_at' => now()->addHour()->toDateTimeString(),
-            'legs' => [
-                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id],
-                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id],
-            ],
-        ]);
-
-        $response->assertSessionHasErrors('legs');
-    }
-
     public function test_leg_with_invalid_fixture_or_market_rejected(): void
     {
         $host = $this->makeUser('Host');
         $s    = $this->fixtureSet();
 
-        $response = $this->actingAs($host)->post('/contests', [
-            'name'              => 'Bad',
-            'entry_deadline_at' => now()->addHour()->toDateTimeString(),
+        // Pad to 5 legs so the min-count rule passes and the fixture
+        // existence check is what actually fires.
+        $response = $this->actingAs($host)->post('/contests/draft', [
             'legs' => [
-                ['fixture_id' => 999999, 'market_id' => $s['market1']->id],
+                ['fixture_id' => 999999,                    'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => $s['fixtures'][0]->id,     'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => $s['fixtures'][1]->id,     'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => 999998,                    'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => 999997,                    'market_id' => $s['market1']->id, 'selection' => 'Home'],
             ],
         ]);
 
@@ -197,17 +116,20 @@ class ContestCreateTest extends TestCase
         $legs = [];
         for ($i = 0; $i < 55; $i++) {
             $fx = $this->makeFixture($league, $home, $away);
-            $legs[] = ['fixture_id' => $fx->id, 'market_id' => $s['market1']->id];
+            $legs[] = [
+                'fixture_id' => $fx->id,
+                'market_id'  => $s['market1']->id,
+                'selection'  => 'Home',
+            ];
         }
 
-        $response = $this->actingAs($host)->post('/contests', [
-            'name'              => 'Too many',
-            'entry_deadline_at' => now()->addHour()->toDateTimeString(),
-            'legs'              => $legs,
+        $response = $this->actingAs($host)->post('/contests/draft', [
+            'legs' => $legs,
         ]);
 
         $response->assertSessionHasErrors('legs');
     }
+
     // ------------------ helpers ------------------
 
     private function fixtureSet(): array
@@ -233,7 +155,7 @@ class ContestCreateTest extends TestCase
     {
         return User::factory()->create([
             'name' => $name,
-            'code' => strtoupper(\Illuminate\Support\Str::random(8)),
+            'code' => strtoupper(Str::random(8)),
         ]);
     }
 

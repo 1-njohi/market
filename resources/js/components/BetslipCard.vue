@@ -1,149 +1,112 @@
 <template>
     <div
-        class="scrollbar-color-sky-500_slate-200 mb-2 max-h-[90vh] w-full max-w-xl scrollbar-thin overflow-x-hidden overflow-y-auto rounded-xl border border-gray-800 bg-[#0d1527] font-sans shadow-2xl md:max-h-[80vh]"
+        class="scrollbar-color-sky-500_slate-200 flex max-h-[75vh] w-full flex-col overflow-hidden scrollbar-thin font-sans text-slate-300"
     >
-        <!-- Betslip Header Banner -->
-        <div
-            class="flex items-center justify-between border-b border-[#081f2c] bg-[#0b2d3f] px-4 py-3 text-sm font-bold tracking-wide text-white"
-        >
-            <div class="flex items-center space-x-2">
-                <span>BETSLIP</span>
-            </div>
+        <!-- ═══ HEADER ═══ -->
+        <header class="flex items-center justify-between border-b border-[#232d42] px-5 py-3">
+            <span class="text-[10px] font-black tracking-widest text-emerald-400 uppercase">
+                Betslip
+            </span>
+            <span class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
+                {{ selections.length }}
+                {{ selections.length === 1 ? 'selection' : 'selections' }}
+            </span>
+        </header>
+
+        <!-- ═══ STATUS STRIP ═══ -->
+        <div class="flex items-center justify-between border-b border-[#232d42] bg-[#0f1422] px-5 py-2">
+            <span class="text-[10px] font-black tracking-widest text-sky-400 uppercase">
+                {{ selections.length > 1 ? `Multi bet (${selections.length})` : 'Single bet' }}
+            </span>
+            <button
+                type="button"
+                class="cursor-pointer rounded border border-[#232d42] bg-[#161c2a] px-2.5 py-1 text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:border-sky-500/50 hover:text-sky-400"
+            >
+                Share
+            </button>
         </div>
 
-        <!-- Active Content Area -->
-        <div class="space-y-3 bg-white p-3">
-            <!-- Purple Multi-bet Boost Notification Card -->
+        <!-- ═══ BODY ═══ -->
+        <div class="flex-1 overflow-y-auto">
+            <!-- Empty state -->
             <div
-                class="flex items-center space-x-3 rounded-lg bg-[#7c3aed] p-3 text-white shadow-sm"
+                v-if="selections.length === 0"
+                class="px-5 py-8 text-center text-[11px] text-slate-500"
             >
-                <div class="text-s flex-2">
-                    <p class="leading-relaxed font-normal text-purple-100">
-                        Your bet of
-                        <span class="font-bold text-white"
-                            >{{ selections.length }} selection(s)</span
-                        >
-                    </p>
-                </div>
+                Your betslip is empty. Tap an odd on any fixture to add a selection.
             </div>
 
-            <!-- Multi-bet Tab Title Header Line -->
-            <div
-                class="flex items-center justify-between rounded border border-[#e2e8f0] bg-[#f1f5f9] px-3 py-2"
-            >
-                <span
-                    class="text-xs font-bold tracking-wider text-[#0f172a] uppercase"
-                    v-if="selections.length > 1"
-                >
-                    MULTI BET ({{ selections.length }})
-                </span>
-                <span
-                    class="text-xs font-bold tracking-wider text-[#0f172a] uppercase"
-                    v-else
-                >
-                    SINGLE BET
-                </span>
-                <button
-                    type="button"
-                    class="flex items-center space-x-1.5 rounded border border-[#cbd5e1] bg-white px-2.5 py-1 text-xs font-semibold text-[#334155] shadow-sm transition-colors hover:bg-slate-50"
-                >
-                    <span>↪</span>
-                    <span>Share</span>
-                </button>
-            </div>
-
-            <!-- Bet Slip Game List Container -->
-            <div class="divide-y divide-dashed divide-slate-300">
-                <div
-                    v-for="item in selections"
+            <!-- Selections list -->
+            <ul v-else class="divide-y divide-[#232d42]/60">
+                <li
+                    v-for="(item, i) in selections"
                     :key="item.id"
-                    class="flex flex-col justify-between py-3 first:pt-1 last:pb-1"
+                    class="flex items-start justify-between gap-3 px-5 py-3"
                 >
-                    <!-- Row 1: Game Title and Delete Marker -->
-                    <div class="flex items-start justify-between">
-                        <div
-                            class="flex items-center space-x-1.5 text-xs font-bold text-slate-900"
-                        >
-                            <span class="cursor-pointer hover:underline"
-                                >{{ item.home_team }} –
-                                {{ item.away_team }}</span
-                            >
-                        </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
+                            Leg {{ i + 1 }} · {{ formatMarketName(item.market_name) }}
+                        </p>
+                        <p class="mt-0.5 truncate text-sm font-bold text-slate-200">
+                            {{ item.home_team }}
+                            <span class="text-slate-500">vs</span>
+                            {{ item.away_team }}
+                        </p>
+                        <p class="mt-0.5 truncate text-[11px] font-semibold text-sky-400">
+                            {{
+                                item.market_name === 'double_chance'
+                                    ? formatDoubleChanceName(item.selection)
+                                    : item.selection
+                            }}
+                        </p>
+                    </div>
+
+                    <div class="flex flex-shrink-0 flex-col items-end gap-1">
+                        <span class="font-mono text-sm font-black text-emerald-400">
+                            {{ item.odds?.value?.toFixed(2) }}
+                        </span>
                         <button
                             type="button"
                             @click="removeSelection(item)"
-                            class="h-5 w-5 cursor-pointer rounded-xl bg-red-500 px-1 text-sm font-bold text-white transition-colors hover:text-green-500"
+                            class="cursor-pointer text-[10px] font-black tracking-widest text-rose-400 uppercase hover:text-rose-300"
                             title="Remove selection"
                         >
-                            ✕
+                            Remove
                         </button>
                     </div>
-
-                    <!-- Row 2: Selected Target Market Subtitle -->
-                    <div class="mt-0.5 pl-5 text-[11px] text-slate-500">
-                        {{ formatMarketName(item.market_name) }}
-                    </div>
-
-                    <!-- Row 3: Actual Pick Selection & Associated Live Odds Value -->
-                    <div class="mt-1 flex items-center justify-between pl-5">
-                        <div class="text-xs text-slate-700">
-                            Your Pick:
-                            <span class="font-bold text-slate-900">{{
-                                item.market_name == 'double_chance'
-                                    ? formatDoubleChanceName(item.selection)
-                                    : item.selection
-                            }}</span>
-                        </div>
-                        <div class="text-xs font-bold text-slate-900">
-                            {{ item.odds?.value?.toFixed(2) }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Odds Calculation Output -->
-            <div
-                class="flex items-center justify-between border-t border-slate-300 pt-3"
-            >
-                <span class="text-xs font-bold tracking-wide text-slate-800"
-                    >TOTAL ODDS:</span
-                >
-                <span class="text-s font-black text-slate-900">{{
-                    totalOdds.toFixed(2)
-                }}</span>
-            </div>
+                </li>
+            </ul>
         </div>
 
-        <!-- Sticky Bottom Action Buttons -->
-        <div class="mt-auto flex flex-col text-xs font-bold tracking-wide">
-            <div class="grid grid-cols-12 gap-2 bg-[#0c2430] p-3">
-                <button
-                    type="button"
-                    @click="clearAll"
-                    :class="[
-                        'col-span-5 rounded border border-[#234d63]/40 bg-[#1b3d4f] px-2 py-3 text-center text-[11px] font-bold tracking-wider uppercase',
-                        selections.length > 0
-                            ? 'cursor-pointer text-[#94a3b8] transition-colors hover:bg-[#234d63] hover:text-white'
-                            : '',
-                    ]"
-                >
-                    Remove All
-                </button>
+        <!-- ═══ FOOTER — total odds ═══ -->
+        <footer class="flex items-center justify-between border-t border-[#232d42] bg-[#0f1422] px-5 py-3">
+            <span class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
+                Total odds
+            </span>
+            <span class="font-mono text-lg font-black text-emerald-400">
+                {{ totalOdds.toFixed(2) }}×
+            </span>
+        </footer>
 
-                <button
-                    type="button"
-                    @click="createDraft"
-                    :disabled="selections.length === 0 || submitting"
-                    :class="[
-                        'col-span-7 rounded border-b-2 border-slate-400 px-2 py-3 text-center text-xs font-black tracking-wider uppercase shadow-md transition-all hover:from-white hover:to-[#cbd5e1]',
-                        selections.length > 0 && !submitting
-                            ? 'cursor-pointer bg-gradient-to-b from-[#f8fafc] to-[#e2e8f0] text-[#0f172a]'
-                            : 'cursor-not-allowed text-gray-500',
-                    ]"
-                >
-                    {{ submitting ? 'Loading…' : 'Create Bet' }}
-                </button>
-            </div>
+        <!-- ═══ ACTIONS ═══ -->
+        <div class="grid grid-cols-12 gap-2 border-t border-[#232d42] bg-[#0d1527] px-5 py-4">
+            <button
+                type="button"
+                @click="clearAll"
+                :disabled="selections.length === 0"
+                class="col-span-5 cursor-pointer rounded-lg border border-[#232d42] px-3 py-3 text-[10px] font-black tracking-widest text-slate-400 uppercase transition-colors hover:border-sky-500/50 hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#232d42] disabled:hover:text-slate-400"
+            >
+                Remove all
+            </button>
+
+            <button
+                type="button"
+                @click="createDraft"
+                :disabled="selections.length === 0 || submitting"
+                class="col-span-7 cursor-pointer rounded-lg bg-[#ff8c00] px-3 py-3 text-xs font-black tracking-widest text-black uppercase transition-transform hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+            >
+                {{ submitting ? 'Loading…' : 'Create bet' }}
+            </button>
         </div>
     </div>
 </template>

@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Wallet;
+use App\Models\ReferralTerm;
+use App\Services\ReferralService;
+use App\Referral\ReferralTerms;
 use App\Services\WalletService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -98,6 +101,22 @@ class AdminUserController extends Controller
             'transactions' => fn($q) => $q->latest()->limit(15),
         ])->findOrFail($id);
 
+        $referralTerms = ReferralTerm::where('user_id', $user->id)->first();
+
+        $effectiveTerms = app(ReferralService::class)->termsFor($user);
+
+        $referralTermsPayload = [
+            'is_override' => $effectiveTerms->is_override,
+            'reward_percentage'    => $effectiveTerms->reward_percentage,
+            'max_transactions'     => $effectiveTerms->max_transactions,
+            'window_months'        => $effectiveTerms->window_months,
+            'referee_discount_pct' => $effectiveTerms->referee_discount_pct,
+            'referee_discount_cap' => $effectiveTerms->referee_discount_cap,
+            'notes'                => $referralTerms?->notes,
+            'granted_at'           => $referralTerms?->granted_at?->toISOString(),
+            'expires_at'           => $referralTerms?->expires_at?->toISOString(),
+        ];
+
         return Inertia::render('admin/users/Show', [
             'user' => [
                 'id' => $user->id,
@@ -115,6 +134,8 @@ class AdminUserController extends Controller
                 'joined_at' => $user->created_at->toISOString(),
                 'joined_ago' => $user->created_at->diffForHumans(),
             ],
+
+            'referral_terms' => $referralTermsPayload,
 
             'wallet' => [
                 'balance' => (float) ($user->wallet->balance ?? 0),

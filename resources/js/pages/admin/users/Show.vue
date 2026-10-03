@@ -6,11 +6,49 @@ const props = defineProps({
     user: { type: Object, required: true },
     wallet: { type: Object, required: true },
     stats: { type: Object, required: true },
+    referral_terms: { type: Object, required: true },
     seller_metric: { type: Object, default: null },
     recent_betslips: { type: Array, required: true },
     recent_purchases: { type: Array, required: true },
     recent_transactions: { type: Array, required: true },
 });
+
+const showTermsModal = ref(false);
+const termsForm = useForm({
+    reward_percentage:    '',
+    max_transactions:     '',
+    window_months:        '',
+    referee_discount_pct: '',
+    referee_discount_cap: '',
+    notes:                '',
+});
+
+const openTermsModal = () => {
+    termsForm.reward_percentage    = String(props.referral_terms.reward_percentage);
+    termsForm.max_transactions     = String(props.referral_terms.max_transactions);
+    termsForm.window_months        = String(props.referral_terms.window_months);
+    termsForm.referee_discount_pct = String(props.referral_terms.referee_discount_pct);
+    termsForm.referee_discount_cap = String(props.referral_terms.referee_discount_cap);
+    termsForm.notes                = props.referral_terms.notes ?? '';
+    showTermsModal.value = true;
+};
+
+const submitTerms = () => {
+    termsForm.post(`/admin/users/${props.user.id}/referral-terms`, {
+        preserveScroll: true,
+        onSuccess: () => {
+            showTermsModal.value = false;
+            termsForm.reset();
+        },
+    });
+};
+
+const revokeTerms = () => {
+    if (!confirm(`Revoke custom referral terms for ${props.user.name}?`)) return;
+    router.delete(`/admin/users/${props.user.id}/referral-terms`, {
+        preserveScroll: true,
+    });
+};
 
 const showSuspendModal = ref(false);
 const showAdjustModal = ref(false);
@@ -274,6 +312,147 @@ const submitAdjust = () => {
                         {{ stats.following }}
                     </p>
                 </div>
+            </div>
+        </section>
+
+        <!-- ═══ REFERRAL TERMS ═══ -->
+        <section class="mb-6">
+            <div class="mb-3 flex items-center justify-between">
+                <h2
+                    class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                >
+                    Referral Terms
+                </h2>
+                <div class="flex items-center gap-2">
+                    <button
+                        v-if="referral_terms.is_override"
+                        type="button"
+                        @click="revokeTerms"
+                        class="rounded border border-rose-500/30 bg-rose-500/5 px-3 py-1.5 text-[10px] font-black tracking-widest text-rose-400 uppercase transition-colors hover:border-rose-500 hover:bg-rose-500/10"
+                    >
+                        Revoke
+                    </button>
+                    <button
+                        type="button"
+                        @click="openTermsModal"
+                        class="rounded border border-sky-500/30 bg-sky-500/5 px-3 py-1.5 text-[10px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:border-sky-500 hover:bg-sky-500/10"
+                    >
+                        {{
+                            referral_terms.is_override
+                                ? 'Edit terms'
+                                : 'Grant custom terms'
+                        }}
+                    </button>
+                </div>
+            </div>
+
+            <div
+                class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
+            >
+                <div class="mb-3 flex flex-wrap items-center gap-2">
+                    <span
+                        :class="[
+                            'rounded border px-2 py-0.5 text-[9px] font-black tracking-widest uppercase',
+                            referral_terms.is_override
+                                ? 'border-amber-500/30 bg-amber-500/10 text-amber-400'
+                                : 'border-slate-500/30 bg-slate-500/10 text-slate-400',
+                        ]"
+                    >
+                        {{
+                            referral_terms.is_override
+                                ? 'Custom'
+                                : 'Platform default'
+                        }}
+                    </span>
+                    <span
+                        v-if="referral_terms.granted_at"
+                        class="font-mono text-[10px] text-slate-500"
+                    >
+                        Granted {{ formatDate(referral_terms.granted_at) }}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <div
+                        class="rounded-lg border border-[#232d42] bg-[#0f1422] p-3"
+                    >
+                        <span
+                            class="text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                        >
+                            Reward
+                        </span>
+                        <p
+                            class="mt-1 font-mono text-sm font-black text-emerald-400"
+                        >
+                            {{
+                                (
+                                    referral_terms.reward_percentage * 100
+                                ).toFixed(0)
+                            }}%
+                        </p>
+                    </div>
+                    <div
+                        class="rounded-lg border border-[#232d42] bg-[#0f1422] p-3"
+                    >
+                        <span
+                            class="text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                        >
+                            Max wins
+                        </span>
+                        <p
+                            class="mt-1 font-mono text-sm font-black text-white"
+                        >
+                            {{ referral_terms.max_transactions }}
+                        </p>
+                    </div>
+                    <div
+                        class="rounded-lg border border-[#232d42] bg-[#0f1422] p-3"
+                    >
+                        <span
+                            class="text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                        >
+                            Window
+                        </span>
+                        <p
+                            class="mt-1 font-mono text-sm font-black text-white"
+                        >
+                            {{ referral_terms.window_months }} mo
+                        </p>
+                    </div>
+                    <div
+                        class="rounded-lg border border-[#232d42] bg-[#0f1422] p-3"
+                    >
+                        <span
+                            class="text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                        >
+                            Referee discount
+                        </span>
+                        <p
+                            class="mt-1 font-mono text-sm font-black text-sky-400"
+                        >
+                            {{
+                                (
+                                    referral_terms.referee_discount_pct * 100
+                                ).toFixed(0)
+                            }}%
+                            <span class="text-[10px] text-slate-500">
+                                (cap KES
+                                {{
+                                    Number(
+                                        referral_terms.referee_discount_cap,
+                                    ).toFixed(0)
+                                }})
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <p
+                    v-if="referral_terms.notes"
+                    class="mt-3 rounded border border-[#232d42] bg-[#0f1422] px-3 py-2 text-[11px] text-slate-400"
+                >
+                    {{ referral_terms.notes }}
+                </p>
             </div>
         </section>
 
@@ -668,6 +847,166 @@ const submitAdjust = () => {
                                     adjustForm.processing
                                         ? 'Applying…'
                                         : 'Confirm adjustment'
+                                }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Teleport>
+
+        <!-- ═══ GRANT REFERRAL TERMS MODAL ═══ -->
+        <Teleport to="body">
+            <div
+                v-if="showTermsModal"
+                class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                @click.self="showTermsModal = false"
+            >
+                <div
+                    class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                ></div>
+                <div
+                    class="relative w-full max-w-md rounded-lg border border-[#232d42] bg-[#161c2a] p-6"
+                >
+                    <h3
+                        class="text-base font-black tracking-widest text-white uppercase"
+                    >
+                        Referral terms for {{ user.name }}
+                    </h3>
+                    <p class="mt-2 text-xs text-slate-400">
+                        Custom terms override the platform default for this
+                        user. Revoking restores the defaults.
+                    </p>
+
+                    <form
+                        @submit.prevent="submitTerms"
+                        class="mt-4 space-y-3"
+                    >
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label
+                                    class="mb-1.5 block text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                                >
+                                    Reward %
+                                </label>
+                                <input
+                                    v-model="termsForm.reward_percentage"
+                                    type="number"
+                                    step="0.01"
+                                    min="0.10"
+                                    max="0.25"
+                                    required
+                                    class="w-full rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-sm text-white focus:border-sky-500 focus:outline-none"
+                                />
+                                <p class="mt-1 text-[10px] text-slate-500">
+                                    Between 0.10 and 0.25
+                                </p>
+                                <p
+                                    v-if="termsForm.errors.reward_percentage"
+                                    class="mt-1 text-[10px] text-rose-400"
+                                >
+                                    {{ termsForm.errors.reward_percentage }}
+                                </p>
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1.5 block text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                                >
+                                    Max winning txns
+                                </label>
+                                <input
+                                    v-model="termsForm.max_transactions"
+                                    type="number"
+                                    min="5"
+                                    max="100"
+                                    required
+                                    class="w-full rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-sm text-white focus:border-sky-500 focus:outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label
+                                    class="mb-1.5 block text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                                >
+                                    Window (months)
+                                </label>
+                                <input
+                                    v-model="termsForm.window_months"
+                                    type="number"
+                                    min="3"
+                                    max="36"
+                                    required
+                                    class="w-full rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-sm text-white focus:border-sky-500 focus:outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    class="mb-1.5 block text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                                >
+                                    Referee discount %
+                                </label>
+                                <input
+                                    v-model="termsForm.referee_discount_pct"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="0.40"
+                                    required
+                                    class="w-full rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-sm text-white focus:border-sky-500 focus:outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                class="mb-1.5 block text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                            >
+                                Referee discount cap (KES)
+                            </label>
+                            <input
+                                v-model="termsForm.referee_discount_cap"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="100"
+                                required
+                                class="w-full rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-sm text-white focus:border-sky-500 focus:outline-none"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                class="mb-1.5 block text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                            >
+                                Notes (internal)
+                            </label>
+                            <textarea
+                                v-model="termsForm.notes"
+                                rows="2"
+                                class="w-full resize-none rounded border border-[#232d42] bg-[#070b14] px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none"
+                                placeholder="e.g. Telegram partnership, agreed 15% + 200 KES CPA"
+                            ></textarea>
+                        </div>
+
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button
+                                type="button"
+                                @click="showTermsModal = false"
+                                class="rounded border border-[#232d42] px-4 py-2 text-[10px] font-black tracking-widest text-slate-400 uppercase hover:text-slate-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                :disabled="termsForm.processing"
+                                class="rounded border border-sky-500 bg-sky-500 px-4 py-2 text-[10px] font-black tracking-widest text-[#070b14] uppercase hover:bg-sky-400 disabled:opacity-50"
+                            >
+                                {{
+                                    termsForm.processing
+                                        ? 'Saving…'
+                                        : 'Grant terms'
                                 }}
                             </button>
                         </div>
