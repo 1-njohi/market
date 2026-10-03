@@ -324,6 +324,87 @@ Route::get('/dev/clear-push-dismiss', function () {
         HTML, 200, ['Content-Type' => 'text/html']);
 });
 
+// ── TEMP: push client debug. Remove after diagnosing. ──
+Route::get('/dev/push-client-debug', function () {
+    return response(<<<'HTML'
+        <!doctype html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>Push client debug</title>
+            <style>
+                body { font-family: ui-monospace, monospace; padding: 16px; background: #0d1527; color: #e2e8f0; }
+                h2 { font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: #ff8c00; }
+                pre { background: #161c2a; padding: 12px; border-radius: 8px; border: 1px solid #232d42; white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.6; }
+                .ok { color: #10b981; }
+                .bad { color: #ef4444; }
+                .warn { color: #f59e0b; }
+            </style>
+        </head>
+        <body>
+            <h2>Push client debug</h2>
+            <pre id="out">Running…</pre>
+            <script>
+                (async () => {
+                    const out = document.getElementById('out');
+                    const lines = [];
+                    const add = (label, val, cls = '') => lines.push((cls ? '[' + cls + '] ' : '') + label + ': ' + val);
+
+                    add('User agent', navigator.userAgent.substring(0, 120));
+                    add('Is secure context (HTTPS)', window.isSecureContext, window.isSecureContext ? 'ok' : 'bad');
+                    add('Notification API present', 'Notification' in window, 'Notification' in window ? 'ok' : 'bad');
+                    add('Notification.permission', 'Notification' in window ? Notification.permission : 'N/A',
+                        !('Notification' in window) ? 'bad' : (Notification.permission === 'granted' ? 'ok' : (Notification.permission === 'denied' ? 'bad' : 'warn')));
+                    add('serviceWorker in navigator', 'serviceWorker' in navigator, 'serviceWorker' in navigator ? 'ok' : 'bad');
+                    add('PushManager in window', 'PushManager' in window, 'PushManager' in window ? 'ok' : 'bad');
+                    add('Standalone (PWA installed)', window.matchMedia('(display-mode: standalone)').matches);
+
+                    if ('serviceWorker' in navigator) {
+                        try {
+                            const reg = await navigator.serviceWorker.ready;
+                            add('SW scope', reg.scope, 'ok');
+                            add('SW state', reg.active ? reg.active.state : 'no active worker', reg.active ? 'ok' : 'bad');
+                            try {
+                                const sub = await reg.pushManager.getSubscription();
+                                add('Local push subscription', sub ? 'yes' : 'no', sub ? 'ok' : 'warn');
+                                if (sub) {
+                                    add('  endpoint prefix', sub.endpoint.substring(0, 80));
+                                    add('  endpoint host', new URL(sub.endpoint).hostname);
+                                }
+                            } catch (e) {
+                                add('getSubscription threw', e.name + ': ' + e.message, 'bad');
+                            }
+                        } catch (e) {
+                            add('SW ready failed', e.name + ': ' + e.message, 'bad');
+                        }
+                    }
+
+                    try {
+                        const r = await fetch('/push/status', {
+                            headers: { 'Accept': 'application/json' },
+                            credentials: 'same-origin',
+                        });
+                        add('/push/status HTTP', String(r.status), r.ok ? 'ok' : 'bad');
+                        if (r.ok) {
+                            const data = await r.json();
+                            add('/push/status body', JSON.stringify(data));
+                        } else {
+                            const text = await r.text();
+                            add('/push/status body', text.substring(0, 300));
+                        }
+                    } catch (e) {
+                        add('/push/status network error', e.message, 'bad');
+                    }
+
+                    out.textContent = lines.join('\n');
+                })();
+            </script>
+        </body>
+        </html>
+        HTML, 200, ['Content-Type' => 'text/html']);
+})->name('dev.push-client-debug');
+
 
 // ── Landing ──
 Route::get('/', [HomeController::class, 'index'])->name('home');
