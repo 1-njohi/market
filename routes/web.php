@@ -34,6 +34,102 @@ use App\Models\Betslip;
 
 
 // -----Dev ----
+
+
+// ── TEMP: webpush end-to-end test. Remove after verifying. ──
+Route::get('/dev/push-test', function (Request $request) {
+    $email = 'denis.mwangi24@students.dkut.ac.ke';
+    $user  = \App\Models\User::where('email', $email)->first();
+    abort_unless($user, 404, "No user with email {$email}.");
+
+    $subCount = $user->pushSubscriptions()->count();
+    if ($subCount === 0) {
+        return response()->json([
+            'error' => 'User has no push subscriptions. Enable notifications in the browser first.',
+            'email' => $email,
+        ], 422);
+    }
+
+    // ── Build supporting models ──────────────────────────────
+    $seller = $user;
+    $other  = \App\Models\User::factory()->create([
+        'name' => 'Push Test Other',
+        'code' => 'PUSHTEST01',
+    ]);
+
+    $betslip = \App\Models\Betslip::create([
+        'user_id'    => $seller->id,
+        'code'       => 'PUSH-TEST-CDE',
+        'price'      => 100,
+        'total_odds' => 2.50,
+        'status'     => 'pending',
+        'remaining'  => 3,
+        'is_winner'  => false,
+    ]);
+
+    $contest = \App\Models\Contest::create([
+        'host_id'           => $user->id,
+        'name'              => 'Push Test Contest',
+        'visibility'        => 'private',
+        'status'            => 'open',
+        'entry_deadline_at' => now()->addDay(),
+        'starts_at'         => now()->addDay()->addHour(),
+        'ends_at'           => now()->addDay()->addHours(2),
+    ]);
+
+    $deposit = \App\Models\Deposit::create([
+        'user_id'   => $seller->id,
+        'amount'    => 500,
+        'reference' => 'PUSH-TEST-DEP',
+        'status'    => 'confirmed',
+    ]);
+
+    // ── Fire every notification ──────────────────────────────
+    $sent = [];
+
+    $fire = function (string $label, $notification) use ($user, &$sent) {
+        try {
+            $user->notify($notification);
+            $sent[] = ['ok' => true, 'label' => $label];
+        } catch (\Throwable $e) {
+            $sent[] = [
+                'ok'    => false,
+                'label' => $label,
+                'error' => get_class($e) . ': ' . $e->getMessage(),
+            ];
+        }
+    };
+
+    $fire('contest_join_requested',   new \App\Notifications\ContestJoinRequestedNotification($contest, $other));
+    $fire('betslip_won',              new \App\Notifications\BetslipWonNotification($betslip));
+    $fire('betslip_lost',             new \App\Notifications\BetslipLostNotification($betslip));
+    $fire('betslip_voided',           new \App\Notifications\BetslipVoidedNotification($betslip));
+    $fire('watcher_settlement_won',   new \App\Notifications\WatcherSettlementNotification($betslip, 'won'));
+    $fire('watcher_settlement_refunded', new \App\Notifications\WatcherSettlementNotification($betslip, 'refunded'));
+    $fire('contest_entry_accepted',   new \App\Notifications\ContestEntryStatusNotification($contest, $other, 'accepted'));
+    $fire('contest_entry_rejected',   new \App\Notifications\ContestEntryStatusNotification($contest, $other, 'rejected'));
+    $fire('contest_settled',          new \App\Notifications\ContestSettledNotification($contest, 1, 5, 10.0, 20));
+    $fire('referral_signup',          new \App\Notifications\ReferralSignupNotification($other, 0.10));
+    $fire('referral_attributed',      new \App\Notifications\ReferralAttributedNotification($other, 0.05, 500.0));
+    $fire('referral_reward',          new \App\Notifications\ReferralRewardNotification($other, $betslip, 25.0));
+    $fire('deposit_confirmed',        new \App\Notifications\DepositConfirmedNotification($deposit));
+
+    return response()->json([
+        'recipient'         => ['id' => $user->id, 'email' => $user->email, 'name' => $user->name],
+        'subscriptions'     => $subCount,
+        'sent_count'        => count(array_filter($sent, fn ($s) => $s['ok'])),
+        'failed_count'      => count(array_filter($sent, fn ($s) => !$s['ok'])),
+        'notifications'     => $sent,
+        'cleanup_ids'       => [
+            'betslip_id'   => $betslip->id,
+            'contest_id'   => $contest->id,
+            'deposit_id'   => $deposit->id,
+            'other_user_id' => $other->id,
+        ],
+    ]);
+})->name('dev.push-test');
+
+
 Route::get('/dev/shift-fixture-dates', function () {
     $earliest = \App\Models\Fixture::min('date');
 
