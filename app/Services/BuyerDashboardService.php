@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\BetslipUserPurchase;
+use App\Models\ContestEntry;
 use App\Models\User;
 use Carbon\Carbon;
 
-
 class BuyerDashboardService
 {
-
     public function __construct(
         protected WalletService $walletService,
         protected WatchlistService $watchlist,
@@ -17,8 +17,11 @@ class BuyerDashboardService
     ) {
     }
 
-    public function getDashboardData(User $user): array
-    {
+    public function getDashboardData(
+        User $user,
+        ?string $period = null,
+        string $comparison = 'previous',
+    ): array {
         return [
             'user' => $this->getUserInfo($user),
             'performance' => $this->getPerformanceMetrics($user),
@@ -31,10 +34,13 @@ class BuyerDashboardService
             'wallet' => $this->getWalletSummary($user),
             'insights' => $this->getInsights($user),
             'charts' => $this->getChartData($user),
-            'quick_stats' => $this->getQuickStats($user),
             'notifications' => $this->getNotifications($user),
             'following_stats' => $this->getFollowingStats($user),
             'contests' => $this->contestService->activeForUser($user),
+            'onboarding' => $this->getOnboardingState($user),
+            'periods' => $this->getPeriods($user, $comparison),
+            'heatmap' => $this->getHeatmap($user),
+            'generated_at' => now()->toIso8601String(),
         ];
     }
 
@@ -48,7 +54,7 @@ class BuyerDashboardService
         $totalPurchases = $purchases->count();
 
         $settledPurchases = $purchases->filter(
-            fn($p) => in_array($p->status, ['won', 'refunded'], true)
+            fn ($p) => in_array($p->status, ['won', 'refunded'], true)
         );
 
         $wonPurchases = $purchases->where('status', 'won');
@@ -76,7 +82,7 @@ class BuyerDashboardService
                 'won' => 'W',
                 'refunded' => 'L',
                 'voided' => 'V',
-                default => 'P',   // pending
+                default => 'P',
             };
 
             return [
@@ -130,8 +136,13 @@ class BuyerDashboardService
             'recent_form' => $recentForm,
             'win_rate_breakdown' => $winRateBreakdown,
             'top_sellers' => $topSellers,
+            'series' => [
+                'win_rate_7d' => $this->getWinRateSeries($user, 7),
+                'spent_7d' => $this->getSpentSeries($user, 7),
+            ],
         ];
     }
+
     public function getPurchaseManagement(User $user): array
     {
         $purchases = $user->purchases()
@@ -164,13 +175,6 @@ class BuyerDashboardService
         ];
     }
 
-    /**
-     * Settled purchases for the buyer, newest first.
-     *
-     * Returns one row per pivot — the buyer's canonical view of "what
-     * happened to my money". Both won and refunded/voided outcomes are
-     * included so the buyer can see the full story.
-     */
     public function getSettledOutcomes(User $user, int $limit = 20): array
     {
         return $user->purchases()
@@ -183,7 +187,7 @@ class BuyerDashboardService
                 return [
                     'id' => $purchase->id,
                     'betslip_code' => $purchase->betslip->code ?? 'N/A',
-                    'outcome' => $purchase->status,   // won | refunded | voided
+                    'outcome' => $purchase->status,
                     'price' => (float) $purchase->purchase_price,
                     'seller_name' => $purchase->seller->name ?? 'Unknown',
                     'seller_code' => $purchase->seller->code ?? null,
@@ -194,17 +198,9 @@ class BuyerDashboardService
             ->values()
             ->toArray();
     }
-    /**
-     * Chronological feed of everything that happened to this buyer's
-     * purchases: the purchase itself and the terminal outcome.
-     *
-     * Refunds are NOT emitted as a separate event — the settlement event
-     * carries that information in its message, and the money movement is
-     * already visible in the transactions table.
-     */
+
     public function getRecentActivity(User $user, int $limit = 20): array
     {
-        // ── Purchases: betslips I bought ────────────────────────────────
         $purchases = $user->purchases()
             ->with(['betslip', 'seller'])
             ->orderByDesc('created_at')
@@ -222,7 +218,6 @@ class BuyerDashboardService
                 ];
             });
 
-        // ── Settlements: outcomes of my purchases ───────────────────────
         $settlements = $user->purchases()
             ->with('betslip')
             ->whereIn('status', ['won', 'refunded', 'voided'])
@@ -258,7 +253,6 @@ class BuyerDashboardService
                     ];
                 }
 
-                // status === 'refunded'
                 return [
                     'kind' => 'settlement_lost',
                     'badge' => 'L',
@@ -277,6 +271,7 @@ class BuyerDashboardService
             ->values()
             ->all();
     }
+
     public function getFinancialSummary(User $user): array
     {
         $wallet = $this->walletService->getWallet($user);
@@ -299,11 +294,12 @@ class BuyerDashboardService
             'total_committed' => round($totalCommitted, 2),
             'escrowed' => round($escrowed, 2),
             'total_refunded' => round($totalRefunded, 2),
-            'net_spent' => round($totalSpent, 2),   // = total_spent now
+            'net_spent' => round($totalSpent, 2),
             'total_deposited' => (float) $wallet->total_deposited,
             'total_withdrawn' => (float) $wallet->total_withdrawn,
         ];
     }
+
     public function getWalletSummary(User $user): array
     {
         $wallet = $this->walletService->getWallet($user);
@@ -323,7 +319,7 @@ class BuyerDashboardService
                 ->get()
                 ->map(function ($transaction) {
                     $outcome = null;
-                    if ($transaction->transactionable instanceof \App\Models\BetslipUserPurchase) {
+                    if ($transaction->transactionable instanceof BetslipUserPurchase) {
                         $outcome = $transaction->transactionable->status;
                     }
 
@@ -335,7 +331,7 @@ class BuyerDashboardService
                         'balance_after' => (float) $transaction->balance_after,
                         'description' => $transaction->description,
                         'status' => $transaction->status,
-                        'outcome' => $outcome,   // null | won | refunded | voided | pending
+                        'outcome' => $outcome,
                         'created_at' => $transaction->created_at->toISOString(),
                     ];
                 })->values()->toArray(),
@@ -381,7 +377,7 @@ class BuyerDashboardService
             $insights[] = "You have purchased the most betslips from {$mostPurchasedSeller['seller_name']} ({$mostPurchasedSeller['count']} purchases).";
         }
 
-        $totalSpent = $purchases->filter(fn($p) => $p->status !== 'refunded')->sum('purchase_price');
+        $totalSpent = $purchases->filter(fn ($p) => $p->status !== 'refunded')->sum('purchase_price');
         $avgPrice = $purchases->count() > 0 ? round($totalSpent / $purchases->count(), 2) : 0;
 
         if ($avgPrice > 0) {
@@ -405,26 +401,6 @@ class BuyerDashboardService
             'spending_trend' => $this->getSpendingTrend($user),
             'status_distribution' => $this->getStatusDistribution($user),
             'seller_performance' => $this->getSellerPerformance($user),
-        ];
-    }
-
-    public function getQuickStats(User $user): array
-    {
-        $purchases = $user->purchases;
-        $wallet = $this->walletService->getWallet($user);
-
-        return [
-            'total_purchases' => $purchases->count(),
-            'win_rate' => $this->calculateWinRate($purchases),
-            'total_spent' => round((float) $purchases->where('status', 'won')->sum('purchase_price'), 2),
-            'total_committed' => round(
-                (float) $purchases->where('status', 'won')->sum('purchase_price')
-                + (float) $purchases->where('status', 'pending')->sum('purchase_price'),
-                2
-            ),
-            'total_refunded' => round((float) $purchases->whereIn('status', ['refunded', 'voided'])->sum('purchase_price'), 2),
-            'balance' => (float) $wallet->balance,
-            'pending_purchases' => $purchases->where('status', 'pending')->count(),
         ];
     }
 
@@ -455,9 +431,6 @@ class BuyerDashboardService
         ];
     }
 
-    /**
-     * Sellers the buyer follows.
-     */
     public function getFollowingStats(User $user): array
     {
         $following = $user->following()
@@ -485,12 +458,294 @@ class BuyerDashboardService
         ];
     }
 
-    // ---------- Helper Methods ---------- //
+    // ---------------------------------------------------------------------
+    // Onboarding
+    // ---------------------------------------------------------------------
+
+    private function getOnboardingState(User $user): array
+    {
+        $hasPurchased     = $user->purchases()->exists();
+        $hasWatched       = $user->watchedBetslips()->exists();
+        $hasFollowed      = $user->following()->exists();
+        $hasJoinedContest = ContestEntry::where('user_id', $user->id)->exists();
+
+        $isFirstSession = !$hasPurchased
+            && !$hasWatched
+            && !$hasFollowed
+            && !$hasJoinedContest;
+
+        $firstDepositAmount = $user->Deposits()
+            ->orderBy('created_at')
+            ->value('amount');
+
+        return [
+            'is_first_session' => $isFirstSession,
+            'steps' => [
+                'has_watched'        => (bool) $hasWatched,
+                'has_purchased'      => (bool) $hasPurchased,
+                'has_followed'       => (bool) $hasFollowed,
+                'has_joined_contest' => (bool) $hasJoinedContest,
+            ],
+            'first_deposit_amount' => $firstDepositAmount !== null
+                ? (float) $firstDepositAmount
+                : null,
+        ];
+    }
+
+    // ---------------------------------------------------------------------
+    // Sparkline series
+    // ---------------------------------------------------------------------
+
+    private function getWinRateSeries(User $user, int $days = 7): array
+    {
+        $start = Carbon::now()->subDays($days - 1)->startOfDay();
+
+        $purchases = $user->purchases()
+            ->where('created_at', '>=', $start)
+            ->whereIn('status', ['won', 'refunded', 'voided'])
+            ->get();
+
+        $series = [];
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $day = Carbon::now()->subDays($i);
+            $dayPurchases = $purchases->filter(fn ($p) => $p->created_at->isSameDay($day));
+
+            if ($dayPurchases->isEmpty()) {
+                continue;
+            }
+
+            $won = $dayPurchases->where('status', 'won')->count();
+            $series[] = round(($won / $dayPurchases->count()) * 100, 1);
+        }
+
+        return $series;
+    }
+
+    private function getSpentSeries(User $user, int $days = 7): array
+    {
+        $series = [];
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i)->toDateString();
+
+            $spent = $user->purchases()
+                ->whereDate('created_at', $date)
+                ->where('status', 'won')
+                ->sum('purchase_price');
+
+            $series[] = round((float) $spent, 2);
+        }
+
+        return $series;
+    }
+
+    // ---------------------------------------------------------------------
+    // Period aggregates
+    // ---------------------------------------------------------------------
+
+    private const WINDOWS = ['24h', '7d', '30d', '90d', 'ytd', 'all'];
+
+    private function getPeriods(User $user, string $comparison): array
+    {
+        $periods = [];
+
+        foreach (self::WINDOWS as $window) {
+            $agg = $this->aggregateForWindow($user, $window);
+            $prev = $this->aggregateForPrevious($user, $window, $comparison);
+
+            $agg['comparison'] = [
+                'win_rate_delta'        => round($agg['win_rate'] - $prev['win_rate'], 1),
+                'total_spent_delta'     => round($agg['total_spent'] - $prev['total_spent'], 2),
+                'total_purchases_delta' => $agg['total_purchases'] - $prev['total_purchases'],
+                'refund_rate_delta'     => round($agg['refund_rate'] - $prev['refund_rate'], 1),
+                'avg_price_delta'       => round($agg['avg_price'] - $prev['avg_price'], 2),
+            ];
+
+            $periods[$window] = $agg;
+        }
+
+        return $periods;
+    }
+
+    private function aggregateForWindow(User $user, string $window): array
+    {
+        $since = $this->windowStart($window);
+
+        return $this->aggregatePurchases($user, $since, null);
+    }
+
+    private function aggregateForPrevious(User $user, string $window, string $comparison): array
+    {
+        if ($window === 'all') {
+            return $this->emptyAggregate();
+        }
+
+        [$prevSince, $prevUntil] = $comparison === 'yoy'
+            ? $this->yoyRange($window)
+            : $this->previousRange($window);
+
+        if (!$prevSince) {
+            return $this->emptyAggregate();
+        }
+
+        return $this->aggregatePurchases($user, $prevSince, $prevUntil);
+    }
+
+    private function windowStart(string $window): ?Carbon
+    {
+        $now = Carbon::now();
+
+        return match ($window) {
+            '24h' => $now->copy()->subHours(24),
+            '7d'  => $now->copy()->subDays(7),
+            '30d' => $now->copy()->subDays(30),
+            '90d' => $now->copy()->subDays(90),
+            'ytd' => $now->copy()->startOfYear(),
+            'all' => null,
+            default => null,
+        };
+    }
+
+    private function previousRange(string $window): array
+    {
+        $now = Carbon::now();
+
+        return match ($window) {
+            '24h' => [$now->copy()->subHours(48), $now->copy()->subHours(24)],
+            '7d'  => [$now->copy()->subDays(14), $now->copy()->subDays(7)],
+            '30d' => [$now->copy()->subDays(60), $now->copy()->subDays(30)],
+            '90d' => [$now->copy()->subDays(180), $now->copy()->subDays(90)],
+            'ytd' => [$now->copy()->subYear()->startOfYear(), $now->copy()->startOfYear()],
+            default => [null, null],
+        };
+    }
+
+    private function yoyRange(string $window): array
+    {
+        $now = Carbon::now();
+        $lastYear = $now->copy()->subYear();
+
+        return match ($window) {
+            '24h' => [$lastYear->copy()->subHours(24), $lastYear],
+            '7d'  => [$lastYear->copy()->subDays(7), $lastYear],
+            '30d' => [$lastYear->copy()->subDays(30), $lastYear],
+            '90d' => [$lastYear->copy()->subDays(90), $lastYear],
+            'ytd' => [$lastYear->copy()->startOfYear(), $lastYear->copy()->endOfYear()],
+            default => [null, null],
+        };
+    }
+
+    private function aggregatePurchases(User $user, ?Carbon $since, ?Carbon $until): array
+    {
+        $query = $user->purchases();
+
+        if ($since) {
+            $query->where('created_at', '>=', $since);
+        }
+        if ($until) {
+            $query->where('created_at', '<', $until);
+        }
+
+        $purchases = $query->get();
+
+        $total = $purchases->count();
+        $won = $purchases->where('status', 'won');
+        $settled = $purchases->filter(
+            fn ($p) => in_array($p->status, ['won', 'refunded'], true)
+        );
+        $refunded = $purchases->whereIn('status', ['refunded', 'voided']);
+        $committed = $purchases->whereIn('status', ['won', 'pending']);
+
+        $winRate = $settled->count() > 0
+            ? round(($won->count() / $settled->count()) * 100, 1)
+            : 0.0;
+
+        $totalSpent = (float) $won->sum('purchase_price');
+
+        $refundRate = $total > 0
+            ? round(($refunded->count() / $total) * 100, 1)
+            : 0.0;
+
+        $avgPrice = $committed->count() > 0
+            ? round((float) $committed->sum('purchase_price') / $committed->count(), 2)
+            : 0.0;
+
+        return [
+            'win_rate' => $winRate,
+            'total_purchases' => $total,
+            'total_spent' => round($totalSpent, 2),
+            'net_spent' => round($totalSpent, 2),
+            'refund_rate' => $refundRate,
+            'avg_price' => $avgPrice,
+        ];
+    }
+
+    private function emptyAggregate(): array
+    {
+        return [
+            'win_rate' => 0.0,
+            'total_purchases' => 0,
+            'total_spent' => 0.0,
+            'net_spent' => 0.0,
+            'refund_rate' => 0.0,
+            'avg_price' => 0.0,
+        ];
+    }
+
+    /**
+     * Daily net tip outcomes for the last $days days.
+     *
+     * value   = (tips won that day) − (tips lost that day)
+     * summary = { count, won, lost } for the day, or null if no activity.
+     *
+     * Days are emitted oldest-first so the frontend renders them left-to-right
+     * without reversing. Days with no settled purchases contribute value 0
+     * and summary null.
+     */
+    public function getHeatmap(User $user, int $days = 90): array
+    {
+        $start = Carbon::now()->subDays($days - 1)->startOfDay();
+
+        $purchases = $user->purchases()
+            ->whereIn('status', ['won', 'refunded', 'voided'])
+            ->whereNotNull('settled_at')
+            ->where('settled_at', '>=', $start)
+            ->get()
+            ->groupBy(fn ($p) => $p->settled_at->format('Y-m-d'));
+
+        $out = [];
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i)->format('Y-m-d');
+            $dayPurchases = $purchases->get($date, collect());
+
+            $won = $dayPurchases->where('status', 'won')->count();
+            $lost = $dayPurchases->whereIn('status', ['refunded', 'voided'])->count();
+            $count = $dayPurchases->count();
+
+            $out[] = [
+                'date' => $date,
+                'value' => $won - $lost,
+                'summary' => $count > 0 ? [
+                    'count' => $count,
+                    'won' => $won,
+                    'lost' => $lost,
+                ] : null,
+            ];
+        }
+
+        return ['days' => $out];
+    }
+
+    // ---------------------------------------------------------------------
+    // Legacy helpers
+    // ---------------------------------------------------------------------
 
     private function calculateWinRate($purchases): float
     {
         $settled = $purchases->filter(
-            fn($p) => in_array($p->status, ['won', 'refunded'], true)
+            fn ($p) => in_array($p->status, ['won', 'refunded'], true)
         );
         $won = $purchases->where('status', 'won');
 
@@ -501,7 +756,7 @@ class BuyerDashboardService
 
     private function calculateWinRateForPeriod($purchases, $since): float
     {
-        $periodPurchases = $purchases->filter(fn($p) => $p->created_at >= $since);
+        $periodPurchases = $purchases->filter(fn ($p) => $p->created_at >= $since);
         return $this->calculateWinRate($periodPurchases);
     }
 
@@ -559,7 +814,7 @@ class BuyerDashboardService
 
     private function getStatusDistribution(User $user): array
     {
-        $statuses = $user->purchases->groupBy('status')->map(fn($group) => $group->count());
+        $statuses = $user->purchases->groupBy('status')->map(fn ($group) => $group->count());
 
         return [
             ['status' => 'Pending', 'count' => $statuses->get('pending', 0)],

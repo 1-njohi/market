@@ -548,8 +548,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ── Wallet: Balance ──
     Route::get('/wallet/balance', function () {
         $wallet = app(WalletService::class)->getWallet(auth()->user());
-
-        return response()->json(['balance' => (float) $wallet->balance]);
+        return response()->json([
+            'balance' => (float) $wallet->balance,
+            'currency' => $wallet->currency ?: 'KES',
+            'updated_at' => $wallet->updated_at?->toIso8601String()
+                ?? now()->toIso8601String(),
+        ]);
     })->name('wallet.balance');
 
     // ── Contests (Authenticated actions) ──

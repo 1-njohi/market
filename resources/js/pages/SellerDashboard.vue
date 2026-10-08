@@ -42,10 +42,7 @@
                 </div>
 
                 <div class="flex flex-shrink-0 items-center gap-2">
-                    <AsOf
-                        :at="generatedAt"
-                        class="hidden lg:inline"
-                    />
+                    <AsOf :at="generatedAt" class="hidden lg:inline" />
                     <DashboardSwitcher active="seller" />
                     <NotificationBell
                         :initial-unread-count="
@@ -57,7 +54,6 @@
 
             <!-- ═══════════════ PRIMARY CTAs ═══════════════ -->
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <!-- Create Betslip (spans 2 cols) -->
                 <Link
                     href="/fixtures"
                     class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-sky-500/40 bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-transparent p-4 transition-all hover:border-sky-400 hover:from-sky-500/20 hover:via-sky-500/10 lg:col-span-2"
@@ -116,7 +112,6 @@
                     </div>
                 </Link>
 
-                <!-- Host Contest -->
                 <Link
                     href="/contests/create"
                     class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-purple-500/40 bg-gradient-to-r from-purple-500/10 via-purple-500/5 to-transparent p-4 transition-all hover:border-purple-400 hover:from-purple-500/20 hover:via-purple-500/10"
@@ -260,9 +255,14 @@
             </div>
 
             <!-- ═══════════════ TAB STRIP + PERIOD ═══════════════ -->
-            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div
+                class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
+            >
                 <BuyerTabs v-model="activeTab" :tabs="tabs" />
-                <div class="flex items-center gap-2">
+                <div
+                    v-if="showPeriodPicker"
+                    class="flex items-center gap-2"
+                >
                     <span
                         class="font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase"
                     >
@@ -435,6 +435,11 @@
                     />
                     <Panel v-else title="PERFORMANCE" accent="sky">
                         <template #actions>
+                            <span
+                                class="rounded border border-sky-500/20 bg-sky-500/5 px-1.5 py-0.5 font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase"
+                            >
+                                {{ shortPeriodLabel }}
+                            </span>
                             <Sparkline
                                 :values="winRateSeries"
                                 :width="64"
@@ -448,34 +453,15 @@
                                     class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
                                     >Win Rate</span
                                 >
-                                <div
-                                    class="mt-1 flex items-baseline gap-2"
-                                >
+                                <div class="mt-1 flex items-baseline gap-2">
                                     <span
                                         class="font-mono text-3xl font-black tracking-tight text-white"
-                                        >{{
-                                            seller_data.performance.win_rate
-                                        }}%</span
+                                        >{{ periodMetrics.win_rate }}%</span
                                     >
-                                    <span
-                                        :class="[
-                                            'rounded px-1.5 py-0.5 text-[9px] font-black tracking-wide uppercase',
-                                            seller_data.performance
-                                                .win_rate_change >= 0
-                                                ? 'bg-emerald-500/10 text-emerald-400'
-                                                : 'bg-rose-500/10 text-rose-400',
-                                        ]"
-                                    >
-                                        {{
-                                            seller_data.performance
-                                                .win_rate_change >= 0
-                                                ? '+'
-                                                : ''
-                                        }}{{
-                                            seller_data.performance
-                                                .win_rate_change
-                                        }}%
-                                    </span>
+                                    <DeltaChip
+                                        :value="periodDeltas.win_rate_delta"
+                                        suffix="%"
+                                    />
                                 </div>
                             </div>
                             <div>
@@ -483,31 +469,15 @@
                                     class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
                                     >ROI</span
                                 >
-                                <div
-                                    class="mt-1 flex items-baseline gap-2"
-                                >
+                                <div class="mt-1 flex items-baseline gap-2">
                                     <span
                                         class="font-mono text-3xl font-black tracking-tight text-white"
-                                        >{{ seller_data.performance.roi }}%</span
+                                        >{{ periodMetrics.roi }}%</span
                                     >
-                                    <span
-                                        :class="[
-                                            'rounded px-1.5 py-0.5 text-[9px] font-black tracking-wide uppercase',
-                                            seller_data.performance
-                                                .roi_change >= 0
-                                                ? 'bg-emerald-500/10 text-emerald-400'
-                                                : 'bg-rose-500/10 text-rose-400',
-                                        ]"
-                                    >
-                                        {{
-                                            seller_data.performance.roi_change >=
-                                            0
-                                                ? '+'
-                                                : ''
-                                        }}{{
-                                            seller_data.performance.roi_change
-                                        }}%
-                                    </span>
+                                    <DeltaChip
+                                        :value="periodDeltas.roi_delta"
+                                        suffix="%"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -521,9 +491,7 @@
                                 >
                                 <span
                                     class="mt-1 block font-mono text-sm font-black text-white"
-                                    >{{
-                                        seller_data.performance.total_betslips
-                                    }}</span
+                                    >{{ periodMetrics.total_betslips }}</span
                                 >
                             </div>
                             <div class="p-3 text-center">
@@ -533,10 +501,22 @@
                                 >
                                 <span
                                     class="mt-1 block font-mono text-sm font-black text-emerald-400"
-                                    >{{
-                                        seller_data.performance.total_sold
-                                    }}</span
+                                    >{{ periodMetrics.total_sold }}</span
                                 >
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] font-bold"
+                                    :class="
+                                        deltaTextClass(
+                                            periodDeltas.total_sold_delta,
+                                        )
+                                    "
+                                >
+                                    {{
+                                        signedNumber(
+                                            periodDeltas.total_sold_delta,
+                                        )
+                                    }}
+                                </span>
                             </div>
                             <div class="p-3 text-center">
                                 <span
@@ -550,6 +530,10 @@
                                             seller_data.performance.avg_legs,
                                         ).toFixed(1)
                                     }}</span
+                                >
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] text-slate-600"
+                                    >lifetime</span
                                 >
                             </div>
                         </div>
@@ -565,6 +549,11 @@
                     />
                     <Panel v-else title="EARNINGS" accent="amber">
                         <template #actions>
+                            <span
+                                class="rounded border border-amber-500/20 bg-amber-500/5 px-1.5 py-0.5 font-mono text-[9px] font-black tracking-widest text-amber-400 uppercase"
+                            >
+                                {{ shortPeriodLabel }}
+                            </span>
                             <Sparkline
                                 :values="revenueSeries"
                                 :width="64"
@@ -582,13 +571,25 @@
                                     class="mt-1 font-mono text-3xl font-black tracking-tight text-white"
                                 >
                                     <Money
-                                        :value="
-                                            seller_data.financial
-                                                .total_revenue
-                                        "
+                                        :value="periodMetrics.total_revenue"
                                         :currency="'KES'"
                                     />
                                 </div>
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] font-bold"
+                                    :class="
+                                        deltaTextClass(
+                                            periodDeltas.revenue_delta,
+                                        )
+                                    "
+                                >
+                                    {{
+                                        signedNumber(
+                                            periodDeltas.revenue_delta,
+                                        )
+                                    }}
+                                    vs prior
+                                </span>
                             </div>
                             <div>
                                 <span
@@ -599,13 +600,25 @@
                                     class="mt-1 font-mono text-3xl font-black tracking-tight text-amber-400"
                                 >
                                     <Money
-                                        :value="
-                                            seller_data.financial
-                                                .net_earnings
-                                        "
+                                        :value="periodMetrics.net_earnings"
                                         :currency="'KES'"
                                     />
                                 </div>
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] font-bold"
+                                    :class="
+                                        deltaTextClass(
+                                            periodDeltas.net_earnings_delta,
+                                        )
+                                    "
+                                >
+                                    {{
+                                        signedNumber(
+                                            periodDeltas.net_earnings_delta,
+                                        )
+                                    }}
+                                    vs prior
+                                </span>
                             </div>
                         </div>
                         <div
@@ -627,6 +640,10 @@
                                         :currency="'KES'"
                                     />
                                 </span>
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] text-slate-600"
+                                    >lifetime</span
+                                >
                             </div>
                             <div class="p-3 text-center">
                                 <span
@@ -643,6 +660,10 @@
                                         :currency="'KES'"
                                     />
                                 </span>
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] text-slate-600"
+                                    >live</span
+                                >
                             </div>
                         </div>
                     </Panel>
@@ -656,6 +677,7 @@
                             accent="sky"
                         >
                             <template #actions>
+                                <LiveBadge />
                                 <span
                                     v-if="
                                         seller_data.betslips.total_watchers > 0
@@ -684,11 +706,6 @@
                                     {{ seller_data.betslips.total_watchers }}
                                     watching
                                 </span>
-                                <span
-                                    v-else
-                                    class="font-mono text-[9px] text-slate-500 uppercase"
-                                    >Active</span
-                                >
                             </template>
                             <div class="divide-y divide-gray-800/40">
                                 <BetslipsTable
@@ -754,7 +771,6 @@
                     </Panel>
                 </div>
 
-                <!-- Referral -->
                 <ReferralCard
                     v-if="seller_data.referral_card"
                     :card="seller_data.referral_card"
@@ -768,6 +784,7 @@
                     accent="sky"
                 >
                     <template #actions>
+                        <LiveBadge />
                         <Link
                             href="/fixtures"
                             class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
@@ -796,10 +813,7 @@
                     accent="emerald"
                 >
                     <template #actions>
-                        <ComparisonPicker
-                            v-model="period"
-                            :periods="periods"
-                        />
+                        <ComparisonPicker v-model="period" :periods="periods" />
                         <span
                             class="font-mono text-[9px] text-slate-500 uppercase"
                             >{{ periodLabel }}</span
@@ -1119,13 +1133,9 @@
                     </div>
                 </Panel>
 
-                <!-- Transactions with period picker -->
                 <Panel title="TRANSACTIONS" accent="slate">
                     <template #actions>
-                        <ComparisonPicker
-                            v-model="period"
-                            :periods="periods"
-                        />
+                        <ComparisonPicker v-model="period" :periods="periods" />
                         <span
                             class="font-mono text-[9px] text-slate-500 uppercase"
                             >{{ periodLabel }}</span
@@ -1139,6 +1149,24 @@
 
             <!-- ═══════════════ ANALYTICS TAB ═══════════════ -->
             <template v-else-if="activeTab === 'analytics'">
+                <Panel title="EARNINGS ACTIVITY" accent="emerald">
+                    <template #actions>
+                        <span
+                            class="font-mono text-[9px] text-slate-500 uppercase"
+                        >
+                            Daily net earnings
+                        </span>
+                    </template>
+                    <div class="p-4">
+                        <ActivityHeatMap
+                            :data="seller_data.heatmap.days"
+                            mode="profit"
+                            value-type="currency"
+                            :currency="seller_data.wallet.currency"
+                            :roi="`${periodMetrics.roi}%`"
+                        />
+                    </div>
+                </Panel>
                 <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     <Panel title="WIN RATE OVER TIME" accent="sky">
                         <div class="space-y-3.5 p-4">
@@ -1285,6 +1313,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 
 import Panel from '@/components/Panel.vue';
 import Money from '@/components/Money.vue';
+import ActivityHeatMap from '@/components/ActivityHeatMap.vue';
 import BuyerTabs from '@/components/BuyerTabs.vue';
 import BetslipsTable from '@/components/BetslipsTable.vue';
 import FollowersTable from '@/components/FollowersTable.vue';
@@ -1302,6 +1331,8 @@ import ComparisonPicker from '@/components/ComparisonPicker.vue';
 import Sparkline from '@/components/Sparkline.vue';
 import AsOf from '@/components/AsOf.vue';
 import LiveValue from '@/components/LiveValue.vue';
+import DeltaChip from '@/components/DeltaChip.vue';
+import LiveBadge from '@/components/LiveBadge.vue';
 import { useOnboarding } from '@/composables/useOnboarding';
 import { usePeriod } from '@/composables/usePeriod';
 
@@ -1343,8 +1374,43 @@ const {
     period,
     periods,
     label: periodLabel,
+    shortLabel: shortPeriodLabel,
     filterByDate,
 } = usePeriod('seller', '30d');
+
+// ─── Period-scoped metric accessors ────────────────────────────────
+const periodMetrics = computed(() => {
+    const fromBackend = seller_data.periods?.[period.value];
+    if (fromBackend) {
+        return {
+            win_rate: fromBackend.win_rate ?? 0,
+            roi: fromBackend.roi ?? 0,
+            total_betslips: fromBackend.total_betslips ?? 0,
+            total_sold: fromBackend.total_sold ?? 0,
+            total_revenue: fromBackend.total_revenue ?? 0,
+            net_earnings: fromBackend.net_earnings ?? 0,
+        };
+    }
+    return {
+        win_rate: seller_data.performance.win_rate,
+        roi: seller_data.performance.roi,
+        total_betslips: seller_data.performance.total_betslips,
+        total_sold: seller_data.performance.total_sold,
+        total_revenue: seller_data.financial.total_revenue,
+        net_earnings: seller_data.financial.net_earnings,
+    };
+});
+
+const periodDeltas = computed(() => {
+    const c = seller_data.periods?.[period.value]?.comparison;
+    return {
+        win_rate_delta: c?.win_rate_delta ?? 0,
+        roi_delta: c?.roi_delta ?? 0,
+        total_sold_delta: c?.total_sold_delta ?? 0,
+        revenue_delta: c?.revenue_delta ?? 0,
+        net_earnings_delta: c?.net_earnings_delta ?? 0,
+    };
+});
 
 // ─── Filtered lists ────────────────────────────────────────────────
 const filteredSettlements = computed(() =>
@@ -1374,11 +1440,22 @@ const revenueSeries = computed(() => {
     if (seller_data.performance?.series?.revenue_7d) {
         return seller_data.performance.series.revenue_7d;
     }
-    // Seller service exposes `financial.revenue_trend` — 7-day array
     const trend = seller_data.financial?.revenue_trend ?? [];
     const values = trend.map((d) => Number(d.revenue ?? 0));
     return values.some((v) => v > 0) ? values : [];
 });
+
+// ─── Delta text helpers ────────────────────────────────────────────
+const deltaTextClass = (delta) => {
+    if (!delta || delta === 0) return 'text-slate-500';
+    return delta > 0 ? 'text-emerald-400' : 'text-rose-400';
+};
+
+const signedNumber = (delta) => {
+    if (delta === undefined || delta === null) return '';
+    const sign = delta > 0 ? '+' : '';
+    return `${sign}${delta}`;
+};
 
 // ─── Generated-at fallback ─────────────────────────────────────────
 const generatedAt = computed(
@@ -1412,6 +1489,11 @@ const readHash = () => {
 };
 
 const activeTab = ref(readHash());
+
+// Show the global period picker only on the Overview tab. Other tabs
+// either have an inline picker on their historical section (Settlements,
+// Transactions, Activity) or nothing that responds (Followers, Active).
+const showPeriodPicker = computed(() => activeTab.value === 'overview');
 
 const onHashChange = () => {
     activeTab.value = readHash();

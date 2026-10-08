@@ -43,10 +43,7 @@
                 </div>
 
                 <div class="flex flex-shrink-0 items-center gap-2">
-                    <AsOf
-                        :at="generatedAt"
-                        class="hidden lg:inline"
-                    />
+                    <AsOf :at="generatedAt" class="hidden lg:inline" />
                     <DashboardSwitcher active="buyer" />
                     <NotificationBell
                         :initial-unread-count="
@@ -58,7 +55,6 @@
 
             <!-- ═══════════════ PRIMARY CTAs ═══════════════ -->
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <!-- Marketplace CTA (spans 2 cols) -->
                 <Link
                     href="/marketplace"
                     class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent p-4 transition-all hover:border-emerald-400 hover:from-emerald-500/20 hover:via-emerald-500/10 lg:col-span-2"
@@ -117,7 +113,6 @@
                     </div>
                 </Link>
 
-                <!-- Refer CTA -->
                 <Link
                     href="/refer"
                     class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-4 transition-all hover:border-amber-400 hover:from-amber-500/20 hover:via-amber-500/10"
@@ -177,9 +172,14 @@
             </div>
 
             <!-- ═══════════════ TAB STRIP + PERIOD ═══════════════ -->
-            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div
+                class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
+            >
                 <BuyerTabs v-model="activeTab" :tabs="tabs" />
-                <div class="flex items-center gap-2">
+                <div
+                    v-if="showPeriodPicker"
+                    class="flex items-center gap-2"
+                >
                     <span
                         class="font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase"
                     >
@@ -352,6 +352,11 @@
                     />
                     <Panel v-else title="PERFORMANCE" accent="sky">
                         <template #actions>
+                            <span
+                                class="rounded border border-sky-500/20 bg-sky-500/5 px-1.5 py-0.5 font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase"
+                            >
+                                {{ shortPeriodLabel }}
+                            </span>
                             <Sparkline
                                 :values="winRateSeries"
                                 :width="64"
@@ -365,10 +370,15 @@
                                     class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
                                     >Win Rate</span
                                 >
-                                <div
-                                    class="mt-1 font-mono text-3xl font-black tracking-tight text-white"
-                                >
-                                    {{ buyer_data.performance.win_rate }}%
+                                <div class="mt-1 flex items-baseline gap-2">
+                                    <span
+                                        class="font-mono text-3xl font-black tracking-tight text-white"
+                                        >{{ periodMetrics.win_rate }}%</span
+                                    >
+                                    <DeltaChip
+                                        :value="periodDeltas.win_rate_delta"
+                                        suffix="%"
+                                    />
                                 </div>
                             </div>
                             <div>
@@ -376,10 +386,16 @@
                                     class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
                                     >Refund Rate</span
                                 >
-                                <div
-                                    class="mt-1 font-mono text-3xl font-black tracking-tight text-white"
-                                >
-                                    {{ buyer_data.performance.refund_rate }}%
+                                <div class="mt-1 flex items-baseline gap-2">
+                                    <span
+                                        class="font-mono text-3xl font-black tracking-tight text-white"
+                                        >{{ periodMetrics.refund_rate }}%</span
+                                    >
+                                    <DeltaChip
+                                        :value="periodDeltas.refund_rate_delta"
+                                        suffix="%"
+                                        invert
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -393,10 +409,22 @@
                                 >
                                 <span
                                     class="mt-1 block font-mono text-sm font-black text-white"
-                                    >{{
-                                        buyer_data.performance.total_purchases
-                                    }}</span
+                                    >{{ periodMetrics.total_purchases }}</span
                                 >
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] font-bold"
+                                    :class="
+                                        deltaTextClass(
+                                            periodDeltas.total_purchases_delta,
+                                        )
+                                    "
+                                >
+                                    {{
+                                        signedNumber(
+                                            periodDeltas.total_purchases_delta,
+                                        )
+                                    }}
+                                </span>
                             </div>
                             <div class="p-3 text-center">
                                 <span
@@ -406,6 +434,10 @@
                                 <span
                                     class="mt-1 block font-mono text-sm font-black text-amber-400"
                                     >{{ buyer_data.purchases.pending }}</span
+                                >
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] text-slate-600"
+                                    >live</span
                                 >
                             </div>
                             <div class="p-3 text-center">
@@ -417,11 +449,23 @@
                                     class="mt-1 block font-mono text-sm font-black text-white"
                                 >
                                     <Money
-                                        :value="
-                                            buyer_data.performance.avg_price
-                                        "
+                                        :value="periodMetrics.avg_price"
                                         :currency="'KES'"
                                     />
+                                </span>
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] font-bold"
+                                    :class="
+                                        deltaTextClass(
+                                            periodDeltas.avg_price_delta,
+                                        )
+                                    "
+                                >
+                                    {{
+                                        signedNumber(
+                                            periodDeltas.avg_price_delta,
+                                        )
+                                    }}
                                 </span>
                             </div>
                         </div>
@@ -437,6 +481,11 @@
                     />
                     <Panel v-else title="MONEY" accent="amber">
                         <template #actions>
+                            <span
+                                class="rounded border border-amber-500/20 bg-amber-500/5 px-1.5 py-0.5 font-mono text-[9px] font-black tracking-widest text-amber-400 uppercase"
+                            >
+                                {{ shortPeriodLabel }}
+                            </span>
                             <Sparkline
                                 :values="spentSeries"
                                 :width="64"
@@ -450,16 +499,31 @@
                                     class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
                                     >Total Spent</span
                                 >
-                                <div
-                                    class="mt-1 font-mono text-3xl font-black tracking-tight text-white"
-                                >
-                                    <Money
-                                        :value="
-                                            buyer_data.financial.total_spent
-                                        "
-                                        :currency="'KES'"
-                                    />
+                                <div class="mt-1 flex items-baseline gap-2">
+                                    <span
+                                        class="font-mono text-3xl font-black tracking-tight text-white"
+                                    >
+                                        <Money
+                                            :value="periodMetrics.total_spent"
+                                            :currency="'KES'"
+                                        />
+                                    </span>
                                 </div>
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] font-bold"
+                                    :class="
+                                        deltaTextClass(
+                                            periodDeltas.total_spent_delta,
+                                        )
+                                    "
+                                >
+                                    {{
+                                        signedNumber(
+                                            periodDeltas.total_spent_delta,
+                                        )
+                                    }}
+                                    vs prior
+                                </span>
                             </div>
                             <div>
                                 <span
@@ -470,9 +534,7 @@
                                     class="mt-1 font-mono text-3xl font-black tracking-tight text-amber-400"
                                 >
                                     <Money
-                                        :value="
-                                            buyer_data.financial.net_spent
-                                        "
+                                        :value="periodMetrics.net_spent"
                                         :currency="'KES'"
                                     />
                                 </div>
@@ -497,6 +559,10 @@
                                         :currency="'KES'"
                                     />
                                 </span>
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] text-slate-600"
+                                    >lifetime</span
+                                >
                             </div>
                             <div class="p-3 text-center">
                                 <span
@@ -514,6 +580,10 @@
                                         :currency="'KES'"
                                     />
                                 </span>
+                                <span
+                                    class="mt-0.5 block font-mono text-[9px] text-slate-600"
+                                    >lifetime</span
+                                >
                             </div>
                         </div>
                     </Panel>
@@ -527,10 +597,7 @@
                             accent="sky"
                         >
                             <template #actions>
-                                <span
-                                    class="font-mono text-[9px] text-slate-500 uppercase"
-                                    >Your purchases</span
-                                >
+                                <LiveBadge />
                             </template>
                             <div class="divide-y divide-gray-800/40">
                                 <EmptyState
@@ -587,7 +654,6 @@
                     </Panel>
                 </div>
 
-                <!-- Referral -->
                 <ReferralCard
                     v-if="buyer_data.referral_card"
                     :card="buyer_data.referral_card"
@@ -601,10 +667,7 @@
                     accent="emerald"
                 >
                     <template #actions>
-                        <span
-                            class="font-mono text-[9px] text-slate-500 uppercase"
-                            >Your purchases</span
-                        >
+                        <LiveBadge />
                     </template>
                     <div class="divide-y divide-gray-800/40">
                         <EmptyState
@@ -624,10 +687,7 @@
                     accent="emerald"
                 >
                     <template #actions>
-                        <ComparisonPicker
-                            v-model="period"
-                            :periods="periods"
-                        />
+                        <ComparisonPicker v-model="period" :periods="periods" />
                         <span
                             class="font-mono text-[9px] text-slate-500 uppercase"
                             >{{ periodLabel }}</span
@@ -1150,13 +1210,9 @@
                     </div>
                 </Panel>
 
-                <!-- Transactions with period picker -->
                 <Panel title="TRANSACTIONS" accent="slate">
                     <template #actions>
-                        <ComparisonPicker
-                            v-model="period"
-                            :periods="periods"
-                        />
+                        <ComparisonPicker v-model="period" :periods="periods" />
                         <span
                             class="font-mono text-[9px] text-slate-500 uppercase"
                             >{{ periodLabel }}</span
@@ -1170,6 +1226,23 @@
 
             <!-- ═══════════════ ANALYTICS TAB ═══════════════ -->
             <template v-else-if="activeTab === 'analytics'">
+                <Panel title="ACTIVITY" accent="emerald">
+                    <template #actions>
+                        <span
+                            class="font-mono text-[9px] text-slate-500 uppercase"
+                        >
+                            Tip outcomes per day
+                        </span>
+                    </template>
+                    <div class="p-4">
+                        <ActivityHeatMap
+                            :data="buyer_data.heatmap.days"
+                            mode="profit"
+                            value-type="count"
+                            value-label="Net tips"
+                        />
+                    </div>
+                </Panel>
                 <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     <Panel title="WIN RATE OVER TIME" accent="sky">
                         <div class="space-y-3.5 p-4">
@@ -1330,6 +1403,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 
 import Panel from '@/components/Panel.vue';
 import Money from '@/components/Money.vue';
+import ActivityHeatMap from '@/components/ActivityHeatMap.vue';
 import BuyerTabs from '@/components/BuyerTabs.vue';
 import BetslipsTable from '@/components/BetslipsTable.vue';
 import FollowingTable from '@/components/FollowingTable.vue';
@@ -1347,6 +1421,8 @@ import ComparisonPicker from '@/components/ComparisonPicker.vue';
 import Sparkline from '@/components/Sparkline.vue';
 import AsOf from '@/components/AsOf.vue';
 import LiveValue from '@/components/LiveValue.vue';
+import DeltaChip from '@/components/DeltaChip.vue';
+import LiveBadge from '@/components/LiveBadge.vue';
 import { useOnboarding } from '@/composables/useOnboarding';
 import { usePeriod } from '@/composables/usePeriod';
 
@@ -1388,10 +1464,45 @@ const {
     period,
     periods,
     label: periodLabel,
+    shortLabel: shortPeriodLabel,
     filterByDate,
 } = usePeriod('buyer', '30d');
 
-// ─── Filtered lists (client-side; backend will provide later) ──────
+// ─── Period-scoped metric accessors ────────────────────────────────
+const periodMetrics = computed(() => {
+    const fromBackend = buyer_data.periods?.[period.value];
+    if (fromBackend) {
+        return {
+            win_rate: fromBackend.win_rate ?? 0,
+            refund_rate: fromBackend.refund_rate ?? 0,
+            total_spent: fromBackend.total_spent ?? 0,
+            net_spent: fromBackend.net_spent ?? 0,
+            total_purchases: fromBackend.total_purchases ?? 0,
+            avg_price: fromBackend.avg_price ?? 0,
+        };
+    }
+    return {
+        win_rate: buyer_data.performance.win_rate,
+        refund_rate: buyer_data.performance.refund_rate,
+        total_spent: buyer_data.financial.total_spent,
+        net_spent: buyer_data.financial.net_spent,
+        total_purchases: buyer_data.performance.total_purchases,
+        avg_price: buyer_data.performance.avg_price,
+    };
+});
+
+const periodDeltas = computed(() => {
+    const c = buyer_data.periods?.[period.value]?.comparison;
+    return {
+        win_rate_delta: c?.win_rate_delta ?? 0,
+        refund_rate_delta: c?.refund_rate_delta ?? 0,
+        total_spent_delta: c?.total_spent_delta ?? 0,
+        total_purchases_delta: c?.total_purchases_delta ?? 0,
+        avg_price_delta: c?.avg_price_delta ?? 0,
+    };
+});
+
+// ─── Filtered lists ────────────────────────────────────────────────
 const filteredTransactions = computed(() =>
     filterByDate(buyer_data.wallet.recent_transactions, 'created_at'),
 );
@@ -1406,12 +1517,9 @@ const filteredActivity = computed(() =>
 
 // ─── Sparkline series ──────────────────────────────────────────────
 const winRateSeries = computed(() => {
-    // Prefer backend-provided series when it exists (TDD: performance.series.win_rate_7d)
     if (buyer_data.performance?.series?.win_rate_7d) {
         return buyer_data.performance.series.win_rate_7d;
     }
-    // Fallback: order [all_time, 90d, 30d, 7d] so the line trends up when
-    // recent performance beats historical.
     const b = buyer_data.performance.win_rate_breakdown ?? {};
     return [b.all_time, b.last_90_days, b.last_30_days, b.last_7_days].filter(
         (n) => typeof n === 'number' && !Number.isNaN(n),
@@ -1422,7 +1530,6 @@ const spentSeries = computed(() => {
     if (buyer_data.performance?.series?.spent_7d) {
         return buyer_data.performance.series.spent_7d;
     }
-    // Fallback: bucket purchases into a 7-day rolling daily total.
     const txs = buyer_data.wallet.recent_transactions ?? [];
     const days = 7;
     const buckets = new Array(days).fill(0);
@@ -1440,9 +1547,20 @@ const spentSeries = computed(() => {
         }
     });
 
-    // Only show the sparkline if there's any signal
     return buckets.some((v) => v > 0) ? buckets : [];
 });
+
+// ─── Delta text helpers ────────────────────────────────────────────
+const deltaTextClass = (delta) => {
+    if (!delta || delta === 0) return 'text-slate-500';
+    return delta > 0 ? 'text-emerald-400' : 'text-rose-400';
+};
+
+const signedNumber = (delta) => {
+    if (delta === undefined || delta === null) return '';
+    const sign = delta > 0 ? '+' : '';
+    return `${sign}${delta}`;
+};
 
 // ─── Generated-at fallback ─────────────────────────────────────────
 const generatedAt = computed(
@@ -1501,6 +1619,12 @@ const readHash = () => {
 };
 
 const activeTab = ref(readHash());
+
+// Show the global period picker only on the Overview tab. Every other
+// tab either has an inline picker on its own historical panel, or has
+// no historical content at all — a global picker there would just be
+// misleading noise sitting above "live" queues.
+const showPeriodPicker = computed(() => activeTab.value === 'overview');
 
 const onHashChange = () => {
     activeTab.value = readHash();

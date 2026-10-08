@@ -23,9 +23,9 @@ class SeedFixtures extends Command
         // Example: Premier League 2022/23
         $leagueId = 39;
         $season = 2022;
-        // $uri = config('services.api_sports.base_url') . '/fixtures?league=' . $leagueId . '&season=' . $season . '&timezone=Africa%2FNairobi';
-
-        $uri = "https://v3.football.api-sports.io/fixtures?league=39&season=2022&from=2022-08-01&to=2022-08-08";
+        $uri = config('services.api_sports.base_url') . '/fixtures';
+        
+        // $uri = "https://v3.football.api-sports.io/fixtures?league=39&season=2022&from=2022-08-01&to=2022-08-08";
         $response = Http::withHeaders([
             'x-apisports-key' => config('services.api_sports.key'),
         ])->get($uri);

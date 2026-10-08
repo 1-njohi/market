@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-use App\Jobs\SettleFixtureJob;
 use App\Models\Fixture;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\MpesaWithdrawalCallbackController;
@@ -259,14 +258,6 @@ Route::get('/result', function (Request $request) {
     ];
 
     return response()->json($apiResponse);
-});
-
-Route::get('/settle', function (Request $request) {
-    $fixture = Fixture::first();
-
-    SettleFixtureJob::dispatchSync($fixture);
-
-    return response()->json(['message' => 'Settlement job dispatched']);
 });
 
 Route::prefix('mpesa/b2c')->group(function () {

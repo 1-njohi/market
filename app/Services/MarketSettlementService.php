@@ -12,44 +12,136 @@ use Illuminate\Support\Str;
 
 class MarketSettlementService
 {
+    public const FINISHED_STATUS = 'FT';
+    public const VOID_STATUSES = ['CANC', 'ABD', 'AWD', 'WO', 'PST'];
+
     public function __construct(
         protected ContestLegResolver $contestLegResolver,
     ) {}
 
     /**
-     * Settle all pending odds for a fixture.
+     * Build the match-data array consumed by resolveMarket() from local DB
+     * state only. No API call.
+     *
+     * Mirrors the shape previously built from the API-Sports fixture payload.
      */
-    public function settleFixture(Fixture $fixture, array $apiData): void
+    public function buildMatchDataFromDb(Fixture $fixture): array
     {
-        if (($apiData['fixture']['status']['short'] ?? '') !== 'FT') {
-            Log::info("Fixture {$fixture->id} not finished.");
-            return;
-        }
+        $homeGoals = (int) ($fixture->goals_home ?? 0);
+        $awayGoals = (int) ($fixture->goals_away ?? 0);
+        $homeHT    = (int) ($fixture->halftime_home ?? 0);
+        $awayHT    = (int) ($fixture->halftime_away ?? 0);
+        $homeFT    = (int) ($fixture->fulltime_home ?? $homeGoals);
+        $awayFT    = (int) ($fixture->fulltime_away ?? $awayGoals);
 
-        $match = $this->extractMatchData($apiData);
-        $odds = $fixture->Odds;
+        $totalGoals = $homeGoals + $awayGoals;
+        $htTotal    = $homeHT + $awayHT;
+        $stTotal    = ($homeFT - $homeHT) + ($awayFT - $awayHT);
 
-        if ($odds->isEmpty()) {
-            return;
-        }
+        $goalEvents = DB::table('fixture_events')
+            ->where('fixture_id', $fixture->id)
+            ->where('type', 'Goal')
+            ->orderBy('time_elapsed')
+            ->orderBy('time_extra')
+            ->orderBy('id')
+            ->pluck('team_id');
 
-        DB::transaction(function () use ($odds, $match, $fixture) {
+        $firstGoalTeam = $goalEvents->first();
+        $lastGoalTeam  = $goalEvents->last();
+
+        $isHome = fn ($teamId) => $teamId !== null && (int) $teamId === (int) $fixture->home_team_id;
+        $isAway = fn ($teamId) => $teamId !== null && (int) $teamId === (int) $fixture->away_team_id;
+
+        return [
+            'home_goals'           => $homeGoals,
+            'away_goals'           => $awayGoals,
+            'home_ht_goals'        => $homeHT,
+            'away_ht_goals'        => $awayHT,
+            'home_ft_goals'        => $homeFT,
+            'away_ft_goals'        => $awayFT,
+            'total_goals'          => $totalGoals,
+            'ht_total_goals'       => $htTotal,
+            'st_total_goals'       => $stTotal,
+            'both_scored'          => $homeGoals > 0 && $awayGoals > 0,
+            'home_scored_first'    => $isHome($firstGoalTeam),
+            'away_scored_first'    => $isAway($firstGoalTeam),
+            'home_scored_last'     => $isHome($lastGoalTeam),
+            'away_scored_last'     => $isAway($lastGoalTeam),
+            'home_winner'          => $homeGoals > $awayGoals,
+            'away_winner'          => $awayGoals > $homeGoals,
+            'draw'                 => $homeGoals === $awayGoals,
+            'halftime_home_winner' => $homeHT > $awayHT,
+            'halftime_away_winner' => $awayHT > $homeHT,
+            'halftime_draw'        => $homeHT === $awayHT,
+            'score'                => "{$homeGoals}:{$awayGoals}",
+        ];
+    }
+
+    /**
+     * Settle a fixture from local DB state only. No API call.
+     *
+     * Idempotent: safe to call multiple times. Locks the fixture row and
+     * re-checks the `settled` flag inside the transaction to prevent
+     * double-settlement from overlapping scheduler runs.
+     */
+    public function settleFixture(Fixture $fixture): void
+    {
+        DB::transaction(function () use ($fixture) {
+            $fixture = Fixture::whereKey($fixture->id)->lockForUpdate()->first();
+
+            if (! $fixture || $fixture->settled) {
+                return;
+            }
+
+            if (in_array($fixture->status_short, self::VOID_STATUSES, true)) {
+                $this->voidFixture($fixture);
+                $fixture->update(['settled' => true]);
+                return;
+            }
+
+            if ($fixture->status_short !== self::FINISHED_STATUS) {
+                return;
+            }
+
+            $match = $this->buildMatchDataFromDb($fixture);
+            $odds  = $fixture->Odds;
+
             foreach ($odds as $odd) {
                 $this->settleOdd($odd, $match);
             }
 
-            // Contest legs referencing these odds are updated inside the same
-            // transaction. Scoring is deferred until after commit — see below.
-            $this->contestLegResolver->resolveMany($odds);
+            if ($odds->isNotEmpty()) {
+                $this->contestLegResolver->resolveMany($odds);
+                $this->updateBetslips($fixture);
+            }
 
-            $this->updateBetslips($fixture);
+            $fixture->update(['settled' => true]);
         });
 
-        // Fires after the transaction commits. If scoring throws here, the
-        // fixture settlement has already been persisted.
+        // Deferred scoring happens after commit — ContestLegResolver's contract.
         $this->contestLegResolver->drainPendingScores();
     }
 
+    /**
+     * Void every odd on a fixture whose status is in VOID_STATUSES.
+     * Downstream cascades (betslips, contests) treat 'void' as refund.
+     */
+    protected function voidFixture(Fixture $fixture): void
+    {
+        $odds = $fixture->Odds;
+
+        foreach ($odds as $odd) {
+            if ($odd->status === 'pending') {
+                $odd->update(['status' => 'void']);
+            }
+        }
+
+        // Contest legs referencing these odds need to know about the void.
+        if ($odds->isNotEmpty()) {
+            $this->contestLegResolver->resolveMany($odds);
+            $this->updateBetslips($fixture);
+        }
+    }
     /**
      * Settle a single odd.
      */
@@ -309,67 +401,6 @@ class MarketSettlementService
     // ------------------------------------------------------------------------
     // Helper Methods
     // ------------------------------------------------------------------------
-
-    protected function extractMatchData(array $apiData): array
-    {
-        $fixture = $apiData['fixture'];
-        $teams = $apiData['teams'];
-        $goals = $apiData['goals'];
-        $score = $apiData['score'];
-        $events = $apiData['events'] ?? [];
-
-        $homeGoals = (int) $goals['home'];
-        $awayGoals = (int) $goals['away'];
-        $homeHT = (int) $score['halftime']['home'];
-        $awayHT = (int) $score['halftime']['away'];
-        $homeFT = (int) $score['fulltime']['home'];
-        $awayFT = (int) $score['fulltime']['away'];
-
-        $totalGoals = $homeGoals + $awayGoals;
-        $htTotal = $homeHT + $awayHT;
-        $stTotal = ($homeFT - $homeHT) + ($awayFT - $awayHT);
-
-        // Determine first/last goal
-        $firstGoalTeam = null;
-        $lastGoalTeam = null;
-        foreach ($events as $event) {
-            if ($event['type'] === 'Goal') {
-                $teamId = $event['team']['id'];
-                $isHome = $teamId == $teams['home']['id'];
-                $team = $isHome ? 'home' : 'away';
-                if ($firstGoalTeam === null) {
-                    $firstGoalTeam = $team;
-                }
-                $lastGoalTeam = $team;
-            }
-        }
-
-        $bothScored = ($homeGoals > 0 && $awayGoals > 0);
-
-        return [
-            'home_goals' => $homeGoals,
-            'away_goals' => $awayGoals,
-            'home_ht_goals' => $homeHT,
-            'away_ht_goals' => $awayHT,
-            'home_ft_goals' => $homeFT,
-            'away_ft_goals' => $awayFT,
-            'total_goals' => $totalGoals,
-            'ht_total_goals' => $htTotal,
-            'st_total_goals' => $stTotal,
-            'both_scored' => $bothScored,
-            'home_scored_first' => $firstGoalTeam === 'home',
-            'away_scored_first' => $firstGoalTeam === 'away',
-            'home_scored_last' => $lastGoalTeam === 'home',
-            'away_scored_last' => $lastGoalTeam === 'away',
-            'home_winner' => $homeGoals > $awayGoals,
-            'away_winner' => $awayGoals > $homeGoals,
-            'draw' => $homeGoals === $awayGoals,
-            'halftime_home_winner' => $homeHT > $awayHT,
-            'halftime_away_winner' => $awayHT > $homeHT,
-            'halftime_draw' => $homeHT === $awayHT,
-            'score' => "{$homeGoals}:{$awayGoals}",
-        ];
-    }
 
     protected function updateBetslips(Fixture $fixture): void
     {

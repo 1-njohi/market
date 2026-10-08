@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Betslip;
 use App\Models\BetslipUserPurchase;
+use App\Models\Contest;
 use App\Models\SellerMetric;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +25,11 @@ class SellerDashboardService
     /**
      * Get complete dashboard data
      */
-    public function getDashboardData(User $user): array
-    {
+    public function getDashboardData(
+        User $user,
+        ?string $period = null,
+        string $comparison = 'previous',
+    ): array {
         return [
             'user' => $this->getUserInfo($user),
             'performance' => $this->getPerformanceMetrics($user),
@@ -39,16 +43,18 @@ class SellerDashboardService
             'insights' => $this->getInsights($user),
             'follower_stats' => $this->getFollowerStats($user),
             'charts' => $this->getChartData($user),
-            'quick_stats' => $this->getQuickStats($user),
             'notifications' => $this->getNotifications($user),
             'fee_tier' => $this->getFeeTier($user),
+            'onboarding' => $this->getOnboardingState($user),
+            'periods' => $this->getPeriods($user, $comparison),
+            'heatmap' => $this->getHeatmap($user),
+            'generated_at' => now()->toIso8601String(),
         ];
     }
+
     /**
      * Get real-time data
      */
-
-    // Somewhere in SellerDashboardService
     public function getFeeTier(User $seller): array
     {
         $totalSales = $this->platformFeeService->getTotalSalesCount($seller);
@@ -77,6 +83,7 @@ class SellerDashboardService
                 : null,
         ];
     }
+
     public function getRealtimeData(User $user): array
     {
         return [
@@ -117,7 +124,7 @@ class SellerDashboardService
             ->map(function ($betslip) {
                 return [
                     'status' => $betslip->is_winner ? 'W' : 'L',
-                    'date' => $betslip->created_at->format('Y-m-d')
+                    'date' => $betslip->created_at->format('Y-m-d'),
                 ];
             })
             ->values()
@@ -148,6 +155,10 @@ class SellerDashboardService
             'avg_legs' => $this->getAverageLegs($user),
             'recent_form' => $recentForm,
             'win_rate_breakdown' => $winRateBreakdown,
+            'series' => [
+                'win_rate_7d' => $this->getWinRateSeries($user, 7),
+                'revenue_7d' => $this->getRevenueSeries($user, 7),
+            ],
         ];
     }
 
@@ -204,9 +215,6 @@ class SellerDashboardService
     /**
      * Chronological feed of everything that happened to this seller's
      * betslips: sales (buyers purchasing) and settlements (terminal states).
-     *
-     * Every event shares the same shape so the frontend renders them
-     * uniformly. See WalletService docs for the ledger side of these.
      */
     public function getRecentActivity(User $user, int $limit = 20): array
     {
@@ -280,11 +288,6 @@ class SellerDashboardService
 
     /**
      * Settled purchases for the seller, newest first.
-     *
-     * Reads the actual payout and fee amounts off the ledger (transactions
-     * tagged with this pivot) rather than recomputing from the current fee
-     * tier. Historical settlements therefore reflect what was actually paid
-     * out, even if the seller's tier changes later.
      */
     public function getSettlements(User $user, int $limit = 20): array
     {
@@ -327,8 +330,7 @@ class SellerDashboardService
     {
         $wallet = $this->walletService->getWallet($user);
 
-        // Lifetime earnings, straight from the ledger. Each won purchase
-        // writes a payout row (gross) and, if applicable, a fee row.
+        // Lifetime earnings, straight from the ledger.
         $lifetimeGross = (float) \App\Models\Transaction::where('user_id', $user->id)
             ->where('balance_type', 'available')
             ->where('type', \App\Models\Transaction::TYPE_PAYOUT)
@@ -370,43 +372,36 @@ class SellerDashboardService
 
         $insights = [];
 
-        // Best day
         $bestDay = $this->calculateBestDay($betslips);
         if ($bestDay) {
             $insights[] = "Your best day is {$bestDay['day']} ({$bestDay['win_rate']}% win rate)";
         }
 
-        // Best league
         $bestLeague = $this->calculateBestLeague($user);
         if ($bestLeague) {
             $insights[] = "Premier League bets perform best ({$bestLeague['win_rate']}%)";
         }
 
-        // Best leg count
         $bestLegs = $this->calculateBestLegCount($user);
         if ($bestLegs) {
             $insights[] = "{$bestLegs['legs']}-leg bets have the highest win rate ({$bestLegs['win_rate']}%)";
         }
 
-        // Best odds range
         $bestOdds = $this->calculateBestOddsRange($user);
         if ($bestOdds) {
             $insights[] = "Low odds ({$bestOdds['range']}) have {$bestOdds['win_rate']}% win rate";
         }
 
-        // Streak
         $streak = $this->calculateCurrentStreak($betslips);
         if ($streak && $streak['type'] === 'win') {
             $insights[] = "You're on a {$streak['count']}-win streak! 🔥";
         }
 
-        // ROI change
         $roiChange = $this->calculateROIChange($user);
         if ($roiChange > 0) {
             $insights[] = "Your ROI increased by {$roiChange}% this month";
         }
 
-        // Market suggestion
         $suggestedMarket = $this->suggestMarket($user);
         if ($suggestedMarket) {
             $insights[] = "Consider more {$suggestedMarket['name']} bets ({$suggestedMarket['win_rate']}% win rate)";
@@ -430,7 +425,7 @@ class SellerDashboardService
                     'name' => $follower->name,
                     'avatar' => $follower->avatar ?? "https://ui-avatars.com/api/?name={$follower->name}",
                     'followed_at' => Carbon::parse($follower->pivot->followed_at)->diffForHumans(),
-                    'code' => $follower->code
+                    'code' => $follower->code,
                 ];
             });
 
@@ -523,6 +518,301 @@ class SellerDashboardService
             })->values()->toArray(),
         ];
     }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Onboarding
+    // ──────────────────────────────────────────────────────────────────
+
+    private function getOnboardingState(User $user): array
+    {
+        $hasCreatedBetslip = $user->betslips()->exists();
+        $hasFirstSale      = $user->purchasesAsSeller()->exists();
+        $hasHostedContest  = Contest::where('host_id', $user->id)->exists();
+        $hasWithdrawn      = $user->withdraws()->exists();
+
+        $isFirstSession = !$hasCreatedBetslip
+            && !$hasFirstSale
+            && !$hasHostedContest
+            && !$hasWithdrawn;
+
+        $firstSaleAt = $user->purchasesAsSeller()
+            ->orderBy('created_at')
+            ->value('created_at');
+
+        return [
+            'is_first_session' => $isFirstSession,
+            'steps' => [
+                'has_created_betslip' => (bool) $hasCreatedBetslip,
+                'has_first_sale'      => (bool) $hasFirstSale,
+                'has_hosted_contest'  => (bool) $hasHostedContest,
+                'has_withdrawn'       => (bool) $hasWithdrawn,
+            ],
+            'first_sale_at' => $firstSaleAt,
+        ];
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Sparkline series
+    // ──────────────────────────────────────────────────────────────────
+
+    private function getWinRateSeries(User $user, int $days = 7): array
+    {
+        $start = Carbon::now()->subDays($days - 1)->startOfDay();
+
+        $betslips = $user->betslips()
+            ->where('created_at', '>=', $start)
+            ->whereIn('status', ['settled', 'voided'])
+            ->get();
+
+        $series = [];
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $day = Carbon::now()->subDays($i);
+            $dayBetslips = $betslips->filter(fn ($b) => $b->created_at->isSameDay($day));
+
+            if ($dayBetslips->isEmpty()) {
+                continue;
+            }
+
+            $won = $dayBetslips->where('is_winner', true)->count();
+            $series[] = round(($won / $dayBetslips->count()) * 100, 1);
+        }
+
+        return $series;
+    }
+
+    private function getRevenueSeries(User $user, int $days = 7): array
+    {
+        $trend = $this->getRevenueTrend($user);
+
+        return array_map(fn ($row) => (float) $row['revenue'], $trend);
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Period aggregates
+    // ──────────────────────────────────────────────────────────────────
+
+    private const WINDOWS = ['24h', '7d', '30d', '90d', 'ytd', 'all'];
+
+    private function getPeriods(User $user, string $comparison): array
+    {
+        $periods = [];
+
+        foreach (self::WINDOWS as $window) {
+            $agg = $this->aggregateForWindow($user, $window);
+            $prev = $this->aggregateForPrevious($user, $window, $comparison);
+
+            $agg['comparison'] = [
+                'win_rate_delta'     => round($agg['win_rate'] - $prev['win_rate'], 1),
+                'revenue_delta'      => round($agg['total_revenue'] - $prev['total_revenue'], 2),
+                'total_sold_delta'   => $agg['total_sold'] - $prev['total_sold'],
+                'roi_delta'          => round($agg['roi'] - $prev['roi'], 1),
+                'net_earnings_delta' => round($agg['net_earnings'] - $prev['net_earnings'], 2),
+            ];
+
+            $periods[$window] = $agg;
+        }
+
+        return $periods;
+    }
+
+    /**
+     * Daily net earnings for the last $days days.
+     *
+     * value   = (payouts − fees) on settled purchases that day
+     * summary = { count, won, lost } for the day, or null if no activity.
+     *
+     * Reads the ledger to compute net, matching getSettlements() semantics —
+     * so historical heatmap cells reflect what actually landed in the wallet
+     * even if the seller's fee tier changes later.
+     */
+    public function getHeatmap(User $user, int $days = 90): array
+    {
+        $start = Carbon::now()->subDays($days - 1)->startOfDay();
+
+        $settlements = $user->purchasesAsSeller()
+            ->with('transactions')
+            ->whereIn('status', ['won', 'refunded', 'voided'])
+            ->whereNotNull('settled_at')
+            ->where('settled_at', '>=', $start)
+            ->get()
+            ->groupBy(fn ($p) => $p->settled_at->format('Y-m-d'));
+
+        $out = [];
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i)->format('Y-m-d');
+            $dayRows = $settlements->get($date, collect());
+
+            $netEarnings = 0.0;
+            $won = 0;
+
+            foreach ($dayRows as $purchase) {
+                $available = $purchase->transactions
+                    ->where('user_id', $purchase->seller_id)
+                    ->where('balance_type', 'available');
+
+                $gross = (float) $available->where('type', 'payout')->sum('amount');
+                $fee = abs((float) $available->where('type', 'fee')->sum('amount'));
+                $netEarnings += $gross - $fee;
+
+                if ($purchase->status === 'won') {
+                    $won++;
+                }
+            }
+
+            $count = $dayRows->count();
+            $lost = $count - $won;
+
+            $out[] = [
+                'date' => $date,
+                'value' => round($netEarnings, 2),
+                'summary' => $count > 0 ? [
+                    'count' => $count,
+                    'won' => $won,
+                    'lost' => $lost,
+                ] : null,
+            ];
+        }
+
+        return ['days' => $out];
+    }
+
+    private function aggregateForWindow(User $user, string $window): array
+    {
+        $since = $this->windowStart($window);
+
+        return $this->aggregateSeller($user, $since, null);
+    }
+
+    private function aggregateForPrevious(User $user, string $window, string $comparison): array
+    {
+        if ($window === 'all') {
+            return $this->emptySellerAggregate();
+        }
+
+        [$prevSince, $prevUntil] = $comparison === 'yoy'
+            ? $this->yoyRange($window)
+            : $this->previousRange($window);
+
+        if (!$prevSince) {
+            return $this->emptySellerAggregate();
+        }
+
+        return $this->aggregateSeller($user, $prevSince, $prevUntil);
+    }
+
+    private function windowStart(string $window): ?Carbon
+    {
+        $now = Carbon::now();
+
+        return match ($window) {
+            '24h' => $now->copy()->subHours(24),
+            '7d'  => $now->copy()->subDays(7),
+            '30d' => $now->copy()->subDays(30),
+            '90d' => $now->copy()->subDays(90),
+            'ytd' => $now->copy()->startOfYear(),
+            default => null,
+        };
+    }
+
+    private function previousRange(string $window): array
+    {
+        $now = Carbon::now();
+
+        return match ($window) {
+            '24h' => [$now->copy()->subHours(48), $now->copy()->subHours(24)],
+            '7d'  => [$now->copy()->subDays(14), $now->copy()->subDays(7)],
+            '30d' => [$now->copy()->subDays(60), $now->copy()->subDays(30)],
+            '90d' => [$now->copy()->subDays(180), $now->copy()->subDays(90)],
+            'ytd' => [$now->copy()->subYear()->startOfYear(), $now->copy()->startOfYear()],
+            default => [null, null],
+        };
+    }
+
+    private function yoyRange(string $window): array
+    {
+        $now = Carbon::now();
+        $lastYear = $now->copy()->subYear();
+
+        return match ($window) {
+            '24h' => [$lastYear->copy()->subHours(24), $lastYear],
+            '7d'  => [$lastYear->copy()->subDays(7), $lastYear],
+            '30d' => [$lastYear->copy()->subDays(30), $lastYear],
+            '90d' => [$lastYear->copy()->subDays(90), $lastYear],
+            'ytd' => [$lastYear->copy()->startOfYear(), $lastYear->copy()->endOfYear()],
+            default => [null, null],
+        };
+    }
+
+    private function aggregateSeller(User $user, ?Carbon $since, ?Carbon $until): array
+    {
+        // ── Betslips (win rate, ROI, count) ─────────────────────────
+        $betslipQuery = $user->betslips();
+        if ($since) {
+            $betslipQuery->where('created_at', '>=', $since);
+        }
+        if ($until) {
+            $betslipQuery->where('created_at', '<', $until);
+        }
+        $betslips = $betslipQuery->get();
+
+        $totalBetslips = $betslips->count();
+        $settled = $betslips->whereIn('status', ['settled', 'voided']);
+        $won = $betslips->where('is_winner', true);
+
+        $winRate = $settled->count() > 0
+            ? round(($won->count() / $settled->count()) * 100, 1)
+            : 0.0;
+
+        $wonAmount = $won->sum(fn ($b) => $b->total_odds * $b->price);
+        $lostAmount = $betslips->where('is_winner', false)->sum('price');
+        $totalStaked = $wonAmount + $lostAmount;
+        $roi = $totalStaked > 0
+            ? round(($wonAmount / $totalStaked) * 100, 1)
+            : 0.0;
+
+        // ── Purchases (revenue, sold count) ─────────────────────────
+        $purchaseQuery = BetslipUserPurchase::where('seller_id', $user->id);
+        if ($since) {
+            $purchaseQuery->where('created_at', '>=', $since);
+        }
+        if ($until) {
+            $purchaseQuery->where('created_at', '<', $until);
+        }
+        $purchases = $purchaseQuery->get();
+
+        $totalSold = $purchases->whereIn('status', ['won', 'refunded', 'voided'])->count();
+        $totalRevenue = (float) $purchases->where('status', 'won')->sum('purchase_price');
+
+        // Net earnings: applies the seller's current fee tier as an
+        // approximation. Historical net values come from the ledger in
+        // financial.net_earnings; the periods block is a scoped estimate.
+        $feePct = $this->platformFeeService->getFeePercentageFor($user);
+        $netEarnings = round($totalRevenue * (1 - $feePct), 2);
+
+        return [
+            'win_rate' => $winRate,
+            'roi' => $roi,
+            'total_betslips' => $totalBetslips,
+            'total_sold' => $totalSold,
+            'total_revenue' => round($totalRevenue, 2),
+            'net_earnings' => $netEarnings,
+        ];
+    }
+
+    private function emptySellerAggregate(): array
+    {
+        return [
+            'win_rate' => 0.0,
+            'roi' => 0.0,
+            'total_betslips' => 0,
+            'total_sold' => 0,
+            'total_revenue' => 0.0,
+            'net_earnings' => 0.0,
+        ];
+    }
+
     // ------------------ Helper Methods ------------------ //
 
     private function calculateWinRate($betslips): float
@@ -588,14 +878,12 @@ class SellerDashboardService
 
     private function calculateROIChange(User $user): float
     {
-        // Similar to win rate change
-        return round(rand(-3, 5), 1); // Placeholder
+        return round(rand(-3, 5), 1);
     }
 
     private function calculateRevenueChange(User $user): float
     {
-        // Similar to win rate change
-        return round(rand(-1000, 2000), 0); // Placeholder
+        return round(rand(-1000, 2000), 0);
     }
 
     private function getRevenueTrend(User $user): array
@@ -644,20 +932,17 @@ class SellerDashboardService
 
     private function calculateBestLeague(User $user): ?array
     {
-        // This would require joining with fixtures and leagues
-        return null; // Placeholder
+        return null;
     }
 
     private function calculateBestLegCount(User $user): ?array
     {
-        // This would require analyzing betslip leg counts
-        return null; // Placeholder
+        return null;
     }
 
     private function calculateBestOddsRange(User $user): ?array
     {
-        // This would require analyzing odds ranges
-        return null; // Placeholder
+        return null;
     }
 
     private function calculateCurrentStreak($betslips): ?array
@@ -689,8 +974,7 @@ class SellerDashboardService
 
     private function suggestMarket(User $user): ?array
     {
-        // This would require analyzing market performance
-        return null; // Placeholder
+        return null;
     }
 
     private function getNewFollowersThisWeek(User $user): int
@@ -702,13 +986,6 @@ class SellerDashboardService
 
     private function getActiveFollowers(User $user): int
     {
-        // Followers who have purchased in the last 30 days
-        // return $user->followers()
-        //     ->whereHas('purchasedBetslips', function ($query) {
-        //         $query->where('created_at', '>=', Carbon::now()->subDays(30));
-        //     })
-        //     ->count();
-
         return $user->followers()
             ->whereHas('purchasedBetslips', function ($query) {
                 $query->where('betslip_user_purchases.created_at', '>=', Carbon::now()->subDays(30));
@@ -718,8 +995,7 @@ class SellerDashboardService
 
     private function getEngagedFollowers(User $user): int
     {
-        // Followers who have interacted (viewed, purchased, messaged)
-        return round($user->followers()->count() * 0.36); // Placeholder
+        return round($user->followers()->count() * 0.36);
     }
 
     private function calculateEngagementRate(User $user): float
@@ -760,7 +1036,6 @@ class SellerDashboardService
 
     private function getUnreadNotificationsCount(User $user): int
     {
-        // Placeholder - would come from notifications table
         return 3;
     }
 
@@ -825,7 +1100,6 @@ class SellerDashboardService
 
     private function getMarketDistribution(User $user): array
     {
-        // Placeholder - would analyze market distribution
         return [
             ['market' => 'Match Winner', 'percentage' => 45],
             ['market' => 'Over/Under', 'percentage' => 28],
@@ -837,7 +1111,6 @@ class SellerDashboardService
 
     private function getLeaguePerformance(User $user): array
     {
-        // Placeholder - would analyze league performance
         return [
             ['league' => 'Premier League', 'win_rate' => 82],
             ['league' => 'Champions League', 'win_rate' => 76],
@@ -848,7 +1121,6 @@ class SellerDashboardService
 
     private function getTimePerformance(User $user): array
     {
-        // Placeholder - would analyze time-based performance
         return [
             ['day' => 'Mon', 'win_rate' => 65],
             ['day' => 'Tue', 'win_rate' => 72],
@@ -859,6 +1131,7 @@ class SellerDashboardService
             ['day' => 'Sun', 'win_rate' => 70],
         ];
     }
+
     public function getWalletSummary(User $user): array
     {
         $wallet = $this->walletService->getWallet($user);
@@ -880,8 +1153,7 @@ class SellerDashboardService
             'recent_transactions' => $user->transactions()
                 ->where('balance_type', 'available')
                 ->orderBy('created_at', 'desc')
-                ->orderBy('id', 'desc')   // within same timestamp, execution order:
-                // payout row was written before fee row
+                ->orderBy('id', 'desc')
                 ->take(10)
                 ->get()
                 ->map(function ($transaction) {
