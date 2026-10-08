@@ -283,7 +283,7 @@
             <!-- ═══════════════ ONBOARDING BANNER ═══════════════ -->
             <OnboardingBanner
                 v-if="shouldShowBanner"
-                headline="Welcome to your seller console"
+                headline="Welcome to your seller Dashboard"
                 body="Here's where you build betslips, grow followers, and get paid. Four steps to your first sale — most sellers finish in a day."
                 :steps="sellerOnboardingSteps"
                 @dismiss="dismissOnboarding"

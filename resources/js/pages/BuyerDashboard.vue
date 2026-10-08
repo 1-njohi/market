@@ -202,7 +202,7 @@
             <!-- ═══════════════ ONBOARDING BANNER ═══════════════ -->
             <OnboardingBanner
                 v-if="shouldShowBanner"
-                headline="Welcome to your buyer console"
+                headline="Welcome to your buyer Dashboard"
                 body="Everything you need to research, buy, and track betslips lives here. Start with the four steps below — they take less than a minute."
                 :steps="buyerOnboardingSteps"
                 @dismiss="dismissOnboarding"
