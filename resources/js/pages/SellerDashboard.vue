@@ -42,6 +42,10 @@
                 </div>
 
                 <div class="flex flex-shrink-0 items-center gap-2">
+                    <AsOf
+                        :at="generatedAt"
+                        class="hidden lg:inline"
+                    />
                     <DashboardSwitcher active="seller" />
                     <NotificationBell
                         :initial-unread-count="
@@ -53,7 +57,7 @@
 
             <!-- ═══════════════ PRIMARY CTAs ═══════════════ -->
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <!-- Create Betslip (spans 2 cols on desktop) -->
+                <!-- Create Betslip (spans 2 cols) -->
                 <Link
                     href="/fixtures"
                     class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-sky-500/40 bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-transparent p-4 transition-all hover:border-sky-400 hover:from-sky-500/20 hover:via-sky-500/10 lg:col-span-2"
@@ -112,7 +116,7 @@
                     </div>
                 </Link>
 
-                <!-- Create Contest (1 col) -->
+                <!-- Host Contest -->
                 <Link
                     href="/contests/create"
                     class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-purple-500/40 bg-gradient-to-r from-purple-500/10 via-purple-500/5 to-transparent p-4 transition-all hover:border-purple-400 hover:from-purple-500/20 hover:via-purple-500/10"
@@ -146,7 +150,7 @@
                                 Host Contest
                             </p>
                             <p class="mt-0.5 text-[11px] text-slate-400">
-                                Compete with your followers and friends
+                                Compete with your followers
                             </p>
                         </div>
                     </div>
@@ -255,14 +259,34 @@
                 </div>
             </div>
 
-            <!-- ═══════════════ TAB STRIP ═══════════════ -->
-            <BuyerTabs v-model="activeTab" :tabs="tabs" />
+            <!-- ═══════════════ TAB STRIP + PERIOD ═══════════════ -->
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <BuyerTabs v-model="activeTab" :tabs="tabs" />
+                <div class="flex items-center gap-2">
+                    <span
+                        class="font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase"
+                    >
+                        Period
+                    </span>
+                    <ComparisonPicker v-model="period" :periods="periods" />
+                </div>
+            </div>
+
+            <!-- ═══════════════ ONBOARDING BANNER ═══════════════ -->
+            <OnboardingBanner
+                v-if="shouldShowBanner"
+                headline="Welcome to your seller console"
+                body="Here's where you build betslips, grow followers, and get paid. Four steps to your first sale — most sellers finish in a day."
+                :steps="sellerOnboardingSteps"
+                @dismiss="dismissOnboarding"
+            />
 
             <!-- ═══════════════ OVERVIEW TAB ═══════════════ -->
             <template v-if="activeTab === 'overview'">
-                <!-- Wallet (single responsive block) -->
+                <!-- Wallet -->
                 <Panel title="WALLET" accent="emerald">
                     <template #actions>
+                        <AsOf :at="generatedAt" />
                         <span
                             class="font-mono text-[9px] font-bold text-slate-500 uppercase"
                         >
@@ -285,8 +309,10 @@
                             <div
                                 class="my-1 font-mono text-3xl font-black tracking-tight text-white"
                             >
-                                <Money
-                                    :value="seller_data.wallet.balance"
+                                <LiveValue
+                                    :initial="
+                                        Number(seller_data.wallet.balance)
+                                    "
                                     :currency="seller_data.wallet.currency"
                                 />
                             </div>
@@ -399,7 +425,23 @@
 
                 <!-- Two metric cards: Performance + Earnings -->
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <Panel title="PERFORMANCE" accent="sky">
+                    <SampleMetricCard
+                        v-if="isFresh"
+                        label="Win Rate"
+                        sample="68%"
+                        sublabel="Betslips / Sold"
+                        subsample="12 / 47"
+                        hint="Unlocks after your first settled betslip"
+                    />
+                    <Panel v-else title="PERFORMANCE" accent="sky">
+                        <template #actions>
+                            <Sparkline
+                                :values="winRateSeries"
+                                :width="64"
+                                :height="18"
+                                accent="sky"
+                            />
+                        </template>
                         <div class="grid grid-cols-2 gap-4 p-4">
                             <div>
                                 <span
@@ -513,7 +555,23 @@
                         </div>
                     </Panel>
 
-                    <Panel title="EARNINGS" accent="amber">
+                    <SampleMetricCard
+                        v-if="isFresh"
+                        label="Total Revenue"
+                        sample="KES 42,800"
+                        sublabel="Net Earnings"
+                        subsample="KES 39,400"
+                        hint="Unlocks after your first sale"
+                    />
+                    <Panel v-else title="EARNINGS" accent="amber">
+                        <template #actions>
+                            <Sparkline
+                                :values="revenueSeries"
+                                :width="64"
+                                :height="18"
+                                accent="amber"
+                            />
+                        </template>
                         <div class="grid grid-cols-2 gap-4 p-4">
                             <div>
                                 <span
@@ -590,7 +648,7 @@
                     </Panel>
                 </div>
 
-                <!-- Split: Active betslips (left) + Followers summary (right) -->
+                <!-- Split: Active betslips + Followers summary -->
                 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div class="lg:col-span-2">
                         <Panel
@@ -639,18 +697,14 @@
                                     "
                                     :betslips="seller_data.betslips.active"
                                 />
-                                <div
+                                <EmptyState
                                     v-else
-                                    class="p-6 text-center font-mono text-xs text-slate-500"
-                                >
-                                    No active betslips.
-                                    <Link
-                                        href="/fixtures"
-                                        class="ml-1 font-bold text-sky-400 hover:text-sky-300"
-                                    >
-                                        Create one →
-                                    </Link>
-                                </div>
+                                    title="No active betslips"
+                                    body="Create your first betslip, set your price, and it'll show here with live purchase and watcher counts."
+                                    cta-label="Create a betslip"
+                                    cta-href="/fixtures"
+                                    accent="sky"
+                                />
                             </div>
                         </Panel>
                     </div>
@@ -726,35 +780,35 @@
                             v-if="seller_data.betslips.active.length > 0"
                             :betslips="seller_data.betslips.active"
                         />
-                        <div
+                        <EmptyState
                             v-else
-                            class="p-8 text-center font-mono text-xs text-slate-500"
-                        >
-                            No active betslips.
-                            <Link
-                                href="/fixtures"
-                                class="ml-1 font-bold text-sky-400 hover:text-sky-300"
-                            >
-                                Create one →
-                            </Link>
-                        </div>
+                            title="No active betslips"
+                            body="Create your first betslip, set your price, and it'll show here with live purchase and watcher counts."
+                            cta-label="Create a betslip"
+                            cta-href="/fixtures"
+                            accent="sky"
+                        />
                     </div>
                 </Panel>
 
                 <Panel
-                    :title="`Settlements [${seller_data.settlements.length}]`"
+                    :title="`Settlements [${filteredSettlements.length}]`"
                     accent="emerald"
                 >
                     <template #actions>
+                        <ComparisonPicker
+                            v-model="period"
+                            :periods="periods"
+                        />
                         <span
                             class="font-mono text-[9px] text-slate-500 uppercase"
-                            >Payout history</span
+                            >{{ periodLabel }}</span
                         >
                     </template>
 
                     <div class="divide-y divide-gray-800/40">
                         <div
-                            v-for="s in seller_data.settlements"
+                            v-for="s in filteredSettlements"
                             :key="s.id"
                             class="p-3 transition-colors hover:bg-[#111a30]/40"
                         >
@@ -865,12 +919,12 @@
                             </div>
                         </div>
 
-                        <div
-                            v-if="seller_data.settlements.length === 0"
-                            class="p-6 text-center font-mono text-xs text-slate-500"
-                        >
-                            No settlements yet.
-                        </div>
+                        <EmptyState
+                            v-if="filteredSettlements.length === 0"
+                            title="No settlements in this period"
+                            body="Try a wider period, or wait for your active betslips to reach settlement."
+                            accent="emerald"
+                        />
                     </div>
                 </Panel>
 
@@ -928,6 +982,7 @@
             <template v-else-if="activeTab === 'wallet'">
                 <Panel title="ACCOUNT: WALLET DETAILS" accent="amber">
                     <template #actions>
+                        <AsOf :at="generatedAt" />
                         <span
                             class="font-mono text-[9px] font-bold text-slate-500 uppercase"
                         >
@@ -950,8 +1005,10 @@
                             <div
                                 class="my-1 font-mono text-3xl font-black tracking-tight text-white"
                             >
-                                <Money
-                                    :value="seller_data.wallet.balance"
+                                <LiveValue
+                                    :initial="
+                                        Number(seller_data.wallet.balance)
+                                    "
                                     :currency="seller_data.wallet.currency"
                                 />
                             </div>
@@ -1062,9 +1119,22 @@
                     </div>
                 </Panel>
 
-                <TransactionsTable
-                    :transactions="seller_data.wallet.recent_transactions"
-                />
+                <!-- Transactions with period picker -->
+                <Panel title="TRANSACTIONS" accent="slate">
+                    <template #actions>
+                        <ComparisonPicker
+                            v-model="period"
+                            :periods="periods"
+                        />
+                        <span
+                            class="font-mono text-[9px] text-slate-500 uppercase"
+                            >{{ periodLabel }}</span
+                        >
+                    </template>
+                    <TransactionsTable
+                        :transactions="filteredTransactions"
+                    />
+                </Panel>
             </template>
 
             <!-- ═══════════════ ANALYTICS TAB ═══════════════ -->
@@ -1115,15 +1185,15 @@
                                     >{{ league.win_rate }}% WR</span
                                 >
                             </div>
-                            <div
+                            <p
                                 v-if="
                                     seller_data.charts.league_performance
                                         .length === 0
                                 "
-                                class="py-2 text-center text-[10px] text-slate-500 uppercase"
+                                class="py-2 text-center font-mono text-[10px] text-slate-500 uppercase"
                             >
-                                No league data
-                            </div>
+                                No league data yet
+                            </p>
                         </div>
                     </Panel>
 
@@ -1158,11 +1228,21 @@
                     </Panel>
 
                     <Panel title="RECENT ACTIVITY" accent="slate">
+                        <template #actions>
+                            <ComparisonPicker
+                                v-model="period"
+                                :periods="periods"
+                            />
+                            <span
+                                class="font-mono text-[9px] text-slate-500 uppercase"
+                                >{{ periodLabel }}</span
+                            >
+                        </template>
                         <div
                             class="no-scrollbar max-h-[420px] space-y-2.5 overflow-y-auto p-4"
                         >
                             <div
-                                v-for="(act, index) in seller_data.activity"
+                                v-for="(act, index) in filteredActivity"
                                 :key="index"
                                 class="flex items-center justify-between gap-4 rounded border border-[#232d42]/70 bg-[#111622] p-3"
                             >
@@ -1185,12 +1265,12 @@
                                     >{{ act.time_ago }}</span
                                 >
                             </div>
-                            <div
-                                v-if="seller_data.activity.length === 0"
+                            <p
+                                v-if="filteredActivity.length === 0"
                                 class="p-4 text-center font-mono text-xs text-slate-500"
                             >
-                                No recent activity.
-                            </div>
+                                No recent activity in this period.
+                            </p>
                         </div>
                     </Panel>
                 </div>
@@ -1215,9 +1295,95 @@ import NotificationBell from '@/components/NotificationBell.vue';
 import ReferralCard from '@/components/ReferralCard.vue';
 import DashboardSwitcher from '@/components/DashboardSwitcher.vue';
 import ContestsCard from '@/components/ContestsCard.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import SampleMetricCard from '@/components/SampleMetricCard.vue';
+import OnboardingBanner from '@/components/OnboardingBanner.vue';
+import ComparisonPicker from '@/components/ComparisonPicker.vue';
+import Sparkline from '@/components/Sparkline.vue';
+import AsOf from '@/components/AsOf.vue';
+import LiveValue from '@/components/LiveValue.vue';
+import { useOnboarding } from '@/composables/useOnboarding';
+import { usePeriod } from '@/composables/usePeriod';
 
 const page = usePage();
 const seller_data = page.props.seller_data;
+
+// ─── Onboarding ────────────────────────────────────────────────────
+const {
+    isFresh,
+    shouldShowBanner,
+    dismiss: dismissOnboarding,
+} = useOnboarding(seller_data, { role: 'seller' });
+
+const sellerOnboardingSteps = [
+    {
+        title: 'Create a betslip',
+        body: 'Pick fixtures and set your price',
+        href: '/fixtures',
+    },
+    {
+        title: 'Share your profile',
+        body: 'Grow followers who buy your slips',
+        href: '/refer',
+    },
+    {
+        title: 'Host a contest',
+        body: 'Compete with your followers',
+        href: '/contests/create',
+    },
+    {
+        title: 'Get paid',
+        body: 'Earnings settle to your wallet',
+        href: '#wallet',
+    },
+];
+
+// ─── Period state ──────────────────────────────────────────────────
+const {
+    period,
+    periods,
+    label: periodLabel,
+    filterByDate,
+} = usePeriod('seller', '30d');
+
+// ─── Filtered lists ────────────────────────────────────────────────
+const filteredSettlements = computed(() =>
+    filterByDate(seller_data.settlements, 'settled_at'),
+);
+
+const filteredTransactions = computed(() =>
+    filterByDate(seller_data.wallet.recent_transactions, 'created_at'),
+);
+
+const filteredActivity = computed(() =>
+    filterByDate(seller_data.activity, 'created_at'),
+);
+
+// ─── Sparkline series ──────────────────────────────────────────────
+const winRateSeries = computed(() => {
+    if (seller_data.performance?.series?.win_rate_7d) {
+        return seller_data.performance.series.win_rate_7d;
+    }
+    const b = seller_data.performance.win_rate_breakdown ?? {};
+    return [b.all_time, b.last_90_days, b.last_30_days, b.last_7_days].filter(
+        (n) => typeof n === 'number' && !Number.isNaN(n),
+    );
+});
+
+const revenueSeries = computed(() => {
+    if (seller_data.performance?.series?.revenue_7d) {
+        return seller_data.performance.series.revenue_7d;
+    }
+    // Seller service exposes `financial.revenue_trend` — 7-day array
+    const trend = seller_data.financial?.revenue_trend ?? [];
+    const values = trend.map((d) => Number(d.revenue ?? 0));
+    return values.some((v) => v > 0) ? values : [];
+});
+
+// ─── Generated-at fallback ─────────────────────────────────────────
+const generatedAt = computed(
+    () => seller_data.generated_at ?? new Date().toISOString(),
+);
 
 // ─── Tabs ──────────────────────────────────────────────────────────
 const TAB_KEYS = ['overview', 'betslips', 'followers', 'wallet', 'analytics'];

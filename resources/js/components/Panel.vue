@@ -8,7 +8,7 @@
         <div
             v-if="title || $slots.actions || $slots.header"
             :class="[
-                'flex items-center justify-between border-b p-4',
+                'flex flex-col gap-2 border-b p-4 sm:flex-row sm:items-center sm:justify-between',
                 headerClass,
             ]"
         >
@@ -26,7 +26,10 @@
                 </div>
             </slot>
 
-            <div class="flex items-center gap-2">
+            <div
+                v-if="$slots.actions"
+                class="flex flex-wrap items-center gap-2 sm:justify-end"
+            >
                 <slot name="actions" />
             </div>
         </div>

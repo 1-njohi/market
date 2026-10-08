@@ -43,6 +43,10 @@
                 </div>
 
                 <div class="flex flex-shrink-0 items-center gap-2">
+                    <AsOf
+                        :at="generatedAt"
+                        class="hidden lg:inline"
+                    />
                     <DashboardSwitcher active="buyer" />
                     <NotificationBell
                         :initial-unread-count="
@@ -172,14 +176,34 @@
                 </Link>
             </div>
 
-            <!-- ═══════════════ TAB STRIP ═══════════════ -->
-            <BuyerTabs v-model="activeTab" :tabs="tabs" />
+            <!-- ═══════════════ TAB STRIP + PERIOD ═══════════════ -->
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <BuyerTabs v-model="activeTab" :tabs="tabs" />
+                <div class="flex items-center gap-2">
+                    <span
+                        class="font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase"
+                    >
+                        Period
+                    </span>
+                    <ComparisonPicker v-model="period" :periods="periods" />
+                </div>
+            </div>
+
+            <!-- ═══════════════ ONBOARDING BANNER ═══════════════ -->
+            <OnboardingBanner
+                v-if="shouldShowBanner"
+                headline="Welcome to your buyer console"
+                body="Everything you need to research, buy, and track betslips lives here. Start with the four steps below — they take less than a minute."
+                :steps="buyerOnboardingSteps"
+                @dismiss="dismissOnboarding"
+            />
 
             <!-- ═══════════════ OVERVIEW TAB ═══════════════ -->
             <template v-if="activeTab === 'overview'">
                 <!-- Wallet -->
                 <Panel title="WALLET" accent="emerald">
                     <template #actions>
+                        <AsOf :at="generatedAt" />
                         <span
                             class="font-mono text-[9px] font-bold text-slate-500 uppercase"
                         >
@@ -202,8 +226,10 @@
                             <div
                                 class="my-1 font-mono text-3xl font-black tracking-tight text-white"
                             >
-                                <Money
-                                    :value="buyer_data.wallet.balance"
+                                <LiveValue
+                                    :initial="
+                                        Number(buyer_data.wallet.balance)
+                                    "
                                     :currency="buyer_data.wallet.currency"
                                 />
                             </div>
@@ -314,9 +340,25 @@
                     </div>
                 </Panel>
 
-                <!-- Two metric cards -->
+                <!-- Two metric cards: Performance + Money -->
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <Panel title="PERFORMANCE" accent="sky">
+                    <SampleMetricCard
+                        v-if="isFresh"
+                        label="Win Rate"
+                        sample="62%"
+                        sublabel="Purchases"
+                        subsample="48"
+                        hint="Unlocks after your first purchase"
+                    />
+                    <Panel v-else title="PERFORMANCE" accent="sky">
+                        <template #actions>
+                            <Sparkline
+                                :values="winRateSeries"
+                                :width="64"
+                                :height="18"
+                                accent="sky"
+                            />
+                        </template>
                         <div class="grid grid-cols-2 gap-4 p-4">
                             <div>
                                 <span
@@ -385,7 +427,23 @@
                         </div>
                     </Panel>
 
-                    <Panel title="MONEY" accent="amber">
+                    <SampleMetricCard
+                        v-if="isFresh"
+                        label="Total Spent"
+                        sample="KES 12,400"
+                        sublabel="Net Spent"
+                        subsample="KES 12,400"
+                        hint="Unlocks after your first purchase"
+                    />
+                    <Panel v-else title="MONEY" accent="amber">
+                        <template #actions>
+                            <Sparkline
+                                :values="spentSeries"
+                                :width="64"
+                                :height="18"
+                                accent="amber"
+                            />
+                        </template>
                         <div class="grid grid-cols-2 gap-4 p-4">
                             <div>
                                 <span
@@ -475,15 +533,17 @@
                                 >
                             </template>
                             <div class="divide-y divide-gray-800/40">
-                                <div
+                                <EmptyState
                                     v-if="
                                         buyer_data.purchases.recent
                                             ?.length === 0
                                     "
-                                    class="p-6 text-center font-mono text-xs text-slate-500"
-                                >
-                                    No active purchases currently.
-                                </div>
+                                    title="No active purchases"
+                                    body="When you buy a betslip, it shows here so you can track it live through to settlement."
+                                    cta-label="Browse marketplace"
+                                    cta-href="/marketplace"
+                                    accent="sky"
+                                />
                                 <BetslipsTable
                                     v-else
                                     :betslips="purchasesForTable"
@@ -547,29 +607,35 @@
                         >
                     </template>
                     <div class="divide-y divide-gray-800/40">
-                        <div
+                        <EmptyState
                             v-if="buyer_data.purchases.recent?.length === 0"
-                            class="p-6 text-center font-mono text-xs text-slate-500"
-                        >
-                            No active purchases currently.
-                        </div>
+                            title="No active purchases"
+                            body="When you buy a betslip, it shows here so you can track it live through to settlement."
+                            cta-label="Browse marketplace"
+                            cta-href="/marketplace"
+                            accent="emerald"
+                        />
                         <BetslipsTable v-else :betslips="purchasesForTable" />
                     </div>
                 </Panel>
 
                 <Panel
-                    :title="`Settled Betslips [${buyer_data.settled_outcomes.length}]`"
+                    :title="`Settled Betslips [${filteredOutcomes.length}]`"
                     accent="emerald"
                 >
                     <template #actions>
+                        <ComparisonPicker
+                            v-model="period"
+                            :periods="periods"
+                        />
                         <span
                             class="font-mono text-[9px] text-slate-500 uppercase"
-                            >Outcomes</span
+                            >{{ periodLabel }}</span
                         >
                     </template>
                     <div class="divide-y divide-gray-800/40">
                         <div
-                            v-for="outcome in buyer_data.settled_outcomes"
+                            v-for="outcome in filteredOutcomes"
                             :key="outcome.id"
                             class="flex items-center justify-between gap-3 p-3 transition-colors hover:bg-[#111a30]/40"
                         >
@@ -638,12 +704,12 @@
                             </div>
                         </div>
 
-                        <div
-                            v-if="buyer_data.settled_outcomes.length === 0"
-                            class="p-6 text-center font-mono text-xs text-slate-500"
-                        >
-                            No settled betslips yet.
-                        </div>
+                        <EmptyState
+                            v-if="filteredOutcomes.length === 0"
+                            title="No settled betslips in this period"
+                            body="Try a wider period, or wait for your active purchases to settle."
+                            accent="emerald"
+                        />
                     </div>
                 </Panel>
             </template>
@@ -651,7 +717,9 @@
             <!-- ═══════════════ CONTESTS TAB ═══════════════ -->
             <template v-else-if="activeTab === 'contests'">
                 <Panel
-                    v-if="buyer_data.contests && buyer_data.contests.length > 0"
+                    v-if="
+                        buyer_data.contests && buyer_data.contests.length > 0
+                    "
                     :title="`Active Contests [${buyer_data.contests.length}]`"
                     accent="amber"
                 >
@@ -724,60 +792,16 @@
                     </div>
                 </Panel>
 
-                <!-- Empty state -->
                 <Panel v-else title="CONTESTS" accent="amber">
-                    <div class="space-y-4 p-8 text-center">
-                        <div
-                            class="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="2"
-                                stroke="currentColor"
-                                class="h-6 w-6"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0"
-                                />
-                            </svg>
-                        </div>
-                        <p
-                            class="font-mono text-xs tracking-wider text-slate-400 uppercase"
-                        >
-                            No active contests
-                        </p>
-                        <p class="text-[11px] text-slate-500">
-                            Join a contest to compete with other buyers, or
-                            browse contests hosted by sellers.
-                        </p>
-                        <Link
-                            href="/contests/mine"
-                            class="inline-flex items-center gap-2 rounded border border-amber-500/40 bg-amber-500/5 px-4 py-2 font-mono text-[10px] font-black tracking-widest text-amber-400 uppercase transition-all hover:border-amber-400 hover:bg-amber-500/10"
-                        >
-                            Browse Contests
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="3"
-                                stroke="currentColor"
-                                class="h-3 w-3"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                                />
-                            </svg>
-                        </Link>
-                    </div>
+                    <EmptyState
+                        title="No active contests"
+                        body="Join a contest to compete with other buyers, or browse contests hosted by sellers."
+                        cta-label="Browse contests"
+                        cta-href="/contests/mine"
+                        accent="amber"
+                    />
                 </Panel>
 
-                <!-- Info panel -->
                 <Panel title="HOW CONTESTS WORK" accent="slate">
                     <div
                         class="space-y-3 p-4 text-[11px] leading-relaxed text-slate-400"
@@ -903,7 +927,9 @@
                             </span>
                             <p class="mt-1 font-mono text-sm font-black">
                                 <span class="text-emerald-400"
-                                    >{{ buyer_data.watch_record.won_count }}W</span
+                                    >{{
+                                        buyer_data.watch_record.won_count
+                                    }}W</span
                                 >
                                 <span class="mx-1 text-slate-600">·</span>
                                 <span class="text-rose-400"
@@ -967,11 +993,13 @@
                 </Panel>
 
                 <Panel v-else title="WATCH RECORD" accent="purple">
-                    <div
-                        class="p-8 text-center font-mono text-xs text-slate-500"
-                    >
-                        No settled watches yet.
-                    </div>
+                    <EmptyState
+                        title="No watch history yet"
+                        body="Every slip you watch is scored here as a paper P/L, so you can compare tipsters before you commit real money."
+                        cta-label="Find slips to watch"
+                        cta-href="/marketplace"
+                        accent="purple"
+                    />
                 </Panel>
 
                 <FollowingTable
@@ -985,6 +1013,7 @@
             <template v-else-if="activeTab === 'wallet'">
                 <Panel title="ACCOUNT: WALLET DETAILS" accent="amber">
                     <template #actions>
+                        <AsOf :at="generatedAt" />
                         <span
                             class="font-mono text-[9px] font-bold text-slate-500 uppercase"
                         >
@@ -1007,8 +1036,10 @@
                             <div
                                 class="my-1 font-mono text-3xl font-black tracking-tight text-white"
                             >
-                                <Money
-                                    :value="buyer_data.wallet.balance"
+                                <LiveValue
+                                    :initial="
+                                        Number(buyer_data.wallet.balance)
+                                    "
                                     :currency="buyer_data.wallet.currency"
                                 />
                             </div>
@@ -1119,9 +1150,22 @@
                     </div>
                 </Panel>
 
-                <TransactionsTable
-                    :transactions="buyer_data.wallet.recent_transactions"
-                />
+                <!-- Transactions with period picker -->
+                <Panel title="TRANSACTIONS" accent="slate">
+                    <template #actions>
+                        <ComparisonPicker
+                            v-model="period"
+                            :periods="periods"
+                        />
+                        <span
+                            class="font-mono text-[9px] text-slate-500 uppercase"
+                            >{{ periodLabel }}</span
+                        >
+                    </template>
+                    <TransactionsTable
+                        :transactions="filteredTransactions"
+                    />
+                </Panel>
             </template>
 
             <!-- ═══════════════ ANALYTICS TAB ═══════════════ -->
@@ -1216,24 +1260,34 @@
                                     >{{ seller.win_rate }}% WR</span
                                 >
                             </div>
-                            <div
+                            <p
                                 v-if="
                                     buyer_data.charts.seller_performance
                                         .length === 0
                                 "
-                                class="py-2 text-center text-[10px] text-slate-500 uppercase"
+                                class="py-2 text-center font-mono text-[10px] text-slate-500 uppercase"
                             >
                                 No seller data available
-                            </div>
+                            </p>
                         </div>
                     </Panel>
 
                     <Panel title="RECENT ACTIVITY" accent="slate">
+                        <template #actions>
+                            <ComparisonPicker
+                                v-model="period"
+                                :periods="periods"
+                            />
+                            <span
+                                class="font-mono text-[9px] text-slate-500 uppercase"
+                                >{{ periodLabel }}</span
+                            >
+                        </template>
                         <div
                             class="no-scrollbar max-h-[420px] space-y-2.5 overflow-y-auto p-4"
                         >
                             <div
-                                v-for="(act, index) in buyer_data.activity"
+                                v-for="(act, index) in filteredActivity"
                                 :key="index"
                                 class="flex items-center justify-between gap-4 rounded border border-[#232d42]/70 bg-[#111622] p-3"
                             >
@@ -1256,12 +1310,12 @@
                                     >{{ act.time_ago }}</span
                                 >
                             </div>
-                            <div
-                                v-if="buyer_data.activity.length === 0"
+                            <p
+                                v-if="filteredActivity.length === 0"
                                 class="p-4 text-center font-mono text-xs text-slate-500"
                             >
-                                No recent activity.
-                            </div>
+                                No recent activity in this period.
+                            </p>
                         </div>
                     </Panel>
                 </div>
@@ -1286,9 +1340,114 @@ import WithdrawalPopover from '@/components/WithdrawalPopover.vue';
 import ReferralCard from '@/components/ReferralCard.vue';
 import NotificationBell from '@/components/NotificationBell.vue';
 import DashboardSwitcher from '@/components/DashboardSwitcher.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import SampleMetricCard from '@/components/SampleMetricCard.vue';
+import OnboardingBanner from '@/components/OnboardingBanner.vue';
+import ComparisonPicker from '@/components/ComparisonPicker.vue';
+import Sparkline from '@/components/Sparkline.vue';
+import AsOf from '@/components/AsOf.vue';
+import LiveValue from '@/components/LiveValue.vue';
+import { useOnboarding } from '@/composables/useOnboarding';
+import { usePeriod } from '@/composables/usePeriod';
 
 const page = usePage();
 const buyer_data = page.props.buyer_data;
+
+// ─── Onboarding ────────────────────────────────────────────────────
+const {
+    isFresh,
+    shouldShowBanner,
+    dismiss: dismissOnboarding,
+} = useOnboarding(buyer_data, { role: 'buyer' });
+
+const buyerOnboardingSteps = [
+    {
+        title: 'Browse marketplace',
+        body: 'Find a betslip that catches your eye',
+        href: '/marketplace',
+    },
+    {
+        title: 'Buy your first slip',
+        body: 'Escrow protects your money until settlement',
+        href: '/marketplace',
+    },
+    {
+        title: 'Watch a seller',
+        body: 'Follow tipsters to see their slips first',
+        href: '/marketplace',
+    },
+    {
+        title: 'Fund your wallet',
+        body: 'Deposit via M-Pesa in seconds',
+        href: '#wallet',
+    },
+];
+
+// ─── Period state ──────────────────────────────────────────────────
+const {
+    period,
+    periods,
+    label: periodLabel,
+    filterByDate,
+} = usePeriod('buyer', '30d');
+
+// ─── Filtered lists (client-side; backend will provide later) ──────
+const filteredTransactions = computed(() =>
+    filterByDate(buyer_data.wallet.recent_transactions, 'created_at'),
+);
+
+const filteredOutcomes = computed(() =>
+    filterByDate(buyer_data.settled_outcomes, 'settled_at'),
+);
+
+const filteredActivity = computed(() =>
+    filterByDate(buyer_data.activity, 'created_at'),
+);
+
+// ─── Sparkline series ──────────────────────────────────────────────
+const winRateSeries = computed(() => {
+    // Prefer backend-provided series when it exists (TDD: performance.series.win_rate_7d)
+    if (buyer_data.performance?.series?.win_rate_7d) {
+        return buyer_data.performance.series.win_rate_7d;
+    }
+    // Fallback: order [all_time, 90d, 30d, 7d] so the line trends up when
+    // recent performance beats historical.
+    const b = buyer_data.performance.win_rate_breakdown ?? {};
+    return [b.all_time, b.last_90_days, b.last_30_days, b.last_7_days].filter(
+        (n) => typeof n === 'number' && !Number.isNaN(n),
+    );
+});
+
+const spentSeries = computed(() => {
+    if (buyer_data.performance?.series?.spent_7d) {
+        return buyer_data.performance.series.spent_7d;
+    }
+    // Fallback: bucket purchases into a 7-day rolling daily total.
+    const txs = buyer_data.wallet.recent_transactions ?? [];
+    const days = 7;
+    const buckets = new Array(days).fill(0);
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    txs.forEach((tx) => {
+        if (tx.type !== 'purchase') return;
+        const t = new Date(tx.created_at).getTime();
+        if (Number.isNaN(t)) return;
+        const diff = now - t;
+        const idx = days - 1 - Math.floor(diff / dayMs);
+        if (idx >= 0 && idx < days) {
+            buckets[idx] += Math.abs(tx.amount);
+        }
+    });
+
+    // Only show the sparkline if there's any signal
+    return buckets.some((v) => v > 0) ? buckets : [];
+});
+
+// ─── Generated-at fallback ─────────────────────────────────────────
+const generatedAt = computed(
+    () => buyer_data.generated_at ?? new Date().toISOString(),
+);
 
 // ─── Tabs ──────────────────────────────────────────────────────────
 const TAB_KEYS = [
@@ -1336,7 +1495,6 @@ const tabs = computed(() => [
     },
 ]);
 
-// Read initial tab from hash (e.g. #wallet)
 const readHash = () => {
     const hash = (window.location.hash || '').replace('#', '');
     return TAB_KEYS.includes(hash) ? hash : 'overview';
@@ -1379,7 +1537,7 @@ const purchasesForTable = computed(() => {
     }));
 });
 
-// ─── Contest helpers (mirrors ContestsCard internals) ──────────────
+// ─── Contest helpers ───────────────────────────────────────────────
 const formatDeadline = (iso) => {
     if (!iso) return '—';
     const d = new Date(iso);
