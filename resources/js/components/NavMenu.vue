@@ -35,10 +35,11 @@ onUnmounted(() => {
 });
 
 const primaryLinks = [
-    { label: 'Marketplace', href: '/marketplace' },
-    { label: 'Watchlist', href: '/watchlist' },
-    { label: 'Leaderboard', href: '/leaderboard' },
-    { label: 'Contests', href: '/contests/mine' },
+    { label: 'MARKETPLACE - Browse Betslips', href: '/marketplace' },
+    { label: 'FIXTURES - Create Betslip', href: '/fixtures' },
+    { label: 'WATCHLIST - Monitor Betslips', href: '/watchlist' },
+    { label: 'CONTESTS - Create Challange', href: '/contests/mine' },
+    { label: 'LEADERBOARD - View Tipster Rankings', href: '/leaderboard' },
 ];
 
 const accountLinks = [
@@ -163,7 +164,7 @@ const logout = () => {
                                 :href="link.href"
                                 @click="close"
                                 :class="[
-                                    'flex items-center justify-between rounded border px-3 py-2.5 text-[11px] font-black tracking-widest uppercase transition-all',
+                                    'flex items-center justify-between rounded border px-3 py-2.5 text-[11px] font-black tracking-widest  transition-all',
                                     isCurrent(link.href)
                                         ? 'border-sky-500/40 bg-sky-500/10 text-sky-300'
                                         : 'border-transparent text-slate-400 hover:border-sky-500/20 hover:bg-sky-500/5 hover:text-sky-400',

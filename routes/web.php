@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BetslipController;
 use App\Http\Controllers\BetslipPurchaseController;
+use App\Http\Controllers\FixturesController;
 use App\Http\Controllers\BuyerDashboardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FixtureController;
@@ -443,6 +444,7 @@ Route::get('/responsible-gaming', fn() => Inertia::render('Legal/ResponsibleGami
 
 // ── Public Data / Profile Pages ──
 Route::get('/fixture/{id}', [FixtureController::class, 'index'])->name('fixture');
+Route::get('/fixtures', [FixturesController::class, 'index'])->name('fixtures.index');
 Route::get('/profile/{user_code}', [ProfileController::class, 'index'])->name('profile');
 Route::get('/sellers/lookup', [SellerLookupController::class, 'show']);
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard');
