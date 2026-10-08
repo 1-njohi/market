@@ -813,16 +813,18 @@
                                     class="border-t border-[#232d42]/60 p-3 text-center"
                                 >
                                     <span
-                                        class="text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                        >Engagement Rate</span
+                                        class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                                        >Buyer Conversion</span
                                     >
                                     <span
-                                        class="ml-2 font-mono text-sm font-black text-white"
+                                        class="mt-1 block font-mono text-2xl font-black text-white"
                                         >{{
-                                            seller_data.follower_stats
-                                                .engagement_rate
+                                            seller_data.follower_stats.buyer_conversion_rate
                                         }}%</span
                                     >
+                                    <span class="mt-0.5 block text-[9px] text-slate-600">
+                                        {{ seller_data.follower_stats.active_buyers }} active buyers
+                                    </span>
                                 </div>
                             </Panel>
                         </div>
@@ -1161,18 +1163,21 @@
                                         }}</span
                                     >
                                 </div>
-                                <div class="p-4 text-center">
+                                <div class="border-t border-[#232d42]/60 p-3 text-center">
                                     <span
-                                        class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                        >Engagement</span
+                                        class="text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                                        >Buyer Conversion</span
                                     >
                                     <span
-                                        class="mt-1 block font-mono text-2xl font-black text-white"
+                                        class="ml-2 font-mono text-sm font-black text-white"
                                         >{{
-                                            seller_data.follower_stats
-                                                .engagement_rate
+                                            seller_data.follower_stats.buyer_conversion_rate
                                         }}%</span
                                     >
+                                    <p class="mt-0.5 text-[9px] text-slate-600">
+                                        {{ seller_data.follower_stats.active_buyers }} of
+                                        {{ seller_data.follower_stats.total }} bought in last 30 days
+                                    </p>
                                 </div>
                             </div>
                         </Panel>

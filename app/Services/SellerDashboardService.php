@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Betslip;
 use App\Models\BetslipUserPurchase;
 use App\Models\Contest;
-use App\Models\SellerMetric;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -52,16 +51,12 @@ class SellerDashboardService
         ];
     }
 
-    /**
-     * Get real-time data
-     */
     public function getFeeTier(User $seller): array
     {
         $totalSales = $this->platformFeeService->getTotalSalesCount($seller);
         $currentPct = $this->platformFeeService->getFeePercentageFor($seller);
         $tiers = config('services.betslip_pirates.fee_tiers');
 
-        // Find current tier index
         $currentIdx = null;
         foreach ($tiers as $i => $tier) {
             if ($tier['max'] === null || $totalSales <= $tier['max']) {
@@ -108,7 +103,6 @@ class SellerDashboardService
             ? round(($wonBetslips->count() / $totalBetslips) * 100, 1)
             : 0;
 
-        // Calculate ROI
         $totalWonAmount = $wonBetslips->sum(function ($betslip) {
             return $betslip->total_odds * $betslip->price;
         });
@@ -118,7 +112,6 @@ class SellerDashboardService
             ? round(($totalWonAmount / $totalStaked) * 100, 1)
             : 0;
 
-        // Recent form (last 10)
         $recentForm = $betslips
             ->take(10)
             ->map(function ($betslip) {
@@ -130,7 +123,6 @@ class SellerDashboardService
             ->values()
             ->toArray();
 
-        // Win rate breakdown
         $now = Carbon::now();
         $winRateBreakdown = [
             'last_7_days' => $this->calculateWinRateForPeriod($betslips, $now->copy()->subDays(7)),
@@ -143,13 +135,11 @@ class SellerDashboardService
             'win_rate' => $winRate,
             'win_rate_change' => $this->calculateWinRateChange($user),
             'roi' => $roi,
-            'roi_change' => $this->calculateROIChange($user),
             'total_betslips' => $user->betslips()->count(),
             'total_sold' => BetslipUserPurchase::where('seller_id', $user->id)
                 ->whereIn('status', ['won', 'refunded', 'voided'])
                 ->count(),
             'total_revenue' => $this->getTotalRevenue($user),
-            'total_revenue_change' => $this->calculateRevenueChange($user),
             'avg_price' => $this->getAveragePrice($user),
             'avg_odds' => $this->getAverageOdds($user),
             'avg_legs' => $this->getAverageLegs($user),
@@ -218,7 +208,6 @@ class SellerDashboardService
      */
     public function getRecentActivity(User $user, int $limit = 20): array
     {
-        // ── Sales: buyers who purchased one of my betslips ──────────────
         $sales = BetslipUserPurchase::where('seller_id', $user->id)
             ->with(['buyer', 'betslip'])
             ->orderByDesc('created_at')
@@ -236,7 +225,6 @@ class SellerDashboardService
                 ];
             });
 
-        // ── Settlements: my betslips reaching a terminal state ──────────
         $settlements = $user->betslips()
             ->whereIn('status', ['settled', 'voided'])
             ->orderByDesc('updated_at')
@@ -330,7 +318,6 @@ class SellerDashboardService
     {
         $wallet = $this->walletService->getWallet($user);
 
-        // Lifetime earnings, straight from the ledger.
         $lifetimeGross = (float) \App\Models\Transaction::where('user_id', $user->id)
             ->where('balance_type', 'available')
             ->where('type', \App\Models\Transaction::TYPE_PAYOUT)
@@ -343,7 +330,6 @@ class SellerDashboardService
 
         $netEarnings = $lifetimeGross - $lifetimeFees;
 
-        // Projected earnings from still-pending sales — not wallet money.
         $grossAtStake = (float) BetslipUserPurchase::where('seller_id', $user->id)
             ->where('status', 'pending')
             ->sum('purchase_price');
@@ -363,12 +349,16 @@ class SellerDashboardService
     }
 
     /**
-     * Get AI insights
+     * Insights derived from real data only.
+     *
+     * Stubbed metrics (best league, best leg count, best odds range, market
+     * suggestion) were removed — they always returned null and inflated the
+     * payload without informing the seller. Add them back only when the
+     * underlying fixtures/leagues/markets joins are wired up.
      */
     public function getInsights(User $user): array
     {
         $betslips = $user->betslips()->whereIn('status', ['settled', 'voided'])->get();
-        $winRate = $this->calculateWinRate($betslips);
 
         $insights = [];
 
@@ -377,46 +367,26 @@ class SellerDashboardService
             $insights[] = "Your best day is {$bestDay['day']} ({$bestDay['win_rate']}% win rate)";
         }
 
-        $bestLeague = $this->calculateBestLeague($user);
-        if ($bestLeague) {
-            $insights[] = "Premier League bets perform best ({$bestLeague['win_rate']}%)";
-        }
-
-        $bestLegs = $this->calculateBestLegCount($user);
-        if ($bestLegs) {
-            $insights[] = "{$bestLegs['legs']}-leg bets have the highest win rate ({$bestLegs['win_rate']}%)";
-        }
-
-        $bestOdds = $this->calculateBestOddsRange($user);
-        if ($bestOdds) {
-            $insights[] = "Low odds ({$bestOdds['range']}) have {$bestOdds['win_rate']}% win rate";
-        }
-
         $streak = $this->calculateCurrentStreak($betslips);
         if ($streak && $streak['type'] === 'win') {
             $insights[] = "You're on a {$streak['count']}-win streak! 🔥";
-        }
-
-        $roiChange = $this->calculateROIChange($user);
-        if ($roiChange > 0) {
-            $insights[] = "Your ROI increased by {$roiChange}% this month";
-        }
-
-        $suggestedMarket = $this->suggestMarket($user);
-        if ($suggestedMarket) {
-            $insights[] = "Consider more {$suggestedMarket['name']} bets ({$suggestedMarket['win_rate']}% win rate)";
         }
 
         return $insights;
     }
 
     /**
-     * Get follower statistics
+     * Follower statistics.
+     *
+     * `buyer_conversion_rate` = followers who purchased from this seller
+     * in the last 30 days, as a percentage of total followers. Every
+     * component of the calculation is derived from real purchase rows.
      */
     public function getFollowerStats(User $user): array
     {
         $followers = $user->followers;
         $totalFollowers = $followers->count();
+        $activeBuyers = $this->getActiveBuyerCount($user);
 
         $recentFollowers = $followers
             ->take(5)
@@ -432,24 +402,26 @@ class SellerDashboardService
         return [
             'total' => $totalFollowers,
             'new_this_week' => $this->getNewFollowersThisWeek($user),
-            'active_followers' => $this->getActiveFollowers($user),
-            'engaged_followers' => $this->getEngagedFollowers($user),
+            'active_buyers' => $activeBuyers,
+            'buyer_conversion_rate' => $totalFollowers > 0
+                ? round(($activeBuyers / $totalFollowers) * 100, 1)
+                : 0.0,
             'recent' => $recentFollowers,
-            'engagement_rate' => $this->calculateEngagementRate($user),
         ];
     }
 
     /**
-     * Get chart data
+     * Chart data for the Analytics tab.
+     *
+     * `win_rate_trend` and `profit_loss` are real 30-day daily series.
+     * `league_performance` returns an empty array — see getLeaguePerformance().
      */
     public function getChartData(User $user): array
     {
         return [
             'win_rate_trend' => $this->getWinRateTrend($user),
             'profit_loss' => $this->getProfitLossData($user),
-            'market_distribution' => $this->getMarketDistribution($user),
             'league_performance' => $this->getLeaguePerformance($user),
-            'time_performance' => $this->getTimePerformance($user),
         ];
     }
 
@@ -474,8 +446,21 @@ class SellerDashboardService
     }
 
     /**
-     * Get notifications
+     * Per-league win rate.
+     *
+     * The underlying data (which league a betslip belongs to) is not exposed
+     * via the current schema — it requires a join through betslip_odds →
+     * fixtures → leagues that isn't wired up. Returns an empty array so the
+     * Analytics panel shows an honest "No league data yet" state instead of
+     * hardcoded numbers.
+     *
+     * @todo Wire up once league is queryable from a betslip.
      */
+    private function getLeaguePerformance(User $user): array
+    {
+        return [];
+    }
+
     private function getUserInfo(User $user): array
     {
         return [
@@ -489,9 +474,6 @@ class SellerDashboardService
         ];
     }
 
-    /**
-     * Real notifications, matching the buyer dashboard format.
-     */
     public function getNotifications(User $user): array
     {
         $notifications = $user->notifications()
@@ -589,43 +571,9 @@ class SellerDashboardService
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // Period aggregates
+    // Heat map
     // ──────────────────────────────────────────────────────────────────
 
-    private const WINDOWS = ['24h', '7d', '30d', '90d', 'ytd', 'all'];
-
-    private function getPeriods(User $user, string $comparison): array
-    {
-        $periods = [];
-
-        foreach (self::WINDOWS as $window) {
-            $agg = $this->aggregateForWindow($user, $window);
-            $prev = $this->aggregateForPrevious($user, $window, $comparison);
-
-            $agg['comparison'] = [
-                'win_rate_delta'     => round($agg['win_rate'] - $prev['win_rate'], 1),
-                'revenue_delta'      => round($agg['total_revenue'] - $prev['total_revenue'], 2),
-                'total_sold_delta'   => $agg['total_sold'] - $prev['total_sold'],
-                'roi_delta'          => round($agg['roi'] - $prev['roi'], 1),
-                'net_earnings_delta' => round($agg['net_earnings'] - $prev['net_earnings'], 2),
-            ];
-
-            $periods[$window] = $agg;
-        }
-
-        return $periods;
-    }
-
-    /**
-     * Daily net earnings for the last $days days.
-     *
-     * value   = (payouts − fees) on settled purchases that day
-     * summary = { count, won, lost } for the day, or null if no activity.
-     *
-     * Reads the ledger to compute net, matching getSettlements() semantics —
-     * so historical heatmap cells reflect what actually landed in the wallet
-     * even if the seller's fee tier changes later.
-     */
     public function getHeatmap(User $user, int $days = 90): array
     {
         $start = Carbon::now()->subDays($days - 1)->startOfDay();
@@ -676,6 +624,34 @@ class SellerDashboardService
         }
 
         return ['days' => $out];
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Period aggregates
+    // ──────────────────────────────────────────────────────────────────
+
+    private const WINDOWS = ['24h', '7d', '30d', '90d', 'ytd', 'all'];
+
+    private function getPeriods(User $user, string $comparison): array
+    {
+        $periods = [];
+
+        foreach (self::WINDOWS as $window) {
+            $agg = $this->aggregateForWindow($user, $window);
+            $prev = $this->aggregateForPrevious($user, $window, $comparison);
+
+            $agg['comparison'] = [
+                'win_rate_delta'     => round($agg['win_rate'] - $prev['win_rate'], 1),
+                'revenue_delta'      => round($agg['total_revenue'] - $prev['total_revenue'], 2),
+                'total_sold_delta'   => $agg['total_sold'] - $prev['total_sold'],
+                'roi_delta'          => round($agg['roi'] - $prev['roi'], 1),
+                'net_earnings_delta' => round($agg['net_earnings'] - $prev['net_earnings'], 2),
+            ];
+
+            $periods[$window] = $agg;
+        }
+
+        return $periods;
     }
 
     private function aggregateForWindow(User $user, string $window): array
@@ -747,7 +723,6 @@ class SellerDashboardService
 
     private function aggregateSeller(User $user, ?Carbon $since, ?Carbon $until): array
     {
-        // ── Betslips (win rate, ROI, count) ─────────────────────────
         $betslipQuery = $user->betslips();
         if ($since) {
             $betslipQuery->where('created_at', '>=', $since);
@@ -772,7 +747,6 @@ class SellerDashboardService
             ? round(($wonAmount / $totalStaked) * 100, 1)
             : 0.0;
 
-        // ── Purchases (revenue, sold count) ─────────────────────────
         $purchaseQuery = BetslipUserPurchase::where('seller_id', $user->id);
         if ($since) {
             $purchaseQuery->where('created_at', '>=', $since);
@@ -785,9 +759,6 @@ class SellerDashboardService
         $totalSold = $purchases->whereIn('status', ['won', 'refunded', 'voided'])->count();
         $totalRevenue = (float) $purchases->where('status', 'won')->sum('purchase_price');
 
-        // Net earnings: applies the seller's current fee tier as an
-        // approximation. Historical net values come from the ledger in
-        // financial.net_earnings; the periods block is a scoped estimate.
         $feePct = $this->platformFeeService->getFeePercentageFor($user);
         $netEarnings = round($totalRevenue * (1 - $feePct), 2);
 
@@ -866,7 +837,6 @@ class SellerDashboardService
 
     private function calculateWinRateChange(User $user): float
     {
-        // Compare last 30 days vs previous 30 days
         $now = Carbon::now();
         $betslips = $user->betslips()->whereIn('status', ['settled', 'voided'])->get();
 
@@ -876,19 +846,8 @@ class SellerDashboardService
         return round($current - $previous, 1);
     }
 
-    private function calculateROIChange(User $user): float
-    {
-        return round(rand(-3, 5), 1);
-    }
-
-    private function calculateRevenueChange(User $user): float
-    {
-        return round(rand(-1000, 2000), 0);
-    }
-
     private function getRevenueTrend(User $user): array
     {
-        // Generate last 7 days revenue data
         $trend = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
@@ -930,21 +889,6 @@ class SellerDashboardService
         return $best;
     }
 
-    private function calculateBestLeague(User $user): ?array
-    {
-        return null;
-    }
-
-    private function calculateBestLegCount(User $user): ?array
-    {
-        return null;
-    }
-
-    private function calculateBestOddsRange(User $user): ?array
-    {
-        return null;
-    }
-
     private function calculateCurrentStreak($betslips): ?array
     {
         $recent = $betslips->take(10);
@@ -972,11 +916,6 @@ class SellerDashboardService
         return $streak > 0 ? ['count' => $streak, 'type' => $type] : null;
     }
 
-    private function suggestMarket(User $user): ?array
-    {
-        return null;
-    }
-
     private function getNewFollowersThisWeek(User $user): int
     {
         return $user->followers()
@@ -984,25 +923,18 @@ class SellerDashboardService
             ->count();
     }
 
-    private function getActiveFollowers(User $user): int
+    /**
+     * Followers who purchased one of THIS seller's betslips in the last 30
+     * days. Real number, real window, real seller scope.
+     */
+    private function getActiveBuyerCount(User $user): int
     {
         return $user->followers()
-            ->whereHas('purchasedBetslips', function ($query) {
-                $query->where('betslip_user_purchases.created_at', '>=', Carbon::now()->subDays(30));
+            ->whereHas('purchasedBetslips', function ($query) use ($user) {
+                $query->where('betslip_user_purchases.seller_id', $user->id)
+                    ->where('betslip_user_purchases.created_at', '>=', Carbon::now()->subDays(30));
             })
             ->count();
-    }
-
-    private function getEngagedFollowers(User $user): int
-    {
-        return round($user->followers()->count() * 0.36);
-    }
-
-    private function calculateEngagementRate(User $user): float
-    {
-        $total = $user->followers()->count();
-        $engaged = $this->getEngagedFollowers($user);
-        return $total > 0 ? round(($engaged / $total) * 100, 1) : 0;
     }
 
     private function getActiveBetslipsCount(User $user): int
@@ -1036,7 +968,7 @@ class SellerDashboardService
 
     private function getUnreadNotificationsCount(User $user): int
     {
-        return 3;
+        return $user->unreadNotifications()->count();
     }
 
     private function getRecentPurchases(User $user, int $limit): array
@@ -1057,7 +989,6 @@ class SellerDashboardService
             ->toArray();
     }
 
-    // Chart data generators
     private function getWinRateTrend(User $user): array
     {
         $data = [];
@@ -1098,40 +1029,6 @@ class SellerDashboardService
         return $data;
     }
 
-    private function getMarketDistribution(User $user): array
-    {
-        return [
-            ['market' => 'Match Winner', 'percentage' => 45],
-            ['market' => 'Over/Under', 'percentage' => 28],
-            ['market' => 'BTTS', 'percentage' => 15],
-            ['market' => 'Double Chance', 'percentage' => 8],
-            ['market' => 'Other', 'percentage' => 4],
-        ];
-    }
-
-    private function getLeaguePerformance(User $user): array
-    {
-        return [
-            ['league' => 'Premier League', 'win_rate' => 82],
-            ['league' => 'Champions League', 'win_rate' => 76],
-            ['league' => 'La Liga', 'win_rate' => 70],
-            ['league' => 'Bundesliga', 'win_rate' => 68],
-        ];
-    }
-
-    private function getTimePerformance(User $user): array
-    {
-        return [
-            ['day' => 'Mon', 'win_rate' => 65],
-            ['day' => 'Tue', 'win_rate' => 72],
-            ['day' => 'Wed', 'win_rate' => 68],
-            ['day' => 'Thu', 'win_rate' => 75],
-            ['day' => 'Fri', 'win_rate' => 78],
-            ['day' => 'Sat', 'win_rate' => 82],
-            ['day' => 'Sun', 'win_rate' => 70],
-        ];
-    }
-
     public function getWalletSummary(User $user): array
     {
         $wallet = $this->walletService->getWallet($user);
@@ -1165,7 +1062,7 @@ class SellerDashboardService
                         'balance_after' => (float) $transaction->balance_after,
                         'description' => $transaction->description,
                         'status' => $transaction->status,
-                        'created_at' => $transaction->created_at->toISOString(),
+                        'created_at' => $transaction->created_at->toIso8601String(),
                     ];
                 })->values()->toArray(),
         ];
