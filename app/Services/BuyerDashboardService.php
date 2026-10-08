@@ -36,7 +36,7 @@ class BuyerDashboardService
             'charts' => $this->getChartData($user),
             'notifications' => $this->getNotifications($user),
             'following_stats' => $this->getFollowingStats($user),
-            'contests' => $this->contestService->activeForUser($user),
+            'contests' => $this->contestService->enteredForUser($user),
             'onboarding' => $this->getOnboardingState($user),
             'periods' => $this->getPeriods($user, $comparison),
             'heatmap' => $this->getHeatmap($user),

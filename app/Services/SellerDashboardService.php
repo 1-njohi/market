@@ -37,7 +37,7 @@ class SellerDashboardService
             'wallet' => $this->getWalletSummary($user),
             'activity' => $this->getRecentActivity($user, 15),
             'referral_card' => $this->referralService->cardFor($user),
-            'contests' => $this->contestService->activeForUser($user),
+            'contests' => $this->contestService->hostedForUser($user),
             'settlements' => $this->getSettlements($user),
             'financial' => $this->getFinancialSummary($user),
             'insights' => $this->getInsights($user),

@@ -577,7 +577,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     ->name('contests.join.store');
 
 
-    Route::get('/contests/{contest}/manage', [\App\Http\Controllers\HostContestController::class, 'manage'])
+    Route::get('/contests/{uuid}/manage', [\App\Http\Controllers\HostContestController::class, 'manage'])
         ->name('contests.manage');
 
         Route::get('/contests/create', [\App\Http\Controllers\ContestCreateController::class, 'create'])

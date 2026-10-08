@@ -12,40 +12,66 @@ class ContestService
     private const DASHBOARD_LIMIT = 5;
 
     /**
-     * Active contests the user is hosting or playing in (as an accepted
-     * participant). Settled and cancelled contests are excluded.
-     *
-     * Each row carries a 'role' of 'host' or 'player'.
+     * Every active contest the user is attached to, either as host or
+     * player. Not used by the dashboards any more — each dashboard has a
+     * role-specific method — but kept for callers that want the union.
      *
      * @return array<int, array<string, mixed>>
      */
     public function activeForUser(User $user, int $limit = self::DASHBOARD_LIMIT): array
     {
-        // Contests the user hosts.
-        $hosted = Contest::where('host_id', $user->id)
+        return collect()
+            ->concat($this->hostedForUser($user, $limit))
+            ->concat($this->enteredForUser($user, $limit))
+            ->sortByDesc('created_at')
+            ->take($limit)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Contests the user is hosting, in open or locked state.
+     *
+     * Each row carries `role => 'host'` and entry-count summaries.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function hostedForUser(User $user, int $limit = self::DASHBOARD_LIMIT): array
+    {
+        return Contest::where('host_id', $user->id)
             ->whereIn('status', ['open', 'locked'])
             ->withCount([
-                'entries as pending_requests' => fn ($q) => $q->where('status', 'pending'),
-                'entries as accepted_entries' => fn ($q) => $q->where('status', 'accepted'),
+                'entries as pending_requests'  => fn ($q) => $q->where('status', 'pending'),
+                'entries as accepted_entries'  => fn ($q) => $q->where('status', 'accepted'),
                 'legs as legs_count',
             ])
+            ->orderBy('created_at', 'desc')
+            ->take($limit)
             ->get()
-            ->map(fn (Contest $c) => $this->presentHosted($c));
+            ->map(fn (Contest $c) => $this->presentHosted($c))
+            ->values()
+            ->all();
+    }
 
-        // Contests the user is an accepted player in.
-        $played = Contest::whereHas('entries', function ($q) use ($user) {
+    /**
+     * Contests the user has entered as an accepted player. Excludes any
+     * contest where the user is also the host (defensive — host-play in
+     * their own contest isn't a supported scenario today).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function enteredForUser(User $user, int $limit = self::DASHBOARD_LIMIT): array
+    {
+        return Contest::whereHas('entries', function ($q) use ($user) {
             $q->where('user_id', $user->id)->where('status', 'accepted');
         })
             ->where('host_id', '!=', $user->id)
             ->whereIn('status', ['open', 'locked'])
             ->withCount(['legs as legs_count'])
-            ->get()
-            ->map(fn (Contest $c) => $this->presentPlayed($c, $user));
-
-        return $hosted
-            ->concat($played)
-            ->sortByDesc('created_at')
+            ->orderBy('created_at', 'desc')
             ->take($limit)
+            ->get()
+            ->map(fn (Contest $c) => $this->presentPlayed($c, $user))
             ->values()
             ->all();
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contest;
 use App\Models\ContestEntry;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -41,8 +42,11 @@ class HostContestController extends Controller
         ]);
     }
 
-    public function manage(Contest $contest): Response
+    public function manage(Request $request, string $uuid): Response
     {
+
+        $contest = Contest::where('uuid', $uuid)->firstOrFail();
+
         if ((int) $contest->host_id !== (int) Auth::id()) {
             abort(403);
         }
@@ -52,6 +56,8 @@ class HostContestController extends Controller
             'legs.fixture.awayTeam',
             'legs.market',
         ]);
+
+        // $contest = Contest::query()->where('uuid', $uuid)->firstOrFail();
 
         $entries = ContestEntry::where('contest_id', $contest->id)
             ->where('user_id', '!=', $contest->host_id)
