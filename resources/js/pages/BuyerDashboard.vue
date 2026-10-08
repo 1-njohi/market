@@ -52,132 +52,132 @@
                 </div>
             </div>
 
-        <!-- ═══════════════ PRIMARY CTAs ═══════════════ -->
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <!-- Marketplace CTA (spans 2 cols) -->
-            <Link
-                href="/marketplace"
-                class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent p-4 transition-all hover:border-emerald-400 hover:from-emerald-500/20 hover:via-emerald-500/10 lg:col-span-2"
-            >
-                <div
-                    class="absolute inset-y-0 left-0 w-1 bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]"
-                ></div>
-                <div class="flex items-center gap-4 pl-2">
+            <!-- ═══════════════ PRIMARY CTAs ═══════════════ -->
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <!-- Marketplace CTA (spans 2 cols) -->
+                <Link
+                    href="/marketplace"
+                    class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent p-4 transition-all hover:border-emerald-400 hover:from-emerald-500/20 hover:via-emerald-500/10 lg:col-span-2"
+                >
                     <div
-                        class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                        class="absolute inset-y-0 left-0 w-1 bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+                    ></div>
+                    <div class="flex items-center gap-4 pl-2">
+                        <div
+                            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="2.5"
+                                stroke="currentColor"
+                                class="h-5 w-5"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z"
+                                />
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p
+                                class="text-xs font-black tracking-widest text-emerald-400 uppercase"
+                            >
+                                Browse the Marketplace
+                            </p>
+                            <p class="mt-0.5 text-[11px] text-slate-400">
+                                Discover fresh betslips from verified sellers
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-shrink-0 items-center gap-2 pr-2 font-mono text-[10px] font-black tracking-widest text-emerald-400 uppercase transition-transform group-hover:translate-x-0.5"
                     >
+                        <span class="hidden sm:inline">Enter</span>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            stroke-width="2.5"
+                            stroke-width="3"
                             stroke="currentColor"
-                            class="h-5 w-5"
+                            class="h-4 w-4"
                         >
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z"
+                                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
                             />
                         </svg>
                     </div>
-                    <div class="min-w-0">
-                        <p
-                            class="text-xs font-black tracking-widest text-emerald-400 uppercase"
-                        >
-                            Browse the Marketplace
-                        </p>
-                        <p class="mt-0.5 text-[11px] text-slate-400">
-                            Discover fresh betslips from verified sellers
-                        </p>
-                    </div>
-                </div>
-                <div
-                    class="flex flex-shrink-0 items-center gap-2 pr-2 font-mono text-[10px] font-black tracking-widest text-emerald-400 uppercase transition-transform group-hover:translate-x-0.5"
-                >
-                    <span class="hidden sm:inline">Enter</span>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="3"
-                        stroke="currentColor"
-                        class="h-4 w-4"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                        />
-                    </svg>
-                </div>
-            </Link>
+                </Link>
 
-            <!-- Refer CTA (1 col) -->
-            <Link
-                href="/refer"
-                class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-4 transition-all hover:border-amber-400 hover:from-amber-500/20 hover:via-amber-500/10"
-            >
-                <div
-                    class="absolute inset-y-0 left-0 w-1 bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)]"
-                ></div>
-                <div class="flex items-center gap-4 pl-2">
+                <!-- Refer CTA -->
+                <Link
+                    href="/refer"
+                    class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-4 transition-all hover:border-amber-400 hover:from-amber-500/20 hover:via-amber-500/10"
+                >
                     <div
-                        class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded border border-amber-500/40 bg-amber-500/10 text-amber-400"
+                        class="absolute inset-y-0 left-0 w-1 bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)]"
+                    ></div>
+                    <div class="flex items-center gap-4 pl-2">
+                        <div
+                            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded border border-amber-500/40 bg-amber-500/10 text-amber-400"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="2.5"
+                                stroke="currentColor"
+                                class="h-5 w-5"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H4.5a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
+                                />
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p
+                                class="text-xs font-black tracking-widest text-amber-400 uppercase"
+                            >
+                                Refer & Earn
+                            </p>
+                            <p class="mt-0.5 text-[11px] text-slate-400">
+                                10% of every winning purchase
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-shrink-0 items-center gap-2 pr-2 font-mono text-[10px] font-black tracking-widest text-amber-400 uppercase transition-transform group-hover:translate-x-0.5"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            stroke-width="2.5"
+                            stroke-width="3"
                             stroke="currentColor"
-                            class="h-5 w-5"
+                            class="h-4 w-4"
                         >
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H4.5a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
+                                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
                             />
                         </svg>
                     </div>
-                    <div class="min-w-0">
-                        <p
-                            class="text-xs font-black tracking-widest text-amber-400 uppercase"
-                        >
-                            Refer & Earn
-                        </p>
-                        <p class="mt-0.5 text-[11px] text-slate-400">
-                            10% of every winning purchase
-                        </p>
-                    </div>
-                </div>
-                <div
-                    class="flex flex-shrink-0 items-center gap-2 pr-2 font-mono text-[10px] font-black tracking-widest text-amber-400 uppercase transition-transform group-hover:translate-x-0.5"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="3"
-                        stroke="currentColor"
-                        class="h-4 w-4"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                        />
-                    </svg>
-                </div>
-            </Link>
-        </div>
+                </Link>
+            </div>
 
             <!-- ═══════════════ TAB STRIP ═══════════════ -->
             <BuyerTabs v-model="activeTab" :tabs="tabs" />
 
             <!-- ═══════════════ OVERVIEW TAB ═══════════════ -->
             <template v-if="activeTab === 'overview'">
-                <!-- Wallet (single block, responsive) -->
+                <!-- Wallet -->
                 <Panel title="WALLET" accent="emerald">
                     <template #actions>
                         <span
@@ -314,7 +314,7 @@
                     </div>
                 </Panel>
 
-                <!-- Two metric cards: Performance + Money -->
+                <!-- Two metric cards -->
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <Panel title="PERFORMANCE" accent="sky">
                         <div class="grid grid-cols-2 gap-4 p-4">
@@ -461,7 +461,7 @@
                     </Panel>
                 </div>
 
-                <!-- Split: Active purchases (left) + Recent form (right) -->
+                <!-- Split: Active purchases + Recent form -->
                 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div class="lg:col-span-2">
                         <Panel
@@ -646,8 +646,165 @@
                         </div>
                     </div>
                 </Panel>
+            </template>
 
-                <ContestsCard :contests="buyer_data.contests ?? []" />
+            <!-- ═══════════════ CONTESTS TAB ═══════════════ -->
+            <template v-else-if="activeTab === 'contests'">
+                <Panel
+                    v-if="buyer_data.contests && buyer_data.contests.length > 0"
+                    :title="`Active Contests [${buyer_data.contests.length}]`"
+                    accent="amber"
+                >
+                    <template #actions>
+                        <Link
+                            href="/contests/mine"
+                            class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
+                        >
+                            View all →
+                        </Link>
+                    </template>
+                    <div class="divide-y divide-gray-800/40">
+                        <Link
+                            v-for="c in buyer_data.contests"
+                            :key="c.id"
+                            :href="contestHref(c)"
+                            class="flex items-center justify-between gap-3 p-3 transition-colors hover:bg-[#111a30]/40"
+                        >
+                            <div class="flex min-w-0 items-center gap-3">
+                                <span
+                                    :class="[
+                                        'flex h-5 flex-shrink-0 items-center justify-center rounded-sm px-1.5 font-mono text-[8px] font-black tracking-wider uppercase',
+                                        c.role === 'host'
+                                            ? 'bg-amber-500 text-[#070b14]'
+                                            : 'bg-sky-500 text-[#070b14]',
+                                    ]"
+                                >
+                                    {{ c.role === 'host' ? 'HOST' : 'PLAY' }}
+                                </span>
+                                <div class="min-w-0">
+                                    <p
+                                        class="truncate font-mono text-[11px] font-bold text-slate-200"
+                                    >
+                                        {{ c.name }}
+                                    </p>
+                                    <p
+                                        class="mt-0.5 truncate text-[10px] text-slate-500"
+                                    >
+                                        {{ c.legs_count }} legs ·
+                                        <template v-if="c.role === 'host'">
+                                            {{ c.accepted_entries }} accepted
+                                            <template
+                                                v-if="c.pending_requests > 0"
+                                            >
+                                                ·
+                                                <span
+                                                    class="font-bold text-amber-400"
+                                                >
+                                                    {{ c.pending_requests }}
+                                                    pending
+                                                </span>
+                                            </template>
+                                        </template>
+                                        <template v-else>
+                                            {{ c.picks_submitted }}/{{
+                                                c.legs_count
+                                            }}
+                                            picks
+                                        </template>
+                                    </p>
+                                </div>
+                            </div>
+                            <span
+                                class="flex-shrink-0 font-mono text-[10px] font-bold whitespace-nowrap"
+                                :class="deadlineClass(c.entry_deadline_at)"
+                            >
+                                {{ formatDeadline(c.entry_deadline_at) }}
+                            </span>
+                        </Link>
+                    </div>
+                </Panel>
+
+                <!-- Empty state -->
+                <Panel v-else title="CONTESTS" accent="amber">
+                    <div class="space-y-4 p-8 text-center">
+                        <div
+                            class="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="2"
+                                stroke="currentColor"
+                                class="h-6 w-6"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0"
+                                />
+                            </svg>
+                        </div>
+                        <p
+                            class="font-mono text-xs tracking-wider text-slate-400 uppercase"
+                        >
+                            No active contests
+                        </p>
+                        <p class="text-[11px] text-slate-500">
+                            Join a contest to compete with other buyers, or
+                            browse contests hosted by sellers.
+                        </p>
+                        <Link
+                            href="/contests/mine"
+                            class="inline-flex items-center gap-2 rounded border border-amber-500/40 bg-amber-500/5 px-4 py-2 font-mono text-[10px] font-black tracking-widest text-amber-400 uppercase transition-all hover:border-amber-400 hover:bg-amber-500/10"
+                        >
+                            Browse Contests
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="3"
+                                stroke="currentColor"
+                                class="h-3 w-3"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                                />
+                            </svg>
+                        </Link>
+                    </div>
+                </Panel>
+
+                <!-- Info panel -->
+                <Panel title="HOW CONTESTS WORK" accent="slate">
+                    <div
+                        class="space-y-3 p-4 text-[11px] leading-relaxed text-slate-400"
+                    >
+                        <p>
+                            <span class="font-black text-slate-200"
+                                >PICK:</span
+                            >
+                            Choose your selections for each leg from a host's
+                            contest. Submit before the deadline to enter.
+                        </p>
+                        <p>
+                            <span class="font-black text-slate-200"
+                                >COMPETE:</span
+                            >
+                            Your picks are ranked against other players based
+                            on accuracy and odds multiplier.
+                        </p>
+                        <p>
+                            <span class="font-black text-slate-200"
+                                >WIN:</span
+                            >
+                            Top-ranked entries share the prize pool. Payouts
+                            hit your wallet automatically after settlement.
+                        </p>
+                    </div>
+                </Panel>
             </template>
 
             <!-- ═══════════════ WATCHLIST TAB ═══════════════ -->
@@ -809,11 +966,7 @@
                     </div>
                 </Panel>
 
-                <Panel
-                    v-else
-                    title="WATCH RECORD"
-                    accent="purple"
-                >
+                <Panel v-else title="WATCH RECORD" accent="purple">
                     <div
                         class="p-8 text-center font-mono text-xs text-slate-500"
                     >
@@ -1118,7 +1271,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted } from 'vue';
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 
 import Panel from '@/components/Panel.vue';
@@ -1126,7 +1279,6 @@ import Money from '@/components/Money.vue';
 import BuyerTabs from '@/components/BuyerTabs.vue';
 import BetslipsTable from '@/components/BetslipsTable.vue';
 import FollowingTable from '@/components/FollowingTable.vue';
-import ContestsCard from '@/components/ContestsCard.vue';
 import TransactionsTable from '@/components/TransactionsTable.vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 import DepositPopover from '@/components/DepositPopover.vue';
@@ -1139,7 +1291,14 @@ const page = usePage();
 const buyer_data = page.props.buyer_data;
 
 // ─── Tabs ──────────────────────────────────────────────────────────
-const TAB_KEYS = ['overview', 'purchases', 'watchlist', 'wallet', 'analytics'];
+const TAB_KEYS = [
+    'overview',
+    'purchases',
+    'contests',
+    'watchlist',
+    'wallet',
+    'analytics',
+];
 
 const tabs = computed(() => [
     {
@@ -1152,6 +1311,12 @@ const tabs = computed(() => [
         label: 'Purchases',
         accent: 'emerald',
         badge: buyer_data.purchases.active || null,
+    },
+    {
+        key: 'contests',
+        label: 'Contests',
+        accent: 'amber',
+        badge: buyer_data.contests?.length || null,
     },
     {
         key: 'watchlist',
@@ -1179,7 +1344,6 @@ const readHash = () => {
 
 const activeTab = ref(readHash());
 
-// Keep ref in sync if user navigates with back/forward
 const onHashChange = () => {
     activeTab.value = readHash();
 };
@@ -1188,10 +1352,12 @@ onMounted(() => {
     window.addEventListener('hashchange', onHashChange);
 });
 
+onUnmounted(() => {
+    window.removeEventListener('hashchange', onHashChange);
+});
+
 watch(activeTab, (val) => {
-    // Avoid pushing duplicate history entries
     if (window.location.hash !== `#${val}`) {
-        // replaceState keeps history clean when clicking between tabs
         history.replaceState(null, '', `#${val}`);
     }
 });
@@ -1212,6 +1378,43 @@ const purchasesForTable = computed(() => {
         seller_name: p.seller_name,
     }));
 });
+
+// ─── Contest helpers (mirrors ContestsCard internals) ──────────────
+const formatDeadline = (iso) => {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = d - now;
+
+    if (diffMs < 0) return 'expired';
+
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    if (hours < 1) {
+        const mins = Math.floor(diffMs / (1000 * 60));
+        return `${mins}m left`;
+    }
+    if (hours < 24) {
+        return `${hours}h left`;
+    }
+    const days = Math.floor(hours / 24);
+    return `${days}d left`;
+};
+
+const deadlineClass = (iso) => {
+    if (!iso) return 'text-slate-500';
+    const d = new Date(iso);
+    const hours = (d - new Date()) / (1000 * 60 * 60);
+    if (hours < 0) return 'text-rose-400';
+    if (hours < 12) return 'text-amber-400';
+    return 'text-slate-500';
+};
+
+const contestHref = (contest) => {
+    if (contest.role === 'host') {
+        return `/contests/${contest.id}/manage`;
+    }
+    return `/contests/${contest.uuid}/picks`;
+};
 
 // ─── Tone badge helper ─────────────────────────────────────────────
 const toneBadgeClass = (tone) => {
