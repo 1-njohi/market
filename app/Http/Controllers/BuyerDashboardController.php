@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\BuyerDashboardService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class BuyerDashboardController extends Controller
 {
@@ -75,6 +76,23 @@ class BuyerDashboardController extends Controller
         return response()->json([
             'success' => true,
             'data' => $this->dashboardService->getInsights($user),
+        ]);
+    }
+
+    public function purchasesIndex(Request $request)
+    {
+        $allowed = ['active', 'settled', 'won', 'refunded', 'voided'];
+        $status  = $request->query('status');
+        if (!in_array($status, $allowed, true)) {
+            $status = null;
+        }
+
+        return Inertia::render('Buyer/Purchases', [
+            'purchases' => $this->dashboardService->paginatedPurchases(
+                Auth::user(),
+                $status,
+            ),
+            'filters' => ['status' => $status],
         ]);
     }
 }

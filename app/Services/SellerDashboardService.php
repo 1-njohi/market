@@ -312,6 +312,51 @@ class SellerDashboardService
     }
 
     /**
+     * Paginated settlements list for the /seller/settlements page.
+     *
+     * Filter: outcome = won | refunded | voided | null.
+     * Uses the same per-row mapping as getSettlements() so the dashboard
+     * and the list page render identical rows.
+     */
+    public function paginatedSettlements(User $user, ?string $outcome = null, int $perPage = 20)
+    {
+        $query = $user->purchasesAsSeller()
+            ->with(['betslip', 'buyer', 'transactions'])
+            ->whereIn('status', ['won', 'refunded', 'voided'])
+            ->orderByDesc('settled_at');
+
+        if (in_array($outcome, ['won', 'refunded', 'voided'], true)) {
+            $query->where('status', $outcome);
+        }
+
+        $paginator = $query->paginate($perPage)->withQueryString();
+
+        $paginator->through(function ($purchase) {
+            $available = $purchase->transactions
+                ->where('user_id', $purchase->seller_id)
+                ->where('balance_type', 'available');
+
+            $gross = (float) $available->where('type', 'payout')->sum('amount');
+            $fee   = abs((float) $available->where('type', 'fee')->sum('amount'));
+
+            return [
+                'id'           => $purchase->id,
+                'betslip_code' => $purchase->betslip->code ?? 'N/A',
+                'outcome'      => $purchase->status,
+                'buyer_name'   => $purchase->buyer->name ?? 'Unknown',
+                'buyer_code'   => $purchase->buyer->code ?? null,
+                'gross'        => round($gross, 2),
+                'fee'          => round($fee, 2),
+                'net'          => round($gross - $fee, 2),
+                'settled_at'   => $purchase->settled_at?->toIso8601String(),
+                'settled_ago'  => $purchase->settled_at?->diffForHumans(),
+            ];
+        });
+
+        return $paginator;
+    }
+
+    /**
      * Get financial summary
      */
     public function getFinancialSummary(User $user): array

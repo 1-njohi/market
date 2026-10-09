@@ -144,4 +144,21 @@ class SellerDashboardController extends Controller
             'data' => $data
         ]);
     }
+
+    public function settlementsIndex(Request $request)
+    {
+        $allowed = ['won', 'refunded', 'voided'];
+        $outcome = $request->query('outcome');
+        if (!in_array($outcome, $allowed, true)) {
+            $outcome = null;
+        }
+
+        return Inertia::render('Seller/Settlements', [
+            'settlements' => $this->dashboardService->paginatedSettlements(
+                Auth::user(),
+                $outcome,
+            ),
+            'filters' => ['outcome' => $outcome],
+        ]);
+    }
 }

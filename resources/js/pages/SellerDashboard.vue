@@ -283,7 +283,7 @@
             <!-- ═══════════════ ONBOARDING BANNER ═══════════════ -->
             <OnboardingBanner
                 v-if="shouldShowBanner"
-                headline="Welcome to your seller Dashboard"
+                headline="Welcome to your seller console"
                 body="Here's where you build betslips, grow followers, and get paid. Four steps to your first sale — most sellers finish in a day."
                 :steps="sellerOnboardingSteps"
                 @dismiss="dismissOnboarding"
@@ -813,18 +813,27 @@
                                     class="border-t border-[#232d42]/60 p-3 text-center"
                                 >
                                     <span
-                                        class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                                        class="text-[9px] font-black tracking-widest text-slate-500 uppercase"
                                         >Buyer Conversion</span
                                     >
                                     <span
-                                        class="mt-1 block font-mono text-2xl font-black text-white"
+                                        class="ml-2 font-mono text-sm font-black text-white"
                                         >{{
-                                            seller_data.follower_stats.buyer_conversion_rate
+                                            seller_data.follower_stats
+                                                .buyer_conversion_rate
                                         }}%</span
                                     >
-                                    <span class="mt-0.5 block text-[9px] text-slate-600">
-                                        {{ seller_data.follower_stats.active_buyers }} active buyers
-                                    </span>
+                                    <p
+                                        class="mt-0.5 text-[9px] text-slate-600"
+                                    >
+                                        {{
+                                            seller_data.follower_stats
+                                                .active_buyers
+                                        }}
+                                        of
+                                        {{ seller_data.follower_stats.total }}
+                                        bought in last 30 days
+                                    </p>
                                 </div>
                             </Panel>
                         </div>
@@ -877,129 +886,19 @@
                                     v-model="period"
                                     :periods="periods"
                                 />
-                                <span
-                                    class="font-mono text-[9px] text-slate-500 uppercase"
-                                    >{{ periodLabel }}</span
-                                >
+                                <ViewAllLink
+                                    href="/seller/settlements"
+                                    :count="seller_data.settlements.length"
+                                    :cap="20"
+                                />
                             </template>
 
                             <div class="divide-y divide-gray-800/40">
-                                <div
+                                <SettlementRow
                                     v-for="s in filteredSettlements"
                                     :key="s.id"
-                                    class="p-3 transition-colors hover:bg-[#111a30]/40"
-                                >
-                                    <div
-                                        class="flex items-center justify-between gap-3"
-                                    >
-                                        <div
-                                            class="flex min-w-0 items-center gap-3"
-                                        >
-                                            <span
-                                                :class="[
-                                                    'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-sm font-mono text-[9px] font-black select-none',
-                                                    s.outcome === 'won'
-                                                        ? 'bg-emerald-500 text-[#070b14]'
-                                                        : s.outcome === 'voided'
-                                                          ? 'bg-slate-500 text-[#070b14]'
-                                                          : 'bg-rose-500 text-white',
-                                                ]"
-                                            >
-                                                {{
-                                                    s.outcome === 'won'
-                                                        ? 'W'
-                                                        : s.outcome === 'voided'
-                                                          ? 'V'
-                                                          : 'L'
-                                                }}
-                                            </span>
-                                            <div class="min-w-0">
-                                                <div
-                                                    class="flex items-center gap-2"
-                                                >
-                                                    <span
-                                                        class="truncate font-mono text-[11px] font-bold text-sky-400"
-                                                    >
-                                                        {{ s.betslip_code }}
-                                                    </span>
-                                                </div>
-                                                <p
-                                                    class="mt-0.5 truncate text-[10px] text-slate-500"
-                                                >
-                                                    from {{ s.buyer_name }} ·
-                                                    {{ s.settled_ago }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="text-right">
-                                            <p
-                                                class="font-mono text-xs font-black"
-                                                :class="
-                                                    s.outcome === 'won'
-                                                        ? 'text-emerald-400'
-                                                        : 'text-slate-500'
-                                                "
-                                            >
-                                                <Money
-                                                    :value="s.net"
-                                                    :currency="'KES'"
-                                                    :signed="
-                                                        s.outcome === 'won'
-                                                    "
-                                                />
-                                            </p>
-                                            <p
-                                                class="text-[9px] text-slate-500 uppercase"
-                                            >
-                                                {{
-                                                    s.outcome === 'won'
-                                                        ? 'Net earned'
-                                                        : s.outcome ===
-                                                            'voided'
-                                                          ? 'Voided'
-                                                          : 'Refunded'
-                                                }}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        v-if="s.outcome === 'won'"
-                                        class="mt-2 flex flex-wrap items-center gap-3 border-t border-gray-800/40 pt-2 font-mono text-[9px] tracking-wide text-slate-500 uppercase"
-                                    >
-                                        <span>
-                                            Gross
-                                            <span class="text-slate-300">
-                                                <Money
-                                                    :value="s.gross"
-                                                    :currency="'KES'"
-                                                />
-                                            </span>
-                                        </span>
-                                        <span class="text-slate-700">·</span>
-                                        <span>
-                                            Fee
-                                            <span class="text-rose-400">
-                                                <Money
-                                                    :value="s.fee"
-                                                    :currency="'KES'"
-                                                />
-                                            </span>
-                                        </span>
-                                        <span class="text-slate-700">·</span>
-                                        <span>
-                                            Net
-                                            <span
-                                                class="font-black text-emerald-400"
-                                            >
-                                                <Money
-                                                    :value="s.net"
-                                                    :currency="'KES'"
-                                                />
-                                            </span>
-                                        </span>
-                                    </div>
-                                </div>
+                                    :settlement="s"
+                                />
 
                                 <EmptyState
                                     v-if="filteredSettlements.length === 0"
@@ -1163,21 +1062,27 @@
                                         }}</span
                                     >
                                 </div>
-                                <div class="border-t border-[#232d42]/60 p-3 text-center">
+                                <div class="p-4 text-center">
                                     <span
-                                        class="text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                                        class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
                                         >Buyer Conversion</span
                                     >
                                     <span
-                                        class="ml-2 font-mono text-sm font-black text-white"
+                                        class="mt-1 block font-mono text-2xl font-black text-white"
                                         >{{
-                                            seller_data.follower_stats.buyer_conversion_rate
+                                            seller_data.follower_stats
+                                                .buyer_conversion_rate
                                         }}%</span
                                     >
-                                    <p class="mt-0.5 text-[9px] text-slate-600">
-                                        {{ seller_data.follower_stats.active_buyers }} of
-                                        {{ seller_data.follower_stats.total }} bought in last 30 days
-                                    </p>
+                                    <span
+                                        class="mt-0.5 block text-[9px] text-slate-600"
+                                    >
+                                        {{
+                                            seller_data.follower_stats
+                                                .active_buyers
+                                        }}
+                                        active buyers
+                                    </span>
                                 </div>
                             </div>
                         </Panel>
@@ -1348,10 +1253,14 @@
                                     v-model="period"
                                     :periods="periods"
                                 />
-                                <span
-                                    class="font-mono text-[9px] text-slate-500 uppercase"
-                                    >{{ periodLabel }}</span
-                                >
+                                <ViewAllLink
+                                    href="/wallet/transactions"
+                                    :count="
+                                        seller_data.wallet.recent_transactions
+                                            .length
+                                    "
+                                    :cap="10"
+                                />
                             </template>
                             <TransactionsTable
                                 :transactions="filteredTransactions"
@@ -1394,7 +1303,14 @@
                                 </div>
                             </Panel>
 
-                            <Panel title="LEAGUE PERFORMANCE" accent="purple">
+                            <Panel
+                                v-if="
+                                    seller_data.charts.league_performance
+                                        .length > 0
+                                "
+                                title="LEAGUE PERFORMANCE"
+                                accent="purple"
+                            >
                                 <div class="space-y-3 p-4">
                                     <div
                                         v-for="league in seller_data.charts
@@ -1411,15 +1327,6 @@
                                             >{{ league.win_rate }}% WR</span
                                         >
                                     </div>
-                                    <p
-                                        v-if="
-                                            seller_data.charts
-                                                .league_performance.length === 0
-                                        "
-                                        class="py-2 text-center font-mono text-[10px] text-slate-500 uppercase"
-                                    >
-                                        No league data yet
-                                    </p>
                                 </div>
                             </Panel>
 
@@ -1459,10 +1366,6 @@
                                         v-model="period"
                                         :periods="periods"
                                     />
-                                    <span
-                                        class="font-mono text-[9px] text-slate-500 uppercase"
-                                        >{{ periodLabel }}</span
-                                    >
                                 </template>
                                 <div
                                     class="no-scrollbar max-h-[420px] space-y-2.5 overflow-y-auto p-4"
@@ -1541,6 +1444,8 @@ import AsOf from '@/components/AsOf.vue';
 import LiveValue from '@/components/LiveValue.vue';
 import DeltaChip from '@/components/DeltaChip.vue';
 import LiveBadge from '@/components/LiveBadge.vue';
+import ViewAllLink from '@/components/ViewAllLink.vue';
+import SettlementRow from '@/components/SettlementRow.vue';
 import { useOnboarding } from '@/composables/useOnboarding';
 import { usePeriod } from '@/composables/usePeriod';
 
@@ -1581,7 +1486,6 @@ const sellerOnboardingSteps = [
 const {
     period,
     periods,
-    label: periodLabel,
     shortLabel: shortPeriodLabel,
     filterByDate,
 } = usePeriod('seller', '30d');

@@ -172,9 +172,7 @@
             </div>
 
             <!-- ═══════════════ TAB STRIP + PERIOD (desktop) ═══════════════ -->
-            <div
-                class="hidden items-center justify-between gap-3 lg:flex"
-            >
+            <div class="hidden items-center justify-between gap-3 lg:flex">
                 <BuyerTabs v-model="activeTab" :tabs="tabs" />
                 <div v-if="showPeriodPicker" class="flex items-center gap-2">
                     <span
@@ -202,7 +200,7 @@
             <!-- ═══════════════ ONBOARDING BANNER ═══════════════ -->
             <OnboardingBanner
                 v-if="shouldShowBanner"
-                headline="Welcome to your buyer Dashboard"
+                headline="Welcome to your buyer console"
                 body="Everything you need to research, buy, and track betslips lives here. Start with the four steps below — they take less than a minute."
                 :steps="buyerOnboardingSteps"
                 @dismiss="dismissOnboarding"
@@ -218,6 +216,7 @@
                 <div :key="activeTab" class="space-y-6">
                     <!-- ═══════════ OVERVIEW ═══════════ -->
                     <template v-if="activeTab === 'overview'">
+                        <!-- Wallet -->
                         <Panel title="WALLET" accent="emerald">
                             <template #actions>
                                 <AsOf :at="generatedAt" />
@@ -652,6 +651,11 @@
                                 >
                                     <template #actions>
                                         <LiveBadge />
+                                        <ViewAllLink
+                                            href="/buyer/purchases"
+                                            :count="buyer_data.purchases.total"
+                                            :cap="10"
+                                        />
                                     </template>
                                     <div class="divide-y divide-gray-800/40">
                                         <EmptyState
@@ -722,6 +726,11 @@
                         >
                             <template #actions>
                                 <LiveBadge />
+                                <ViewAllLink
+                                    href="/buyer/purchases?status=active"
+                                    :count="buyer_data.purchases.total"
+                                    :cap="10"
+                                />
                             </template>
                             <div class="divide-y divide-gray-800/40">
                                 <EmptyState
@@ -751,10 +760,13 @@
                                     v-model="period"
                                     :periods="periods"
                                 />
-                                <span
-                                    class="font-mono text-[9px] text-slate-500 uppercase"
-                                    >{{ periodLabel }}</span
-                                >
+                                <ViewAllLink
+                                    href="/buyer/purchases?status=settled"
+                                    :count="
+                                        buyer_data.performance.total_purchases
+                                    "
+                                    :cap="20"
+                                />
                             </template>
                             <div class="divide-y divide-gray-800/40">
                                 <div
@@ -1311,10 +1323,14 @@
                                     v-model="period"
                                     :periods="periods"
                                 />
-                                <span
-                                    class="font-mono text-[9px] text-slate-500 uppercase"
-                                    >{{ periodLabel }}</span
-                                >
+                                <ViewAllLink
+                                    href="/wallet/transactions"
+                                    :count="
+                                        buyer_data.wallet.recent_transactions
+                                            .length
+                                    "
+                                    :cap="10"
+                                />
                             </template>
                             <TransactionsTable
                                 :transactions="filteredTransactions"
@@ -1439,10 +1455,6 @@
                                         v-model="period"
                                         :periods="periods"
                                     />
-                                    <span
-                                        class="font-mono text-[9px] text-slate-500 uppercase"
-                                        >{{ periodLabel }}</span
-                                    >
                                 </template>
                                 <div
                                     class="no-scrollbar max-h-[420px] space-y-2.5 overflow-y-auto p-4"
@@ -1486,11 +1498,7 @@
         </div>
 
         <!-- ═══════════════ MOBILE BOTTOM TABS ═══════════════ -->
-        <BuyerTabs
-            v-model="activeTab"
-            :tabs="tabs"
-            variant="bottom-bar"
-        />
+        <BuyerTabs v-model="activeTab" :tabs="tabs" variant="bottom-bar" />
     </div>
 </template>
 
@@ -1526,6 +1534,7 @@ import AsOf from '@/components/AsOf.vue';
 import LiveValue from '@/components/LiveValue.vue';
 import DeltaChip from '@/components/DeltaChip.vue';
 import LiveBadge from '@/components/LiveBadge.vue';
+import ViewAllLink from '@/components/ViewAllLink.vue';
 import { useOnboarding } from '@/composables/useOnboarding';
 import { usePeriod } from '@/composables/usePeriod';
 
@@ -1566,7 +1575,6 @@ const buyerOnboardingSteps = [
 const {
     period,
     periods,
-    label: periodLabel,
     shortLabel: shortPeriodLabel,
     filterByDate,
 } = usePeriod('buyer', '30d');
@@ -1729,7 +1737,6 @@ watch(activeTab, async (val) => {
     if (window.location.hash !== `#${val}`) {
         history.replaceState(null, '', `#${val}`);
     }
-    // Wait for the new tab content to mount, then scroll smoothly to top.
     await nextTick();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });

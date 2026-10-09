@@ -558,6 +558,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('wallet.balance');
 
+    // ── Wallet: Transactions (full list) ──
+    Route::get('/wallet/transactions', [\App\Http\Controllers\WalletController::class, 'transactions'])
+    ->name('wallet.transactions.index');
+
+    // ── Buyer: Purchases (full list) ──
+    Route::get('/buyer/purchases', [BuyerDashboardController::class, 'purchasesIndex'])
+    ->name('buyer.purchases.index');
+
+    // ── Seller: Settlements (full list) ──
+    Route::get('/seller/settlements', [SellerDashboardController::class, 'settlementsIndex'])
+    ->name('seller.settlements.index');
+
     // ── Contests (Authenticated actions) ──
     Route::get('/contests/mine', [\App\Http\Controllers\HostContestController::class, 'index'])
     ->name('contests.mine');

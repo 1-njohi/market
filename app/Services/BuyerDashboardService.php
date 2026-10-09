@@ -175,6 +175,52 @@ class BuyerDashboardService
         ];
     }
 
+    /**
+     * Paginated purchase list for the /buyer/purchases page.
+     *
+     * Filter values:
+     *   - 'active'   → pending
+     *   - 'settled'  → won | refunded | voided
+     *   - 'won'      → won
+     *   - 'refunded' → refunded
+     *   - 'voided'   → voided
+     *   - null       → all
+     */
+    public function paginatedPurchases(User $user, ?string $status = null, int $perPage = 20)
+    {
+        $query = $user->purchases()
+            ->with(['betslip', 'seller'])
+            ->orderByDesc('created_at');
+
+        match ($status) {
+            'active'   => $query->where('status', 'pending'),
+            'settled'  => $query->whereIn('status', ['won', 'refunded', 'voided']),
+            'won'      => $query->where('status', 'won'),
+            'refunded' => $query->where('status', 'refunded'),
+            'voided'   => $query->where('status', 'voided'),
+            default    => null,
+        };
+
+        $paginator = $query->paginate($perPage)->withQueryString();
+
+        // Reshape each row to the frontend contract (same shape as `recent`).
+        $paginator->through(function ($purchase) {
+            return [
+                'id'           => $purchase->id,
+                'betslip_code' => $purchase->betslip->code ?? 'N/A',
+                'seller_name'  => $purchase->seller->name ?? 'Unknown',
+                'price'        => round((float) $purchase->purchase_price, 2),
+                'total_odds'   => round((float) $purchase->total_odds, 2),
+                'status'       => $purchase->status,
+                'is_winner'    => (bool) ($purchase->betslip->is_winner ?? false),
+                'legs'         => $purchase->betslip->odds->count() ?? 0,
+                'purchased_at' => $purchase->created_at->toIso8601String(),
+            ];
+        });
+
+        return $paginator;
+    }
+
     public function getSettledOutcomes(User $user, int $limit = 20): array
     {
         return $user->purchases()
