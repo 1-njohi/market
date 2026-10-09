@@ -169,12 +169,19 @@
                     <!-- Footer -->
                     <div
                         v-if="notifications.length > 0"
-                        class="border-t border-gray-800 bg-[#111a30] px-4 py-2 text-center"
+                        class="flex items-center justify-between border-t border-gray-800 bg-[#111a30] px-4 py-2"
                     >
                         <span
                             class="font-mono text-[9px] tracking-widest text-slate-500 uppercase"
                             >Showing last {{ notifications.length }}</span
                         >
+                        <Link
+                            href="/notifications"
+                            @click="closePanel"
+                            class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
+                        >
+                            View all →
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -184,7 +191,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, Link } from '@inertiajs/vue3';
 import axios from 'axios';
 
 const props = defineProps({
@@ -220,7 +227,7 @@ const closePanel = () => {
 const fetchNotifications = async () => {
     try {
         isLoading.value = true;
-        const { data } = await axios.get('/notifications', {
+        const { data } = await axios.get('/notifications/feed', {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         });
 
@@ -385,7 +392,7 @@ onMounted(() => {
     refreshInterval = setInterval(async () => {
         if (!isOpen.value) {
             try {
-                const { data } = await axios.get('/notifications', {
+                const { data } = await axios.get('/notifications/feed', {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 });
                 if (data.success) {

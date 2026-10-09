@@ -653,6 +653,9 @@ Route::get('/contests/{contest}/created', [\App\Http\Controllers\ContestCreateCo
 
     // ── Notifications ──
     Route::prefix('notifications')->group(function () {
+        // Bell feed (JSON) — must come before the {id}-bearing routes below.
+        Route::get('/feed', [NotificationController::class, 'feed']);
+    
         Route::get('/', [NotificationController::class, 'index']);
         Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
         Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
