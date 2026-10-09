@@ -184,7 +184,6 @@
                 </div>
             </div>
 
-            <!-- ═══════════════ PERIOD (mobile, standalone) ═══════════════ -->
             <div
                 v-if="showPeriodPicker"
                 class="flex items-center justify-between gap-3 rounded border border-[#232d42] bg-[#111622] p-2 lg:hidden"
@@ -197,7 +196,6 @@
                 <ComparisonPicker v-model="period" :periods="periods" />
             </div>
 
-            <!-- ═══════════════ ONBOARDING BANNER ═══════════════ -->
             <OnboardingBanner
                 v-if="shouldShowBanner"
                 headline="Welcome to your buyer console"
@@ -206,7 +204,6 @@
                 @dismiss="dismissOnboarding"
             />
 
-            <!-- ═══════════════ TAB CONTENT (animated) ═══════════════ -->
             <Transition
                 appear
                 enter-active-class="transition duration-200 ease-out"
@@ -216,7 +213,6 @@
                 <div :key="activeTab" class="space-y-6">
                     <!-- ═══════════ OVERVIEW ═══════════ -->
                     <template v-if="activeTab === 'overview'">
-                        <!-- Wallet -->
                         <Panel title="WALLET" accent="emerald">
                             <template #actions>
                                 <AsOf :at="generatedAt" />
@@ -369,7 +365,6 @@
                             </div>
                         </Panel>
 
-                        <!-- Two metric cards -->
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <SampleMetricCard
                                 v-if="isFresh"
@@ -642,7 +637,6 @@
                             </Panel>
                         </div>
 
-                        <!-- Split: Active purchases + Recent form -->
                         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                             <div class="lg:col-span-2">
                                 <Panel
@@ -868,12 +862,7 @@
                             accent="amber"
                         >
                             <template #actions>
-                                <Link
-                                    href="/contests/mine"
-                                    class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
-                                >
-                                    View all →
-                                </Link>
+                                <ViewAllLink href="/contests/mine" />
                             </template>
                             <div class="divide-y divide-gray-800/40">
                                 <Link
@@ -1010,12 +999,7 @@
                             </template>
 
                             <template #actions>
-                                <Link
-                                    href="/watchlist/record"
-                                    class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
-                                >
-                                    Full record →
-                                </Link>
+                                <ViewAllLink href="/watchlist/record" />
                             </template>
 
                             <div
@@ -1147,6 +1131,9 @@
                         </Panel>
 
                         <Panel v-else title="WATCH RECORD" accent="purple">
+                            <template #actions>
+                                <ViewAllLink href="/watchlist/record" />
+                            </template>
                             <EmptyState
                                 title="No watch history yet"
                                 body="Every slip you watch is scored here as a paper P/L, so you can compare tipsters before you commit real money."
@@ -1155,11 +1142,58 @@
                                 accent="purple"
                             />
                         </Panel>
+                    </template>
+
+                    <!-- ═══════════ FOLLOWING ═══════════ -->
+                    <template v-else-if="activeTab === 'following'">
+                        <Panel title="FOLLOWING" accent="purple">
+                            <template #actions>
+                                <ViewAllLink
+                                    href="/buyer/following"
+                                    :count="
+                                        buyer_data.following_stats?.total ?? 0
+                                    "
+                                    :cap="10"
+                                />
+                            </template>
+                            <div class="p-4 text-center">
+                                <span
+                                    class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
+                                >
+                                    Sellers You Follow
+                                </span>
+                                <span
+                                    class="mt-1 block font-mono text-3xl font-black text-white"
+                                >
+                                    {{
+                                        buyer_data.following_stats?.total ?? 0
+                                    }}
+                                </span>
+                                <p
+                                    class="mx-auto mt-2 max-w-md text-[10px] leading-relaxed text-slate-500"
+                                >
+                                    Followed sellers appear here and their new
+                                    slips show first in your marketplace.
+                                </p>
+                            </div>
+                        </Panel>
 
                         <FollowingTable
-                            v-if="buyer_data.following_stats"
+                            v-if="
+                                buyer_data.following_stats &&
+                                buyer_data.following_stats.total > 0
+                            "
                             :following="buyer_data.following_stats.recent"
-                            title="Sellers You Follow"
+                            title="Recently Followed"
+                        />
+
+                        <EmptyState
+                            v-else
+                            title="You're not following anyone yet"
+                            body="Follow tipsters to see their slips first and track their performance over time."
+                            cta-label="Browse marketplace"
+                            cta-href="/marketplace"
+                            accent="purple"
                         />
                     </template>
 
@@ -1497,7 +1531,6 @@
             </Transition>
         </div>
 
-        <!-- ═══════════════ MOBILE BOTTOM TABS ═══════════════ -->
         <BuyerTabs v-model="activeTab" :tabs="tabs" variant="bottom-bar" />
     </div>
 </template>
@@ -1541,7 +1574,6 @@ import { usePeriod } from '@/composables/usePeriod';
 const page = usePage();
 const buyer_data = page.props.buyer_data;
 
-// ─── Onboarding ────────────────────────────────────────────────────
 const {
     isFresh,
     shouldShowBanner,
@@ -1549,29 +1581,12 @@ const {
 } = useOnboarding(buyer_data, { role: 'buyer' });
 
 const buyerOnboardingSteps = [
-    {
-        title: 'Browse marketplace',
-        body: 'Find a betslip that catches your eye',
-        href: '/marketplace',
-    },
-    {
-        title: 'Buy your first slip',
-        body: 'Escrow protects your money until settlement',
-        href: '/marketplace',
-    },
-    {
-        title: 'Watch a seller',
-        body: 'Follow tipsters to see their slips first',
-        href: '/marketplace',
-    },
-    {
-        title: 'Fund your wallet',
-        body: 'Deposit via M-Pesa in seconds',
-        href: '#wallet',
-    },
+    { title: 'Browse marketplace', body: 'Find a betslip that catches your eye', href: '/marketplace' },
+    { title: 'Buy your first slip', body: 'Escrow protects your money until settlement', href: '/marketplace' },
+    { title: 'Watch a seller', body: 'Follow tipsters to see their slips first', href: '/marketplace' },
+    { title: 'Fund your wallet', body: 'Deposit via M-Pesa in seconds', href: '#wallet' },
 ];
 
-// ─── Period state ──────────────────────────────────────────────────
 const {
     period,
     periods,
@@ -1579,7 +1594,6 @@ const {
     filterByDate,
 } = usePeriod('buyer', '30d');
 
-// ─── Period-scoped metric accessors ────────────────────────────────
 const periodMetrics = computed(() => {
     const fromBackend = buyer_data.periods?.[period.value];
     if (fromBackend) {
@@ -1613,7 +1627,6 @@ const periodDeltas = computed(() => {
     };
 });
 
-// ─── Filtered lists ────────────────────────────────────────────────
 const filteredTransactions = computed(() =>
     filterByDate(buyer_data.wallet.recent_transactions, 'created_at'),
 );
@@ -1626,7 +1639,6 @@ const filteredActivity = computed(() =>
     filterByDate(buyer_data.activity, 'created_at'),
 );
 
-// ─── Sparkline series ──────────────────────────────────────────────
 const winRateSeries = computed(() => {
     if (buyer_data.performance?.series?.win_rate_7d) {
         return buyer_data.performance.series.win_rate_7d;
@@ -1653,15 +1665,12 @@ const spentSeries = computed(() => {
         if (Number.isNaN(t)) return;
         const diff = now - t;
         const idx = days - 1 - Math.floor(diff / dayMs);
-        if (idx >= 0 && idx < days) {
-            buckets[idx] += Math.abs(tx.amount);
-        }
+        if (idx >= 0 && idx < days) buckets[idx] += Math.abs(tx.amount);
     });
 
     return buckets.some((v) => v > 0) ? buckets : [];
 });
 
-// ─── Delta text helpers ────────────────────────────────────────────
 const deltaTextClass = (delta) => {
     if (!delta || delta === 0) return 'text-slate-500';
     return delta > 0 ? 'text-emerald-400' : 'text-rose-400';
@@ -1673,43 +1682,57 @@ const signedNumber = (delta) => {
     return `${sign}${delta}`;
 };
 
-// ─── Generated-at fallback ─────────────────────────────────────────
 const generatedAt = computed(
     () => buyer_data.generated_at ?? new Date().toISOString(),
 );
 
-// ─── Tabs ──────────────────────────────────────────────────────────
 const TAB_KEYS = [
     'overview',
     'purchases',
     'contests',
     'watchlist',
+    'following',
     'wallet',
     'analytics',
 ];
 
 const tabs = computed(() => [
-    { key: 'overview', label: 'Overview', accent: 'sky' },
+    { key: 'overview', label: 'Overview', shortLabel: 'Home', accent: 'sky' },
     {
         key: 'purchases',
         label: 'Purchases',
+        shortLabel: 'Buys',
         accent: 'emerald',
         badge: buyer_data.purchases.active || null,
     },
     {
         key: 'contests',
         label: 'Contests',
+        shortLabel: 'Contest',
         accent: 'amber',
         badge: buyer_data.contests?.length || null,
     },
     {
         key: 'watchlist',
         label: 'Watchlist',
+        shortLabel: 'Watch',
         accent: 'purple',
         badge: buyer_data.watch_record?.settled_count || null,
     },
-    { key: 'wallet', label: 'Wallet', accent: 'amber' },
-    { key: 'analytics', label: 'Analytics', accent: 'slate' },
+    {
+        key: 'following',
+        label: 'Following',
+        shortLabel: 'Follows',
+        accent: 'purple',
+        badge: buyer_data.following_stats?.total || null,
+    },
+    { key: 'wallet', label: 'Wallet', shortLabel: 'Wallet', accent: 'amber' },
+    {
+        key: 'analytics',
+        label: 'Analytics',
+        shortLabel: 'Stats',
+        accent: 'slate',
+    },
 ]);
 
 const readHash = () => {
@@ -1741,7 +1764,6 @@ watch(activeTab, async (val) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// ─── Purchases table shape ─────────────────────────────────────────
 const purchasesForTable = computed(() => {
     return (buyer_data.purchases.recent || []).map((p) => ({
         id: p.id,
@@ -1758,7 +1780,6 @@ const purchasesForTable = computed(() => {
     }));
 });
 
-// ─── Contest helpers ───────────────────────────────────────────────
 const contestHref = (contest) => `/contests/${contest.uuid}/picks`;
 
 const formatDeadline = (iso) => {
@@ -1774,9 +1795,7 @@ const formatDeadline = (iso) => {
         const mins = Math.floor(diffMs / (1000 * 60));
         return `${mins}m left`;
     }
-    if (hours < 24) {
-        return `${hours}h left`;
-    }
+    if (hours < 24) return `${hours}h left`;
     const days = Math.floor(hours / 24);
     return `${days}d left`;
 };
@@ -1790,28 +1809,18 @@ const deadlineClass = (iso) => {
     return 'text-slate-500';
 };
 
-// ─── Tone badge helper ─────────────────────────────────────────────
 const toneBadgeClass = (tone) => {
     switch (tone) {
-        case 'positive':
-            return 'bg-emerald-500 text-[#070b14]';
-        case 'negative':
-            return 'bg-rose-500 text-white';
-        case 'pending':
-            return 'bg-amber-500 text-[#070b14]';
+        case 'positive': return 'bg-emerald-500 text-[#070b14]';
+        case 'negative': return 'bg-rose-500 text-white';
+        case 'pending':  return 'bg-amber-500 text-[#070b14]';
         case 'neutral':
-        default:
-            return 'bg-slate-500 text-white';
+        default:         return 'bg-slate-500 text-white';
     }
 };
 </script>
 
 <style scoped>
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>

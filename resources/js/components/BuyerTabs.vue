@@ -1,5 +1,5 @@
 <template>
-    <!-- ═══════════════ BOTTOM BAR — mobile only ═══════════════ -->
+    <!-- ═══ Bottom bar (mobile only) ═══ -->
     <nav
         v-if="variant === 'bottom-bar'"
         class="fixed inset-x-0 bottom-0 z-40 border-t border-[#232d42] bg-[#0a101f]/95 backdrop-blur-md lg:hidden"
@@ -12,8 +12,8 @@
                 type="button"
                 @click="$emit('update:modelValue', tab.key)"
                 :class="[
-                    'relative flex min-w-0 flex-1 flex-col items-center gap-1 px-2 py-2.5 transition-colors',
-                    'font-mono text-[8px] font-black tracking-widest uppercase',
+                    'relative flex min-w-0 flex-1 flex-col items-center gap-1 px-1 py-2.5 transition-colors',
+                    'font-mono text-[8px] font-black tracking-wider uppercase',
                     modelValue === tab.key
                         ? activeTextClass(tab.accent)
                         : 'text-slate-500 hover:text-slate-300',
@@ -21,16 +21,18 @@
             >
                 <span
                     :class="[
-                        'h-0.5 w-6 rounded-full transition-all duration-200',
+                        'h-0.5 w-5 rounded-full transition-all duration-200',
                         modelValue === tab.key
                             ? activeBarClass(tab.accent)
                             : 'bg-transparent',
                     ]"
                 ></span>
-                <span class="truncate">{{ tab.label }}</span>
+                <span class="truncate">{{
+                    tab.shortLabel ?? tab.label
+                }}</span>
                 <span
                     v-if="tab.badge"
-                    class="absolute top-1 right-2 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-rose-500 px-1 font-mono text-[8px] font-black text-white"
+                    class="absolute top-0.5 right-1 flex h-3 min-w-3 items-center justify-center rounded-full bg-rose-500 px-0.5 font-mono text-[7px] font-black text-white"
                 >
                     {{ tab.badge > 99 ? '99+' : tab.badge }}
                 </span>
@@ -38,11 +40,8 @@
         </div>
     </nav>
 
-    <!-- ═══════════════ INLINE — desktop only ═══════════════ -->
-    <div
-        v-else
-        class="no-scrollbar hidden w-full overflow-x-auto lg:block"
-    >
+    <!-- ═══ Inline (desktop only) ═══ -->
+    <div v-else class="no-scrollbar hidden w-full overflow-x-auto lg:block">
         <div
             class="flex min-w-max items-center gap-1 rounded border border-[#232d42] bg-[#111622] p-1"
         >

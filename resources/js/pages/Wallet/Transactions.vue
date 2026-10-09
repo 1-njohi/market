@@ -20,15 +20,15 @@
         <div
             class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
         >
-            <div
+            <EmptyState
                 v-if="transactions.data.length === 0"
-                class="p-10 text-center font-mono text-xs tracking-wider text-slate-500"
-            >
-                No transactions to display.
-            </div>
-            <div v-else>
-                <TransactionsTable :transactions="transactions.data" />
-            </div>
+                :title="emptyTitle"
+                :body="emptyBody"
+                :cta-label="emptyCtaLabel"
+                :cta-href="emptyCtaHref"
+                accent="emerald"
+            />
+            <TransactionsTable v-else :transactions="transactions.data" />
         </div>
 
         <template #pagination>
@@ -38,12 +38,13 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import ListPage from '@/components/ListPage.vue';
 import ListFilters from '@/components/ListFilters.vue';
 import ListPagination from '@/components/ListPagination.vue';
 import TransactionsTable from '@/components/TransactionsTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
 
 const props = defineProps({
     transactions: { type: Object, required: true },
@@ -51,16 +52,38 @@ const props = defineProps({
 });
 
 const typeOptions = [
-    { value: null,           label: 'All' },
-    { value: 'deposit',      label: 'Deposits' },
-    { value: 'withdrawal',   label: 'Withdrawals' },
-    { value: 'purchase',     label: 'Purchases' },
-    { value: 'refund',       label: 'Refunds' },
-    { value: 'payout',       label: 'Payouts' },
-    { value: 'fee',          label: 'Fees' },
+    { value: null,         label: 'All' },
+    { value: 'deposit',    label: 'Deposits' },
+    { value: 'withdrawal', label: 'Withdrawals' },
+    { value: 'purchase',   label: 'Purchases' },
+    { value: 'refund',     label: 'Refunds' },
+    { value: 'payout',     label: 'Payouts' },
+    { value: 'fee',        label: 'Fees' },
 ];
 
 const typeFilter = ref(props.filters.type ?? null);
+
+const filterActive = computed(() => typeFilter.value !== null);
+
+const emptyTitle = computed(() =>
+    filterActive.value
+        ? `No ${typeFilter.value} transactions`
+        : 'No transactions yet',
+);
+
+const emptyBody = computed(() =>
+    filterActive.value
+        ? 'Try a different filter, or clear it to see everything.'
+        : 'Fund your wallet to see deposits, purchases, refunds, and payouts appear here.',
+);
+
+const emptyCtaLabel = computed(() =>
+    filterActive.value ? 'Clear filter' : 'Fund your wallet',
+);
+
+const emptyCtaHref = computed(() =>
+    filterActive.value ? '/wallet/transactions' : '/dashboard#wallet',
+);
 
 const applyFilter = (value) => {
     router.get(
@@ -70,8 +93,6 @@ const applyFilter = (value) => {
     );
 };
 
-// Keep the ref in sync when the server echoes back a filter (e.g. on
-// a fresh page load from a bookmarked URL).
 watch(
     () => props.filters.type,
     (v) => {

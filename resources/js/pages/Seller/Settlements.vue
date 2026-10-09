@@ -20,12 +20,14 @@
         <div
             class="divide-y divide-gray-800/40 overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
         >
-            <div
+            <EmptyState
                 v-if="settlements.data.length === 0"
-                class="p-10 text-center font-mono text-xs tracking-wider text-slate-500"
-            >
-                No settlements to display.
-            </div>
+                :title="emptyTitle"
+                :body="emptyBody"
+                :cta-label="emptyCtaLabel"
+                :cta-href="emptyCtaHref"
+                accent="emerald"
+            />
             <template v-else>
                 <SettlementRow
                     v-for="s in settlements.data"
@@ -42,12 +44,13 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import ListPage from '@/components/ListPage.vue';
 import ListFilters from '@/components/ListFilters.vue';
 import ListPagination from '@/components/ListPagination.vue';
 import SettlementRow from '@/components/SettlementRow.vue';
+import EmptyState from '@/components/EmptyState.vue';
 
 const props = defineProps({
     settlements: { type: Object, required: true },
@@ -62,6 +65,28 @@ const outcomeOptions = [
 ];
 
 const outcomeFilter = ref(props.filters.outcome ?? null);
+
+const filterActive = computed(() => outcomeFilter.value !== null);
+
+const emptyTitle = computed(() =>
+    filterActive.value
+        ? `No ${outcomeFilter.value} settlements`
+        : 'No settlements yet',
+);
+
+const emptyBody = computed(() =>
+    filterActive.value
+        ? 'Try a different outcome filter, or clear it to see everything.'
+        : 'When a buyer purchase of one of your betslips reaches settlement, the payout and fee breakdown lands here.',
+);
+
+const emptyCtaLabel = computed(() =>
+    filterActive.value ? 'Clear filter' : 'Create a betslip',
+);
+
+const emptyCtaHref = computed(() =>
+    filterActive.value ? '/seller/settlements' : '/fixtures',
+);
 
 const applyFilter = (value) => {
     router.get(

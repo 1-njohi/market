@@ -43,6 +43,39 @@ class SellerDashboardController extends Controller
         ]);
     }
 
+    public function betslipsIndex(Request $request)
+    {
+        $allowed = ['active', 'sold_out', 'settled'];
+        $status  = $request->query('status');
+        if (!in_array($status, $allowed, true)) {
+            $status = null;
+        }
+
+        return Inertia::render('Seller/Betslips', [
+            'betslips' => $this->dashboardService->paginatedBetslips(
+                Auth::user(),
+                $status,
+            ),
+            'filters' => ['status' => $status],
+        ]);
+    }
+
+    public function followersIndex()
+    {
+        $user = Auth::user();
+
+        return Inertia::render('Seller/Followers', [
+            'followers' => $this->dashboardService->paginatedFollowers($user),
+            'user' => [
+                'name'   => $user->name,
+                'code'   => $user->code,
+                'avatar' => $user->profile_picture_url
+                    ?? "https://ui-avatars.com/api/?name=" . urlencode($user->name),
+            ],
+            'profileUrl' => url("/profile/{$user->code}"),
+        ]);
+    }
+
     /**
      * Get real-time dashboard data (AJAX)
      */

@@ -1,12 +1,12 @@
 <template>
-    <Head title="Purchases — Betslip Pirates" />
+    <Head title="Betslips — Betslip Pirates" />
 
     <ListPage
-        label="Buyer"
-        title="All Purchases"
-        subtitle="Every betslip you've bought, from pending through to settlement."
-        back-href="/buyer/dashboard#purchases"
-        back-label="Buyer Dashboard"
+        label="Seller"
+        title="All Betslips"
+        subtitle="Every betslip you've created — active, and settled."
+        back-href="/seller/dashboard#betslips"
+        back-label="Seller Dashboard"
     >
         <template #filters>
             <ListFilters
@@ -21,18 +21,18 @@
             class="overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40"
         >
             <EmptyState
-                v-if="purchases.data.length === 0"
+                v-if="betslips.data.length === 0"
                 :title="emptyTitle"
                 :body="emptyBody"
                 :cta-label="emptyCtaLabel"
                 :cta-href="emptyCtaHref"
-                accent="emerald"
+                accent="sky"
             />
-            <BetslipsTable v-else :betslips="purchasesForTable" />
+            <BetslipsTable v-else :betslips="betslipsForTable" />
         </div>
 
         <template #pagination>
-            <ListPagination :paginator="purchases" />
+            <ListPagination :paginator="betslips" />
         </template>
     </ListPage>
 </template>
@@ -47,7 +47,7 @@ import BetslipsTable from '@/components/BetslipsTable.vue';
 import EmptyState from '@/components/EmptyState.vue';
 
 const props = defineProps({
-    purchases: { type: Object, required: true },
+    betslips: { type: Object, required: true },
     filters: { type: Object, default: () => ({}) },
 });
 
@@ -55,26 +55,23 @@ const statusOptions = [
     { value: null,       label: 'All' },
     { value: 'active',   label: 'Active' },
     { value: 'settled',  label: 'Settled' },
-    { value: 'won',      label: 'Won' },
-    { value: 'refunded', label: 'Refunded' },
-    { value: 'voided',   label: 'Voided' },
 ];
 
 const statusFilter = ref(props.filters.status ?? null);
 
-const purchasesForTable = computed(() =>
-    (props.purchases.data || []).map((p) => ({
-        id: p.id,
-        code: p.betslip_code,
-        legs: p.legs ?? 0,
-        total_odds: p.total_odds,
-        price: p.price,
-        remaining: 1,
-        status: p.status,
-        is_winner: p.is_winner,
-        purchases: 1,
-        is_expiring_soon: false,
-        seller_name: p.seller_name,
+const betslipsForTable = computed(() =>
+    (props.betslips.data || []).map((b) => ({
+        id: b.id,
+        code: b.code,
+        legs: b.legs ?? 0,
+        total_odds: b.total_odds,
+        price: b.price,
+        remaining: b.remaining,
+        status: b.status,
+        is_winner: b.is_winner,
+        purchases: b.purchases ?? 0,
+        is_expiring_soon: b.is_expiring_soon ?? false,
+        watch_count: b.watch_count ?? 0,
     })),
 );
 
@@ -82,27 +79,27 @@ const filterActive = computed(() => statusFilter.value !== null);
 
 const emptyTitle = computed(() =>
     filterActive.value
-        ? `No ${statusFilter.value} purchases`
-        : 'No purchases yet',
+        ? `No ${statusFilter.value.replace('_', ' ')} betslips`
+        : 'No betslips yet',
 );
 
 const emptyBody = computed(() =>
     filterActive.value
-        ? 'Try a different filter, or clear it to see all your purchases.'
-        : 'Buy your first betslip and it will appear here — tracked through to settlement.',
+        ? 'Try a different filter, or clear it to see all your betslips.'
+        : 'Create your first betslip to start selling picks to followers.',
 );
 
 const emptyCtaLabel = computed(() =>
-    filterActive.value ? 'Clear filter' : 'Browse marketplace',
+    filterActive.value ? 'Clear filter' : 'Create a betslip',
 );
 
 const emptyCtaHref = computed(() =>
-    filterActive.value ? '/buyer/purchases' : '/marketplace',
+    filterActive.value ? '/seller/betslips' : '/fixtures',
 );
 
 const applyFilter = (value) => {
     router.get(
-        '/buyer/purchases',
+        '/seller/betslips',
         value ? { status: value } : {},
         { preserveState: true, preserveScroll: true, replace: true },
     );

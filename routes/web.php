@@ -503,6 +503,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('marketplace.view');
     });
 
+    Route::get('/buyer/following', [BuyerDashboardController::class, 'followingIndex'])
+    ->name('buyer.following.index');
+
     // ── Betslips ──
     Route::prefix('betslip')->group(function () {
         // CRUD / flow
@@ -569,6 +572,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ── Seller: Settlements (full list) ──
     Route::get('/seller/settlements', [SellerDashboardController::class, 'settlementsIndex'])
     ->name('seller.settlements.index');
+
+    // ── Seller: Betslips (full list) ──
+    Route::get('/seller/betslips', [SellerDashboardController::class, 'betslipsIndex'])
+    ->name('seller.betslips.index');
+
+    // ── Seller: Followers (full list) ──
+    Route::get('/seller/followers', [SellerDashboardController::class, 'followersIndex'])
+    ->name('seller.followers.index');
 
     // ── Contests (Authenticated actions) ──
     Route::get('/contests/mine', [\App\Http\Controllers\HostContestController::class, 'index'])

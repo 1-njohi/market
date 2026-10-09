@@ -267,7 +267,6 @@
                 </div>
             </div>
 
-            <!-- ═══════════════ PERIOD (mobile, standalone) ═══════════════ -->
             <div
                 v-if="showPeriodPicker"
                 class="flex items-center justify-between gap-3 rounded border border-[#232d42] bg-[#111622] p-2 lg:hidden"
@@ -280,7 +279,6 @@
                 <ComparisonPicker v-model="period" :periods="periods" />
             </div>
 
-            <!-- ═══════════════ ONBOARDING BANNER ═══════════════ -->
             <OnboardingBanner
                 v-if="shouldShowBanner"
                 headline="Welcome to your seller console"
@@ -289,7 +287,6 @@
                 @dismiss="dismissOnboarding"
             />
 
-            <!-- ═══════════════ TAB CONTENT (animated) ═══════════════ -->
             <Transition
                 appear
                 enter-active-class="transition duration-200 ease-out"
@@ -724,6 +721,13 @@
                                 >
                                     <template #actions>
                                         <LiveBadge />
+                                        <ViewAllLink
+                                            href="/seller/betslips?status=active"
+                                            :count="
+                                                seller_data.betslips.total_active
+                                            "
+                                            :cap="10"
+                                        />
                                         <span
                                             v-if="
                                                 seller_data.betslips
@@ -780,6 +784,9 @@
                             </div>
 
                             <Panel title="FOLLOWERS" accent="purple">
+                                <template #actions>
+                                    <ViewAllLink href="/seller/followers" />
+                                </template>
                                 <div
                                     class="grid grid-cols-2 divide-x divide-[#232d42]/60"
                                 >
@@ -852,6 +859,11 @@
                         >
                             <template #actions>
                                 <LiveBadge />
+                                <ViewAllLink
+                                    href="/seller/betslips?status=active"
+                                    :count="seller_data.betslips.total_active"
+                                    :cap="10"
+                                />
                                 <Link
                                     href="/fixtures"
                                     class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
@@ -921,12 +933,7 @@
                             accent="purple"
                         >
                             <template #actions>
-                                <Link
-                                    href="/contests/mine"
-                                    class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
-                                >
-                                    View all →
-                                </Link>
+                                <ViewAllLink href="/contests/mine" />
                             </template>
                             <div class="divide-y divide-gray-800/40">
                                 <Link
@@ -990,6 +997,9 @@
                         </Panel>
 
                         <Panel v-else title="CONTESTS" accent="purple">
+                            <template #actions>
+                                <ViewAllLink href="/contests/mine" />
+                            </template>
                             <EmptyState
                                 title="You're not hosting any contests"
                                 body="Host a contest to compete with your followers, review entries, and reward the sharpest picks."
@@ -1034,6 +1044,9 @@
                     <!-- ═══════════ FOLLOWERS ═══════════ -->
                     <template v-else-if="activeTab === 'followers'">
                         <Panel title="FOLLOWER OVERVIEW" accent="purple">
+                            <template #actions>
+                                <ViewAllLink href="/seller/followers" />
+                            </template>
                             <div
                                 class="grid grid-cols-3 divide-x divide-[#232d42]/60"
                             >
@@ -1408,7 +1421,6 @@
             </Transition>
         </div>
 
-        <!-- ═══════════════ MOBILE BOTTOM TABS ═══════════════ -->
         <BuyerTabs v-model="activeTab" :tabs="tabs" variant="bottom-bar" />
     </div>
 </template>
@@ -1452,7 +1464,6 @@ import { usePeriod } from '@/composables/usePeriod';
 const page = usePage();
 const seller_data = page.props.seller_data;
 
-// ─── Onboarding ────────────────────────────────────────────────────
 const {
     isFresh,
     shouldShowBanner,
@@ -1460,29 +1471,12 @@ const {
 } = useOnboarding(seller_data, { role: 'seller' });
 
 const sellerOnboardingSteps = [
-    {
-        title: 'Create a betslip',
-        body: 'Pick fixtures and set your price',
-        href: '/fixtures',
-    },
-    {
-        title: 'Share your profile',
-        body: 'Grow followers who buy your slips',
-        href: '/refer',
-    },
-    {
-        title: 'Host a contest',
-        body: 'Compete with your followers',
-        href: '/contests/create',
-    },
-    {
-        title: 'Get paid',
-        body: 'Earnings settle to your wallet',
-        href: '#wallet',
-    },
+    { title: 'Create a betslip', body: 'Pick fixtures and set your price', href: '/fixtures' },
+    { title: 'Share your profile', body: 'Grow followers who buy your slips', href: '/refer' },
+    { title: 'Host a contest', body: 'Compete with your followers', href: '/contests/create' },
+    { title: 'Get paid', body: 'Earnings settle to your wallet', href: '#wallet' },
 ];
 
-// ─── Period state ──────────────────────────────────────────────────
 const {
     period,
     periods,
@@ -1490,7 +1484,6 @@ const {
     filterByDate,
 } = usePeriod('seller', '30d');
 
-// ─── Period-scoped metric accessors ────────────────────────────────
 const periodMetrics = computed(() => {
     const fromBackend = seller_data.periods?.[period.value];
     if (fromBackend) {
@@ -1524,7 +1517,6 @@ const periodDeltas = computed(() => {
     };
 });
 
-// ─── Filtered lists ────────────────────────────────────────────────
 const filteredSettlements = computed(() =>
     filterByDate(seller_data.settlements, 'settled_at'),
 );
@@ -1537,7 +1529,6 @@ const filteredActivity = computed(() =>
     filterByDate(seller_data.activity, 'created_at'),
 );
 
-// ─── Sparkline series ──────────────────────────────────────────────
 const winRateSeries = computed(() => {
     if (seller_data.performance?.series?.win_rate_7d) {
         return seller_data.performance.series.win_rate_7d;
@@ -1557,7 +1548,6 @@ const revenueSeries = computed(() => {
     return values.some((v) => v > 0) ? values : [];
 });
 
-// ─── Delta text helpers ────────────────────────────────────────────
 const deltaTextClass = (delta) => {
     if (!delta || delta === 0) return 'text-slate-500';
     return delta > 0 ? 'text-emerald-400' : 'text-rose-400';
@@ -1569,12 +1559,10 @@ const signedNumber = (delta) => {
     return `${sign}${delta}`;
 };
 
-// ─── Generated-at fallback ─────────────────────────────────────────
 const generatedAt = computed(
     () => seller_data.generated_at ?? new Date().toISOString(),
 );
 
-// ─── Tabs ──────────────────────────────────────────────────────────
 const TAB_KEYS = [
     'overview',
     'betslips',
@@ -1586,24 +1574,9 @@ const TAB_KEYS = [
 
 const tabs = computed(() => [
     { key: 'overview', label: 'Overview', accent: 'emerald' },
-    {
-        key: 'betslips',
-        label: 'Betslips',
-        accent: 'sky',
-        badge: seller_data.betslips.total_active || null,
-    },
-    {
-        key: 'contests',
-        label: 'Contests',
-        accent: 'purple',
-        badge: seller_data.contests?.length || null,
-    },
-    {
-        key: 'followers',
-        label: 'Followers',
-        accent: 'purple',
-        badge: seller_data.follower_stats.total || null,
-    },
+    { key: 'betslips', label: 'Betslips', accent: 'sky', badge: seller_data.betslips.total_active || null },
+    { key: 'contests', label: 'Contests', accent: 'purple', badge: seller_data.contests?.length || null },
+    { key: 'followers', label: 'Followers', accent: 'purple', badge: seller_data.follower_stats.total || null },
     { key: 'wallet', label: 'Wallet', accent: 'amber' },
     { key: 'analytics', label: 'Analytics', accent: 'slate' },
 ]);
@@ -1637,7 +1610,6 @@ watch(activeTab, async (val) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// ─── Fee tier helpers ──────────────────────────────────────────────
 const feePercent = computed(() =>
     (seller_data.fee_tier.current_percentage * 100).toFixed(0),
 );
@@ -1660,7 +1632,6 @@ const tierBadgeClass = computed(() => {
     }
 });
 
-// ─── Contest helpers ───────────────────────────────────────────────
 const contestHref = (contest) => `/contests/${contest.uuid}/manage`;
 
 const formatDeadline = (iso) => {
@@ -1676,9 +1647,7 @@ const formatDeadline = (iso) => {
         const mins = Math.floor(diffMs / (1000 * 60));
         return `${mins}m left`;
     }
-    if (hours < 24) {
-        return `${hours}h left`;
-    }
+    if (hours < 24) return `${hours}h left`;
     const days = Math.floor(hours / 24);
     return `${days}d left`;
 };
@@ -1692,28 +1661,18 @@ const deadlineClass = (iso) => {
     return 'text-slate-500';
 };
 
-// ─── Tone badge helper ─────────────────────────────────────────────
 const toneBadgeClass = (tone) => {
     switch (tone) {
-        case 'positive':
-            return 'bg-emerald-500 text-[#070b14]';
-        case 'negative':
-            return 'bg-rose-500 text-white';
-        case 'pending':
-            return 'bg-amber-500 text-[#070b14]';
+        case 'positive': return 'bg-emerald-500 text-[#070b14]';
+        case 'negative': return 'bg-rose-500 text-white';
+        case 'pending':  return 'bg-amber-500 text-[#070b14]';
         case 'neutral':
-        default:
-            return 'bg-slate-500 text-white';
+        default:         return 'bg-slate-500 text-white';
     }
 };
 </script>
 
 <style scoped>
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>

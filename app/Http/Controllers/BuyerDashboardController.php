@@ -32,6 +32,13 @@ class BuyerDashboardController extends Controller
         ]);
         ;
     }
+    
+    public function followingIndex()
+    {
+        return Inertia::render('Buyer/Following', [
+            'following' => $this->dashboardService->paginatedFollowing(Auth::user()),
+        ]);
+    }
 
     // Optional: AJAX endpoints for real-time updates
     public function getPerformanceData()

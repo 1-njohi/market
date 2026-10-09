@@ -1112,4 +1112,75 @@ class SellerDashboardService
                 })->values()->toArray(),
         ];
     }
+
+    /**
+     * Paginated betslip list for the /seller/betslips page.
+     *
+     * Filter values:
+     *   - 'active'   → status pending, remaining > 0
+     *   - 'sold_out' → remaining = 0
+     *   - 'settled'  → status settled | voided
+     *   - null       → all
+     */
+    public function paginatedBetslips(User $user, ?string $status = null, int $perPage = 20)
+    {
+        $query = $user->betslips()
+            ->withCount('odds as legs')
+            ->withCount('purchases as purchases_count')
+            ->withCount('watchers as watch_count')
+            ->orderByDesc('created_at');
+
+        match ($status) {
+            'active'   => $query->where('status', 'pending')->where('remaining', '>', 0),
+            'sold_out' => $query->where('remaining', 0),
+            'settled'  => $query->whereIn('status', ['settled', 'voided']),
+            default    => null,
+        };
+
+        $paginator = $query->paginate($perPage)->withQueryString();
+
+        $paginator->through(function ($betslip) {
+            return [
+                'id'              => $betslip->id,
+                'code'            => $betslip->code,
+                'legs'            => (int) $betslip->legs,
+                'is_winner'       => (bool) $betslip->is_winner,
+                'total_odds'      => round((float) $betslip->total_odds, 2),
+                'price'           => round((float) $betslip->price, 2),
+                'remaining'       => $betslip->remaining,
+                'status'          => $betslip->status,
+                'created_at'      => $betslip->created_at->toIso8601String(),
+                'is_expiring_soon' => $betslip->created_at->diffInDays(now()) >= 7,
+                'purchases'       => (int) $betslip->purchases_count,
+                'watch_count'     => (int) $betslip->watch_count,
+            ];
+        });
+
+        return $paginator;
+    }
+
+    /**
+     * Paginated followers list for the /seller/followers page.
+     */
+    public function paginatedFollowers(User $user, int $perPage = 20)
+    {
+        $paginator = $user->followers()
+            ->orderByDesc('followers.followed_at')
+            ->paginate($perPage);
+
+        $paginator->through(function ($follower) {
+            return [
+                'id'          => $follower->id,
+                'name'        => $follower->name,
+                'code'        => $follower->code,
+                'avatar'      => $follower->profile_picture_url
+                    ?? "https://ui-avatars.com/api/?name=" . urlencode($follower->name),
+                'followed_at' => $follower->pivot->followed_at
+                    ? Carbon::parse($follower->pivot->followed_at)->diffForHumans()
+                    : null,
+            ];
+        });
+
+        return $paginator;
+    }
 }

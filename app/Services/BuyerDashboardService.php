@@ -477,6 +477,31 @@ class BuyerDashboardService
         ];
     }
 
+    /**
+     * Paginated list of sellers the buyer follows, newest first.
+     */
+    public function paginatedFollowing(User $user, int $perPage = 20)
+    {
+        $paginator = $user->following()
+            ->orderByDesc('followers.followed_at')
+            ->paginate($perPage);
+
+        $paginator->through(function ($seller) {
+            return [
+                'id'          => $seller->id,
+                'name'        => $seller->name,
+                'code'        => $seller->code,
+                'avatar'      => $seller->profile_picture_url
+                    ?? "https://ui-avatars.com/api/?name=" . urlencode($seller->name),
+                'followed_at' => $seller->pivot->followed_at
+                    ? \Carbon\Carbon::parse($seller->pivot->followed_at)->diffForHumans()
+                    : null,
+            ];
+        });
+
+        return $paginator;
+    }
+
     public function getFollowingStats(User $user): array
     {
         $following = $user->following()
