@@ -246,7 +246,7 @@ const handleSubscribe = () => {
                             >Business Name</span
                         >
                         <span class="mt-0.5 block text-slate-300"
-                            >Piratestech Solutions</span
+                            >Wazo Tank</span
                         >
                     </div>
                     <div>
@@ -255,7 +255,7 @@ const handleSubscribe = () => {
                             >Registration No.</span
                         >
                         <span class="mt-0.5 block font-mono text-slate-300"
-                            >BN-P7SEM5YO</span
+                            >BN-EZCBKQ26</span
                         >
                     </div>
                     <div>
@@ -264,7 +264,7 @@ const handleSubscribe = () => {
                             >Registered</span
                         >
                         <span class="mt-0.5 block text-slate-300"
-                            >21 July 2026</span
+                            >11 May 2021</span
                         >
                     </div>
                     <div>
@@ -275,19 +275,6 @@ const handleSubscribe = () => {
                         <span class="mt-0.5 block text-slate-300"
                             >Republic of Kenya</span
                         >
-                    </div>
-                    <div class="sm:col-span-2 md:col-span-3">
-                        <span
-                            class="block tracking-wider text-slate-600 uppercase"
-                            >Registered Address</span
-                        >
-                        <span
-                            class="mt-0.5 block leading-relaxed text-slate-300"
-                        >
-                            Ground Floor, Sunrise Arcade, Next to Stage, Baringo
-                            Central District, P.O. Box 1, 30400 — Kabarnet,
-                            Kenya
-                        </span>
                     </div>
                     <div>
                         <span
@@ -312,13 +299,12 @@ const handleSubscribe = () => {
                     <p
                         class="text-[10px] font-bold tracking-widest text-slate-500 uppercase"
                     >
-                        © {{ year }} Piratestech Solutions. All rights reserved.
+                        © {{ year }} Wazo Tank. All rights reserved.
                     </p>
                     <p
                         class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase"
                     >
-                        Betslip Pirates is a trading name of Piratestech
-                        Solutions (BN-P7SEM5YO)
+                        Betslip Pirates is a trading name of Wazo Tank (BN-EZCBKQ26)
                     </p>
                     <p
                         class="font-mono text-[9px] font-medium tracking-wider text-white"

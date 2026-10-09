@@ -3,11 +3,11 @@ import { Head, Link } from '@inertiajs/vue3';
 
 const facts = [
     { label: 'Founded', value: '2026' },
-    { label: 'Headquarters', value: 'Kabarnet, Baringo County, Kenya' },
+    { label: 'Headquarters', value: 'Nyeri, Kenya' },
     { label: 'Category', value: 'Peer-to-peer betslip marketplace' },
     { label: 'Model', value: 'Marketplace with escrow + refund guarantee' },
-    { label: 'Legal entity', value: 'Piratestech Solutions' },
-    { label: 'Registration No.', value: 'BN-P7SEM5YO' },
+    { label: 'Legal entity', value: 'Wazo Tank' },
+    { label: 'Registration No.', value: 'BN-EZCBKQ26' },
 ];
 
 // Placeholder — uncomment and edit when you have real coverage.
@@ -36,13 +36,13 @@ const brandAssets = [
 ];
 
 const legal = [
-    { label: 'Business name', value: 'Piratestech Solutions' },
-    { label: 'Registration no.', value: 'BN-P7SEM5YO' },
-    { label: 'Registered', value: '21 July 2026' },
+    { label: 'Business name', value: 'Wazo Tank' },
+    { label: 'Registration no.', value: 'BN-EZCBKQ26' },
+    { label: 'Registered', value: '11 May 2021' },
     { label: 'Jurisdiction', value: 'Republic of Kenya' },
     {
         label: 'Registered address',
-        value: 'Ground Floor, Sunrise Arcade, Next to Stage, Baringo Central District, P.O. Box 1, 30400 — Kabarnet, Kenya',
+        value: 'Nyeri, Kenya',
         wide: true,
     },
     { label: 'Press enquiries', value: 'press@betslip-pirates.com' },
@@ -106,8 +106,8 @@ const legal = [
                         accept wagers.
                     </p>
                     <p class="mt-4 text-sm leading-relaxed text-slate-400">
-                        Betslip Pirates is a trading name of Piratestech
-                        Solutions (BN-P7SEM5YO), a business registered in the
+                        Betslip Pirates is a trading name of Wazo
+                        Tank (BN-EZCBKQ26), a business registered in the
                         Republic of Kenya.
                     </p>
                 </div>
@@ -260,9 +260,9 @@ const legal = [
                             written permission.
                         </li>
                         <li>
-                            · When citing the legal entity, use "Piratestech
-                            Solutions" and include the registration number
-                            BN-P7SEM5YO.
+                            · When citing the legal entity, use "Wazo
+                            Tank" and include the registration number
+                            BN-EZCBKQ26.
                         </li>
                     </ul>
                 </div>
