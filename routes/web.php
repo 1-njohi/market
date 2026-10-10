@@ -502,3 +502,6 @@ Route::get('/', function () {
         </html>
         HTML, 200, ['Content-Type' => 'text/html']);
 });
+
+
+require __DIR__ . '/settings.php';
