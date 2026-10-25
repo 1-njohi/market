@@ -30,7 +30,7 @@
                 class="mx-auto max-w-4xl text-4xl leading-[1.15] font-black tracking-tight text-white uppercase sm:text-5xl lg:text-6xl"
             >
                 Pick the winners.<br />
-                Beat your friends.<br />
+                beat the crowd.<br />
                 <span
                     class="bg-gradient-to-r from-sky-500 via-indigo-400 to-amber-400 bg-clip-text text-transparent"
                 >
@@ -83,7 +83,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import SectionWrapper from './landing/SectionWrapper.vue';
+import SectionWrapper from './SectionWrapper.vue';
 
 const scrollToHowItWorks = () => {
     document
