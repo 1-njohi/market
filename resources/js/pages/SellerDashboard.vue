@@ -1,281 +1,78 @@
 <template>
-    <div
-        class="flex min-h-screen flex-col bg-[#070b14] px-2 pt-6 pb-24 font-sans text-slate-200 selection:bg-emerald-500/30 selection:text-white lg:px-8 lg:py-10"
-    >
+    <div class="flex min-h-screen flex-col bg-[#070b14] px-4 pt-6 pb-28 font-sans text-slate-200 selection:bg-emerald-500/30 selection:text-white lg:px-8 lg:py-10">
         <div class="mx-auto w-full max-w-7xl space-y-6">
             <!-- ═══════════════ HEADER ═══════════════ -->
-            <div
-                class="flex w-full items-start justify-between gap-3 border-b border-gray-800/60 pb-6"
-            >
-                <div class="flex min-w-0 items-center gap-3 md:gap-4">
-                    <div class="relative flex-shrink-0">
-                        <img
-                            :src="seller_data.user.avatar"
-                            :alt="seller_data.user.name"
-                            class="h-12 w-12 rounded border border-emerald-500/30 bg-[#111622] md:h-14 md:w-14"
-                        />
+            <header class="flex w-full items-center justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3.5">
+                    <div class="relative shrink-0">
+                        <img :src="seller_data.user.avatar" :alt="seller_data.user.name" class="h-12 w-12 rounded-full bg-[#111622] object-cover ring-2 ring-white/10 md:h-14 md:w-14" />
                         <span
                             v-if="seller_data.user.is_verified"
-                            class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-black text-[#070b14]"
-                            title="VERIFIED"
-                            >✓</span
-                        >
+                            class="absolute -right-0.5 -bottom-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#070b14] bg-emerald-400 text-[10px] font-black text-[#070b14]"
+                            title="Verified"
+                        >✓</span>
                     </div>
                     <div class="min-w-0">
-                        <div
-                            class="flex items-center gap-2 text-[10px] font-black tracking-widest text-emerald-400 uppercase"
-                        >
-                            <span>Tipster</span>
-                        </div>
-                        <h1
-                            class="mt-0.5 truncate font-mono text-lg font-black tracking-tight text-white uppercase md:text-xl"
-                        >
-                            {{ seller_data.user.name }}
-                        </h1>
-                        <p
-                            class="truncate text-[10px] font-medium text-slate-400"
-                        >
-                            Code: {{ seller_data.user.code }} • Member since
-                            {{ seller_data.user.member_since }}
-                        </p>
+                        <p class="text-xs font-semibold text-emerald-400">Tipster</p>
+                        <h1 class="truncate text-xl font-black tracking-tight text-white md:text-2xl">{{ seller_data.user.name }}</h1>
+                        <p class="truncate text-xs text-slate-500">Code {{ seller_data.user.code }} · Member since {{ seller_data.user.member_since }}</p>
                     </div>
                 </div>
 
-                <div class="flex flex-shrink-0 items-center gap-2">
+                <div class="flex shrink-0 items-center gap-2">
                     <AsOf :at="generatedAt" class="hidden lg:inline" />
                     <DashboardSwitcher active="seller" />
-                    <!-- <NotificationBell
-                        :initial-unread-count="
-                            seller_data.notifications.unread_count
-                        "
-                    /> -->
+                    <!-- <NotificationBell :initial-unread-count="seller_data.notifications.unread_count" /> -->
                 </div>
-            </div>
+            </header>
 
-            <!-- ═══════════════ PRIMARY CTAs ═══════════════ -->
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <Link
-                    href="/fixtures"
-                    class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-sky-500/40 bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-transparent p-4 transition-all hover:border-sky-400 hover:from-sky-500/20 hover:via-sky-500/10 lg:col-span-2"
-                >
-                    <div
-                        class="absolute inset-y-0 left-0 w-1 bg-sky-500 shadow-[0_0_15px_rgba(14,165,233,0.5)]"
-                    ></div>
-                    <div class="flex items-center gap-4 pl-2">
-                        <div
-                            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded border border-sky-500/40 bg-sky-500/10 text-sky-400"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="2.5"
-                                stroke="currentColor"
-                                class="h-5 w-5"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M12 4.5v15m7.5-7.5h-15"
-                                />
-                            </svg>
-                        </div>
-                        <div class="min-w-0">
-                            <p
-                                class="text-xs font-black tracking-widest text-sky-400 uppercase"
-                            >
-                                Create a Betslip
-                            </p>
-                            <p class="mt-0.5 text-[11px] text-slate-400">
-                                Browse fixtures and build your next tip
-                            </p>
-                        </div>
-                    </div>
-                    <div
-                        class="flex flex-shrink-0 items-center gap-2 pr-2 font-mono text-[10px] font-black tracking-widest text-sky-400 uppercase transition-transform group-hover:translate-x-0.5"
-                    >
-                        <span class="hidden sm:inline">Start</span>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="3"
-                            stroke="currentColor"
-                            class="h-4 w-4"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                            />
-                        </svg>
-                    </div>
-                </Link>
-
-                <Link
-                    href="/contests/create"
-                    class="group relative flex items-center justify-between gap-4 overflow-hidden rounded border border-purple-500/40 bg-gradient-to-r from-purple-500/10 via-purple-500/5 to-transparent p-4 transition-all hover:border-purple-400 hover:from-purple-500/20 hover:via-purple-500/10"
-                >
-                    <div
-                        class="absolute inset-y-0 left-0 w-1 bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]"
-                    ></div>
-                    <div class="flex items-center gap-4 pl-2">
-                        <div
-                            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded border border-purple-500/40 bg-purple-500/10 text-purple-400"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="2.5"
-                                stroke="currentColor"
-                                class="h-5 w-5"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0"
-                                />
-                            </svg>
-                        </div>
-                        <div class="min-w-0">
-                            <p
-                                class="text-xs font-black tracking-widest text-purple-400 uppercase"
-                            >
-                                Host Contest
-                            </p>
-                            <p class="mt-0.5 text-[11px] text-slate-400">
-                                Compete with your followers
-                            </p>
-                        </div>
-                    </div>
-                    <div
-                        class="flex flex-shrink-0 items-center gap-2 pr-2 font-mono text-[10px] font-black tracking-widest text-purple-400 uppercase transition-transform group-hover:translate-x-0.5"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="3"
-                            stroke="currentColor"
-                            class="h-4 w-4"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                            />
-                        </svg>
-                    </div>
-                </Link>
-            </div>
-
-            <!-- ═══════════════ FEE TIER BANNER ═══════════════ -->
-            <div
-                class="overflow-hidden rounded border border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 via-transparent to-transparent"
-            >
-                <div
-                    class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
-                >
+            <!-- ═══════════════ FEE TIER ═══════════════ -->
+            <section class="relative overflow-hidden rounded-3xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 via-[#0b1220] to-[#0b1220] p-5">
+                <div class="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-4">
-                        <div
-                            :class="[
-                                'flex h-12 w-12 items-center justify-center rounded-full font-mono text-lg font-black',
-                                tierBadgeClass,
-                            ]"
-                        >
-                            {{ tierRoman }}
-                        </div>
+                        <div :class="['flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-xl font-black', tierBadgeClass]">{{ tierRoman }}</div>
                         <div>
-                            <div
-                                class="flex items-center gap-2 text-[10px] font-black tracking-widest text-emerald-400 uppercase"
-                            >
-                                <span
-                                    >FEE TIER
-                                    {{ seller_data.fee_tier.current_tier }} /
-                                    4</span
-                                >
-                            </div>
-                            <div
-                                class="mt-0.5 font-mono font-black tracking-tight text-white"
-                            >
+                            <p class="text-sm text-slate-400">Fee tier {{ seller_data.fee_tier.current_tier }} of 4</p>
+                            <p class="text-2xl font-black tracking-tight text-white tabular-nums">
                                 {{ feePercent }}%
-                                <span class="text-xs font-normal text-slate-500"
-                                    >platform fee</span
-                                >
-                            </div>
-                            <p class="mt-0.5 text-[10px] text-slate-400">
-                                Based on
-                                <span class="font-mono font-bold text-white">{{
-                                    seller_data.fee_tier.total_sales
-                                }}</span>
-                                lifetime sales
+                                <span class="text-sm font-medium text-slate-500">platform fee</span>
+                            </p>
+                            <p class="text-sm text-slate-500">
+                                Based on <span class="font-bold text-white tabular-nums">{{ seller_data.fee_tier.total_sales }}</span> lifetime sales
                             </p>
                         </div>
                     </div>
 
-                    <div
-                        v-if="seller_data.fee_tier.sales_until_next_tier"
-                        class="flex flex-col items-start gap-1 sm:items-end"
-                    >
-                        <span
-                            class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
-                            >Next Tier</span
-                        >
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="font-mono font-black text-white">{{
-                                seller_data.fee_tier.sales_until_next_tier
-                            }}</span>
-                            <span class="text-[10px] text-slate-400 uppercase"
-                                >more sales →</span
-                            >
-                            <span
-                                class="font-mono text-sm font-bold text-emerald-400"
-                                >{{
-                                    (
-                                        seller_data.fee_tier
-                                            .next_tier_percentage * 100
-                                    ).toFixed(0)
-                                }}%</span
-                            >
+                    <div v-if="seller_data.fee_tier.sales_until_next_tier" class="sm:w-72">
+                        <div class="flex items-baseline justify-between gap-3 text-sm">
+                            <span class="text-slate-400">
+                                <span class="font-black text-white tabular-nums">{{ seller_data.fee_tier.sales_until_next_tier }}</span> more sales to unlock
+                            </span>
+                            <span class="font-bold text-emerald-300 tabular-nums">{{ (seller_data.fee_tier.next_tier_percentage * 100).toFixed(0) }}% fee</span>
+                        </div>
+                        <div class="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-white/[0.07]" role="progressbar" :aria-valuenow="Math.round(tierProgressPct)" aria-valuemin="0" aria-valuemax="100" aria-label="Progress to next fee tier">
+                            <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-emerald-300 transition-all duration-500" :style="{ width: tierProgressPct + '%' }"></div>
                         </div>
                     </div>
 
-                    <div
-                        v-else
-                        class="flex items-center gap-2 rounded border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5"
-                    >
-                        <span class="text-lg">🏆</span>
-                        <span
-                            class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
-                            >Highest Tier</span
-                        >
+                    <div v-else class="inline-flex items-center gap-2 self-start rounded-full bg-emerald-400/10 px-4 py-2 sm:self-auto">
+                        <span class="text-lg" aria-hidden="true">🏆</span>
+                        <span class="text-sm font-bold text-emerald-300">Highest tier</span>
                     </div>
                 </div>
-            </div>
+            </section>
 
             <!-- ═══════════════ TAB STRIP + PERIOD (desktop) ═══════════════ -->
             <div class="hidden items-center justify-between gap-3 lg:flex">
                 <BuyerTabs v-model="activeTab" :tabs="tabs" />
                 <div v-if="showPeriodPicker" class="flex items-center gap-2">
-                    <span
-                        class="font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase"
-                    >
-                        Period
-                    </span>
+                    <span class="text-xs text-slate-500">Period</span>
                     <ComparisonPicker v-model="period" :periods="periods" />
                 </div>
             </div>
 
-            <div
-                v-if="showPeriodPicker"
-                class="flex items-center justify-between gap-3 rounded border border-[#232d42] bg-[#111622] p-2 lg:hidden"
-            >
-                <span
-                    class="ml-1 font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase"
-                >
-                    Period
-                </span>
+            <div v-if="showPeriodPicker" class="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-2.5 lg:hidden">
+                <span class="text-sm text-slate-400">Period</span>
                 <ComparisonPicker v-model="period" :periods="periods" />
             </div>
 
@@ -287,490 +84,177 @@
                 @dismiss="dismissOnboarding"
             />
 
-            <Transition
-                appear
-                enter-active-class="transition duration-200 ease-out"
-                enter-from-class="opacity-0 translate-y-1"
-                enter-to-class="opacity-100 translate-y-0"
-            >
+            <Transition appear enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0">
                 <div :key="activeTab" class="space-y-6">
                     <!-- ═══════════ OVERVIEW ═══════════ -->
                     <template v-if="activeTab === 'overview'">
-                        <Panel title="WALLET" accent="emerald">
-                            <template #actions>
-                                <AsOf :at="generatedAt" />
-                                <span
-                                    class="font-mono text-[9px] font-bold text-slate-500 uppercase"
-                                >
-                                    [{{ seller_data.wallet.currency }}]
-                                </span>
-                            </template>
+                        <!-- Earnings first: balance + the two things a seller does -->
+                        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                            <section class="relative overflow-hidden rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/15 via-[#0b1220] to-[#0b1220] p-5 sm:p-6 lg:col-span-2">
+                                <div class="pointer-events-none absolute -top-20 -right-16 h-52 w-52 rounded-full bg-emerald-400/15 blur-3xl" aria-hidden="true"></div>
 
-                            <div class="space-y-4 p-4">
-                                <div
-                                    class="relative overflow-hidden rounded border border-[#232d42] bg-[#0a101f] p-4 text-center"
-                                >
-                                    <div
-                                        class="absolute inset-x-0 bottom-0 h-[2px] bg-emerald-500/30"
-                                    ></div>
-                                    <span
-                                        class="block text-[9px] font-black tracking-wider text-slate-500 uppercase"
-                                    >
-                                        Available Balance
-                                    </span>
-                                    <div
-                                        class="my-1 font-mono text-3xl font-black tracking-tight text-white"
-                                    >
-                                        <LiveValue
-                                            :initial="
-                                                Number(
-                                                    seller_data.wallet.balance,
-                                                )
-                                            "
-                                            :currency="
-                                                seller_data.wallet.currency
-                                            "
-                                        />
-                                    </div>
+                                <div class="relative flex items-center justify-between">
+                                    <p class="text-sm text-slate-400">Available balance</p>
+                                    <span class="text-xs font-semibold text-slate-500">{{ seller_data.wallet.currency }}</span>
+                                </div>
+                                <div class="relative mt-1 text-4xl font-black tracking-tight text-white tabular-nums sm:text-5xl">
+                                    <LiveValue :initial="Number(seller_data.wallet.balance)" :currency="seller_data.wallet.currency" />
                                 </div>
 
-                                <div
-                                    class="flex flex-col gap-2 sm:flex-row"
-                                >
-                                    <DepositPopover
-                                        :currency="'KES'"
-                                        :initial_amount="100"
-                                        :initial_phone="
-                                            seller_data?.user?.phone ?? ''
-                                        "
-                                    />
+                                <div class="relative mt-5 flex flex-col gap-2 sm:flex-row">
+                                    <DepositPopover :currency="'KES'" :initial_amount="100" :initial_phone="seller_data?.user?.phone ?? ''" />
                                     <WithdrawalPopover
-                                        :currency="
-                                            seller_data.wallet.currency
-                                        "
-                                        :available-balance="
-                                            Number(seller_data.wallet.balance)
-                                        "
-                                        :disabled="
-                                            Number(
-                                                seller_data.wallet.balance,
-                                            ) <= 0
-                                        "
+                                        :currency="seller_data.wallet.currency"
+                                        :available-balance="Number(seller_data.wallet.balance)"
+                                        :disabled="Number(seller_data.wallet.balance) <= 0"
                                         class="flex-1"
                                     />
                                 </div>
 
-                                <div
-                                    class="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
+                                <dl class="relative mt-5 grid grid-cols-3 gap-2">
+                                    <div class="rounded-2xl bg-black/25 p-3">
+                                        <dt class="text-xs text-slate-500">At stake</dt>
+                                        <dd class="mt-1 text-sm font-bold text-amber-300 tabular-nums"><Money :value="seller_data.wallet.gross_at_stake" :currency="seller_data.wallet.currency" /></dd>
+                                        <p class="text-xs text-slate-600">if all win</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-black/25 p-3">
+                                        <dt class="text-xs text-slate-500">Deposited</dt>
+                                        <dd class="mt-1 text-sm font-bold text-sky-300 tabular-nums"><Money :value="seller_data.wallet.total_deposited" :currency="seller_data.wallet.currency" /></dd>
+                                    </div>
+                                    <div class="rounded-2xl bg-black/25 p-3">
+                                        <dt class="text-xs text-slate-500">Withdrawn</dt>
+                                        <dd class="mt-1 text-sm font-bold text-rose-300 tabular-nums"><Money :value="seller_data.wallet.total_withdrawn" :currency="seller_data.wallet.currency" /></dd>
+                                    </div>
+                                </dl>
+                            </section>
+
+                            <div class="flex flex-col gap-4">
+                                <Link
+                                    href="/fixtures"
+                                    class="group relative flex flex-1 items-center justify-between gap-4 overflow-hidden rounded-3xl bg-sky-400 p-5 text-black transition-all duration-200 hover:-translate-y-0.5 hover:bg-sky-300 focus-visible:ring-2 focus-visible:ring-sky-200 focus-visible:outline-none active:scale-[0.98]"
                                 >
-                                    <div
-                                        class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5"
-                                    >
-                                        <div class="space-y-0.5">
-                                            <span
-                                                class="block text-[9px] font-bold text-slate-500 uppercase"
-                                                >At Stake</span
-                                            >
-                                            <span
-                                                class="font-mono text-[10px] font-bold text-slate-400"
-                                                >If all win</span
-                                            >
-                                        </div>
-                                        <span
-                                            class="font-mono text-xs font-black text-amber-400"
-                                        >
-                                            <Money
-                                                :value="
-                                                    seller_data.wallet
-                                                        .gross_at_stake
-                                                "
-                                                :currency="
-                                                    seller_data.wallet.currency
-                                                "
-                                            />
-                                        </span>
+                                    <div class="min-w-0">
+                                        <p class="text-lg font-black tracking-tight">Create a betslip</p>
+                                        <p class="mt-0.5 text-sm text-black/70">Browse fixtures and build your next tip</p>
                                     </div>
-                                    <div
-                                        class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5"
-                                    >
-                                        <div class="space-y-0.5">
-                                            <span
-                                                class="block text-[9px] font-bold text-slate-500 uppercase"
-                                                >Total Deposited</span
-                                            >
-                                            <span
-                                                class="font-mono text-[10px] font-bold text-slate-400"
-                                                >Deposits</span
-                                            >
-                                        </div>
-                                        <span
-                                            class="font-mono text-xs font-bold text-sky-400"
-                                        >
-                                            <Money
-                                                :value="
-                                                    seller_data.wallet
-                                                        .total_deposited
-                                                "
-                                                :currency="
-                                                    seller_data.wallet.currency
-                                                "
-                                            />
-                                        </span>
+                                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-black/85 text-sky-300 transition-transform duration-200 group-hover:translate-x-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                        </svg>
+                                    </span>
+                                </Link>
+
+                                <Link
+                                    href="/contests/create"
+                                    class="group flex items-center justify-between gap-4 rounded-3xl border border-purple-400/30 bg-purple-400/10 px-5 py-4 transition-all duration-200 hover:border-purple-300/60 hover:bg-purple-400/15 focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:outline-none active:scale-[0.98]"
+                                >
+                                    <div class="min-w-0">
+                                        <p class="text-base font-bold text-purple-200">Host a contest</p>
+                                        <p class="text-sm text-slate-400">Compete with your followers</p>
                                     </div>
-                                    <div
-                                        class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5"
-                                    >
-                                        <div class="space-y-0.5">
-                                            <span
-                                                class="block text-[9px] font-bold text-slate-500 uppercase"
-                                                >Total Withdrawn</span
-                                            >
-                                            <span
-                                                class="font-mono text-[10px] font-bold text-slate-400"
-                                                >Withdrawals</span
-                                            >
-                                        </div>
-                                        <span
-                                            class="font-mono text-xs font-bold text-rose-400"
-                                        >
-                                            <Money
-                                                :value="
-                                                    seller_data.wallet
-                                                        .total_withdrawn
-                                                "
-                                                :currency="
-                                                    seller_data.wallet.currency
-                                                "
-                                            />
-                                        </span>
-                                    </div>
-                                </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-5 w-5 shrink-0 text-purple-300 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                    </svg>
+                                </Link>
                             </div>
-                        </Panel>
+                        </div>
 
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <SampleMetricCard
-                                v-if="isFresh"
-                                label="Win Rate"
-                                sample="68%"
-                                sublabel="Betslips / Sold"
-                                subsample="12 / 47"
-                                hint="Unlocks after your first settled betslip"
-                            />
-                            <Panel v-else title="PERFORMANCE" accent="sky">
-                                <template #actions>
-                                    <span
-                                        class="rounded border border-sky-500/20 bg-sky-500/5 px-1.5 py-0.5 font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase"
-                                    >
-                                        {{ shortPeriodLabel }}
-                                    </span>
-                                    <Sparkline
-                                        :values="winRateSeries"
-                                        :width="64"
-                                        :height="18"
-                                        accent="sky"
-                                    />
-                                </template>
-                                <div class="grid grid-cols-2 gap-4 p-4">
+                            <SampleMetricCard v-if="isFresh" label="Win Rate" sample="68%" sublabel="Betslips / Sold" subsample="12 / 47" hint="Unlocks after your first settled betslip" />
+                            <section v-else class="overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1220]">
+                                <div class="flex items-center justify-between px-5 pt-5">
+                                    <div class="flex items-center gap-2">
+                                        <h2 class="text-base font-bold text-white">Performance</h2>
+                                        <span class="rounded-full bg-sky-400/10 px-2 py-0.5 text-xs font-semibold text-sky-300">{{ shortPeriodLabel }}</span>
+                                    </div>
+                                    <Sparkline :values="winRateSeries" :width="64" :height="18" accent="sky" />
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 px-5 py-4">
                                     <div>
-                                        <span
-                                            class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                                            >Win Rate</span
-                                        >
-                                        <div
-                                            class="mt-1 flex items-baseline gap-2"
-                                        >
-                                            <span
-                                                class="font-mono text-3xl font-black tracking-tight text-white"
-                                                >{{
-                                                    periodMetrics.win_rate
-                                                }}%</span
-                                            >
-                                            <DeltaChip
-                                                :value="
-                                                    periodDeltas.win_rate_delta
-                                                "
-                                                suffix="%"
-                                            />
+                                        <p class="text-sm text-slate-500">Win rate</p>
+                                        <div class="mt-1 flex items-baseline gap-2">
+                                            <span class="text-4xl font-black tracking-tight text-white tabular-nums">{{ periodMetrics.win_rate }}%</span>
+                                            <DeltaChip :value="periodDeltas.win_rate_delta" suffix="%" />
                                         </div>
                                     </div>
                                     <div>
-                                        <span
-                                            class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                                            >ROI</span
-                                        >
-                                        <div
-                                            class="mt-1 flex items-baseline gap-2"
-                                        >
-                                            <span
-                                                class="font-mono text-3xl font-black tracking-tight text-white"
-                                                >{{
-                                                    periodMetrics.roi
-                                                }}%</span
-                                            >
-                                            <DeltaChip
-                                                :value="periodDeltas.roi_delta"
-                                                suffix="%"
-                                            />
+                                        <p class="text-sm text-slate-500">ROI</p>
+                                        <div class="mt-1 flex items-baseline gap-2">
+                                            <span class="text-4xl font-black tracking-tight text-white tabular-nums">{{ periodMetrics.roi }}%</span>
+                                            <DeltaChip :value="periodDeltas.roi_delta" suffix="%" />
                                         </div>
                                     </div>
                                 </div>
-                                <div
-                                    class="grid grid-cols-3 divide-x divide-[#232d42]/60 border-t border-[#232d42]/60"
-                                >
-                                    <div class="p-3 text-center">
-                                        <span
-                                            class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                            >Betslips</span
-                                        >
-                                        <span
-                                            class="mt-1 block font-mono text-sm font-black text-white"
-                                            >{{
-                                                periodMetrics.total_betslips
-                                            }}</span
-                                        >
+                                <div class="grid grid-cols-3 divide-x divide-white/[0.06] border-t border-white/[0.06] bg-black/20">
+                                    <div class="p-3.5 text-center">
+                                        <p class="text-xs text-slate-500">Betslips</p>
+                                        <p class="mt-1 text-base font-bold text-white tabular-nums">{{ periodMetrics.total_betslips }}</p>
                                     </div>
-                                    <div class="p-3 text-center">
-                                        <span
-                                            class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                            >Sold</span
-                                        >
-                                        <span
-                                            class="mt-1 block font-mono text-sm font-black text-emerald-400"
-                                            >{{
-                                                periodMetrics.total_sold
-                                            }}</span
-                                        >
-                                        <span
-                                            class="mt-0.5 block font-mono text-[9px] font-bold"
-                                            :class="
-                                                deltaTextClass(
-                                                    periodDeltas.total_sold_delta,
-                                                )
-                                            "
-                                        >
-                                            {{
-                                                signedNumber(
-                                                    periodDeltas.total_sold_delta,
-                                                )
-                                            }}
-                                        </span>
+                                    <div class="p-3.5 text-center">
+                                        <p class="text-xs text-slate-500">Sold</p>
+                                        <p class="mt-1 text-base font-bold text-emerald-300 tabular-nums">{{ periodMetrics.total_sold }}</p>
+                                        <p class="text-xs font-semibold" :class="deltaTextClass(periodDeltas.total_sold_delta)">{{ signedNumber(periodDeltas.total_sold_delta) }}</p>
                                     </div>
-                                    <div class="p-3 text-center">
-                                        <span
-                                            class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                            >Avg Legs</span
-                                        >
-                                        <span
-                                            class="mt-1 block font-mono text-sm font-black text-white"
-                                            >{{
-                                                Number(
-                                                    seller_data.performance
-                                                        .avg_legs,
-                                                ).toFixed(1)
-                                            }}</span
-                                        >
-                                        <span
-                                            class="mt-0.5 block font-mono text-[9px] text-slate-600"
-                                            >lifetime</span
-                                        >
+                                    <div class="p-3.5 text-center">
+                                        <p class="text-xs text-slate-500">Avg legs</p>
+                                        <p class="mt-1 text-base font-bold text-white tabular-nums">{{ Number(seller_data.performance.avg_legs).toFixed(1) }}</p>
+                                        <p class="text-xs text-slate-600">lifetime</p>
                                     </div>
                                 </div>
-                            </Panel>
+                            </section>
 
-                            <SampleMetricCard
-                                v-if="isFresh"
-                                label="Total Revenue"
-                                sample="KES 42,800"
-                                sublabel="Net Earnings"
-                                subsample="KES 39,400"
-                                hint="Unlocks after your first sale"
-                            />
-                            <Panel v-else title="EARNINGS" accent="amber">
-                                <template #actions>
-                                    <span
-                                        class="rounded border border-amber-500/20 bg-amber-500/5 px-1.5 py-0.5 font-mono text-[9px] font-black tracking-widest text-amber-400 uppercase"
-                                    >
-                                        {{ shortPeriodLabel }}
-                                    </span>
-                                    <Sparkline
-                                        :values="revenueSeries"
-                                        :width="64"
-                                        :height="18"
-                                        accent="amber"
-                                    />
-                                </template>
-                                <div class="grid grid-cols-2 gap-4 p-4">
+                            <SampleMetricCard v-if="isFresh" label="Total Revenue" sample="KES 42,800" sublabel="Net Earnings" subsample="KES 39,400" hint="Unlocks after your first sale" />
+                            <section v-else class="overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1220]">
+                                <div class="flex items-center justify-between px-5 pt-5">
+                                    <div class="flex items-center gap-2">
+                                        <h2 class="text-base font-bold text-white">Earnings</h2>
+                                        <span class="rounded-full bg-amber-400/10 px-2 py-0.5 text-xs font-semibold text-amber-300">{{ shortPeriodLabel }}</span>
+                                    </div>
+                                    <Sparkline :values="revenueSeries" :width="64" :height="18" accent="amber" />
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 px-5 py-4">
                                     <div>
-                                        <span
-                                            class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                                            >Total Revenue</span
-                                        >
-                                        <div
-                                            class="mt-1 font-mono text-3xl font-black tracking-tight text-white"
-                                        >
-                                            <Money
-                                                :value="
-                                                    periodMetrics.total_revenue
-                                                "
-                                                :currency="'KES'"
-                                            />
-                                        </div>
-                                        <span
-                                            class="mt-0.5 block font-mono text-[9px] font-bold"
-                                            :class="
-                                                deltaTextClass(
-                                                    periodDeltas.revenue_delta,
-                                                )
-                                            "
-                                        >
-                                            {{
-                                                signedNumber(
-                                                    periodDeltas.revenue_delta,
-                                                )
-                                            }}
-                                            vs prior
-                                        </span>
+                                        <p class="text-sm text-slate-500">Total revenue</p>
+                                        <p class="mt-1 text-3xl font-black tracking-tight text-white tabular-nums"><Money :value="periodMetrics.total_revenue" :currency="'KES'" /></p>
+                                        <p class="mt-0.5 text-xs font-semibold" :class="deltaTextClass(periodDeltas.revenue_delta)">{{ signedNumber(periodDeltas.revenue_delta) }} vs prior</p>
                                     </div>
                                     <div>
-                                        <span
-                                            class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                                            >Net Earnings</span
-                                        >
-                                        <div
-                                            class="mt-1 font-mono text-3xl font-black tracking-tight text-amber-400"
-                                        >
-                                            <Money
-                                                :value="
-                                                    periodMetrics.net_earnings
-                                                "
-                                                :currency="'KES'"
-                                            />
-                                        </div>
-                                        <span
-                                            class="mt-0.5 block font-mono text-[9px] font-bold"
-                                            :class="
-                                                deltaTextClass(
-                                                    periodDeltas.net_earnings_delta,
-                                                )
-                                            "
-                                        >
-                                            {{
-                                                signedNumber(
-                                                    periodDeltas.net_earnings_delta,
-                                                )
-                                            }}
-                                            vs prior
-                                        </span>
+                                        <p class="text-sm text-slate-500">Net earnings</p>
+                                        <p class="mt-1 text-3xl font-black tracking-tight text-amber-300 tabular-nums"><Money :value="periodMetrics.net_earnings" :currency="'KES'" /></p>
+                                        <p class="mt-0.5 text-xs font-semibold" :class="deltaTextClass(periodDeltas.net_earnings_delta)">{{ signedNumber(periodDeltas.net_earnings_delta) }} vs prior</p>
                                     </div>
                                 </div>
-                                <div
-                                    class="grid grid-cols-2 divide-x divide-[#232d42]/60 border-t border-[#232d42]/60"
-                                >
-                                    <div class="p-3 text-center">
-                                        <span
-                                            class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                            >Platform Fees</span
-                                        >
-                                        <span
-                                            class="mt-1 block font-mono text-sm font-black text-rose-400"
-                                        >
-                                            <Money
-                                                :value="
-                                                    seller_data.financial
-                                                        .platform_fees
-                                                "
-                                                :currency="'KES'"
-                                            />
-                                        </span>
-                                        <span
-                                            class="mt-0.5 block font-mono text-[9px] text-slate-600"
-                                            >lifetime</span
-                                        >
+                                <div class="grid grid-cols-2 divide-x divide-white/[0.06] border-t border-white/[0.06] bg-black/20">
+                                    <div class="p-3.5 text-center">
+                                        <p class="text-xs text-slate-500">Platform fees</p>
+                                        <p class="mt-1 text-base font-bold text-rose-300 tabular-nums"><Money :value="seller_data.financial.platform_fees" :currency="'KES'" /></p>
+                                        <p class="text-xs text-slate-600">lifetime</p>
                                     </div>
-                                    <div class="p-3 text-center">
-                                        <span
-                                            class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                            >Net at Stake</span
-                                        >
-                                        <span
-                                            class="mt-1 block font-mono text-sm font-black text-sky-400"
-                                        >
-                                            <Money
-                                                :value="
-                                                    seller_data.financial
-                                                        .net_at_stake
-                                                "
-                                                :currency="'KES'"
-                                            />
-                                        </span>
-                                        <span
-                                            class="mt-0.5 block font-mono text-[9px] text-slate-600"
-                                            >live</span
-                                        >
+                                    <div class="p-3.5 text-center">
+                                        <p class="text-xs text-slate-500">Net at stake</p>
+                                        <p class="mt-1 text-base font-bold text-sky-300 tabular-nums"><Money :value="seller_data.financial.net_at_stake" :currency="'KES'" /></p>
+                                        <p class="text-xs text-slate-600">live</p>
                                     </div>
                                 </div>
-                            </Panel>
+                            </section>
                         </div>
 
                         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                             <div class="lg:col-span-2">
-                                <Panel
-                                    :title="`Active Betslips [${seller_data.betslips.total_active}]`"
-                                    accent="sky"
-                                >
+                                <Panel :title="`Active Betslips [${seller_data.betslips.total_active}]`" accent="sky">
                                     <template #actions>
                                         <LiveBadge />
-                                        <ViewAllLink
-                                            href="/seller/betslips?status=active"
-                                            :count="
-                                                seller_data.betslips.total_active
-                                            "
-                                            :cap="10"
-                                        />
-                                        <span
-                                            v-if="
-                                                seller_data.betslips
-                                                    .total_watchers > 0
-                                            "
-                                            class="flex items-center gap-1.5 font-mono text-[9px] font-bold tracking-widest text-amber-400 uppercase"
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke-width="2.5"
-                                                stroke="currentColor"
-                                                class="h-3 w-3"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
-                                                />
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                                />
+                                        <ViewAllLink href="/seller/betslips?status=active" :count="seller_data.betslips.total_active" :cap="10" />
+                                        <span v-if="seller_data.betslips.total_watchers > 0" class="inline-flex items-center gap-1.5 rounded-full bg-amber-400/10 px-2.5 py-1 text-xs font-bold text-amber-300">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                             </svg>
-                                            {{
-                                                seller_data.betslips
-                                                    .total_watchers
-                                            }}
-                                            watching
+                                            {{ seller_data.betslips.total_watchers }} watching
                                         </span>
                                     </template>
                                     <div class="divide-y divide-gray-800/40">
-                                        <BetslipsTable
-                                            v-if="
-                                                seller_data.betslips.active
-                                                    .length > 0
-                                            "
-                                            :betslips="
-                                                seller_data.betslips.active
-                                            "
-                                        />
+                                        <BetslipsTable v-if="seller_data.betslips.active.length > 0" :betslips="seller_data.betslips.active" />
                                         <EmptyState
                                             v-else
                                             title="No active betslips"
@@ -787,97 +271,44 @@
                                 <template #actions>
                                     <ViewAllLink href="/seller/followers" />
                                 </template>
-                                <div
-                                    class="grid grid-cols-2 divide-x divide-[#232d42]/60"
-                                >
-                                    <div class="p-3 text-center">
-                                        <span
-                                            class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                            >Total</span
-                                        >
-                                        <span
-                                            class="mt-1 block font-mono text-xl font-black text-white"
-                                            >{{
-                                                seller_data.follower_stats.total
-                                            }}</span
-                                        >
+                                <div class="grid grid-cols-2 divide-x divide-white/[0.06]">
+                                    <div class="p-4 text-center">
+                                        <p class="text-xs text-slate-500">Total</p>
+                                        <p class="mt-1 text-3xl font-black text-white tabular-nums">{{ seller_data.follower_stats.total }}</p>
                                     </div>
-                                    <div class="p-3 text-center">
-                                        <span
-                                            class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                            >This Week</span
-                                        >
-                                        <span
-                                            class="mt-1 block font-mono text-xl font-black text-purple-400"
-                                            >+{{
-                                                seller_data.follower_stats
-                                                    .new_this_week
-                                            }}</span
-                                        >
+                                    <div class="p-4 text-center">
+                                        <p class="text-xs text-slate-500">This week</p>
+                                        <p class="mt-1 text-3xl font-black text-purple-300 tabular-nums">+{{ seller_data.follower_stats.new_this_week }}</p>
                                     </div>
                                 </div>
-                                <div
-                                    class="border-t border-[#232d42]/60 p-3 text-center"
-                                >
-                                    <span
-                                        class="text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                        >Buyer Conversion</span
-                                    >
-                                    <span
-                                        class="ml-2 font-mono text-sm font-black text-white"
-                                        >{{
-                                            seller_data.follower_stats
-                                                .buyer_conversion_rate
-                                        }}%</span
-                                    >
-                                    <p
-                                        class="mt-0.5 text-[9px] text-slate-600"
-                                    >
-                                        {{
-                                            seller_data.follower_stats
-                                                .active_buyers
-                                        }}
-                                        of
-                                        {{ seller_data.follower_stats.total }}
-                                        bought in last 30 days
+                                <div class="border-t border-white/[0.06] bg-black/20 p-4 text-center">
+                                    <p class="text-sm text-slate-400">
+                                        Buyer conversion
+                                        <span class="ml-1 text-lg font-black text-white tabular-nums">{{ seller_data.follower_stats.buyer_conversion_rate }}%</span>
                                     </p>
+                                    <p class="mt-0.5 text-xs text-slate-500">{{ seller_data.follower_stats.active_buyers }} of {{ seller_data.follower_stats.total }} bought in last 30 days</p>
                                 </div>
                             </Panel>
                         </div>
 
-                        <ReferralCard
-                            v-if="seller_data.referral_card"
-                            :card="seller_data.referral_card"
-                        />
+                        <ReferralCard v-if="seller_data.referral_card" :card="seller_data.referral_card" />
                     </template>
 
                     <!-- ═══════════ BETSLIPS ═══════════ -->
                     <template v-else-if="activeTab === 'betslips'">
-                        <Panel
-                            :title="`Active Betslips [${seller_data.betslips.total_active}]`"
-                            accent="sky"
-                        >
+                        <Panel :title="`Active Betslips [${seller_data.betslips.total_active}]`" accent="sky">
                             <template #actions>
                                 <LiveBadge />
-                                <ViewAllLink
-                                    href="/seller/betslips?status=active"
-                                    :count="seller_data.betslips.total_active"
-                                    :cap="10"
-                                />
+                                <ViewAllLink href="/seller/betslips?status=active" :count="seller_data.betslips.total_active" :cap="10" />
                                 <Link
                                     href="/fixtures"
-                                    class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
+                                    class="inline-flex min-h-9 items-center rounded-lg bg-sky-400 px-3 text-sm font-bold text-[#070b14] transition-colors hover:bg-sky-300 focus-visible:ring-2 focus-visible:ring-sky-200 focus-visible:outline-none"
                                 >
                                     + Create new
                                 </Link>
                             </template>
                             <div class="divide-y divide-gray-800/40">
-                                <BetslipsTable
-                                    v-if="
-                                        seller_data.betslips.active.length > 0
-                                    "
-                                    :betslips="seller_data.betslips.active"
-                                />
+                                <BetslipsTable v-if="seller_data.betslips.active.length > 0" :betslips="seller_data.betslips.active" />
                                 <EmptyState
                                     v-else
                                     title="No active betslips"
@@ -889,28 +320,14 @@
                             </div>
                         </Panel>
 
-                        <Panel
-                            :title="`Settlements [${filteredSettlements.length}]`"
-                            accent="emerald"
-                        >
+                        <Panel :title="`Settlements [${filteredSettlements.length}]`" accent="emerald">
                             <template #actions>
-                                <ComparisonPicker
-                                    v-model="period"
-                                    :periods="periods"
-                                />
-                                <ViewAllLink
-                                    href="/seller/settlements"
-                                    :count="seller_data.settlements.length"
-                                    :cap="20"
-                                />
+                                <ComparisonPicker v-model="period" :periods="periods" />
+                                <ViewAllLink href="/seller/settlements" :count="seller_data.settlements.length" :cap="20" />
                             </template>
 
                             <div class="divide-y divide-gray-800/40">
-                                <SettlementRow
-                                    v-for="s in filteredSettlements"
-                                    :key="s.id"
-                                    :settlement="s"
-                                />
+                                <SettlementRow v-for="s in filteredSettlements" :key="s.id" :settlement="s" />
 
                                 <EmptyState
                                     v-if="filteredSettlements.length === 0"
@@ -924,74 +341,26 @@
 
                     <!-- ═══════════ CONTESTS ═══════════ -->
                     <template v-else-if="activeTab === 'contests'">
-                        <Panel
-                            v-if="
-                                seller_data.contests &&
-                                seller_data.contests.length > 0
-                            "
-                            :title="`Hosting [${seller_data.contests.length}]`"
-                            accent="purple"
-                        >
+                        <Panel v-if="seller_data.contests && seller_data.contests.length > 0" :title="`Hosting [${seller_data.contests.length}]`" accent="purple">
                             <template #actions>
                                 <ViewAllLink href="/contests/mine" />
                             </template>
                             <div class="divide-y divide-gray-800/40">
-                                <Link
-                                    v-for="c in seller_data.contests"
-                                    :key="c.id"
-                                    :href="contestHref(c)"
-                                    class="flex items-center justify-between gap-3 p-3 transition-colors hover:bg-[#111a30]/40"
-                                >
-                                    <div
-                                        class="flex min-w-0 items-center gap-3"
-                                    >
-                                        <span
-                                            class="flex h-5 flex-shrink-0 items-center justify-center rounded-sm bg-purple-500 px-1.5 font-mono text-[8px] font-black tracking-wider text-white uppercase"
-                                        >
-                                            HOST
-                                        </span>
+                                <Link v-for="c in seller_data.contests" :key="c.id" :href="contestHref(c)" class="flex items-center justify-between gap-3 p-4 transition-colors hover:bg-white/[0.03]">
+                                    <div class="flex min-w-0 items-center gap-3">
+                                        <span class="flex h-7 shrink-0 items-center justify-center rounded-lg bg-purple-500 px-2 text-xs font-black text-white">Host</span>
                                         <div class="min-w-0">
-                                            <p
-                                                class="truncate font-mono text-[11px] font-bold text-slate-200"
-                                            >
-                                                {{ c.name }}
-                                            </p>
-                                            <p
-                                                class="mt-0.5 truncate text-[10px] text-slate-500"
-                                            >
-                                                {{ c.legs_count }} legs ·
-                                                {{ c.accepted_entries }}
-                                                accepted
-                                                <template
-                                                    v-if="
-                                                        c.pending_requests > 0
-                                                    "
-                                                >
+                                            <p class="truncate text-sm font-bold text-slate-100">{{ c.name }}</p>
+                                            <p class="mt-0.5 truncate text-xs text-slate-500">
+                                                {{ c.legs_count }} legs · {{ c.accepted_entries }} accepted
+                                                <template v-if="c.pending_requests > 0">
                                                     ·
-                                                    <span
-                                                        class="font-bold text-amber-400"
-                                                    >
-                                                        {{
-                                                            c.pending_requests
-                                                        }}
-                                                        pending
-                                                    </span>
+                                                    <span class="font-bold text-amber-300">{{ c.pending_requests }} pending</span>
                                                 </template>
                                             </p>
                                         </div>
                                     </div>
-                                    <span
-                                        class="flex-shrink-0 font-mono text-[10px] font-bold whitespace-nowrap"
-                                        :class="
-                                            deadlineClass(c.entry_deadline_at)
-                                        "
-                                    >
-                                        {{
-                                            formatDeadline(
-                                                c.entry_deadline_at,
-                                            )
-                                        }}
-                                    </span>
+                                    <span class="shrink-0 text-sm font-semibold whitespace-nowrap" :class="deadlineClass(c.entry_deadline_at)">{{ formatDeadline(c.entry_deadline_at) }}</span>
                                 </Link>
                             </div>
                         </Panel>
@@ -1009,275 +378,97 @@
                             />
                         </Panel>
 
-                        <Panel title="HOW HOSTING WORKS" accent="slate">
-                            <div
-                                class="space-y-3 p-4 text-[11px] leading-relaxed text-slate-400"
-                            >
-                                <p>
-                                    <span class="font-black text-slate-200"
-                                        >CREATE:</span
-                                    >
-                                    Set the legs, the entry deadline, and the
-                                    prize structure. Your contest goes live
-                                    immediately.
-                                </p>
-                                <p>
-                                    <span class="font-black text-slate-200"
-                                        >REVIEW:</span
-                                    >
-                                    Accept or reject join requests from
-                                    followers. Pending requests are counted on
-                                    each row above.
-                                </p>
-                                <p>
-                                    <span class="font-black text-slate-200"
-                                        >SETTLE:</span
-                                    >
-                                    When the fixture outcomes are known,
-                                    top-ranked entries share the pool. Payouts
-                                    release to wallets automatically.
-                                </p>
+                        <section class="grid gap-3 sm:grid-cols-3">
+                            <div class="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
+                                <p class="text-sm font-black text-sky-300">Create</p>
+                                <p class="mt-1 text-sm leading-relaxed text-slate-400">Set the legs, the entry deadline, and the prize structure. Your contest goes live immediately.</p>
                             </div>
-                        </Panel>
+                            <div class="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
+                                <p class="text-sm font-black text-amber-300">Review</p>
+                                <p class="mt-1 text-sm leading-relaxed text-slate-400">Accept or reject join requests from followers. Pending requests are counted on each row above.</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
+                                <p class="text-sm font-black text-emerald-300">Settle</p>
+                                <p class="mt-1 text-sm leading-relaxed text-slate-400">When the fixture outcomes are known, top-ranked entries share the pool. Payouts release to wallets automatically.</p>
+                            </div>
+                        </section>
                     </template>
 
                     <!-- ═══════════ FOLLOWERS ═══════════ -->
                     <template v-else-if="activeTab === 'followers'">
-                        <Panel title="FOLLOWER OVERVIEW" accent="purple">
-                            <template #actions>
+                        <section class="overflow-hidden rounded-3xl border border-purple-400/20 bg-gradient-to-br from-purple-500/10 via-[#0b1220] to-[#0b1220]">
+                            <div class="flex items-center justify-between px-5 pt-4">
+                                <h2 class="text-base font-bold text-purple-200">Follower overview</h2>
                                 <ViewAllLink href="/seller/followers" />
-                            </template>
-                            <div
-                                class="grid grid-cols-3 divide-x divide-[#232d42]/60"
-                            >
-                                <div class="p-4 text-center">
-                                    <span
-                                        class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                        >Total</span
-                                    >
-                                    <span
-                                        class="mt-1 block font-mono text-2xl font-black text-white"
-                                        >{{
-                                            seller_data.follower_stats.total
-                                        }}</span
-                                    >
+                            </div>
+                            <div class="grid grid-cols-3 divide-x divide-white/[0.06] pt-2">
+                                <div class="px-3 py-5 text-center">
+                                    <p class="text-xs text-slate-500">Total</p>
+                                    <p class="mt-1 text-3xl font-black text-white tabular-nums sm:text-4xl">{{ seller_data.follower_stats.total }}</p>
                                 </div>
-                                <div class="p-4 text-center">
-                                    <span
-                                        class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                        >New This Week</span
-                                    >
-                                    <span
-                                        class="mt-1 block font-mono text-2xl font-black text-purple-400"
-                                        >+{{
-                                            seller_data.follower_stats
-                                                .new_this_week
-                                        }}</span
-                                    >
+                                <div class="px-3 py-5 text-center">
+                                    <p class="text-xs text-slate-500">New this week</p>
+                                    <p class="mt-1 text-3xl font-black text-purple-300 tabular-nums sm:text-4xl">+{{ seller_data.follower_stats.new_this_week }}</p>
                                 </div>
-                                <div class="p-4 text-center">
-                                    <span
-                                        class="block text-[9px] font-black tracking-widest text-slate-500 uppercase"
-                                        >Buyer Conversion</span
-                                    >
-                                    <span
-                                        class="mt-1 block font-mono text-2xl font-black text-white"
-                                        >{{
-                                            seller_data.follower_stats
-                                                .buyer_conversion_rate
-                                        }}%</span
-                                    >
-                                    <span
-                                        class="mt-0.5 block text-[9px] text-slate-600"
-                                    >
-                                        {{
-                                            seller_data.follower_stats
-                                                .active_buyers
-                                        }}
-                                        active buyers
-                                    </span>
+                                <div class="px-3 py-5 text-center">
+                                    <p class="text-xs text-slate-500">Buyer conversion</p>
+                                    <p class="mt-1 text-3xl font-black text-white tabular-nums sm:text-4xl">{{ seller_data.follower_stats.buyer_conversion_rate }}%</p>
+                                    <p class="mt-0.5 text-xs text-slate-500">{{ seller_data.follower_stats.active_buyers }} active buyers</p>
                                 </div>
                             </div>
-                        </Panel>
+                        </section>
 
-                        <FollowersTable
-                            :followers="seller_data.follower_stats.recent"
-                            :title="`Recent Followers`"
-                        />
+                        <FollowersTable :followers="seller_data.follower_stats.recent" :title="`Recent Followers`" />
                     </template>
 
                     <!-- ═══════════ WALLET ═══════════ -->
                     <template v-else-if="activeTab === 'wallet'">
-                        <Panel title="ACCOUNT: WALLET DETAILS" accent="amber">
-                            <template #actions>
-                                <AsOf :at="generatedAt" />
-                                <span
-                                    class="font-mono text-[9px] font-bold text-slate-500 uppercase"
-                                >
-                                    [{{ seller_data.wallet.currency }}]
-                                </span>
-                            </template>
+                        <section class="relative overflow-hidden rounded-3xl border border-amber-400/20 bg-gradient-to-br from-amber-500/10 via-[#0b1220] to-[#0b1220] p-5 sm:p-6">
+                            <div class="pointer-events-none absolute -top-20 -right-16 h-52 w-52 rounded-full bg-amber-400/10 blur-3xl" aria-hidden="true"></div>
 
-                            <div class="space-y-4 p-4">
-                                <div
-                                    class="relative overflow-hidden rounded border border-[#232d42] bg-[#0a101f] p-4 text-center"
-                                >
-                                    <div
-                                        class="absolute inset-x-0 bottom-0 h-[2px] bg-emerald-500/30"
-                                    ></div>
-                                    <span
-                                        class="block text-[9px] font-black tracking-wider text-slate-500 uppercase"
-                                    >
-                                        Available Balance
-                                    </span>
-                                    <div
-                                        class="my-1 font-mono text-3xl font-black tracking-tight text-white"
-                                    >
-                                        <LiveValue
-                                            :initial="
-                                                Number(
-                                                    seller_data.wallet.balance,
-                                                )
-                                            "
-                                            :currency="
-                                                seller_data.wallet.currency
-                                            "
-                                        />
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="flex flex-col gap-2 sm:flex-row"
-                                >
-                                    <DepositPopover
-                                        :currency="'KES'"
-                                        :initial_amount="100"
-                                        :initial_phone="
-                                            seller_data?.user?.phone ?? ''
-                                        "
-                                    />
-                                    <WithdrawalPopover
-                                        :currency="
-                                            seller_data.wallet.currency
-                                        "
-                                        :available-balance="
-                                            Number(seller_data.wallet.balance)
-                                        "
-                                        :disabled="
-                                            Number(
-                                                seller_data.wallet.balance,
-                                            ) <= 0
-                                        "
-                                        class="flex-1"
-                                    />
-                                </div>
-
-                                <div
-                                    class="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
-                                >
-                                    <div
-                                        class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5"
-                                    >
-                                        <div class="space-y-0.5">
-                                            <span
-                                                class="block text-[9px] font-bold text-slate-500 uppercase"
-                                                >Held Funds</span
-                                            >
-                                            <span
-                                                class="font-mono text-[10px] font-bold text-slate-400"
-                                                >Pending</span
-                                            >
-                                        </div>
-                                        <span
-                                            class="font-mono text-xs font-black text-amber-400"
-                                        >
-                                            <Money
-                                                :value="
-                                                    seller_data.wallet
-                                                        .gross_at_stake
-                                                "
-                                                :currency="
-                                                    seller_data.wallet.currency
-                                                "
-                                            />
-                                        </span>
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5"
-                                    >
-                                        <div class="space-y-0.5">
-                                            <span
-                                                class="block text-[9px] font-bold text-slate-500 uppercase"
-                                                >Total Deposited</span
-                                            >
-                                            <span
-                                                class="font-mono text-[10px] font-bold text-slate-400"
-                                                >Deposits</span
-                                            >
-                                        </div>
-                                        <span
-                                            class="font-mono text-xs font-bold text-sky-400"
-                                        >
-                                            <Money
-                                                :value="
-                                                    seller_data.wallet
-                                                        .total_deposited
-                                                "
-                                                :currency="
-                                                    seller_data.wallet.currency
-                                                "
-                                            />
-                                        </span>
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-between rounded border border-gray-800/40 bg-[#111622] p-2.5"
-                                    >
-                                        <div class="space-y-0.5">
-                                            <span
-                                                class="block text-[9px] font-bold text-slate-500 uppercase"
-                                                >Total Withdrawn</span
-                                            >
-                                            <span
-                                                class="font-mono text-[10px] font-bold text-slate-400"
-                                                >Withdrawals</span
-                                            >
-                                        </div>
-                                        <span
-                                            class="font-mono text-xs font-bold text-rose-400"
-                                        >
-                                            <Money
-                                                :value="
-                                                    seller_data.wallet
-                                                        .total_withdrawn
-                                                "
-                                                :currency="
-                                                    seller_data.wallet.currency
-                                                "
-                                            />
-                                        </span>
-                                    </div>
+                            <div class="relative flex items-center justify-between">
+                                <p class="text-sm text-slate-400">Available balance</p>
+                                <div class="flex items-center gap-2">
+                                    <AsOf :at="generatedAt" />
+                                    <span class="text-xs font-semibold text-slate-500">{{ seller_data.wallet.currency }}</span>
                                 </div>
                             </div>
-                        </Panel>
+                            <div class="relative mt-1 text-4xl font-black tracking-tight text-white tabular-nums sm:text-5xl">
+                                <LiveValue :initial="Number(seller_data.wallet.balance)" :currency="seller_data.wallet.currency" />
+                            </div>
+
+                            <div class="relative mt-5 flex flex-col gap-2 sm:flex-row">
+                                <DepositPopover :currency="'KES'" :initial_amount="100" :initial_phone="seller_data?.user?.phone ?? ''" />
+                                <WithdrawalPopover
+                                    :currency="seller_data.wallet.currency"
+                                    :available-balance="Number(seller_data.wallet.balance)"
+                                    :disabled="Number(seller_data.wallet.balance) <= 0"
+                                    class="flex-1"
+                                />
+                            </div>
+
+                            <dl class="relative mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                <div class="flex items-center justify-between rounded-2xl bg-black/25 p-3.5 sm:block">
+                                    <dt class="text-sm text-slate-500">Held funds</dt>
+                                    <dd class="text-base font-bold text-amber-300 tabular-nums sm:mt-1"><Money :value="seller_data.wallet.gross_at_stake" :currency="seller_data.wallet.currency" /></dd>
+                                </div>
+                                <div class="flex items-center justify-between rounded-2xl bg-black/25 p-3.5 sm:block">
+                                    <dt class="text-sm text-slate-500">Total deposited</dt>
+                                    <dd class="text-base font-bold text-sky-300 tabular-nums sm:mt-1"><Money :value="seller_data.wallet.total_deposited" :currency="seller_data.wallet.currency" /></dd>
+                                </div>
+                                <div class="flex items-center justify-between rounded-2xl bg-black/25 p-3.5 sm:block">
+                                    <dt class="text-sm text-slate-500">Total withdrawn</dt>
+                                    <dd class="text-base font-bold text-rose-300 tabular-nums sm:mt-1"><Money :value="seller_data.wallet.total_withdrawn" :currency="seller_data.wallet.currency" /></dd>
+                                </div>
+                            </dl>
+                        </section>
 
                         <Panel title="TRANSACTIONS" accent="slate">
                             <template #actions>
-                                <ComparisonPicker
-                                    v-model="period"
-                                    :periods="periods"
-                                />
-                                <ViewAllLink
-                                    href="/wallet/transactions"
-                                    :count="
-                                        seller_data.wallet.recent_transactions
-                                            .length
-                                    "
-                                    :cap="10"
-                                />
+                                <ComparisonPicker v-model="period" :periods="periods" />
+                                <ViewAllLink href="/wallet/transactions" :count="seller_data.wallet.recent_transactions.length" :cap="10" />
                             </template>
-                            <TransactionsTable
-                                :transactions="filteredTransactions"
-                            />
+                            <TransactionsTable :transactions="filteredTransactions" />
                         </Panel>
                     </template>
 
@@ -1285,134 +476,62 @@
                     <template v-else-if="activeTab === 'analytics'">
                         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                             <Panel title="WIN RATE OVER TIME" accent="sky">
-                                <div class="space-y-3.5 p-4">
-                                    <div
-                                        v-for="(rate, label) in seller_data
-                                            .performance.win_rate_breakdown"
-                                        :key="label"
-                                        class="space-y-1"
-                                    >
-                                        <div
-                                            class="flex items-center justify-between font-mono text-[10px] font-black tracking-wider text-slate-400 uppercase"
-                                        >
-                                            <span>{{
-                                                label.replace(/_/g, ' ')
-                                            }}</span>
-                                            <span class="font-mono text-white"
-                                                >{{ rate }}%</span
-                                            >
+                                <div class="space-y-4 p-4">
+                                    <div v-for="(rate, label) in seller_data.performance.win_rate_breakdown" :key="label" class="space-y-1.5">
+                                        <div class="flex items-center justify-between text-sm text-slate-400">
+                                            <span class="capitalize">{{ label.replace(/_/g, ' ') }}</span>
+                                            <span class="font-bold text-white tabular-nums">{{ rate }}%</span>
                                         </div>
-                                        <div
-                                            class="h-1.5 w-full overflow-hidden rounded border border-[#232d42] bg-[#111622]"
-                                        >
-                                            <div
-                                                class="h-full bg-gradient-to-r from-sky-500 to-emerald-400 transition-all duration-500"
-                                                :style="{
-                                                    width: `${rate}%`,
-                                                }"
-                                            ></div>
+                                        <div class="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                                            <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-emerald-300 transition-all duration-500" :style="{ width: `${rate}%` }"></div>
                                         </div>
                                     </div>
                                 </div>
                             </Panel>
 
-                            <Panel
-                                v-if="
-                                    seller_data.charts.league_performance
-                                        .length > 0
-                                "
-                                title="LEAGUE PERFORMANCE"
-                                accent="purple"
-                            >
+                            <Panel v-if="seller_data.charts.league_performance.length > 0" title="LEAGUE PERFORMANCE" accent="purple">
                                 <div class="space-y-3 p-4">
-                                    <div
-                                        v-for="league in seller_data.charts
-                                            .league_performance"
-                                        :key="league.league"
-                                        class="flex items-center justify-between border-b border-gray-800/30 pb-2 last:border-0 last:pb-0"
-                                    >
-                                        <span
-                                            class="text-[11px] font-bold text-slate-400 uppercase"
-                                            >{{ league.league }}</span
-                                        >
-                                        <span
-                                            class="rounded border border-purple-500/20 bg-purple-500/10 px-1.5 py-0.5 font-mono text-xs font-black text-purple-400"
-                                            >{{ league.win_rate }}% WR</span
-                                        >
+                                    <div v-for="league in seller_data.charts.league_performance" :key="league.league" class="flex items-center justify-between border-b border-white/[0.05] pb-3 last:border-0 last:pb-0">
+                                        <span class="text-sm font-bold text-slate-200">{{ league.league }}</span>
+                                        <span class="rounded-lg bg-purple-400/10 px-2 py-1 text-xs font-black text-purple-300 tabular-nums">{{ league.win_rate }}% WR</span>
                                     </div>
                                 </div>
                             </Panel>
 
                             <Panel title="RECENT FORM" accent="slate">
                                 <div class="p-4">
-                                    <div class="flex flex-wrap gap-1.5">
+                                    <div class="flex flex-wrap gap-2">
                                         <div
-                                            v-for="(form, index) in seller_data
-                                                .performance.recent_form"
+                                            v-for="(form, index) in seller_data.performance.recent_form"
                                             :key="index"
                                             :class="[
-                                                'flex h-7 w-7 items-center justify-center rounded-sm font-mono text-xs font-black',
+                                                'flex h-9 w-9 items-center justify-center rounded-xl text-sm font-black',
                                                 form.status === 'W'
-                                                    ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                                                    : 'border border-rose-500/30 bg-rose-500/10 text-rose-400',
+                                                    ? 'bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/30'
+                                                    : 'bg-rose-400/15 text-rose-300 ring-1 ring-rose-400/30',
                                             ]"
                                             :title="`Settled: ${form.date}`"
                                         >
                                             {{ form.status }}
                                         </div>
                                     </div>
-                                    <p
-                                        v-if="
-                                            seller_data.performance.recent_form
-                                                .length === 0
-                                        "
-                                        class="py-2 text-center font-mono text-[10px] text-slate-500 uppercase"
-                                    >
-                                        No form yet
-                                    </p>
+                                    <p v-if="seller_data.performance.recent_form.length === 0" class="py-2 text-center text-sm text-slate-500">No form yet</p>
                                 </div>
                             </Panel>
 
                             <Panel title="RECENT ACTIVITY" accent="slate">
                                 <template #actions>
-                                    <ComparisonPicker
-                                        v-model="period"
-                                        :periods="periods"
-                                    />
+                                    <ComparisonPicker v-model="period" :periods="periods" />
                                 </template>
-                                <div
-                                    class="no-scrollbar max-h-[420px] space-y-2.5 overflow-y-auto p-4"
-                                >
-                                    <div
-                                        v-for="(act, index) in filteredActivity"
-                                        :key="index"
-                                        class="flex items-center justify-between gap-4 rounded border border-[#232d42]/70 bg-[#111622] p-3"
-                                    >
-                                        <div class="flex items-center gap-3">
-                                            <span
-                                                :class="[
-                                                    'flex h-5 w-5 items-center justify-center rounded-sm font-mono text-[9px] font-black select-none',
-                                                    toneBadgeClass(act.tone),
-                                                ]"
-                                            >
-                                                {{ act.badge }}
-                                            </span>
-                                            <span
-                                                class="text-[11px] font-bold tracking-wide text-slate-300 uppercase"
-                                                >{{ act.message }}</span
-                                            >
+                                <div class="no-scrollbar max-h-[420px] space-y-2.5 overflow-y-auto p-4">
+                                    <div v-for="(act, index) in filteredActivity" :key="index" class="flex items-center justify-between gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-3.5">
+                                        <div class="flex min-w-0 items-center gap-3">
+                                            <span :class="['flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-black select-none', toneBadgeClass(act.tone)]">{{ act.badge }}</span>
+                                            <span class="text-sm font-medium text-slate-300">{{ act.message }}</span>
                                         </div>
-                                        <span
-                                            class="font-mono text-[9px] font-bold whitespace-nowrap text-slate-500"
-                                            >{{ act.time_ago }}</span
-                                        >
+                                        <span class="shrink-0 text-xs whitespace-nowrap text-slate-500">{{ act.time_ago }}</span>
                                     </div>
-                                    <p
-                                        v-if="filteredActivity.length === 0"
-                                        class="p-4 text-center font-mono text-xs text-slate-500"
-                                    >
-                                        No recent activity in this period.
-                                    </p>
+                                    <p v-if="filteredActivity.length === 0" class="p-4 text-center text-sm text-slate-500">No recent activity in this period.</p>
                                 </div>
                             </Panel>
                         </div>
@@ -1572,13 +691,14 @@ const TAB_KEYS = [
     'analytics',
 ];
 
+// shortLabel is what the phone bottom bar shows; six tabs need the shorter words.
 const tabs = computed(() => [
-    { key: 'overview', label: 'Overview', accent: 'emerald' },
-    { key: 'betslips', label: 'Betslips', accent: 'sky', badge: seller_data.betslips.total_active || null },
-    { key: 'contests', label: 'Contests', accent: 'purple', badge: seller_data.contests?.length || null },
-    { key: 'followers', label: 'Followers', accent: 'purple', badge: seller_data.follower_stats.total || null },
-    { key: 'wallet', label: 'Wallet', accent: 'amber' },
-    { key: 'analytics', label: 'Analytics', accent: 'slate' },
+    { key: 'overview', label: 'Overview', shortLabel: 'Home', accent: 'emerald' },
+    { key: 'betslips', label: 'Betslips', shortLabel: 'Slips', accent: 'sky', badge: seller_data.betslips.total_active || null },
+    { key: 'contests', label: 'Contests', shortLabel: 'Contest', accent: 'purple', badge: seller_data.contests?.length || null },
+    { key: 'followers', label: 'Followers', shortLabel: 'Follows', accent: 'purple', badge: seller_data.follower_stats.total || null },
+    { key: 'wallet', label: 'Wallet', shortLabel: 'Wallet', accent: 'amber' },
+    { key: 'analytics', label: 'Analytics', shortLabel: 'Stats', accent: 'slate' },
 ]);
 
 const readHash = () => {
@@ -1622,14 +742,22 @@ const tierRoman = computed(() => {
 const tierBadgeClass = computed(() => {
     switch (seller_data.fee_tier.current_tier) {
         case 1:
-            return 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+            return 'bg-amber-500/20 text-amber-300 ring-1 ring-amber-400/40';
         case 2:
-            return 'bg-slate-400/20 text-slate-300 border border-slate-400/30';
+            return 'bg-slate-400/20 text-slate-200 ring-1 ring-slate-300/40';
         case 3:
-            return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
+            return 'bg-yellow-500/20 text-yellow-300 ring-1 ring-yellow-400/40';
         default:
-            return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+            return 'bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-400/40';
     }
+});
+
+// How far lifetime sales are toward the next tier's threshold.
+const tierProgressPct = computed(() => {
+    const done = Number(seller_data.fee_tier.total_sales ?? 0);
+    const left = Number(seller_data.fee_tier.sales_until_next_tier ?? 0);
+    if (done + left <= 0) return 0;
+    return Math.min(100, (done / (done + left)) * 100);
 });
 
 const contestHref = (contest) => `/contests/${contest.uuid}/manage`;
