@@ -83,7 +83,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import SectionWrapper from './SectionWrapper.vue';
+import SectionWrapper from './landing/SectionWrapper.vue';
 
 const scrollToHowItWorks = () => {
     document

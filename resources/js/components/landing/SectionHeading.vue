@@ -1,11 +1,17 @@
 <template>
     <div :class="align === 'center' ? 'text-center' : 'text-left'">
-        <p
+        <div
             v-if="eyebrow"
-            class="mb-4 text-[10px] font-black tracking-widest text-sky-400 uppercase"
+            :class="[
+                'mb-4 inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/[0.07] px-3 py-1',
+                align === 'center' ? 'mx-auto' : '',
+            ]"
         >
-            {{ eyebrow }}
-        </p>
+            <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+            <span class="text-[10px] font-black tracking-widest text-sky-400 uppercase">
+                {{ eyebrow }}
+            </span>
+        </div>
         <h2
             class="text-3xl font-black tracking-tight text-white uppercase sm:text-4xl lg:text-5xl"
         >

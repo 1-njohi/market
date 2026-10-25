@@ -334,7 +334,7 @@ const submitBetslipSearch = async () => {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 justify-items-center gap-6 md:grid-cols-2">
+                <div class="grid grid-cols-1 justify-items-center gap-6 md:grid-cols-2" id="marketplace-section">
                     <BetSlipSummaryCard v-for="(sample_slip, i) in $page.props.bet_slips" :key="i" :slip="sample_slip"
                         :isLocked="true" class="w-full" />
 

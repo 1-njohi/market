@@ -6,41 +6,36 @@
             subtitle="Every pick counts. Choose your path."
         />
 
-        <div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div
+        <div class="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <Link
                 v-for="card in cards"
                 :key="card.title"
-                class="flex flex-col rounded-xl border border-[#232d42] bg-[#111622] p-6 transition-colors hover:border-sky-500/30"
+                :href="card.href"
+                class="group relative flex flex-col overflow-hidden rounded-2xl border border-[#232d42] bg-gradient-to-b from-[#141b2d] to-[#0f1626] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/40 hover:shadow-[0_20px_48px_-16px_rgba(14,165,233,0.35)]"
             >
-                <div class="mb-4 text-sky-400">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="h-8 w-8"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            :d="card.icon"
-                        />
+                <!-- Corner glow -->
+                <div class="pointer-events-none absolute -top-12 -right-12 h-24 w-24 rounded-full bg-sky-500/10 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100"></div>
+
+                <!-- Icon -->
+                <div class="relative mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/[0.07] text-sky-400 transition-all duration-300 group-hover:border-sky-500/40 group-hover:bg-sky-500/10 group-hover:shadow-[0_0_20px_-4px_rgba(56,189,248,0.5)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-7 w-7">
+                        <path stroke-linecap="round" stroke-linejoin="round" :d="card.icon" />
                     </svg>
                 </div>
-                <h3 class="text-lg font-bold text-white">
+
+                <h3 class="relative text-lg font-black tracking-tight text-white">
                     {{ card.title }}
                 </h3>
-                <p class="mt-2 flex-1 text-sm text-slate-400">
+                <p class="relative mt-2 flex-1 text-sm leading-relaxed text-slate-400">
                     {{ card.body }}
                 </p>
-                <Link
-                    :href="card.href"
-                    class="mt-4 inline-block text-xs font-bold tracking-wider text-amber-400 uppercase transition-colors hover:text-amber-300"
-                >
-                    {{ card.cta }} →
-                </Link>
-            </div>
+                <span class="relative mt-5 inline-flex items-center gap-1.5 text-xs font-black tracking-widest text-amber-400 uppercase transition-all duration-200 group-hover:gap-2.5 group-hover:text-amber-300">
+                    {{ card.cta }}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-3 w-3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
+                </span>
+            </Link>
         </div>
     </SectionWrapper>
 </template>

@@ -1,48 +1,30 @@
 <template>
     <SectionWrapper variant="darker">
         <div class="text-center">
-            <p
-                class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
-            >
-                And the rest
-            </p>
-            <h2
-                class="mt-3 text-2xl font-black tracking-tight text-white uppercase sm:text-3xl"
-            >
+            <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/[0.07] px-3 py-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+                <span class="text-[10px] font-black tracking-widest text-sky-400 uppercase">And the rest</span>
+            </div>
+            <h2 class="mt-3 text-2xl font-black tracking-tight text-white uppercase sm:text-3xl">
                 Built for the ones who take it seriously.
             </h2>
         </div>
 
-        <div
-            class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
-        >
+        <div class="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div
                 v-for="feature in features"
                 :key="feature.title"
-                class="rounded-lg border border-[#232d42] bg-[#111622] p-4"
+                class="group relative overflow-hidden rounded-xl border border-[#232d42] bg-gradient-to-b from-[#141b2d] to-[#0f1626] p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-sky-500/30 hover:shadow-[0_12px_32px_-12px_rgba(14,165,233,0.25)]"
             >
-                <div class="mb-3 text-sky-400">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="h-6 w-6"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            :d="feature.icon"
-                        />
+                <div class="pointer-events-none absolute -top-10 -right-10 h-20 w-20 rounded-full bg-sky-500/5 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100"></div>
+
+                <div class="relative mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-sky-500/20 bg-sky-500/[0.07] text-sky-400 transition-all duration-300 group-hover:border-sky-500/40 group-hover:shadow-[0_0_16px_-4px_rgba(56,189,248,0.5)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" :d="feature.icon" />
                     </svg>
                 </div>
-                <p class="text-sm font-bold text-white">
-                    {{ feature.title }}
-                </p>
-                <p class="mt-1 text-xs leading-relaxed text-slate-400">
-                    {{ feature.body }}
-                </p>
+                <p class="relative text-sm font-black tracking-tight text-white">{{ feature.title }}</p>
+                <p class="relative mt-1.5 text-xs leading-relaxed text-slate-400">{{ feature.body }}</p>
             </div>
         </div>
     </SectionWrapper>
