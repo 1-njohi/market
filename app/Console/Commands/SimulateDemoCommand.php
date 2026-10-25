@@ -101,9 +101,21 @@ class SimulateDemoCommand extends Command
         if ($users->count() < $userCount) {
             $need = $userCount - $users->count();
             $this->line("  Only {$users->count()} non-admin users found; creating {$need} more.");
-            $created = User::factory()->count($need)->create(['is_admin' => false]);
+            $created = collect();
+            for ($i = 0; $i < $need; $i++) {
+                $suffix = Str::lower(Str::random(8));
+                $created->push(User::create([
+                    'name'              => 'Sim User ' . $suffix,
+                    'email'             => "sim_{$suffix}@example.test",
+                    'password'          => bcrypt('password'),
+                    'is_admin'          => false,
+                    'prediction_points' => 0,
+                    'email_verified_at' => now(),
+                ]));
+            }
             $users = $users->merge($created);
         }
+        
         $this->line("  Selected {$users->count()} users.");
 
         $half    = (int) floor($users->count() / 2);
