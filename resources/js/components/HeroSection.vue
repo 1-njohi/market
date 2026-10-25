@@ -8,7 +8,7 @@
             <!-- Copy -->
             <div class="order-1 max-w-3xl">
                 <p
-                    class="mb-5 inline-flex items-center gap-2 rounded-full bg-emerald-300/10 px-3.5 py-1.5 text-xs font-semibold text-lime-200 ring-1 ring-lime-300/25">
+                    class="mb-5 inline-flex items-center gap-2 rounded-full bg-emerald-300/10 px-3.5 py-1.5 text-xs font-semibold text-amber-200 ring-1 ring-amber-300/25">
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span>
                     No stake. No entry fee.
                 </p>
@@ -17,7 +17,7 @@
                     class="text-[3.25rem] leading-[0.95] font-black tracking-[-0.05em] text-white sm:text-7xl lg:text-8xl">
                     Call it.<br />
                     Prove it.<br />
-                    <span class="text-lime-300">Sell it.</span>
+                    <span class="text-amber-500">Sell it.</span>
                 </h1>
 
                 <p class="mt-6 max-w-xl text-base leading-7 text-slate-300 md:text-lg md:leading-8">
@@ -79,15 +79,15 @@
                             class="absolute left-[var(--mx)] top-[var(--my)] -translate-x-1/2 -translate-y-1/2 transition-all duration-500 md:left-[var(--dx)] md:top-[var(--dy)] motion-reduce:transition-none"
                             :class="step > i ? 'scale-100 opacity-100' : 'scale-75 opacity-0'" :style="n.vars">
                             <span class="block h-5 w-5 rounded-full border-2" :class="n.goal
-                                ? 'border-lime-200 bg-lime-300 shadow-[0_0_0_6px_rgba(190,242,100,0.25),0_0_30px_rgba(190,242,100,0.7)]'
+                                ? 'border-amber-200 bg-amber-500 shadow-[0_0_0_6px_rgba(190,242,100,0.25),0_0_30px_rgba(190,242,100,0.7)]'
                                 : n.verify
-                                    ? 'border-lime-200 bg-[#0b4a2e] shadow-[0_0_0_5px_rgba(190,242,100,0.2)]'
+                                    ? 'border-amber-300 bg-[#0b4a2e] shadow-[0_0_0_5px_rgba(190,242,100,0.2)]'
                                     : 'border-white bg-[#0b4a2e] shadow-[0_0_0_5px_rgba(255,255,255,0.12)]'
                                 "></span>
                             <div class="absolute w-[10.5rem] rounded-xl bg-black/40 px-3 py-2 backdrop-blur-sm md:w-52"
                                 :class="n.label">
                                 <p class="text-sm leading-snug font-bold"
-                                    :class="n.goal ? 'text-lime-300' : n.verify ? 'text-lime-200' : 'text-white'">{{
+                                    :class="n.goal ? 'text-amber-500' : n.verify ? 'text-amber-300' : 'text-white'">{{
                                         n.title }}</p>
                                 <p class="mt-0.5 text-xs leading-snug text-white/70">{{ n.body }}</p>
                             </div>
@@ -104,7 +104,7 @@
                         Start playing free →
                     </Link>
                     <button type="button" @click="scrollToHowItWorks"
-                        class="inline-flex min-h-14 cursor-pointer items-center justify-center rounded-2xl border border-white/15 px-8 text-base font-bold text-slate-200 transition-all duration-200 hover:border-lime-300/50 hover:text-white focus-visible:ring-2 focus-visible:ring-lime-300 focus-visible:outline-none active:scale-[0.98]">
+                        class="inline-flex min-h-14 cursor-pointer items-center justify-center rounded-2xl border border-white/15 px-8 text-base font-bold text-slate-200 transition-all duration-200 hover:border-amber-300/50 hover:text-white focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none active:scale-[0.98]">
                         See how it works
                     </button>
                 </div>

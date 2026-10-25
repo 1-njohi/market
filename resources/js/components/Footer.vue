@@ -105,11 +105,6 @@ const handleSubscribe = () => {
                             alt="Fainali Logo"
                             class="pointer-events-none h-10 w-auto object-contain select-none"
                         />
-                        <span
-                            class="text-sm font-black tracking-widest text-slate-200 uppercase"
-                        >
-                            Fainali
-                        </span>
                     </div>
 
                     <p
