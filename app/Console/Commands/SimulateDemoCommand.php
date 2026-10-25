@@ -44,10 +44,16 @@ class SimulateDemoCommand extends Command
     ): int {
 
         $u = User::find(1);
-        $u -> is_admin = 1;
-        $u -> push();
+        $u->is_admin = 1;
+        $u->push();
         $season = (string) $this->option('season');
         $leagueCode = strtoupper((string) $this->option('league'));
+        $fixtures = Fixture::query()->get();
+
+        foreach ($fixtures as $f) {
+            $f->league_id = 39;
+            $f->push();
+        }
         $slipCount = max(0, (int) $this->option('slips'));
         $userCount = max(2, (int) $this->option('users'));
 
@@ -58,7 +64,7 @@ class SimulateDemoCommand extends Command
         // ── STEP 2: Resolve league from config ──────────────────
         $this->step(2, 'Resolving league from config');
         $supportedCodes = config('marketplace.matchday.supported_league_codes', []);
-        $leagueId = $supportedCodes[$leagueCode] ?? null;
+        $leagueId = 39;//$supportedCodes[$leagueCode] ?? null;
         if (!$leagueId) {
             $this->error("League code {$leagueCode} not in marketplace.matchday.supported_league_codes.");
             return self::FAILURE;
