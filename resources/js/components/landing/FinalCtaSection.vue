@@ -17,7 +17,7 @@
 
             <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link
-                    href="/matchdays"
+                    href="/fixtures"
                     class="w-full rounded-xl bg-amber-500 px-8 py-4 text-xs font-bold tracking-wider text-black uppercase shadow-xl shadow-amber-500/20 transition-all hover:bg-amber-400 active:scale-[0.98] sm:w-auto"
                 >
                     Start playing free →
