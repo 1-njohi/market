@@ -35,7 +35,7 @@ return [
         'lock_offset_minutes' => (int) env('MATCHDAY_LOCK_OFFSET_MINUTES', 10),
         'max_sub_league_members' => (int) env('MATCHDAY_MAX_SUB_LEAGUE_MEMBERS', 20),
         'supported_league_codes' => [
-            'EPL' => 1,
+            'EPL' => 39,
             'UCL' => 2,
         ],
         'league_labels' => [
