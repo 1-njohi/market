@@ -43,6 +43,7 @@ class SimulateDemoCommand extends Command
         PredictionRecorderService $predictionRecorder,
     ): int {
 
+        dd(App\Models\eague::where('country', 'England')->get());
         $u = User::find(1);
         $u->is_admin = 1;
         $u->push();
