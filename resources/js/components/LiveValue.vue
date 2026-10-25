@@ -1,9 +1,9 @@
 <template>
     <span
         :class="[
-            'inline-flex items-center gap-1 transition-colors duration-300',
-            direction === 'up' ? 'text-emerald-400' : '',
-            direction === 'down' ? 'text-rose-400' : '',
+            'inline-flex items-center gap-2 tabular-nums transition-colors duration-300',
+            direction === 'up' ? 'text-emerald-300' : '',
+            direction === 'down' ? 'text-rose-300' : '',
         ]"
     >
         <Money :value="balance" :currency="currency" />
@@ -13,13 +13,7 @@
             enter-from-class="opacity-0"
             leave-to-class="opacity-0"
         >
-            <span
-                v-if="direction"
-                :class="[
-                    'font-mono text-[9px] font-black',
-                    direction === 'up' ? 'text-emerald-400' : 'text-rose-400',
-                ]"
-            >
+            <span v-if="direction" :class="['text-base font-black', direction === 'up' ? 'text-emerald-300' : 'text-rose-300']" aria-hidden="true">
                 {{ direction === 'up' ? '▲' : '▼' }}
             </span>
         </Transition>

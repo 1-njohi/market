@@ -1,125 +1,63 @@
 <template>
-    <div
-        class="w-full overflow-hidden rounded border border-gray-800/60 bg-[#111622]/40 font-sans text-slate-200"
-    >
-        <div
-            class="border-b border-gray-800/60 bg-[#111a30] p-4 flex items-center justify-between"
-        >
-            <div class="flex items-center space-x-2 text-purple-400">
-                <span class="text-[10px] font-black tracking-widest uppercase">{{
-                    title
-                }}</span>
-            </div>
-            <span
-                class="text-[9px] font-mono font-bold text-slate-500 uppercase select-none"
-            >[ FOLLOWING ]</span>
+    <section class="w-full overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1220] font-sans text-slate-200">
+        <div class="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
+            <h2 class="text-base font-bold text-white">{{ title }}</h2>
+            <span class="rounded-full bg-purple-400/10 px-2.5 py-1 text-xs font-bold text-purple-300 select-none">Following</span>
         </div>
 
-        <div
-            v-if="!following || following.length === 0"
-            class="p-8 text-center text-xs font-mono text-slate-500 tracking-wider"
-        >
+        <div v-if="!following || following.length === 0" class="p-10 text-center text-sm text-slate-500">
             You are not following any sellers yet.
         </div>
 
         <div v-else class="w-full">
             <!-- Mobile view -->
-            <div class="block md:hidden divide-y divide-gray-800/40">
-                <div
-                    v-for="seller in following"
-                    :key="seller.code"
-                    class="p-4 bg-[#111622]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#111622]/40 transition-colors"
-                >
-                    <div class="flex items-center space-x-3">
-                        <img
-                            :src="seller.avatar"
-                            :alt="seller.name"
-                            class="w-10 h-10 rounded border border-[#232d42] bg-[#070b14]"
-                        />
-                        <div class="space-y-0.5">
-                            <h4
-                                class="text-xs font-black tracking-wide text-white uppercase font-mono"
-                            >
-                                {{ seller.name }}
-                            </h4>
-                            <div
-                                class="flex items-center space-x-2 text-[9px] text-slate-400 font-semibold uppercase font-mono"
-                            >
-                                <span
-                                    >CODE:
-                                    <span class="text-sky-400 font-bold">{{
-                                        seller.code
-                                    }}</span></span
-                                >
-                                <span>•</span>
-                                <span>Followed {{ seller.followed_at }}</span>
-                            </div>
+            <ul class="block divide-y divide-white/[0.05] md:hidden">
+                <li v-for="seller in following" :key="seller.code" class="flex items-center justify-between gap-3 p-4 transition-colors hover:bg-white/[0.03]">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <img :src="seller.avatar" :alt="seller.name" class="h-12 w-12 shrink-0 rounded-full bg-[#070b14] object-cover ring-2 ring-white/10" />
+                        <div class="min-w-0">
+                            <h3 class="truncate text-base font-bold text-white">{{ seller.name }}</h3>
+                            <p class="mt-0.5 truncate text-xs text-slate-500">
+                                <span class="font-mono font-semibold text-sky-300">{{ seller.code }}</span>
+                                · Followed {{ seller.followed_at }}
+                            </p>
                         </div>
                     </div>
 
-                    <div>
-                        <Link
-                            :href="`/profile/${seller.code}`"
-                            class="w-full flex items-center justify-center bg-[#1c273a] hover:bg-purple-500 hover:text-[#070b14] border border-[#2b3a54] hover:border-purple-500 text-[10px] font-black tracking-widest text-slate-300 py-2 rounded uppercase transition-all duration-200"
-                        >
-                            VIEW PROFILE
-                        </Link>
-                    </div>
-                </div>
-            </div>
+                    <Link
+                        :href="`/profile/${seller.code}`"
+                        class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-purple-400/30 bg-purple-400/10 px-4 text-sm font-bold text-purple-200 transition-all duration-200 hover:bg-purple-400 hover:text-[#070b14] focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:outline-none active:scale-[0.98]"
+                    >
+                        View
+                    </Link>
+                </li>
+            </ul>
 
             <!-- Desktop view -->
-            <div class="hidden md:block overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+            <div class="hidden overflow-x-auto md:block">
+                <table class="w-full border-collapse text-left">
                     <thead>
-                        <tr
-                            class="border-b border-gray-800/60 bg-[#0f1422] text-[10px] font-black tracking-widest text-slate-400 uppercase font-mono"
-                        >
-                            <th class="py-3 px-4">NAME</th>
-                            <th class="py-3 px-4">CODE</th>
-                            <th class="py-3 px-4">FOLLOWED SINCE</th>
-                            <th class="py-3 px-4 text-right">ACTION</th>
+                        <tr class="border-b border-white/[0.07] bg-black/20 text-xs font-semibold text-slate-500">
+                            <th class="px-5 py-3.5">Name</th>
+                            <th class="px-5 py-3.5">Code</th>
+                            <th class="px-5 py-3.5">Followed since</th>
+                            <th class="px-5 py-3.5 text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-800/30">
-                        <tr
-                            v-for="seller in following"
-                            :key="seller.code"
-                            class="text-xs border-b border-gray-800/20 bg-[#111622]/10 hover:bg-[#111622]/40 transition-colors group"
-                        >
-                            <td
-                                class="py-3.5 px-4 flex items-center space-x-3"
-                            >
-                                <img
-                                    :src="seller.avatar"
-                                    :alt="seller.name"
-                                    class="w-8 h-8 rounded border border-[#232d42] bg-[#070b14]"
-                                />
-                                <span
-                                    class="font-bold tracking-wide text-white uppercase font-sans"
-                                >
-                                    {{ seller.name }}
-                                </span>
+                    <tbody class="divide-y divide-white/[0.05]">
+                        <tr v-for="seller in following" :key="seller.code" class="text-sm transition-colors hover:bg-white/[0.03]">
+                            <td class="flex items-center gap-3 px-5 py-4">
+                                <img :src="seller.avatar" :alt="seller.name" class="h-10 w-10 rounded-full bg-[#070b14] object-cover ring-2 ring-white/10" />
+                                <span class="font-bold text-white">{{ seller.name }}</span>
                             </td>
-
-                            <td
-                                class="py-3.5 px-4 font-mono font-black tracking-wider text-sky-400"
-                            >
-                                {{ seller.code }}
-                            </td>
-
-                            <td
-                                class="py-3.5 px-4 font-mono font-bold text-slate-400 uppercase"
-                            >
-                                {{ seller.followed_at }}
-                            </td>
-
-                            <td class="py-3.5 px-4 text-right">
+                            <td class="px-5 py-4 font-mono font-bold tracking-wide text-sky-300">{{ seller.code }}</td>
+                            <td class="px-5 py-4 text-slate-400">{{ seller.followed_at }}</td>
+                            <td class="px-5 py-4 text-right">
                                 <Link
                                     :href="`/profile/${seller.code}`"
-                                    class="inline-block text-[10px] font-black tracking-widest text-purple-400 hover:text-[#070b14] border border-purple-500/20 hover:border-purple-500 bg-purple-500/5 hover:bg-purple-500 px-3 py-1.5 rounded uppercase transition-all duration-200"
+                                    class="inline-block rounded-lg border border-purple-400/30 bg-purple-400/10 px-4 py-2 text-xs font-bold text-purple-200 transition-all duration-200 hover:bg-purple-400 hover:text-[#070b14] focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:outline-none"
                                 >
-                                    VIEW PROFILE →
+                                    View profile →
                                 </Link>
                             </td>
                         </tr>
@@ -127,7 +65,7 @@
                 </table>
             </div>
         </div>
-    </div>
+    </section>
 </template>
 
 <script setup>

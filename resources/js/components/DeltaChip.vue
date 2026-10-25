@@ -1,10 +1,7 @@
 <template>
     <span
         v-if="value !== null && value !== undefined"
-        :class="[
-            'rounded px-1.5 py-0.5 font-mono text-[9px] font-black tracking-wide uppercase',
-            chipClass,
-        ]"
+        :class="['rounded-full px-2 py-0.5 text-xs font-bold tabular-nums', chipClass]"
     >
         {{ label }}
     </span>
@@ -28,11 +25,11 @@ const label = computed(() => {
 
 const chipClass = computed(() => {
     const v = props.value ?? 0;
-    if (v === 0) return 'bg-slate-500/10 text-slate-400';
+    if (v === 0) return 'bg-slate-400/10 text-slate-400';
 
     const positive = props.invert ? v < 0 : v > 0;
     return positive
-        ? 'bg-emerald-500/10 text-emerald-400'
-        : 'bg-rose-500/10 text-rose-400';
+        ? 'bg-emerald-400/10 text-emerald-300'
+        : 'bg-rose-400/10 text-rose-300';
 });
 </script>

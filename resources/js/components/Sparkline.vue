@@ -20,26 +20,26 @@
             stroke-dasharray="2 2"
         />
 
+        <!-- Soft area under the line -->
+        <polygon v-if="points.length > 0" :points="areaPoints" :fill="strokeColor" fill-opacity="0.12" />
+
         <!-- Line -->
         <polyline
             v-if="points.length > 0"
-            :points="points"
+            :points="linePoints"
             fill="none"
             :stroke="strokeColor"
-            stroke-width="1.5"
+            stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
             vector-effect="non-scaling-stroke"
         />
 
-        <!-- End dot -->
-        <circle
-            v-if="lastPoint"
-            :cx="lastPoint.x"
-            :cy="lastPoint.y"
-            r="1.8"
-            :fill="strokeColor"
-        />
+        <!-- End dot with a halo -->
+        <template v-if="lastPoint">
+            <circle :cx="lastPoint.x" :cy="lastPoint.y" r="4" :fill="strokeColor" fill-opacity="0.25" />
+            <circle :cx="lastPoint.x" :cy="lastPoint.y" r="2.2" :fill="strokeColor" />
+        </template>
     </svg>
 </template>
 
@@ -86,6 +86,13 @@ const points = computed(() => {
         return `${x.toFixed(2)},${y.toFixed(2)}`;
     });
 });
+
+const linePoints = computed(() => points.value.join(' '));
+
+// Closes the line down to the baseline so it can be filled.
+const areaPoints = computed(
+    () => `${points.value.join(' ')} ${props.width},${props.height} 0,${props.height}`,
+);
 
 const lastPoint = computed(() => {
     const v = props.values.filter((n) => typeof n === 'number' && !Number.isNaN(n));

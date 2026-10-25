@@ -59,13 +59,13 @@ const summary = computed<string>(() => {
 </script>
 
 <template>
-    <div class="rounded-lg border border-[#232d42] bg-[#0f1422] px-4 py-4">
+    <section class="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1220] p-5 sm:p-6">
+        <div class="pointer-events-none absolute -top-16 -right-12 h-44 w-44 rounded-full bg-sky-400/10 blur-3xl" aria-hidden="true"></div>
+
         <!-- Header -->
-        <div class="flex items-center justify-between gap-3">
+        <div class="relative flex items-center justify-between gap-3">
             <div class="flex items-center gap-2">
-                <span class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
-                    Seller progress
-                </span>
+                <h2 class="text-base font-bold text-white">Become a seller</h2>
                 <InfoPopover title="How to become a seller">
                     <p>
                         Selling on the marketplace opens once you've built
@@ -74,9 +74,7 @@ const summary = computed<string>(() => {
                     </p>
 
                     <p>
-                        <span class="font-bold text-slate-200">
-                            What counts as a pick:
-                        </span>
+                        <span class="font-bold text-slate-100">What counts as a pick:</span>
                         every selection you make counts. Whether it's one leg
                         on a betslip you create, an entry in a contest, or a
                         matchday submission — they all feed the same record.
@@ -84,26 +82,16 @@ const summary = computed<string>(() => {
                     </p>
 
                     <p>
-                        <span class="font-bold text-slate-200">
-                            The threshold:
-                        </span>
+                        <span class="font-bold text-slate-100">The threshold:</span>
                         {{ progress.required_picks }} settled
-                        picks and a {{
-                            (progress.required_win_rate * 100).toFixed(0)
-                        }}% win rate, counted over the last 90 days.
+                        picks and a {{ (progress.required_win_rate * 100).toFixed(0) }}% win rate, counted over the last 90 days.
                     </p>
 
-                    <p>
-                        <span class="font-bold text-slate-200">
-                            Fastest ways to build your record:
-                        </span>
-                    </p>
+                    <p><span class="font-bold text-slate-100">Fastest ways to build your record:</span></p>
 
-                    <div class="rounded border border-amber-500/20 bg-amber-500/5 px-3 py-2">
-                        <p class="mb-1 text-[10px] font-black tracking-widest text-amber-400 uppercase">
-                            Matchday league
-                        </p>
-                        <p class="text-[11px] text-slate-300">
+                    <div class="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-3.5">
+                        <p class="mb-1 text-sm font-bold text-amber-300">Matchday league</p>
+                        <p class="text-sm text-slate-300">
                             Every weekend there's a fresh set of fixtures. One
                             pick per game — usually 10 picks at once. No
                             entry fee. If you're in a sub-league, you get
@@ -111,11 +99,9 @@ const summary = computed<string>(() => {
                         </p>
                     </div>
 
-                    <div class="rounded border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
-                        <p class="mb-1 text-[10px] font-black tracking-widest text-emerald-400 uppercase">
-                            Contests
-                        </p>
-                        <p class="text-[11px] text-slate-300">
+                    <div class="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-3.5">
+                        <p class="mb-1 text-sm font-bold text-emerald-300">Contests</p>
+                        <p class="text-sm text-slate-300">
                             Public or private. Same rules as matchday: pick one
                             selection per leg, get it right, count the point.
                             Private contests with friends are usually 5–10
@@ -123,11 +109,9 @@ const summary = computed<string>(() => {
                         </p>
                     </div>
 
-                    <div class="rounded border border-sky-500/20 bg-sky-500/5 px-3 py-2">
-                        <p class="mb-1 text-[10px] font-black tracking-widest text-sky-400 uppercase">
-                            Betslips
-                        </p>
-                        <p class="text-[11px] text-slate-300">
+                    <div class="rounded-2xl border border-sky-400/20 bg-sky-400/5 p-3.5">
+                        <p class="mb-1 text-sm font-bold text-sky-300">Betslips</p>
+                        <p class="text-sm text-slate-300">
                             Build your own selections from any fixture. A
                             five-leg slip is five picks toward your record.
                             You don't need to sell it to count it — the picks
@@ -135,11 +119,7 @@ const summary = computed<string>(() => {
                         </p>
                     </div>
 
-                    <p>
-                        <span class="font-bold text-slate-200">
-                            Practical tips:
-                        </span>
-                    </p>
+                    <p><span class="font-bold text-slate-100">Practical tips:</span></p>
                     <p>
                         Don't chase long odds just to pad your count — the
                         win rate matters as much as the volume. A slip with
@@ -160,54 +140,50 @@ const summary = computed<string>(() => {
                 </InfoPopover>
             </div>
 
-            <span class="rounded border px-2 py-0.5 font-mono text-[9px] font-black tracking-wider uppercase" :class="{
-                'border-amber-500/20 bg-amber-500/10 text-amber-400':
-                    status === 'ineligible',
-                'border-emerald-500/20 bg-emerald-500/10 text-emerald-400':
-                    status === 'sellable',
-                'border-rose-500/20 bg-rose-500/10 text-rose-400':
-                    status === 'warned' || status === 'delisted',
-            }">
+            <span
+                class="rounded-full px-3 py-1 text-xs font-bold capitalize"
+                :class="{
+                    'bg-amber-400/10 text-amber-300': status === 'ineligible',
+                    'bg-emerald-400/10 text-emerald-300': status === 'sellable',
+                    'bg-rose-400/10 text-rose-300': status === 'warned' || status === 'delisted',
+                }"
+            >
                 {{ status }}
             </span>
         </div>
 
-        <!-- Picks row -->
-        <div class="mt-4 flex items-baseline justify-between">
-            <span class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
-                Settled picks
-            </span>
-            <span class="font-mono text-[11px] text-slate-400">
-                {{ progress.current_picks }} / {{ progress.required_picks }}
-            </span>
-        </div>
-        <div class="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-[#232d42]">
-            <div class="h-full rounded-full bg-sky-500/70 transition-all" :style="{ width: picksProgressPct + '%' }">
+        <!-- Two gates: picks, then win rate -->
+        <div class="relative mt-5 grid gap-5 sm:grid-cols-2">
+            <div>
+                <div class="flex items-end justify-between">
+                    <p class="text-sm text-slate-400">Settled picks</p>
+                    <p class="text-sm text-slate-500 tabular-nums">
+                        <span class="text-2xl font-black text-white">{{ progress.current_picks }}</span> / {{ progress.required_picks }}
+                    </p>
+                </div>
+                <div class="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-white/[0.07]" role="progressbar" :aria-valuenow="Math.round(picksProgressPct)" aria-valuemin="0" aria-valuemax="100" aria-label="Settled picks progress">
+                    <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-indigo-400 transition-all duration-500" :style="{ width: picksProgressPct + '%' }"></div>
+                </div>
             </div>
-        </div>
 
-        <!-- Rate row -->
-        <div class="mt-3 flex items-baseline justify-between">
-            <span class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
-                Win rate
-            </span>
-            <span class="font-mono text-[11px] text-slate-400">
-                <template v-if="progress.current_win_rate === null">—</template>
-                <template v-else>
-                    {{ (progress.current_win_rate * 100).toFixed(1) }}%
-                </template>
-                /
-                {{ (progress.required_win_rate * 100).toFixed(0) }}%
-            </span>
-        </div>
-        <div class="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-[#232d42]">
-            <div class="h-full rounded-full bg-emerald-500/70 transition-all" :style="{ width: rateProgressPct + '%' }">
+            <div>
+                <div class="flex items-end justify-between">
+                    <p class="text-sm text-slate-400">Win rate</p>
+                    <p class="text-sm text-slate-500 tabular-nums">
+                        <span class="text-2xl font-black text-white">
+                            <template v-if="progress.current_win_rate === null">—</template>
+                            <template v-else>{{ (progress.current_win_rate * 100).toFixed(1) }}%</template>
+                        </span>
+                        / {{ (progress.required_win_rate * 100).toFixed(0) }}%
+                    </p>
+                </div>
+                <div class="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-white/[0.07]" role="progressbar" :aria-valuenow="Math.round(rateProgressPct)" aria-valuemin="0" aria-valuemax="100" aria-label="Win rate progress">
+                    <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-lime-300 transition-all duration-500" :style="{ width: rateProgressPct + '%' }"></div>
+                </div>
             </div>
         </div>
 
         <!-- Human summary -->
-        <p class="mt-3 text-[11px] leading-relaxed text-slate-400">
-            {{ summary }}
-        </p>
-    </div>
+        <p class="relative mt-5 rounded-2xl bg-black/25 px-4 py-3 text-sm leading-relaxed text-slate-300">{{ summary }}</p>
+    </section>
 </template>

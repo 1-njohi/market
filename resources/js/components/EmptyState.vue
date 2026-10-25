@@ -1,20 +1,8 @@
 <template>
-    <div class="flex flex-col items-center justify-center gap-3 px-6 py-10 text-center">
-        <div
-            :class="[
-                'flex h-12 w-12 items-center justify-center rounded-full border',
-                iconClass,
-            ]"
-        >
+    <div class="flex flex-col items-center justify-center gap-4 px-6 py-12 text-center">
+        <div :class="['flex h-14 w-14 items-center justify-center rounded-2xl ring-1', iconClass]">
             <slot name="icon">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.8"
-                    stroke="currentColor"
-                    class="h-6 w-6"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-7 w-7" aria-hidden="true">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -25,31 +13,20 @@
         </div>
 
         <div class="space-y-1.5">
-            <p class="text-xs font-black tracking-widest text-slate-300 uppercase">
-                {{ title }}
-            </p>
-            <p v-if="body" class="max-w-sm text-[11px] leading-relaxed text-slate-500">
-                {{ body }}
-            </p>
+            <p class="text-base font-bold text-slate-100">{{ title }}</p>
+            <p v-if="body" class="mx-auto max-w-sm text-sm leading-relaxed text-slate-500">{{ body }}</p>
         </div>
 
         <Link
             v-if="ctaHref && ctaLabel"
             :href="ctaHref"
             :class="[
-                'mt-1 inline-flex items-center gap-2 rounded border px-3.5 py-2 font-mono text-[10px] font-black tracking-widest uppercase transition-all',
+                'mt-1 inline-flex min-h-11 items-center gap-2 rounded-xl border px-5 text-sm font-bold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]',
                 ctaClass,
             ]"
         >
             {{ ctaLabel }}
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="3"
-                stroke="currentColor"
-                class="h-3 w-3"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
             </svg>
         </Link>
@@ -71,21 +48,21 @@ const props = defineProps({
 });
 
 const palette = {
-    sky: 'border-sky-500/30 bg-sky-500/10 text-sky-400',
-    emerald: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400',
-    amber: 'border-amber-500/30 bg-amber-500/10 text-amber-400',
-    rose: 'border-rose-500/30 bg-rose-500/10 text-rose-400',
-    purple: 'border-purple-500/30 bg-purple-500/10 text-purple-400',
-    slate: 'border-slate-500/30 bg-slate-500/10 text-slate-400',
+    sky: 'bg-sky-400/10 text-sky-300 ring-sky-400/25',
+    emerald: 'bg-emerald-400/10 text-emerald-300 ring-emerald-400/25',
+    amber: 'bg-amber-400/10 text-amber-300 ring-amber-400/25',
+    rose: 'bg-rose-400/10 text-rose-300 ring-rose-400/25',
+    purple: 'bg-purple-400/10 text-purple-300 ring-purple-400/25',
+    slate: 'bg-white/[0.05] text-slate-400 ring-white/10',
 };
 
 const ctaPalette = {
-    sky: 'border-sky-500/40 text-sky-400 hover:border-sky-400 hover:bg-sky-500/10',
-    emerald: 'border-emerald-500/40 text-emerald-400 hover:border-emerald-400 hover:bg-emerald-500/10',
-    amber: 'border-amber-500/40 text-amber-400 hover:border-amber-400 hover:bg-amber-500/10',
-    rose: 'border-rose-500/40 text-rose-400 hover:border-rose-400 hover:bg-rose-500/10',
-    purple: 'border-purple-500/40 text-purple-400 hover:border-purple-400 hover:bg-purple-500/10',
-    slate: 'border-slate-500/40 text-slate-300 hover:border-slate-400 hover:bg-slate-500/10',
+    sky: 'border-sky-400/40 bg-sky-400/10 text-sky-200 hover:bg-sky-400 hover:text-[#070b14] focus-visible:ring-sky-300',
+    emerald: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400 hover:text-[#070b14] focus-visible:ring-emerald-300',
+    amber: 'border-amber-400/40 bg-amber-400/10 text-amber-200 hover:bg-amber-400 hover:text-[#070b14] focus-visible:ring-amber-300',
+    rose: 'border-rose-400/40 bg-rose-400/10 text-rose-200 hover:bg-rose-400 hover:text-[#070b14] focus-visible:ring-rose-300',
+    purple: 'border-purple-400/40 bg-purple-400/10 text-purple-200 hover:bg-purple-400 hover:text-[#070b14] focus-visible:ring-purple-300',
+    slate: 'border-white/15 bg-white/[0.05] text-slate-200 hover:bg-white/15 hover:text-white focus-visible:ring-slate-300',
 };
 
 const iconClass = computed(() => palette[props.accent] ?? palette.slate);

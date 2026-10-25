@@ -1,14 +1,8 @@
 <template>
-    <span
-        class="flex items-center gap-1.5 font-mono text-[9px] font-black tracking-widest text-emerald-400 uppercase"
-    >
-        <span class="relative flex h-1.5 w-1.5">
-            <span
-                class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60"
-            ></span>
-            <span
-                class="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"
-            ></span>
+    <span class="inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs font-bold text-emerald-300">
+        <span class="relative flex h-2 w-2">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
         </span>
         Live
     </span>

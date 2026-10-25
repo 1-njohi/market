@@ -1,7 +1,7 @@
 <template>
     <Link
         :href="href"
-        class="font-mono text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300"
+        class="inline-flex min-h-9 items-center rounded-lg px-3 text-sm font-bold text-sky-300 transition-colors hover:bg-sky-400/10 hover:text-sky-200 focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:outline-none"
     >
         {{ label }}
     </Link>

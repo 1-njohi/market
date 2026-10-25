@@ -2,37 +2,32 @@
     <!-- ═══ Bottom bar (mobile only) ═══ -->
     <nav
         v-if="variant === 'bottom-bar'"
-        class="fixed inset-x-0 bottom-0 z-40 border-t border-[#232d42] bg-[#0a101f]/95 backdrop-blur-md lg:hidden"
+        class="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-[#0a101f]/95 backdrop-blur-xl lg:hidden"
         style="padding-bottom: env(safe-area-inset-bottom, 0px)"
+        aria-label="Dashboard sections"
     >
-        <div class="no-scrollbar flex overflow-x-auto">
+        <div class="no-scrollbar flex overflow-x-auto px-1">
             <button
                 v-for="tab in tabs"
                 :key="tab.key"
                 type="button"
                 @click="$emit('update:modelValue', tab.key)"
+                :aria-current="modelValue === tab.key ? 'page' : undefined"
                 :class="[
-                    'relative flex min-w-0 flex-1 flex-col items-center gap-1 px-1 py-2.5 transition-colors',
-                    'font-mono text-[8px] font-black tracking-wider uppercase',
-                    modelValue === tab.key
-                        ? activeTextClass(tab.accent)
-                        : 'text-slate-500 hover:text-slate-300',
+                    'relative flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 pt-1.5 pb-2 text-xs font-semibold transition-colors',
+                    modelValue === tab.key ? activeTextClass(tab.accent) : 'text-slate-500 active:text-slate-300',
                 ]"
             >
                 <span
                     :class="[
-                        'h-0.5 w-5 rounded-full transition-all duration-200',
-                        modelValue === tab.key
-                            ? activeBarClass(tab.accent)
-                            : 'bg-transparent',
+                        'h-1 w-6 rounded-full transition-all duration-200',
+                        modelValue === tab.key ? activeBarClass(tab.accent) : 'bg-transparent',
                     ]"
                 ></span>
-                <span class="truncate">{{
-                    tab.shortLabel ?? tab.label
-                }}</span>
+                <span class="truncate">{{ tab.shortLabel ?? tab.label }}</span>
                 <span
                     v-if="tab.badge"
-                    class="absolute top-0.5 right-1 flex h-3 min-w-3 items-center justify-center rounded-full bg-rose-500 px-0.5 font-mono text-[7px] font-black text-white"
+                    class="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white tabular-nums"
                 >
                     {{ tab.badge > 99 ? '99+' : tab.badge }}
                 </span>
@@ -42,37 +37,26 @@
 
     <!-- ═══ Inline (desktop only) ═══ -->
     <div v-else class="no-scrollbar hidden w-full overflow-x-auto lg:block">
-        <div
-            class="flex min-w-max items-center gap-1 rounded border border-[#232d42] bg-[#111622] p-1"
-        >
+        <div class="flex min-w-max items-center gap-1 rounded-2xl border border-white/[0.07] bg-white/[0.03] p-1.5" role="tablist">
             <button
                 v-for="tab in tabs"
                 :key="tab.key"
                 type="button"
+                role="tab"
+                :aria-selected="modelValue === tab.key"
                 @click="$emit('update:modelValue', tab.key)"
                 :class="[
-                    'flex cursor-pointer items-center gap-1.5 rounded px-3 py-2 text-[10px] font-black tracking-widest uppercase transition-all',
-                    modelValue === tab.key
-                        ? activeClass(tab.accent)
-                        : 'text-slate-400 hover:text-white',
+                    'flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:outline-none',
+                    modelValue === tab.key ? activeClass(tab.accent) : 'text-slate-400 hover:bg-white/[0.04] hover:text-white',
                 ]"
             >
-                <span
-                    :class="[
-                        'h-1.5 w-1.5 rounded-full',
-                        modelValue === tab.key
-                            ? dotActiveClass(tab.accent)
-                            : 'bg-slate-600',
-                    ]"
-                ></span>
+                <span :class="['h-1.5 w-1.5 rounded-full', modelValue === tab.key ? dotActiveClass(tab.accent) : 'bg-slate-600']"></span>
                 <span>{{ tab.label }}</span>
                 <span
                     v-if="tab.badge"
                     :class="[
-                        'ml-1 rounded-full px-1.5 py-0.5 font-mono text-[9px] font-black',
-                        modelValue === tab.key
-                            ? 'bg-[#070b14]/30 text-[#070b14]'
-                            : 'bg-[#232d42] text-slate-300',
+                        'ml-0.5 rounded-full px-2 py-0.5 text-xs font-black tabular-nums',
+                        modelValue === tab.key ? 'bg-[#070b14]/25 text-inherit' : 'bg-white/10 text-slate-300',
                     ]"
                 >
                     {{ tab.badge }}
@@ -96,14 +80,11 @@ defineProps({
 defineEmits(['update:modelValue']);
 
 const activeClasses = {
-    sky: 'bg-sky-500 text-[#070b14] shadow-[0_0_10px_rgba(14,165,233,0.3)]',
-    emerald:
-        'bg-emerald-500 text-[#070b14] shadow-[0_0_10px_rgba(16,185,129,0.3)]',
-    amber:
-        'bg-amber-500 text-[#070b14] shadow-[0_0_10px_rgba(245,158,11,0.3)]',
-    rose: 'bg-rose-500 text-white shadow-[0_0_10px_rgba(244,63,94,0.3)]',
-    purple:
-        'bg-purple-500 text-white shadow-[0_0_10px_rgba(168,85,247,0.3)]',
+    sky: 'bg-sky-400 text-[#070b14] shadow-[0_8px_24px_-8px_rgba(56,189,248,0.6)]',
+    emerald: 'bg-emerald-400 text-[#070b14] shadow-[0_8px_24px_-8px_rgba(52,211,153,0.6)]',
+    amber: 'bg-amber-400 text-[#070b14] shadow-[0_8px_24px_-8px_rgba(251,191,36,0.6)]',
+    rose: 'bg-rose-500 text-white shadow-[0_8px_24px_-8px_rgba(244,63,94,0.6)]',
+    purple: 'bg-purple-500 text-white shadow-[0_8px_24px_-8px_rgba(168,85,247,0.6)]',
     slate: 'bg-slate-500 text-white',
 };
 
@@ -117,20 +98,20 @@ const dotClasses = {
 };
 
 const textClasses = {
-    sky: 'text-sky-400',
-    emerald: 'text-emerald-400',
-    amber: 'text-amber-400',
-    rose: 'text-rose-400',
-    purple: 'text-purple-400',
-    slate: 'text-slate-300',
+    sky: 'text-sky-300',
+    emerald: 'text-emerald-300',
+    amber: 'text-amber-300',
+    rose: 'text-rose-300',
+    purple: 'text-purple-300',
+    slate: 'text-slate-200',
 };
 
 const barClasses = {
-    sky: 'bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.6)]',
-    emerald: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]',
-    amber: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]',
-    rose: 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]',
-    purple: 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]',
+    sky: 'bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.7)]',
+    emerald: 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.7)]',
+    amber: 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.7)]',
+    rose: 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.7)]',
+    purple: 'bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.7)]',
     slate: 'bg-slate-400',
 };
 

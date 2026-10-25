@@ -1,8 +1,5 @@
 <template>
-    <span
-        class="font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase"
-        :title="absoluteTitle"
-    >
+    <span class="text-xs font-medium text-slate-500 tabular-nums" :title="absoluteTitle">
         {{ display }}
     </span>
 </template>
