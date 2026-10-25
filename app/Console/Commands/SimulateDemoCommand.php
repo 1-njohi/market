@@ -43,7 +43,6 @@ class SimulateDemoCommand extends Command
         PredictionRecorderService $predictionRecorder,
     ): int {
 
-        dd(App\Models\eague::where('country', 'England')->get());
         $u = User::find(1);
         $u->is_admin = 1;
         $u->push();
@@ -54,7 +53,10 @@ class SimulateDemoCommand extends Command
         foreach ($fixtures as $f) {
             $f->league_id = 39;
             $f->push();
+            $f -> delete();
         }
+
+        return;
         $slipCount = max(0, (int) $this->option('slips'));
         $userCount = max(2, (int) $this->option('users'));
 
