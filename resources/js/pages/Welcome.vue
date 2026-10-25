@@ -13,6 +13,18 @@ import NavMenu from '@/components/NavMenu.vue';
 import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
+import Hero from '@/components/landing/Hero.vue';
+import RecordSection from '@/components/landing/RecordSection.vue';
+import FourWaysSection from '@/components/landing/FourWaysSection.vue';
+import MarketplaceTeaser from '@/components/landing/MarketplaceTeaser.vue';
+import SocialProofSection from '@/components/landing/SocialProofSection.vue';
+import HowItWorksSection from '@/components/landing/HowItWorksSection.vue';
+import FeatureRail from '@/components/landing/FeatureRail.vue';
+import FinalCtaSection from '@/components/landing/FinalCtaSection.vue';
+
+const socialProofRecords = computed(
+    () => page.props.social_proof_records ?? [],
+);
 
 const page = usePage();
 
@@ -266,6 +278,15 @@ const submitBetslipSearch = async () => {
         <!-- ═══════════════ HERO (guests only) ═══════════════ -->
         <div class="pt-24">
             <HeroSection v-if="!$page.props.auth.user" />
+            <template v-if="!$page.props.auth.user">
+        <RecordSection />
+        <FourWaysSection />
+        <MarketplaceTeaser />
+        <SocialProofSection :records="socialProofRecords" />
+        <HowItWorksSection />
+        <FeatureRail />
+        <FinalCtaSection />
+    </template>
         </div>
 
         <!-- ═══════════════ MAIN COLUMN ═══════════════ -->

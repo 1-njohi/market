@@ -55,6 +55,10 @@ class HandleInertiaRequests extends Middleware
                 'version' => config('version.number'),
                 'released_at' => config('version.released_at'),
             ],
+            'features' => [
+                'landing_social_proof' => (bool) config('features.landing_social_proof'),
+            ],
+            'social_proof_records' => fn() => collect(),
         ];
     }
 
