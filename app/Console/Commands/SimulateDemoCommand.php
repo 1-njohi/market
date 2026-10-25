@@ -407,6 +407,7 @@ class SimulateDemoCommand extends Command
         $attributes = [
             'name' => ($admin ? 'Sim Admin ' : 'Sim User ') . $suffix,
             'email' => "{$prefix}_{$suffix}@example.test",
+            'country_code' => '+254',
             'phone' => $this->uniqueDemoPhone(),
             'password' => bcrypt('password'),
             'code' => Str::random(7),
@@ -439,7 +440,7 @@ class SimulateDemoCommand extends Command
         // +0000… is E.164-reserved (never a real subscriber) so it cannot
         // collide with a real customer record, while still being a valid
         // 12-character string for the phone column.
-        return '+0000' . str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+        return str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
     }
 
     /**
