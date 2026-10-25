@@ -277,7 +277,7 @@ const submitBetslipSearch = async () => {
         </header>
 
         <!-- ═══════════════ HERO (guests only) ═══════════════ -->
-        <div class="pt-24">
+        <div>
             <HeroSection v-if="!$page.props.auth.user" />
             <template v-if="!$page.props.auth.user">
                 <RecordSection />

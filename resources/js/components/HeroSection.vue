@@ -17,7 +17,7 @@
         <div class="pointer-events-none absolute -top-32 left-[5%] h-[32rem] w-[32rem] rounded-full bg-sky-600/20 blur-[160px]"></div>
         <div class="pointer-events-none absolute right-[8%] -bottom-32 h-[28rem] w-[28rem] rounded-full bg-amber-500/15 blur-[170px]"></div>
 
-        <div class="relative z-10 mx-auto w-full max-w-[1200px] px-4 py-20 md:px-6 lg:px-8 lg:py-28">
+        <div class="relative z-10 mx-auto w-full max-w-[1200px] px-4 py-20 md:px-6 lg:px-8 lg:py-28 pt-24">
             <!-- Pill -->
             <div class="mb-8 inline-flex items-center gap-2.5 rounded-full border border-sky-400/25 bg-sky-400/10 py-1.5 pr-4 pl-3 backdrop-blur">
                 <span class="relative flex h-2 w-2">
@@ -41,7 +41,7 @@
 
                     <!-- Supporting copy -->
                     <p class="mt-7 max-w-xl text-[15px] leading-7 text-slate-400 sm:text-base sm:leading-8">
-                        Call every fixture. Outscore your crew. Build a verified
+                        Call every fixture. Outscore the crowd. Build a verified
                         record of your football knowledge. Hit the accuracy
                         threshold and unlock the marketplace, where proven
                         pickers can publish their picks for buyers to follow.
