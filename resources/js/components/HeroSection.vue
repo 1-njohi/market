@@ -30,7 +30,7 @@
                 <h1
                     class="mx-auto max-w-4xl text-2xl leading-[1.15] font-black tracking-tight text-white uppercase sm:text-2xl lg:text-6xl">
                     Pick the winners.<br />
-                    Beat your friends. <br />
+                    Beat the crowd. <br />
                     Climb the leaderboard.<br />
                     <span
                         class="bg-gradient-to-r from-sky-500 via-indigo-400 to-amber-400 bg-clip-text text-transparent">
