@@ -67,15 +67,15 @@ class SimulateDemoCommand extends Command
         WalletService $walletService,
         PredictionRecorderService $predictionRecorder,
     ): int {
-        if (
-            !$this->option('force') && !$this->confirm(
-                'This will DELETE all fixtures, contests, odds, transactions, and derived data. Continue?',
-                false,
-            )
-        ) {
-            $this->warn('Aborted.');
-            return self::FAILURE;
-        }
+        // if (
+        //     !$this->option('force') && !$this->confirm(
+        //         'This will DELETE all fixtures, contests, odds, transactions, and derived data. Continue?',
+        //         false,
+        //     )
+        // ) {
+        //     $this->warn('Aborted.');
+        //     return self::FAILURE;
+        // }
 
         $season = $this->option('season');
         $leagueCode = strtoupper($this->option('league'));
