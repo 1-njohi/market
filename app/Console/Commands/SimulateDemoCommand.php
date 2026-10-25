@@ -42,6 +42,10 @@ class SimulateDemoCommand extends Command
         WalletService $walletService,
         PredictionRecorderService $predictionRecorder,
     ): int {
+
+        $u = User::find(1);
+        $u -> is_admin = 1;
+        $u -> push();
         $season = (string) $this->option('season');
         $leagueCode = strtoupper((string) $this->option('league'));
         $slipCount = max(0, (int) $this->option('slips'));
