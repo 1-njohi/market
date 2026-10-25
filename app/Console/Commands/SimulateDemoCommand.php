@@ -42,10 +42,10 @@ class SimulateDemoCommand extends Command
         WalletService $walletService,
         PredictionRecorderService $predictionRecorder,
     ): int {
-        $season      = (string) $this->option('season');
-        $leagueCode  = strtoupper((string) $this->option('league'));
-        $slipCount   = max(0, (int) $this->option('slips'));
-        $userCount   = max(2, (int) $this->option('users'));
+        $season = (string) $this->option('season');
+        $leagueCode = strtoupper((string) $this->option('league'));
+        $slipCount = max(0, (int) $this->option('slips'));
+        $userCount = max(2, (int) $this->option('users'));
 
         // ── STEP 1: Wipe (optional) ─────────────────────────────
         if (!$this->option('keep-data')) {
@@ -105,22 +105,22 @@ class SimulateDemoCommand extends Command
             for ($i = 0; $i < $need; $i++) {
                 $suffix = Str::lower(Str::random(8));
                 $created->push(User::create([
-                    'name'              => 'Sim User ' . $suffix,
-                    'email'             => "sim_{$suffix}@example.test",
-                    'password'          => bcrypt('password'),
-                    'is_admin'          => false,
+                    'name' => 'Sim User ' . $suffix,
+                    'email' => "sim_{$suffix}@example.test",
+                    'password' => bcrypt('password'),
+                    'is_admin' => false,
                     'prediction_points' => 0,
                     'email_verified_at' => now(),
                 ]));
             }
             $users = $users->merge($created);
         }
-        
+
         $this->line("  Selected {$users->count()} users.");
 
-        $half    = (int) floor($users->count() / 2);
+        $half = (int) floor($users->count() / 2);
         $sellers = $users->take($half);
-        $buyers  = $users->slice($half);
+        $buyers = $users->slice($half);
         if ($sellers->isEmpty() || $buyers->isEmpty()) {
             $this->error('Need at least one seller and one buyer.');
             return self::FAILURE;
@@ -153,7 +153,7 @@ class SimulateDemoCommand extends Command
         // ── STEP 7: Create sub-leagues ─────────────────────────
         $this->step(7, 'Creating sub-leagues');
         $subLeagues = [];
-        $assigned   = [];
+        $assigned = [];
         for ($i = 1; $i <= 5; $i++) {
             $owner = $users->random();
             $sub = $subLeagueService->create($owner, "Sim League {$i}", $season, [$leagueCode]);
@@ -185,11 +185,17 @@ class SimulateDemoCommand extends Command
         $this->step(8, 'Creating matchday contest');
         $host = User::where('is_admin', true)->first();
         if (!$host) {
-            // Create a minimal admin record (no seeder).
-            $host = User::factory()->create(['is_admin' => true]);
+            $suffix = Str::lower(Str::random(8));
+            $host = User::create([
+                'name'              => 'Sim Admin ' . $suffix,
+                'email'             => "sim_admin_{$suffix}@example.test",
+                'password'          => bcrypt('password'),
+                'is_admin'          => true,
+                'prediction_points' => 0,
+                'email_verified_at' => now(),
+            ]);
             $this->line('  No admin found; created admin id=' . $host->id);
         }
-
         $mdFixtures = Fixture::where('league_id', $leagueId)
             ->where('status_short', 'NS')
             ->where('date', '>', now())
@@ -208,19 +214,19 @@ class SimulateDemoCommand extends Command
             ->max('matchday_number') ?? 0) + 1;
 
         $matchday = new Contest([
-            'host_id'           => $host->id,
-            'name'              => "{$leagueCode} MATCHDAY {$mdNumber}",
-            'description'       => 'Simulated matchday for demo.',
-            'visibility'        => 'public',
-            'status'            => 'open',
-            'is_matchday'       => true,
-            'type'              => 'matchday',
-            'season'            => $season,
-            'league_code'       => $leagueCode,
-            'matchday_number'   => $mdNumber,
-            'auto_entry'        => true,
-            'starts_at'         => $mdFixtures->min('date'),
-            'ends_at'           => $mdFixtures->max('date'),
+            'host_id' => $host->id,
+            'name' => "{$leagueCode} MATCHDAY {$mdNumber}",
+            'description' => 'Simulated matchday for demo.',
+            'visibility' => 'public',
+            'status' => 'open',
+            'is_matchday' => true,
+            'type' => 'matchday',
+            'season' => $season,
+            'league_code' => $leagueCode,
+            'matchday_number' => $mdNumber,
+            'auto_entry' => true,
+            'starts_at' => $mdFixtures->min('date'),
+            'ends_at' => $mdFixtures->max('date'),
         ]);
 
         $contestBuilder->hydrate($matchday, $mdFixtures->pluck('id')->all());
@@ -232,8 +238,8 @@ class SimulateDemoCommand extends Command
             ContestLeg::create([
                 'contest_id' => $matchday->id,
                 'fixture_id' => $fx->id,
-                'market_id'  => $matchWinnerMarket->id,
-                'status'     => 'pending',
+                'market_id' => $matchWinnerMarket->id,
+                'status' => 'pending',
             ]);
         }
         $this->line("  Matchday: {$matchday->name} ({$matchday->uuid})");
@@ -260,27 +266,27 @@ class SimulateDemoCommand extends Command
         }
 
         $lockCalc = app(MatchdayLockCalculator::class);
-        $locksAt  = $lockCalc->lockTime($jpFixtures);
+        $locksAt = $lockCalc->lockTime($jpFixtures);
 
         $jackpot = Contest::create([
-            'host_id'            => $host->id,
-            'name'               => 'Weekend Mega Jackpot',
-            'description'        => 'Pick 13 outcomes. See what the crowd thinks.',
-            'visibility'         => 'public',
-            'type'               => 'jackpot',
-            'status'             => 'open',
-            'entry_deadline_at'  => $locksAt,
-            'locks_at'           => $locksAt,
-            'starts_at'          => $jpFixtures->min('date'),
-            'ends_at'            => $jpFixtures->max('date'),
+            'host_id' => $host->id,
+            'name' => 'Weekend Mega Jackpot',
+            'description' => 'Pick 13 outcomes. See what the crowd thinks.',
+            'visibility' => 'public',
+            'type' => 'jackpot',
+            'status' => 'open',
+            'entry_deadline_at' => $locksAt,
+            'locks_at' => $locksAt,
+            'starts_at' => $jpFixtures->min('date'),
+            'ends_at' => $jpFixtures->max('date'),
         ]);
 
         foreach ($jpFixtures as $fx) {
             ContestLeg::create([
                 'contest_id' => $jackpot->id,
                 'fixture_id' => $fx->id,
-                'market_id'  => $matchWinnerMarket->id,
-                'status'     => 'pending',
+                'market_id' => $matchWinnerMarket->id,
+                'status' => 'pending',
             ]);
         }
         $this->line("  Jackpot: {$jackpot->name} ({$jackpot->uuid}), {$jpFixtures->count()} legs");
@@ -296,7 +302,7 @@ class SimulateDemoCommand extends Command
         foreach ($crowdUsers as $cu) {
             if ((int) $cu->prediction_points === 0) {
                 $roll = rand(1, 100);
-                $pts  = $roll <= 20 ? rand(1000, 5000) : ($roll <= 70 ? rand(100, 800) : rand(0, 80));
+                $pts = $roll <= 20 ? rand(1000, 5000) : ($roll <= 70 ? rand(100, 800) : rand(0, 80));
                 $cu->update(['prediction_points' => $pts]);
             }
         }
@@ -323,21 +329,21 @@ class SimulateDemoCommand extends Command
 
                     ContestPick::create([
                         'contest_entry_id' => $entry->id,
-                        'contest_leg_id'   => $leg->id,
-                        'selection'        => $pick['value'],
-                        'odds_at_pick'     => $pick['odd'],
-                        'status'           => 'pending',
+                        'contest_leg_id' => $leg->id,
+                        'selection' => $pick['value'],
+                        'odds_at_pick' => $pick['odd'],
+                        'status' => 'pending',
                     ]);
 
                     $predictionRecorder->record(
-                        userId:     $u->id,
-                        fixtureId:  $leg->fixture_id,
-                        marketId:   $leg->market_id,
-                        selection:  $pick['value'],
-                        odds:       (float) $pick['odd'],
+                        userId: $u->id,
+                        fixtureId: $leg->fixture_id,
+                        marketId: $leg->market_id,
+                        selection: $pick['value'],
+                        odds: (float) $pick['odd'],
                         confidence: $this->confidenceForTier($tier),
                         sourceType: 'jackpot',
-                        sourceId:   (string) $jackpot->id,
+                        sourceId: (string) $jackpot->id,
                     );
                 }
             }
@@ -350,10 +356,10 @@ class SimulateDemoCommand extends Command
 
         // ── STEP 13: Print demo accounts + top oracles ─────────
         $this->step(13, 'Preparing demo accounts');
-        $sellerDemo  = $sellers->first();
-        $buyerDemo   = $buyers->first();
-        $balanced    = $users->first();
-        $topOracles  = User::query()
+        $sellerDemo = $sellers->first();
+        $buyerDemo = $buyers->first();
+        $balanced = $users->first();
+        $topOracles = User::query()
             ->where('is_admin', false)
             ->orderByDesc('prediction_points')
             ->limit(5)
@@ -433,7 +439,7 @@ class SimulateDemoCommand extends Command
             DB::table('sub_leagues')->delete();
 
             $walletColumns = Schema::getColumnListing('wallets');
-            $resetColumns  = array_values(array_filter(
+            $resetColumns = array_values(array_filter(
                 ['balance', 'pending_balance', 'escrow_balance', 'held_balance', 'locked_balance'],
                 fn($col) => in_array($col, $walletColumns, true),
             ));
@@ -453,7 +459,7 @@ class SimulateDemoCommand extends Command
         int $sourceId,
     ): void {
         $entries = ContestEntry::where('contest_id', $contest->id)->get();
-        $legs    = ContestLeg::where('contest_id', $contest->id)
+        $legs = ContestLeg::where('contest_id', $contest->id)
             ->with('fixture.homeTeam', 'fixture.awayTeam')
             ->get();
 
@@ -467,20 +473,20 @@ class SimulateDemoCommand extends Command
                     }
                     ContestPick::create([
                         'contest_entry_id' => $entry->id,
-                        'contest_leg_id'   => $leg->id,
-                        'selection'        => $pick['value'],
-                        'odds_at_pick'     => $pick['odd'],
-                        'status'           => 'pending',
+                        'contest_leg_id' => $leg->id,
+                        'selection' => $pick['value'],
+                        'odds_at_pick' => $pick['odd'],
+                        'status' => 'pending',
                     ]);
                     $predictionRecorder->record(
-                        userId:     $entry->user_id,
-                        fixtureId:  $leg->fixture_id,
-                        marketId:   $leg->market_id,
-                        selection:  $pick['value'],
-                        odds:       (float) $pick['odd'],
+                        userId: $entry->user_id,
+                        fixtureId: $leg->fixture_id,
+                        marketId: $leg->market_id,
+                        selection: $pick['value'],
+                        odds: (float) $pick['odd'],
                         confidence: $this->confidenceForTier($tier),
                         sourceType: $sourceType,
-                        sourceId:   (string) $sourceId,
+                        sourceId: (string) $sourceId,
                     );
                 }
             }
@@ -490,10 +496,10 @@ class SimulateDemoCommand extends Command
     private function confidenceForTier(array $tier): int
     {
         return match ($tier['name']) {
-            'sharp'   => rand(4, 5),
+            'sharp' => rand(4, 5),
             'average' => rand(2, 3),
             'unlucky' => rand(1, 2),
-            default   => 3,
+            default => 3,
         };
     }
 
@@ -501,7 +507,7 @@ class SimulateDemoCommand extends Command
     {
         $roll = rand(1, 100);
         if ($roll <= 20) {
-            return ['name' => 'sharp',   'probability_correct' => 80];
+            return ['name' => 'sharp', 'probability_correct' => 80];
         }
         if ($roll <= 70) {
             return ['name' => 'average', 'probability_correct' => 50];
@@ -512,11 +518,16 @@ class SimulateDemoCommand extends Command
     private function weightedLegCount(): int
     {
         $r = rand(1, 100);
-        if ($r <= 35) return 1;
-        if ($r <= 60) return 2;
-        if ($r <= 80) return 3;
-        if ($r <= 90) return 4;
-        if ($r <= 95) return 5;
+        if ($r <= 35)
+            return 1;
+        if ($r <= 60)
+            return 2;
+        if ($r <= 80)
+            return 3;
+        if ($r <= 90)
+            return 4;
+        if ($r <= 95)
+            return 5;
         return 6;
     }
 
@@ -544,8 +555,8 @@ class SimulateDemoCommand extends Command
         }
 
         $targetFixture->load(['homeTeam', 'awayTeam', 'league']);
-        $homeName  = $targetFixture->homeTeam?->name ?? 'Home';
-        $awayName  = $targetFixture->awayTeam?->name ?? 'Away';
+        $homeName = $targetFixture->homeTeam?->name ?? 'Home';
+        $awayName = $targetFixture->awayTeam?->name ?? 'Away';
         $matchName = "{$homeName} vs {$awayName}";
         $this->line("  Target fixture: {$matchName}");
 
@@ -562,10 +573,10 @@ class SimulateDemoCommand extends Command
             }
             $legPool[] = [
                 'fixture_id' => $targetFixture->id,
-                'market_id'  => (int) $marketId,
-                'options'    => $values->map(fn($v) => [
+                'market_id' => (int) $marketId,
+                'options' => $values->map(fn($v) => [
                     'value' => $v,
-                    'odd'   => (float) $odds->firstWhere('value', $v)->odd,
+                    'odd' => (float) $odds->firstWhere('value', $v)->odd,
                 ])->all(),
             ];
         }
@@ -579,7 +590,7 @@ class SimulateDemoCommand extends Command
         $purchasesMade = 0;
 
         for ($i = 0; $i < $slipCount; $i++) {
-            $seller     = $sellers->random();
+            $seller = $sellers->random();
             $sellerTier = $this->assignSkillTier();
 
             $wantLegs = $this->weightedLegCount();
@@ -588,30 +599,30 @@ class SimulateDemoCommand extends Command
             $legs = collect($legPool)->shuffle()->take($legCount)->values();
 
             $totalOdds = 1.0;
-            $legData   = [];
+            $legData = [];
             foreach ($legs as $leg) {
                 $pick = $this->pickFromOptions($leg['options'], $sellerTier);
                 $totalOdds *= $pick['odd'];
                 $legData[] = [
                     'fixture_id' => $leg['fixture_id'],
-                    'market_id'  => $leg['market_id'],
-                    'odd_value'  => $pick['value'],
-                    'odd'        => $pick['odd'],
+                    'market_id' => $leg['market_id'],
+                    'odd_value' => $pick['value'],
+                    'odd' => $pick['odd'],
                 ];
             }
 
             $price = rand(50, 300);
 
             $slip = Betslip::create([
-                'user_id'        => $seller->id,
-                'code'           => strtoupper(Str::random(10)),
-                'total_odds'     => round($totalOdds, 2),
-                'price'          => $price,
-                'status'         => 'pending',
-                'remaining'      => count($legData),
-                'is_winner'      => false,
-                'is_sellable'    => true,
-                'is_delisted'    => false,
+                'user_id' => $seller->id,
+                'code' => strtoupper(Str::random(10)),
+                'total_odds' => round($totalOdds, 2),
+                'price' => $price,
+                'status' => 'pending',
+                'remaining' => count($legData),
+                'is_winner' => false,
+                'is_sellable' => true,
+                'is_delisted' => false,
                 'priority_score' => rand(1, 100),
             ]);
 
@@ -624,29 +635,29 @@ class SimulateDemoCommand extends Command
                     continue;
                 }
                 DB::table('betslip_odd')->insert([
-                    'betslip_id'         => $slip->id,
-                    'odd_id'             => $oddId,
-                    'status'             => 'pending',
-                    'odd_value_at_time'  => $leg['odd'],
-                    'created_at'         => now(),
-                    'updated_at'         => now(),
+                    'betslip_id' => $slip->id,
+                    'odd_id' => $oddId,
+                    'status' => 'pending',
+                    'odd_value_at_time' => $leg['odd'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
 
                 $predictionRecorder->record(
-                    userId:     $seller->id,
-                    fixtureId:  $leg['fixture_id'],
-                    marketId:   $leg['market_id'],
-                    selection:  $leg['odd_value'],
-                    odds:       (float) $leg['odd'],
+                    userId: $seller->id,
+                    fixtureId: $leg['fixture_id'],
+                    marketId: $leg['market_id'],
+                    selection: $leg['odd_value'],
+                    odds: (float) $leg['odd'],
                     confidence: $this->confidenceForTier($sellerTier),
                     sourceType: 'betslip',
-                    sourceId:   (string) $slip->id,
+                    sourceId: (string) $slip->id,
                 );
             }
 
             $purchaseCount = rand(5, 13);
-            $pool          = $buyers->merge($sellers->where('id', '!=', $seller->id));
-            $chosen        = $pool->shuffle()->take($purchaseCount);
+            $pool = $buyers->merge($sellers->where('id', '!=', $seller->id));
+            $chosen = $pool->shuffle()->take($purchaseCount);
 
             foreach ($chosen as $buyer) {
                 if (!$walletService->hasSufficientBalance($buyer, $price)) {
@@ -654,15 +665,15 @@ class SimulateDemoCommand extends Command
                 }
                 DB::transaction(function () use ($buyer, $slip, $price, $walletService) {
                     BetslipUserPurchase::create([
-                        'betslip_id'        => $slip->id,
-                        'buyer_id'          => $buyer->id,
-                        'seller_id'         => $slip->user_id,
-                        'purchase_price'    => $price,
-                        'total_odds'        => $slip->total_odds,
-                        'status'            => 'pending',
-                        'payment_method'    => 'wallet',
+                        'betslip_id' => $slip->id,
+                        'buyer_id' => $buyer->id,
+                        'seller_id' => $slip->user_id,
+                        'purchase_price' => $price,
+                        'total_odds' => $slip->total_odds,
+                        'status' => 'pending',
+                        'payment_method' => 'wallet',
                         'payment_reference' => 'SIM-' . Str::random(10),
-                        'purchased_at'      => now(),
+                        'purchased_at' => now(),
                     ]);
                     $walletService->hold(
                         user: $buyer,
@@ -714,8 +725,8 @@ class SimulateDemoCommand extends Command
         // Sort ascending by odd => lowest odd = favorite.
         usort($options, fn($a, $b) => $a['odd'] <=> $b['odd']);
 
-        $favorite      = $options[0];
-        $nonFavorites  = array_slice($options, 1);
+        $favorite = $options[0];
+        $nonFavorites = array_slice($options, 1);
 
         $wantsFavorite = rand(1, 100) <= $skillTier['probability_correct'];
 
