@@ -81,7 +81,7 @@ class SimulateDemoCommand extends Command
 
         // ── STEP 6: Resolve league ──────────────────────────────
         $this->step(6, 'Resolving league');
-        $leagueId = 39; // hardcoded
+        $leagueId = 1; // hardcoded
         $existingLeague = League::find($leagueId);
         if (!$existingLeague) {
             $this->error("League id={$leagueId} missing from DB even after fixtures sync.");

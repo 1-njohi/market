@@ -21,6 +21,7 @@ import SocialProofSection from '@/components/landing/SocialProofSection.vue';
 import HowItWorksSection from '@/components/landing/HowItWorksSection.vue';
 import FeatureRail from '@/components/landing/FeatureRail.vue';
 import FinalCtaSection from '@/components/landing/FinalCtaSection.vue';
+import TopTipstersCarousel from '@/components/TopTipstersCarousel.vue';
 
 const socialProofRecords = computed(
     () => page.props.social_proof_records ?? [],
@@ -279,14 +280,14 @@ const submitBetslipSearch = async () => {
         <div class="pt-24">
             <HeroSection v-if="!$page.props.auth.user" />
             <template v-if="!$page.props.auth.user">
-        <RecordSection />
-        <FourWaysSection />
-        <MarketplaceTeaser />
-        <SocialProofSection :records="socialProofRecords" />
-        <HowItWorksSection />
-        <FeatureRail />
-        <FinalCtaSection />
-    </template>
+                <RecordSection />
+                <FourWaysSection />
+                <MarketplaceTeaser />
+                <SocialProofSection :records="socialProofRecords" />
+                <HowItWorksSection />
+                <FeatureRail />
+                <FinalCtaSection />
+            </template>
         </div>
 
         <!-- ═══════════════ MAIN COLUMN ═══════════════ -->
@@ -404,10 +405,15 @@ const submitBetslipSearch = async () => {
             </section>
 
             <!-- ─── Top Tipsters ─── -->
-            <section>
+            <!-- <section>
                 <LeaderboardSummaryCard ref="leaderboardRef" :leaders="$page.props.leaders || []"
                     @seller-clicked="handleSellerClick" @view-all-clicked="handleViewAllLeaders"
                     @search-submitted="handleLeaderSearch" />
+            </section> -->
+
+            <section class="py-16 lg:py-20">
+                <TopTipstersCarousel :leaders="$page.props.leaders || []" @seller-clicked="handleSellerClick"
+                    @view-all-clicked="handleViewAllLeaders" @search-submitted="handleLeaderSearch" />
             </section>
 
             <!-- ─── Create Your Betslip ─── -->
