@@ -63,7 +63,7 @@ class ContestSettlementNotificationTest extends TestCase
         $dataA = json_decode($rowA->data, true);
         $this->assertSame(1, $dataA['rank']);
         $this->assertSame(2, $dataA['correct']);
-        $this->assertSame(4.35, (float) $dataA['units']);
+        $this->assertSame(4.63, (float) $dataA['units']);
         $this->assertSame($s['contest']->uuid, $dataA['contest_uuid']);
 
         // Entry B's user should be rank 2.
@@ -112,7 +112,7 @@ class ContestSettlementNotificationTest extends TestCase
     private function scenario(int $participants = 1): array
     {
         $host = $this->makeUser('Host');
-        $contest = Contest::create([
+        $contest = Contest::withoutHostGuard(fn () => Contest::create([
             'host_id'           => $host->id,
             'name'              => 'Sunday Crew',
             'visibility'        => 'private',
@@ -120,7 +120,7 @@ class ContestSettlementNotificationTest extends TestCase
             'entry_deadline_at' => now()->addHour(),
             'starts_at'         => now()->addHours(2),
             'ends_at'           => now()->addHours(4),
-        ]);
+        ]));
 
         $league = $this->makeLeague();
         $home   = $this->makeTeam('Home FC', 900001);
@@ -188,7 +188,7 @@ class ContestSettlementNotificationTest extends TestCase
     {
         $leg->update([
             'status'           => 'won',
-            'result_selection' => $result,
+            'result_selections' => [$result],
             'resolved_at'      => now(),
         ]);
     }

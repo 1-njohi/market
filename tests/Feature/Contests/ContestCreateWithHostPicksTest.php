@@ -12,12 +12,14 @@ use App\Models\Odd;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Tests\Concerns\CreatesEligibleActors;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ContestCreateWithHostPicksTest extends TestCase
 {
     use DatabaseMigrations;
+    use CreatesEligibleActors;
 
     public function test_create_creates_a_host_entry_with_picks(): void
     {
@@ -35,7 +37,6 @@ class ContestCreateWithHostPicksTest extends TestCase
         $this->assertNotNull($entry);
         $this->assertSame('accepted', $entry->status);
 
-        // Host has one pick per leg, with odds snapshotted.
         $this->assertSame(5, ContestPick::where('contest_entry_id', $entry->id)->count());
 
         $firstPick = ContestPick::where('contest_entry_id', $entry->id)
@@ -55,8 +56,9 @@ class ContestCreateWithHostPicksTest extends TestCase
 
         $contest = Contest::firstOrFail();
 
+        // uuid route — matches the seller dashboard's contestHref() URL.
         $response = $this->actingAs($host)
-            ->get("/contests/{$contest->id}/manage");
+            ->get("/contests/{$contest->uuid}/manage");
 
         $response->assertInertia(
             fn ($page) => $page->has('contest.entries', 0)
@@ -97,13 +99,10 @@ class ContestCreateWithHostPicksTest extends TestCase
 
     // ------------------ helpers ------------------
 
-    /**
-     * Walk the two-step flow: draft 5 "Home" legs, then publish with
-     * a valid config. Leaves the caller free to assert against the
-     * created contest.
-     */
     private function draftAndPublish(User $host, array $s): void
     {
+        $this->makeEligibleHost($host);
+
         $legs = [];
         for ($i = 0; $i < 5; $i++) {
             $legs[] = [

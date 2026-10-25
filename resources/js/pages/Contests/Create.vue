@@ -118,7 +118,7 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Create Contest — Betslip Pirates" />
+    <Head title="Create Contest — Fainali" />
 
     <div class="min-h-screen font-sans text-slate-300">
         <div class="mx-auto w-full max-w-4xl px-2 py-12 md:px-6 lg:px-8">

@@ -54,7 +54,7 @@ class PaystackWithdrawalService
                 'source' => 'balance',
                 'amount' => $amount * 100,
                 'recipient' => $recipient['recipient_code'],
-                'reason' => 'Withdrawal from Betslip Pirates',
+                'reason' => 'Withdrawal from Fainali',
                 'reference' => $reference,
             ]);
 

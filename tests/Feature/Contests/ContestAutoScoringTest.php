@@ -35,7 +35,7 @@ class ContestAutoScoringTest extends TestCase
 
         $this->assertSame('open', $s['contest']->fresh()->status);
         $this->assertSame('won', $s['legs'][0]->fresh()->status);
-        $this->assertSame('Home', $s['legs'][0]->fresh()->result_selection);
+        $this->assertSame(['Home'], $s['legs'][0]->fresh()->result_selections);
         $this->assertSame('pending', $s['legs'][1]->fresh()->status);
     }
 
@@ -74,12 +74,12 @@ class ContestAutoScoringTest extends TestCase
 
         // Contest should now be settled and entry scored.
         $contest = $s['contest']->fresh();
-        $entry   = $s['entry']->fresh();
+        $entry = $s['entry']->fresh();
 
         $this->assertSame('settled', $contest->status);
         $this->assertSame(2, $entry->score_correct);
-        $this->assertSame('4.35', $entry->score_units);
-        $this->assertSame(1, $entry->rank_final);
+        $this->assertSame('4.63', $entry->score_units);
+        $this->assertSame(1, $entry->rank_current);
     }
 
     public function test_already_resolved_leg_is_not_overwritten(): void
@@ -88,9 +88,9 @@ class ContestAutoScoringTest extends TestCase
 
         // Pre-resolve leg 1 to won.
         $s['legs'][0]->update([
-            'status'           => 'won',
-            'result_selection' => 'Home',
-            'resolved_at'      => now()->subMinute(),
+            'status' => 'won',
+            'result_selections' => ['Home'],
+            'resolved_at' => now()->subMinute(),
         ]);
         $originalResolvedAt = $s['legs'][0]->fresh()->resolved_at;
 
@@ -110,24 +110,107 @@ class ContestAutoScoringTest extends TestCase
         );
     }
 
+    public function test_first_leg_resolution_scores_interim_not_final(): void
+    {
+        $s = $this->scenario();
+
+        $this->submitPicks($s['entry'], [
+            [$s['legs'][0], 'Home'],
+            [$s['legs'][1], 'Over 2.5'],
+        ]);
+
+        // Resolve leg 1 only.
+        $oddA = Odd::where('fixture_id', $s['legs'][0]->fixture_id)
+            ->where('market_id', $s['legs'][0]->market_id)
+            ->where('value', 'Home')
+            ->firstOrFail();
+        $oddA->update(['status' => 'won']);
+
+        $resolver = app(ContestLegResolver::class);
+        $resolver->resolveMany([$oddA]);
+        $resolver->drainPendingScores();
+
+        $entry = $s['entry']->fresh();
+
+        // Interim pass ran: one leg scored, contest not settled.
+        $this->assertSame(1, $entry->score_correct);
+        $this->assertSame('2.50', $entry->score_units);
+        $this->assertSame(1, $entry->rank_current);
+        $this->assertNull($entry->settled_at);
+
+        // Contest stays open — no underway transition in this test path.
+        $this->assertSame('open', $s['contest']->fresh()->status);
+
+        // Pick on the pending leg remains pending; the resolved pick scored.
+        $picks = ContestPick::where('contest_entry_id', $entry->id)
+            ->orderBy('id')
+            ->get();
+
+        $this->assertSame('correct', $picks[0]->status);
+        $this->assertSame('pending', $picks[1]->status);
+    }
+
+    public function test_final_leg_resolution_promotes_interim_state_to_final(): void
+    {
+        $s = $this->scenario();
+
+        $this->submitPicks($s['entry'], [
+            [$s['legs'][0], 'Home'],
+            [$s['legs'][1], 'Over 2.5'],
+        ]);
+
+        // Resolve leg 1 — interim.
+        $oddA = Odd::where('fixture_id', $s['legs'][0]->fixture_id)
+            ->where('market_id', $s['legs'][0]->market_id)
+            ->where('value', 'Home')
+            ->firstOrFail();
+        $oddA->update(['status' => 'won']);
+
+        $resolver = app(ContestLegResolver::class);
+        $resolver->resolveMany([$oddA]);
+        $resolver->drainPendingScores();
+
+        // Sanity: interim ran, no settled_at.
+        $entry = $s['entry']->fresh();
+        $this->assertSame(1, $entry->score_correct);
+        $this->assertNull($entry->settled_at);
+
+        // Resolve leg 2 — final.
+        $oddB = Odd::where('fixture_id', $s['legs'][1]->fixture_id)
+            ->where('market_id', $s['legs'][1]->market_id)
+            ->where('value', 'Over 2.5')
+            ->firstOrFail();
+        $oddB->update(['status' => 'won']);
+
+        $resolver->resolveMany([$oddB]);
+        $resolver->drainPendingScores();
+
+        $entry = $s['entry']->fresh();
+        $this->assertSame(2, $entry->score_correct);
+        $this->assertSame('4.63', $entry->score_units);
+        $this->assertSame(1, $entry->rank_current);
+        $this->assertNotNull($entry->settled_at);
+
+        $this->assertSame('settled', $s['contest']->fresh()->status);
+    }
     // ------------------ helpers ------------------
 
     private function scenario(): array
     {
         $host = $this->makeUser('Host');
-        $contest = Contest::create([
-            'host_id'           => $host->id,
-            'name'              => 'Auto-scoring Test',
-            'visibility'        => 'private',
-            'status'            => 'open',
+        $contest = Contest::withoutHostGuard(fn () => Contest::create([
+            'host_id' => $host->id,
+            'name' => 'Auto-scoring Test',
+            'visibility' => 'private',
+            'status' => 'open',
             'entry_deadline_at' => now()->addHour(),
-            'starts_at'         => now()->addHours(2),
-            'ends_at'           => now()->addHours(4),
-        ]);
+            'starts_at' => now()->addHours(2),
+            'ends_at' => now()->addHours(4),
+        ]));
 
         $league = $this->makeLeague();
-        $home   = $this->makeTeam('Home FC', 900001);
-        $away   = $this->makeTeam('Away FC', 900002);
+        $home = $this->makeTeam('Home FC', 900001);
+        $away = $this->makeTeam('Away FC', 900002);
 
         $fx1 = $this->makeFixture($league, $home, $away);
         $fx2 = $this->makeFixture($league, $home, $away);
@@ -139,31 +222,31 @@ class ContestAutoScoringTest extends TestCase
             ContestLeg::create([
                 'contest_id' => $contest->id,
                 'fixture_id' => $fx1->id,
-                'market_id'  => $market1->id,
-                'status'     => 'pending',
+                'market_id' => $market1->id,
+                'status' => 'pending',
             ]),
             ContestLeg::create([
                 'contest_id' => $contest->id,
                 'fixture_id' => $fx2->id,
-                'market_id'  => $market2->id,
-                'status'     => 'pending',
+                'market_id' => $market2->id,
+                'status' => 'pending',
             ]),
         ];
 
-        $user  = $this->makeUser('Joiner');
+        $user = $this->makeUser('Joiner');
         $entry = ContestEntry::create([
             'contest_id' => $contest->id,
-            'user_id'    => $user->id,
-            'status'     => 'accepted',
-            'joined_at'  => now(),
+            'user_id' => $user->id,
+            'status' => 'accepted',
+            'joined_at' => now(),
         ]);
 
         return [
-            'host'    => $host,
-            'user'    => $user,
+            'host' => $host,
+            'user' => $user,
             'contest' => $contest,
-            'entry'   => $entry,
-            'legs'    => $legs,
+            'entry' => $entry,
+            'legs' => $legs,
         ];
     }
 
@@ -177,10 +260,10 @@ class ContestAutoScoringTest extends TestCase
 
             ContestPick::create([
                 'contest_entry_id' => $entry->id,
-                'contest_leg_id'   => $leg->id,
-                'selection'        => $selection,
-                'odds_at_pick'     => $odd->odd,
-                'status'           => 'pending',
+                'contest_leg_id' => $leg->id,
+                'selection' => $selection,
+                'odds_at_pick' => $odd->odd,
+                'status' => 'pending',
             ]);
         }
     }
@@ -198,11 +281,11 @@ class ContestAutoScoringTest extends TestCase
         return League::firstOrCreate(
             ['id_on_api' => 900100],
             [
-                'sport_id'   => 1,
-                'name'       => 'Test League',
+                'sport_id' => 1,
+                'name' => 'Test League',
                 'country_id' => 1,
-                'country'    => 'Test Country',
-                'season'     => 2026,
+                'country' => 'Test Country',
+                'season' => 2026,
             ]
         );
     }
@@ -218,18 +301,18 @@ class ContestAutoScoringTest extends TestCase
     private function makeFixture(League $league, Team $home, Team $away): Fixture
     {
         $fixture = Fixture::create([
-            'id_on_api'    => 900000 + random_int(1, 99999),
-            'date'         => now()->addHours(2)->toDateTimeString(),
-            'timestamp'    => now()->addHours(2)->timestamp,
+            'id_on_api' => 900000 + random_int(1, 99999),
+            'date' => now()->addHours(2)->toDateTimeString(),
+            'timestamp' => now()->addHours(2)->timestamp,
             'status_short' => 'NS',
-            'league_id'    => $league->id,
+            'league_id' => $league->id,
             'home_team_id' => $home->id,
             'away_team_id' => $away->id,
         ]);
 
-        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Home',      'odd' => 2.50, 'status' => 'pending']);
-        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Away',      'odd' => 3.20, 'status' => 'pending']);
-        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 2, 'value' => 'Over 2.5',  'odd' => 1.85, 'status' => 'pending']);
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Home', 'odd' => 2.50, 'status' => 'pending']);
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Away', 'odd' => 3.20, 'status' => 'pending']);
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 2, 'value' => 'Over 2.5', 'odd' => 1.85, 'status' => 'pending']);
         Odd::create(['fixture_id' => $fixture->id, 'market_id' => 2, 'value' => 'Under 2.5', 'odd' => 2.05, 'status' => 'pending']);
 
         return $fixture;

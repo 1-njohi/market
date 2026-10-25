@@ -105,7 +105,7 @@ class SystemAlertNotification extends Notification
         $message = (new MailMessage)
             ->subject($this->subject())
             ->greeting($this->headline())
-            ->line('Betslip Pirates system health detected the following:');
+            ->line('Fainali system health detected the following:');
 
         foreach ($this->lines as $line) {
             $message->line($line);
@@ -153,10 +153,10 @@ class SystemAlertNotification extends Notification
     protected function subject(): string
     {
         return match ($this->severity) {
-            self::SEVERITY_FAIL => '[Betslip Pirates] CRITICAL — system health failing',
-            self::SEVERITY_WARN => '[Betslip Pirates] warning — system health degraded',
-            self::SEVERITY_RECOVERED => '[Betslip Pirates] resolved — system health recovered',
-            default => '[Betslip Pirates] system health update',
+            self::SEVERITY_FAIL => '[Fainali] CRITICAL — system health failing',
+            self::SEVERITY_WARN => '[Fainali] warning — system health degraded',
+            self::SEVERITY_RECOVERED => '[Fainali] resolved — system health recovered',
+            default => '[Fainali] system health update',
         };
     }
 

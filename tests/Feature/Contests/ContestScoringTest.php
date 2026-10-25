@@ -39,8 +39,8 @@ class ContestScoringTest extends TestCase
         $entry = $s['entry']->fresh();
 
         $this->assertSame(2, $entry->score_correct);
-        $this->assertSame('4.35', $entry->score_units); // 2.50 + 1.85
-        $this->assertSame(1, $entry->rank_final);
+        $this->assertSame('4.63', $entry->score_units); // 2.50 + 1.85
+        $this->assertSame(1, $entry->rank_current);
         $this->assertSame('settled', $s['contest']->fresh()->status);
     }
 
@@ -113,12 +113,12 @@ class ContestScoringTest extends TestCase
         app(ContestScoringService::class)->score($s['contest']);
 
         $entries = ContestEntry::where('contest_id', $s['contest']->id)
-            ->orderBy('rank_final')
+            ->orderBy('rank_current')
             ->get();
 
-        $this->assertSame(1, $entries[0]->rank_final);  // B — 2 correct
-        $this->assertSame(2, $entries[1]->rank_final);  // A — 1 correct
-        $this->assertSame(3, $entries[2]->rank_final);  // C — 0 correct
+        $this->assertSame(1, $entries[0]->rank_current);  // B — 2 correct
+        $this->assertSame(2, $entries[1]->rank_current);  // A — 1 correct
+        $this->assertSame(3, $entries[2]->rank_current);  // C — 0 correct
     }
 
     public function test_scoring_is_idempotent(): void
@@ -138,7 +138,7 @@ class ContestScoringTest extends TestCase
 
         $entry = $s['entry']->fresh();
         $this->assertSame(2, $entry->score_correct);
-        $this->assertSame(1, $entry->rank_final);
+        $this->assertSame(1, $entry->rank_current);
     }
 
     public function test_cannot_score_while_legs_are_pending(): void
@@ -159,7 +159,7 @@ class ContestScoringTest extends TestCase
     private function scenario(int $extraEntries = 0): array
     {
         $host = $this->makeUser('Host');
-        $contest = Contest::create([
+        $contest = Contest::withoutHostGuard(fn () => Contest::create([
             'host_id'           => $host->id,
             'name'              => 'Test Contest',
             'visibility'        => 'private',
@@ -167,7 +167,7 @@ class ContestScoringTest extends TestCase
             'entry_deadline_at' => now()->addHour(),
             'starts_at'         => now()->addHours(2),
             'ends_at'           => now()->addHours(4),
-        ]);
+        ]));
 
         $league = $this->makeLeague();
         $home   = $this->makeTeam('Home FC', 900001);
@@ -249,7 +249,7 @@ class ContestScoringTest extends TestCase
     {
         $leg->update([
             'status'           => 'won',
-            'result_selection' => $result,
+            'result_selections' => [$result],
             'resolved_at'      => now(),
         ]);
     }

@@ -114,7 +114,7 @@ onUnmounted(() => {
 const resolvedShareText = computed(
     () =>
         props.shareText ||
-        `Follow my tips on Betslip Pirates — ${props.user.name}`,
+        `Follow my tips on Fainali — ${props.user.name}`,
 );
 
 const encodedUrl = computed(() => encodeURIComponent(props.shareUrl));

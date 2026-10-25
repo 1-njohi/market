@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\BetslipController;
 use App\Http\Controllers\Admin\MetricsController;
 use App\Http\Controllers\Admin\HealthController;
+use App\Http\Controllers\Admin\MatchdayController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -50,4 +51,14 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::post('/metrics/refresh', [MetricsController::class, 'refresh'])->name('metrics.refresh');
 
         Route::get('/health', [HealthController::class, 'index'])->name('health.index');
+
+        // Matchdays
+        // Route::get('/matchdays', [MatchdayController::class, 'index'])->name('matchdays.index');
+        Route::get('/matchdays/create', [MatchdayController::class, 'create'])->name('matchdays.create');
+        Route::post('/matchdays', [MatchdayController::class, 'store'])->name('matchdays.store');
+        Route::post('/matchdays/{matchday}/cancel', [MatchdayController::class, 'cancel'])->name('matchdays.cancel');
+
+        Route::get('/matchdays', [MatchdayController::class, 'index'])->name('matchdays.index');
+        Route::get('/matchdays/{matchday}', [MatchdayController::class, 'show'])->name('matchdays.show');
+        Route::post('/matchdays/{matchday}/settle', [MatchdayController::class, 'settle'])->name('matchdays.settle');
     });

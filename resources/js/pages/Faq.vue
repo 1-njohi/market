@@ -9,7 +9,7 @@ const faqs = [
         category: 'Getting Started',
         items: [
             {
-                q: 'What exactly is Betslip Pirates?',
+                q: 'What exactly is Fainali?',
                 a: 'A marketplace where people buy and sell betslips. Sellers list their selections at a price; buyers unlock those selections and use them however they want. We are not a bookmaker and we do not accept bets.',
             },
             {

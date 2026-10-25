@@ -7,16 +7,14 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-    console.log('[SW] push event fired');
-
     let data = {};
     try {
         data = event.data?.json() ?? {};
     } catch {
-        data = { title: 'Betslip Pirates', body: event.data?.text() ?? '' };
+        data = { title: 'Fainali', body: event.data?.text() ?? '' };
     }
 
-    const title = data.title ?? 'Betslip Pirates';
+    const title = data.title ?? 'Fainali';
     const options = {
         body: data.body ?? '',
         icon: data.icon ?? '/img/logo-192.png',
@@ -29,7 +27,7 @@ self.addEventListener('push', (event) => {
             .showNotification(title, options)
             .then(() => console.log('[SW] notification shown OK'))
             .catch((err) =>
-                console.error('[SW] showNotification FAILED:', err.name, err.message),
+                // console.error('[SW] showNotification FAILED:', err.name, err.message),
             ),
     );
 });

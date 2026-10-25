@@ -77,7 +77,7 @@ class ContestSettledNotification extends Notification
 
         if ($rank === 2) {
             return [
-                'unner-up in ' . $name,
+                'Runner-up in ' . $name,
                 "2nd of {$total}. {$correct}/{$denominator} correct, +{$units}u.",
             ];
         }

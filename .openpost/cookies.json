@@ -1,0 +1,24 @@
+[
+  {
+    "name": "XSRF-TOKEN",
+    "value": "eyJpdiI6IkV4K1RMVXJDT1AwclVBUmhjbmhvd2c9PSIsInZhbHVlIjoiaW1Wdy9VZjlQaXZ6NXJ0R3dER2cxVnhUT1B1cnZ5L2hHak5wQ1Q4RzBZRzZPL1lYKzV1TWtLQWdyRmxXQWQ4TE1pd283R0t6TjQrMnQ5b1NyaTJVNE45VkhmeG53TTZVbnlzTm5aRzU3YlpIL2RGV1NDeHROaW5vSXFrcjRvbXYiLCJtYWMiOiJlMDlhNGIxNWZiNTk3YmZkNzM1ZGQ4OWY5NmJlZWNmODA2M2QxZmJmNWMxMWQzMDFkYWFhMzBkODU3NDM3MDZkIiwidGFnIjoiIn0%3D",
+    "domain": "localhost",
+    "path": "/",
+    "expires": "2026-10-24T20:12:50.237Z",
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax",
+    "createdAt": "2026-10-24T18:12:50.237Z"
+  },
+  {
+    "name": "laravel-session",
+    "value": "eyJpdiI6IkRXOVlQOGxGNEJybGNtMURIenNXdXc9PSIsInZhbHVlIjoiY1lYa0l4K250TjNoWFVQVmJtQmxCNFNWZDRDTkQ1Q2ppYlRwcHEwenFOWWNVaThBTVJPNkwxRjBleStaL2NBT1NEVFYxMlIzQ1pBTHNGWjlic3pzcERtWHUyZTNLNGdMQXI4WFd4WmZQYkZKRXBBOTJNUk0yRkRXSFBzc3Z4WmkiLCJtYWMiOiJlNzdiNDdmZTI3MTgyNjUyNDhmMzZmN2RlZjE1YjQ0MjkxZGZiNTg1MGI1Yzk0MGY5ZTU4MDVjYjMxMDZlOThmIiwidGFnIjoiIn0%3D",
+    "domain": "localhost",
+    "path": "/",
+    "expires": "2026-10-24T20:12:50.237Z",
+    "httpOnly": true,
+    "secure": false,
+    "sameSite": "Lax",
+    "createdAt": "2026-10-24T18:12:50.237Z"
+  }
+]

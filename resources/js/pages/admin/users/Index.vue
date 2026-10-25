@@ -154,6 +154,7 @@ const badgeClasses: Record<string, string> = {
                 <option value="oldest">Oldest first</option>
                 <option value="name">Name A–Z</option>
                 <option value="balance">Highest balance</option>
+                <option value="fees_earned">Most Earned by Platform</option>
             </select>
 
             <button
@@ -175,6 +176,7 @@ const badgeClasses: Record<string, string> = {
                             <th class="px-4 py-3">Code</th>
                             <th class="px-4 py-3">Phone</th>
                             <th class="px-4 py-3 text-right">Balance</th>
+                            <th class="px-4 py-3 text-right">Fees Earned</th>
                             <th class="px-4 py-3">Joined</th>
                             <th class="px-4 py-3">Status</th>
                             <th class="px-4 py-3 text-right">Actions</th>
@@ -208,6 +210,9 @@ const badgeClasses: Record<string, string> = {
                             <td class="px-4 py-3 text-right font-mono font-black text-emerald-400">
                                 {{ formatKES(user.wallet?.balance || 0) }}
                             </td>
+                            <td class="px-4 py-3 text-right font-mono font-black text-amber-400">
+                                {{ formatKES(user.fees_earned || 0) }}
+                            </td>
                             <td class="px-4 py-3 text-[10px] text-slate-500">
                                 {{ user.joined_ago }}
                             </td>
@@ -231,7 +236,7 @@ const badgeClasses: Record<string, string> = {
                             </td>
                         </tr>
                         <tr v-if="users.data.length === 0">
-                            <td colspan="7" class="px-4 py-12 text-center text-xs text-slate-500">
+                            <td colspan="8" class="px-4 py-12 text-center text-xs text-slate-500">
                                 No users match these filters.
                             </td>
                         </tr>

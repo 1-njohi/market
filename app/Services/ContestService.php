@@ -66,7 +66,7 @@ class ContestService
             $q->where('user_id', $user->id)->where('status', 'accepted');
         })
             ->where('host_id', '!=', $user->id)
-            ->whereIn('status', ['open', 'locked'])
+            // ->whereIn('status', ['open', 'locked'])
             ->withCount(['legs as legs_count'])
             ->orderBy('created_at', 'desc')
             ->take($limit)

@@ -14,14 +14,14 @@ class ContestJoinTest extends TestCase
 
     public function test_guest_can_view_invite_page(): void
     {
-        $host    = $this->makeUser('Denis');
+        $host = $this->makeUser('Denis');
         $contest = $this->makeContest($host, name: 'Sunday Crew');
 
         $response = $this->get("/contests/join/{$contest->uuid}");
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Contests/Join')
                 ->where('contest.uuid', $contest->uuid)
                 ->where('contest.name', 'Sunday Crew')
@@ -33,22 +33,22 @@ class ContestJoinTest extends TestCase
 
     public function test_authenticated_user_sees_join_button(): void
     {
-        $host    = $this->makeUser('Host');
-        $user    = $this->makeUser('Joiner');
+        $host = $this->makeUser('Host');
+        $user = $this->makeUser('Joiner');
         $contest = $this->makeContest($host);
 
         $response = $this->actingAs($user)
             ->get("/contests/join/{$contest->uuid}");
 
         $response->assertInertia(
-            fn ($page) => $page->where('can_join', true)
+            fn($page) => $page->where('can_join', true)
         );
     }
 
     public function test_authenticated_user_can_join(): void
     {
-        $host    = $this->makeUser('Host');
-        $user    = $this->makeUser('Joiner');
+        $host = $this->makeUser('Host');
+        $user = $this->makeUser('Joiner');
         $contest = $this->makeContest($host);
 
         $response = $this->actingAs($user)
@@ -58,15 +58,15 @@ class ContestJoinTest extends TestCase
 
         $this->assertDatabaseHas('contest_entries', [
             'contest_id' => $contest->id,
-            'user_id'    => $user->id,
-            'status'     => 'pending',
+            'user_id' => $user->id,
+            'status' => 'pending',
         ]);
     }
 
     public function test_joining_twice_does_not_create_duplicate(): void
     {
-        $host    = $this->makeUser('Host');
-        $user    = $this->makeUser('Joiner');
+        $host = $this->makeUser('Host');
+        $user = $this->makeUser('Joiner');
         $contest = $this->makeContest($host);
 
         $this->actingAs($user)->post("/contests/join/{$contest->uuid}");
@@ -82,7 +82,7 @@ class ContestJoinTest extends TestCase
 
     public function test_host_cannot_join_their_own_contest(): void
     {
-        $host    = $this->makeUser('Host');
+        $host = $this->makeUser('Host');
         $contest = $this->makeContest($host);
 
         $response = $this->actingAs($host)
@@ -94,8 +94,8 @@ class ContestJoinTest extends TestCase
 
     public function test_cannot_join_after_deadline(): void
     {
-        $host    = $this->makeUser('Host');
-        $user    = $this->makeUser('Joiner');
+        $host = $this->makeUser('Host');
+        $user = $this->makeUser('Joiner');
         $contest = $this->makeContest($host, entryDeadline: now()->subDay());
 
         $response = $this->actingAs($user)
@@ -107,8 +107,8 @@ class ContestJoinTest extends TestCase
 
     public function test_cannot_join_a_settled_contest(): void
     {
-        $host    = $this->makeUser('Host');
-        $user    = $this->makeUser('Joiner');
+        $host = $this->makeUser('Host');
+        $user = $this->makeUser('Joiner');
         $contest = $this->makeContest($host, status: 'settled');
 
         $response = $this->actingAs($user)
@@ -126,15 +126,15 @@ class ContestJoinTest extends TestCase
 
     public function test_host_can_accept_a_pending_entry(): void
     {
-        $host    = $this->makeUser('Host');
-        $user    = $this->makeUser('Joiner');
+        $host = $this->makeUser('Host');
+        $user = $this->makeUser('Joiner');
         $contest = $this->makeContest($host);
 
         $entry = ContestEntry::create([
             'contest_id' => $contest->id,
-            'user_id'    => $user->id,
-            'status'     => 'pending',
-            'joined_at'  => now(),
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'joined_at' => now(),
         ]);
 
         $response = $this->actingAs($host)
@@ -146,15 +146,15 @@ class ContestJoinTest extends TestCase
 
     public function test_host_can_reject_a_pending_entry(): void
     {
-        $host    = $this->makeUser('Host');
-        $user    = $this->makeUser('Joiner');
+        $host = $this->makeUser('Host');
+        $user = $this->makeUser('Joiner');
         $contest = $this->makeContest($host);
 
         $entry = ContestEntry::create([
             'contest_id' => $contest->id,
-            'user_id'    => $user->id,
-            'status'     => 'pending',
-            'joined_at'  => now(),
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'joined_at' => now(),
         ]);
 
         $response = $this->actingAs($host)
@@ -166,16 +166,16 @@ class ContestJoinTest extends TestCase
 
     public function test_non_host_cannot_accept_entries(): void
     {
-        $host    = $this->makeUser('Host');
-        $other   = $this->makeUser('NotHost');
-        $user    = $this->makeUser('Joiner');
+        $host = $this->makeUser('Host');
+        $other = $this->makeUser('NotHost');
+        $user = $this->makeUser('Joiner');
         $contest = $this->makeContest($host);
 
         $entry = ContestEntry::create([
             'contest_id' => $contest->id,
-            'user_id'    => $user->id,
-            'status'     => 'pending',
-            'joined_at'  => now(),
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'joined_at' => now(),
         ]);
 
         $response = $this->actingAs($other)
@@ -203,14 +203,14 @@ class ContestJoinTest extends TestCase
     ): Contest {
         $deadline = $entryDeadline ?? now()->addDays(3);
 
-        return Contest::create([
-            'host_id'           => $host->id,
-            'name'              => $name,
-            'visibility'        => 'private',
-            'status'            => $status,
+        return Contest::withoutHostGuard(fn() => Contest::create([
+            'host_id' => $host->id,
+            'name' => $name,
+            'visibility' => 'private',
+            'status' => $status,
             'entry_deadline_at' => $deadline,
-            'starts_at'         => $deadline->copy()->addDay(),
-            'ends_at'           => $deadline->copy()->addDays(2),
-        ]);
+            'starts_at' => $deadline->copy()->addDay(),
+            'ends_at' => $deadline->copy()->addDays(2),
+        ]));
     }
 }

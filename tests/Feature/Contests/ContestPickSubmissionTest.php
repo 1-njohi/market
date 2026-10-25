@@ -198,7 +198,7 @@ class ContestPickSubmissionTest extends TestCase
         $host = $this->makeUser('Host');
         $user = $forceAsHost ? $host : $this->makeUser('Joiner');
 
-        $contest = Contest::create([
+        $contest = Contest::withoutHostGuard(fn () => Contest::create([
             'host_id'           => $host->id,
             'name'              => 'Test Contest',
             'visibility'        => 'private',
@@ -206,7 +206,7 @@ class ContestPickSubmissionTest extends TestCase
             'entry_deadline_at' => $deadline ?? now()->addDay(),
             'starts_at'         => now()->addDays(2),
             'ends_at'           => now()->addDays(3),
-        ]);
+        ]));
 
         $entry = ContestEntry::create([
             'contest_id' => $contest->id,

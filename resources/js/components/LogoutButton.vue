@@ -4,7 +4,7 @@ import { useForm } from '@inertiajs/vue3';
 const logoutForm = useForm({});
 
 const logout = () => {
-    if (!confirm('Log out of Betslip Pirates?')) {
+    if (!confirm('Log out of Fainali?')) {
         return;
     }
     logoutForm.post('/logout');

@@ -1,5 +1,5 @@
 <template>
-    <Head title="Notifications — Betslip Pirates" />
+    <Head title="Notifications — Fainali" />
 
     <ListPage
         label="Account"

@@ -1,3 +1,26 @@
+<script setup lang="ts">
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+defineProps({
+    active: {
+        type: String,
+        required: true,
+        validator: (v) => ['buyer', 'seller', 'matchday'].includes(v),
+    },
+});
+
+const page = usePage();
+
+// The Sell tab is visible once the user has ever qualified. `ineligible`
+// means "never qualified" — the buyer-dashboard widget is the ramp.
+const showSellerTab = computed(
+    () =>
+        page.props.auth?.user?.sellable_status !== 'ineligible' &&
+        !!page.props.auth?.user,
+);
+</script>
+
 <template>
     <div
         class="flex items-center rounded border border-[#232d42] bg-[#111622] p-0.5"
@@ -29,6 +52,7 @@
         </Link>
 
         <Link
+            v-if="showSellerTab"
             href="/seller/dashboard"
             :class="[
                 'flex items-center gap-1 rounded px-2.5 py-1.5 text-[10px] font-black tracking-wider uppercase transition-all',
@@ -53,17 +77,31 @@
             </svg>
             <span class="hidden sm:inline">Sell</span>
         </Link>
+
+        <Link
+            href="/matchday"
+            :class="[
+                'flex items-center gap-1 rounded px-2.5 py-1.5 text-[10px] font-black tracking-wider uppercase transition-all',
+                active === 'matchday'
+                    ? 'bg-amber-500 text-[#070b14] shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+                    : 'text-slate-400 hover:text-white',
+            ]"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2.5"
+                stroke="currentColor"
+                class="h-3 w-3"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-6.75c-.621 0-1.125.504-1.125 1.125v3.375m9 0h-9M9 3.75h6M9 3.75a3 3 0 0 0-3 3v2.25c0 .621.503 1.125 1.125 1.125h6.75A1.125 1.125 0 0 0 15 9.375V6.75a3 3 0 0 0-3-3ZM9 3.75h6m-6 0c0-.621.503-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125"
+                />
+            </svg>
+            <span class="hidden sm:inline">Play</span>
+        </Link>
     </div>
 </template>
-
-<script setup>
-import { Link } from '@inertiajs/vue3';
-
-defineProps({
-    active: {
-        type: String,
-        required: true,
-        validator: (v) => ['buyer', 'seller'].includes(v),
-    },
-});
-</script>

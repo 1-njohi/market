@@ -1,5 +1,5 @@
 <template>
-    <Head title="Fixtures — Betslip Pirates" />
+    <Head title="Fixtures — Fainali" />
 
     <div class="bg-[#070b14] font-sans text-slate-300">
         <div class="mx-auto w-full max-w-[1400px] px-2 py-12 md:px-6 lg:px-8">

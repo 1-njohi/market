@@ -133,6 +133,7 @@ class ReferralRewardGuardrailsTest extends TestCase
         [$seller] = $this->makeUserWithWallet();
         [$platform] = $this->makeUserWithWallet();
         [$referrer] = $this->makeUserWithWallet();
+        $seller->update(['sellable_status' => 'sellable']);
 
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 

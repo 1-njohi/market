@@ -10,12 +10,23 @@ use App\Models\Odd;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Tests\Concerns\CreatesEligibleActors;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ContestCreateTest extends TestCase
 {
+
     use DatabaseMigrations;
+    use CreatesEligibleActors;
+
+    private static int $fixtureSeed = 0;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        self::$fixtureSeed = 0;
+    }
 
     public function test_create_page_renders_for_authenticated_user(): void
     {
@@ -25,7 +36,7 @@ class ContestCreateTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Contests/Create')
                 ->has('leagues')
         );
@@ -41,7 +52,8 @@ class ContestCreateTest extends TestCase
     public function test_host_can_create_a_contest_with_legs(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $this->makeEligibleHost($host);    
+        $s = $this->fixtureSet();
 
         // Need 5 legs — minimum is 5.
         $extraFixtures = [
@@ -65,8 +77,8 @@ class ContestCreateTest extends TestCase
 
         // Step 2: publish with config only. Legs come from session.
         $response = $this->actingAs($host)->post('/contests', [
-            'name'              => 'Sunday Crew',
-            'description'       => 'Weekly challenge.',
+            'name' => 'Sunday Crew',
+            'description' => 'Weekly challenge.',
             'entry_deadline_at' => now()->addHour()->toDateTimeString(),
         ]);
 
@@ -87,17 +99,17 @@ class ContestCreateTest extends TestCase
     public function test_leg_with_invalid_fixture_or_market_rejected(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         // Pad to 5 legs so the min-count rule passes and the fixture
         // existence check is what actually fires.
         $response = $this->actingAs($host)->post('/contests/draft', [
             'legs' => [
-                ['fixture_id' => 999999,                    'market_id' => $s['market1']->id, 'selection' => 'Home'],
-                ['fixture_id' => $s['fixtures'][0]->id,     'market_id' => $s['market1']->id, 'selection' => 'Home'],
-                ['fixture_id' => $s['fixtures'][1]->id,     'market_id' => $s['market1']->id, 'selection' => 'Home'],
-                ['fixture_id' => 999998,                    'market_id' => $s['market1']->id, 'selection' => 'Home'],
-                ['fixture_id' => 999997,                    'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => 999999, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => $s['fixtures'][0]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => $s['fixtures'][1]->id, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => 999998, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
+                ['fixture_id' => 999997, 'market_id' => $s['market1']->id, 'selection' => 'Home'],
             ],
         ]);
 
@@ -107,19 +119,19 @@ class ContestCreateTest extends TestCase
 
     public function test_leg_cap_enforced_at_fifty(): void
     {
-        $host   = $this->makeUser('Host');
-        $s      = $this->fixtureSet();
+        $host = $this->makeUser('Host');
+        $s = $this->fixtureSet();
         $league = $s['league'];
-        $home   = $s['home'];
-        $away   = $s['away'];
+        $home = $s['home'];
+        $away = $s['away'];
 
         $legs = [];
         for ($i = 0; $i < 55; $i++) {
             $fx = $this->makeFixture($league, $home, $away);
             $legs[] = [
                 'fixture_id' => $fx->id,
-                'market_id'  => $s['market1']->id,
-                'selection'  => 'Home',
+                'market_id' => $s['market1']->id,
+                'selection' => 'Home',
             ];
         }
 
@@ -135,19 +147,19 @@ class ContestCreateTest extends TestCase
     private function fixtureSet(): array
     {
         $league = $this->makeLeague();
-        $home   = $this->makeTeam('Home FC', 900001);
-        $away   = $this->makeTeam('Away FC', 900002);
+        $home = $this->makeTeam('Home FC', 900001);
+        $away = $this->makeTeam('Away FC', 900002);
 
         $fx1 = $this->makeFixture($league, $home, $away, kickoff: now()->addHours(2));
         $fx2 = $this->makeFixture($league, $home, $away, kickoff: now()->addHours(4));
 
         return [
-            'league'   => $league,
-            'home'     => $home,
-            'away'     => $away,
+            'league' => $league,
+            'home' => $home,
+            'away' => $away,
             'fixtures' => [$fx1, $fx2],
-            'market1'  => $this->makeMarket(1, 'Match Winner'),
-            'market2'  => $this->makeMarket(2, 'Over/Under'),
+            'market1' => $this->makeMarket(1, 'Match Winner'),
+            'market2' => $this->makeMarket(2, 'Over/Under'),
         ];
     }
 
@@ -164,11 +176,11 @@ class ContestCreateTest extends TestCase
         return League::firstOrCreate(
             ['id_on_api' => 900100],
             [
-                'sport_id'   => 1,
-                'name'       => 'Test League',
+                'sport_id' => 1,
+                'name' => 'Test League',
                 'country_id' => 1,
-                'country'    => 'Test Country',
-                'season'     => 2026,
+                'country' => 'Test Country',
+                'season' => 2026,
             ]
         );
     }
@@ -187,18 +199,19 @@ class ContestCreateTest extends TestCase
         $kickoff = $kickoff ?? now()->addHours(2);
 
         $fixture = Fixture::create([
-            'id_on_api'    => 900000 + random_int(1, 99999),
-            'date'         => $kickoff->toDateTimeString(),
-            'timestamp'    => $kickoff->timestamp,
+            'id_on_api' => 900000 + (self::$fixtureSeed++),
+            'date' => $kickoff->toDateTimeString(),
+            'timestamp' => $kickoff->timestamp,
             'status_short' => 'NS',
-            'league_id'    => $league->id,
+            'league_id' => $league->id,
             'home_team_id' => $home->id,
             'away_team_id' => $away->id,
         ]);
 
-        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Home',      'odd' => 2.50, 'status' => 'pending']);
-        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Away',      'odd' => 3.20, 'status' => 'pending']);
-        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 2, 'value' => 'Over 2.5',  'odd' => 1.85, 'status' => 'pending']);
+
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Home', 'odd' => 2.50, 'status' => 'pending']);
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 1, 'value' => 'Away', 'odd' => 3.20, 'status' => 'pending']);
+        Odd::create(['fixture_id' => $fixture->id, 'market_id' => 2, 'value' => 'Over 2.5', 'odd' => 1.85, 'status' => 'pending']);
         Odd::create(['fixture_id' => $fixture->id, 'market_id' => 2, 'value' => 'Under 2.5', 'odd' => 2.05, 'status' => 'pending']);
 
         return $fixture;

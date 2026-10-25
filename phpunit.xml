@@ -32,5 +32,10 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="DB_FOREIGN_KEYS" value="false"/>
+        <env name="API_SPORTS_KEY" value="test-key"/>
+        <env name="API_SPORTS_BASE_URL" value="http://localhost:8001"/>
+        <env name="API_SPORTS_UPCOMING_DAYS" value="2"/>
+        <env name="API_SPORTS_SLEEP_BETWEEN_REQUESTS" value="0"/>
     </php>
 </phpunit>

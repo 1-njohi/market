@@ -1,7 +1,8 @@
 <template>
     <span class="font-mono tabular-nums">
-        <span v-if="showCurrency" :class="currencyClass">{{ currency }}</span>
         <span :class="amountClass">{{ formatted }}</span>
+        <span v-if="showCurrency" :class="currencyClass">{{ '/=' }}</span>
+
     </span>
 </template>
 
@@ -17,7 +18,7 @@ const props = defineProps({
     signed: { type: Boolean, default: false },
     /** Render the currency code before the number. */
     showCurrency: { type: Boolean, default: true },
-    currencyClass: { type: String, default: 'mr-1 text-slate-400' },
+    currencyClass: { type: String, default: 'ml-1 text-slate-400 text-xs' },
     amountClass: { type: String, default: '' },
 });
 

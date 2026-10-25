@@ -9,6 +9,8 @@ const entry = computed(() => page.props.entry);
 const canJoin = computed(() => page.props.can_join);
 const auth = computed(() => page.props.auth?.user ?? null);
 
+const isOpen = computed(() => contest.value.status === 'open');
+
 const join = () => {
     router.post(`/contests/join/${contest.value.uuid}`);
 };
@@ -28,7 +30,8 @@ const formatKickoff = (iso) => {
 </script>
 
 <template>
-    <Head :title="`${contest.name} — Betslip Pirates`" />
+
+    <Head :title="`${contest.name} — Fainali`" />
 
     <div class="min-h-screen font-sans text-slate-300">
         <div class="mx-auto w-full max-w-3xl px-2 py-12 md:px-6 lg:px-8">
@@ -43,9 +46,15 @@ const formatKickoff = (iso) => {
                             A private challenge hosted by someone you know. Everyone
                             picks the same fixtures and competes on who does better.
                         </p>
-                        <p>
-                            When you request to join, the host approves. Once accepted,
-                            make your picks for each leg before the deadline.
+                        <p v-if="contest.auto_entry">
+                            This contest accepts everyone — tap Join and you're
+                            in. Make your picks for each leg before the
+                            deadline.
+                        </p>
+                        <p v-else>
+                            When you request to join, the host approves. Once
+                            accepted, make your picks for each leg before the
+                            deadline.
                         </p>
                         <p class="text-slate-400">
                             Free to play. No money changes hands.
@@ -57,54 +66,44 @@ const formatKickoff = (iso) => {
                 </h1>
                 <p class="mt-3 text-sm text-slate-400">
                     Hosted by
-                    <Link
-                        :href="`/profile/${contest.host_code}`"
-                        class="font-bold text-sky-400 hover:underline"
-                    >
+                    <Link :href="`/profile/${contest.host_code}`" class="font-bold text-sky-400 hover:underline">
                         {{ contest.host_name }}
                     </Link>
                     · {{ contest.legs.length }} legs ·
                     Deadline {{ formatKickoff(contest.entry_deadline_at) }}
                 </p>
-                <p
-                    v-if="contest.description"
-                    class="mt-4 text-sm leading-relaxed text-slate-400"
-                >
+                <p v-if="contest.description" class="mt-4 text-sm leading-relaxed text-slate-400">
                     {{ contest.description }}
                 </p>
             </div>
             <!-- Join card -->
-            <div
-                class="mb-8 rounded-lg border border-[#232d42] bg-[#161c2a] p-5"
-            >
+            <div class="mb-8 rounded-lg border border-[#232d42] bg-[#161c2a] p-5">
                 <template v-if="entry">
-                    <p
-                        class="text-[10px] font-black tracking-widest uppercase"
-                        :class="{
-                            'text-amber-400': entry.status === 'pending',
-                            'text-emerald-400': entry.status === 'accepted',
-                            'text-rose-400': entry.status === 'rejected',
-                        }"
-                    >
+                    <p class="text-[10px] font-black tracking-widest uppercase" :class="{
+                        'text-amber-400': entry.status === 'pending',
+                        'text-emerald-400': entry.status === 'accepted',
+                        'text-rose-400': entry.status === 'rejected',
+                    }">
                         Status: {{ entry.status }}
                     </p>
-                    <p
-                        v-if="entry.status === 'pending'"
-                        class="mt-2 text-xs text-slate-400"
-                    >
+                    <p v-if="entry.status === 'pending'" class="mt-2 text-xs text-slate-400">
                         Your request is waiting for the host to approve it.
                     </p>
                     <div v-else-if="entry.status === 'accepted'" class="mt-3">
-                    <p class="text-xs text-slate-400">
-                        You're in. Make your picks before the deadline.
-                    </p>
-                    <Link
-                        :href="`/contests/${contest.uuid}/picks`"
-                        class="mt-3 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
-                    >
-                        Make picks →
-                    </Link>
-                </div>
+                        <p class="text-xs text-slate-400">
+                            {{ isOpen
+                                ? "You're in. Make your picks before the deadline."
+                                : "You're in. Picks are locked — check the results below." }}
+                        </p>
+                        <Link v-if="isOpen" :href="`/contests/${contest.uuid}/picks`"
+                            class="mt-3 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
+                            Make picks →
+                        </Link>
+                        <Link v-else :href="`/contests/${contest.uuid}/results`"
+                            class="mt-3 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
+                            View results →
+                        </Link>
+                    </div>
                     <p v-else class="mt-2 text-xs text-slate-400">
                         Your request was not approved.
                     </p>
@@ -115,16 +114,12 @@ const formatKickoff = (iso) => {
                         You need an account to join this contest.
                     </p>
                     <div class="mt-4 flex gap-2">
-                        <Link
-                            href="/login"
-                            class="rounded-lg border border-[#232d42] bg-[#111622] px-5 py-2.5 text-[10px] font-black tracking-widest text-slate-300 uppercase transition-colors hover:border-sky-500/40 hover:text-sky-400"
-                        >
+                        <Link href="/login"
+                            class="rounded-lg border border-[#232d42] bg-[#111622] px-5 py-2.5 text-[10px] font-black tracking-widest text-slate-300 uppercase transition-colors hover:border-sky-500/40 hover:text-sky-400">
                             Log in
                         </Link>
-                        <Link
-                            :href="`/register?redirect=${encodeURIComponent(`/contests/join/${contest.uuid}`)}`"
-                            class="rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
-                        >
+                        <Link :href="`/register?redirect=${encodeURIComponent(`/contests/join/${contest.uuid}`)}`"
+                            class="rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
                             Register
                         </Link>
                     </div>
@@ -135,12 +130,9 @@ const formatKickoff = (iso) => {
                         Free to join. No entry fee. You'll pick one selection
                         per leg before the deadline.
                     </p>
-                    <button
-                        type="button"
-                        @click="join"
-                        class="mt-4 cursor-pointer rounded-lg bg-amber-500 px-6 py-3 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
-                    >
-                        Request to join
+                    <button type="button" @click="join"
+                        class="mt-4 cursor-pointer rounded-lg bg-amber-500 px-6 py-3 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
+                        {{ contest.auto_entry ? 'Join now' : 'Request to join' }}
                     </button>
                 </template>
 
@@ -149,11 +141,26 @@ const formatKickoff = (iso) => {
                         You're hosting this contest. Manage entries and share the invite
                         from your management page.
                     </p>
-                    <Link
-                        :href="`/contests/${contest.uuid}/manage`"
-                        class="mt-4 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
-                    >
-                        Manage contest
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <Link :href="`/contests/${contest.uuid}/manage`"
+                            class="inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
+                            Manage contest
+                        </Link>
+                        <Link v-if="!isOpen" :href="`/contests/${contest.uuid}/results`"
+                            class="inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
+                            View results →
+                        </Link>
+                    </div>
+                </template>
+
+                <template v-else-if="!isOpen">
+                    <p class="text-xs text-slate-400">
+                        This contest is no longer accepting new entries, but
+                        you can still view the results.
+                    </p>
+                    <Link :href="`/contests/${contest.uuid}/results`"
+                        class="mt-4 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
+                        View results →
                     </Link>
                 </template>
 
@@ -166,27 +173,18 @@ const formatKickoff = (iso) => {
 
             <!-- Legs preview -->
             <div class="overflow-hidden rounded-lg border border-[#232d42]">
-                <div
-                    class="flex items-center justify-between border-b border-[#232d42] bg-[#111a30] px-5 py-3"
-                >
-                    <span
-                        class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
-                    >
+                <div class="flex items-center justify-between border-b border-[#232d42] bg-[#111a30] px-5 py-3">
+                    <span class="text-[10px] font-black tracking-widest text-sky-400 uppercase">
                         The Picks
                     </span>
-                    <span
-                        class="font-mono text-[10px] text-slate-500 uppercase"
-                    >
+                    <span class="font-mono text-[10px] text-slate-500 uppercase">
                         {{ contest.legs.length }} legs
                     </span>
                 </div>
 
                 <ul class="divide-y divide-[#232d42]/60">
-                    <li
-                        v-for="(leg, i) in contest.legs"
-                        :key="leg.id"
-                        class="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
-                    >
+                    <li v-for="(leg, i) in contest.legs" :key="leg.id"
+                        class="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
                         <div class="min-w-0 flex-1">
                             <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
                                 Leg {{ i + 1 }} · {{ leg.market }}
@@ -196,13 +194,10 @@ const formatKickoff = (iso) => {
                                 <span class="text-slate-500">vs</span>
                                 {{ leg.fixture.away_team }}
                             </p>
-                            <p
-                                v-if="leg.host_pick"
-                                class="mt-1 inline-flex items-center gap-2 text-[10px] font-bold tracking-wide text-slate-400 uppercase"
-                            >
+                            <p v-if="leg.host_pick"
+                                class="mt-1 inline-flex items-center gap-2 text-[10px] font-bold tracking-wide text-slate-400 uppercase">
                                 <span
-                                    class="rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-black tracking-widest text-amber-400"
-                                >
+                                    class="rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-black tracking-widest text-amber-400">
                                     Host
                                 </span>
                                 <span class="text-white">{{ leg.host_pick.selection }}</span>

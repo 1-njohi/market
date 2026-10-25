@@ -85,15 +85,23 @@ class LeaderboardService
 
     private function buildLeaderboard(int $limit): array
     {
-        // Only consider sellers who have at least one settled betslip
+        // Minimum settled slips to appear on the public leaderboard.
+        // Sellers below this threshold are visible on their own profile
+        // but not on the public Top Tipsters board.
+        $minSettled = 5;
+
+        // Only consider sellers who have at least $minSettled settled betslips.
         $sellers = User::query()
-            ->whereHas('betslips', function ($q) {
-                $q->whereIn('status', ['settled']);
-            })
+            ->whereHas('betslips', function ($q) use ($minSettled) {
+                $q->where('status', 'settled');
+            }, '>=', $minSettled)
             ->with('sellerMetric')
             ->withCount([
                 'betslips as active_tips_count' => function ($q) {
                     $q->whereIn('status', ['pending', 'underway']);
+                },
+                'betslips as settled_count' => function ($q) {
+                    $q->where('status', 'settled');
                 },
             ])
             ->get();
@@ -102,10 +110,9 @@ class LeaderboardService
             return [];
         }
 
-        $leaders = $sellers->map(function (User $seller) {
-            // Pull the seller's last 9 settled betslips for recent form + streak
+        $leaders = $sellers->map(function (User $seller) use ($minSettled) {
             $settled = $seller->betslips()
-                ->whereIn('status', ['settled'])
+                ->where('status', 'settled')
                 ->orderByDesc('updated_at')
                 ->take(9)
                 ->get();
@@ -115,25 +122,43 @@ class LeaderboardService
                 ->values()
                 ->toArray();
 
+            // Net units: cumulative payout across settled betslips, net of stake.
+            // This is what your sellerMetric.roi is really tracking — the value
+            // in the screenshot ("+20.64u") is units, not a percentage.
+            $netUnits = round((float) ($seller->sellerMetric->roi ?? 0), 2);
+
             return [
                 'id' => $seller->id,
                 'name' => $seller->name,
                 'code' => $seller->code,
                 'avatar' => $seller->profile_picture_url
                     ?? "https://api.dicebear.com/10.x/thumbs/svg?seed=" . urlencode($seller->name),
-                'roi' => round((float) ($seller->sellerMetric->roi ?? 0), 1),
+                'net_units' => $netUnits,
                 'win_rate' => round((float) ($seller->sellerMetric->win_rate ?? 0), 1),
                 'streak' => $this->calculateCurrentStreak($settled),
                 'recent_form' => $recentForm,
                 'active_tips' => (int) $seller->active_tips_count,
+                'settled_count' => (int) $seller->settled_count,
                 'total_sold' => (int) ($seller->sellerMetric->total_sold ?? 0),
                 'badges' => $this->deriveBadges($seller),
             ];
         });
 
-        // Rank by ROI desc, win_rate as tiebreaker
+        // Rank: net units desc → win rate desc → more settled (longer track record)
+        // → user id (stable tiebreaker).
         return $leaders
-            ->sortByDesc(fn($s) => [$s['roi'], $s['win_rate']])
+            ->sort(function ($a, $b) {
+                if ($a['net_units'] !== $b['net_units']) {
+                    return $b['net_units'] <=> $a['net_units'];
+                }
+                if ($a['win_rate'] !== $b['win_rate']) {
+                    return $b['win_rate'] <=> $a['win_rate'];
+                }
+                if ($a['settled_count'] !== $b['settled_count']) {
+                    return $b['settled_count'] <=> $a['settled_count'];
+                }
+                return $a['id'] <=> $b['id'];
+            })
             ->take($limit)
             ->values()
             ->toArray();

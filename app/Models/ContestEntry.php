@@ -14,17 +14,23 @@ class ContestEntry extends Model
         'status',
         'score_correct',
         'score_units',
-        'rank_final',
         'joined_at',
+        'score_correct',
+        'score_units',
+        'rank_current',
+        'rank_previous',
         'settled_at',
+        'dismissed_settlement_at'
     ];
 
     protected $casts = [
         'score_correct' => 'integer',
-        'score_units'   => 'decimal:2',
-        'rank_final'    => 'integer',
-        'joined_at'     => 'datetime',
-        'settled_at'    => 'datetime',
+        'score_units' => 'decimal:2',
+        'joined_at' => 'datetime',
+        'rank_current' => 'integer',
+        'rank_previous' => 'integer',
+        'settled_at' => 'datetime',
+        'dismissed_settlement_at' => 'datetime',
     ];
 
     public function contest(): BelongsTo

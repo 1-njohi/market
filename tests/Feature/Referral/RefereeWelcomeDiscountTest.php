@@ -34,7 +34,7 @@ class RefereeWelcomeDiscountTest extends TestCase
     public function test_plain_buyer_pays_listed_price(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 1000.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
 
         $betslip = $this->makeBetslip($seller, price: 100.00);
 
@@ -51,7 +51,7 @@ class RefereeWelcomeDiscountTest extends TestCase
     {
         [$referrer] = $this->makeUserWithWallet();
         [$referee] = $this->makeUserWithWallet(balance: 1000.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
 
         app(ReferralService::class)->attribute($referee, $referrer->referral_code);
 
@@ -74,7 +74,7 @@ class RefereeWelcomeDiscountTest extends TestCase
     {
         [$referrer] = $this->makeUserWithWallet();
         [$referee] = $this->makeUserWithWallet(balance: 5000.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
 
         app(ReferralService::class)->attribute($referee, $referrer->referral_code);
 
@@ -91,7 +91,7 @@ class RefereeWelcomeDiscountTest extends TestCase
     {
         [$referrer] = $this->makeUserWithWallet();
         [$referee] = $this->makeUserWithWallet(balance: 1000.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
 
         app(ReferralService::class)->attribute($referee, $referrer->referral_code);
 
@@ -112,7 +112,7 @@ class RefereeWelcomeDiscountTest extends TestCase
     public function test_discount_does_not_apply_to_non_referee(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 1000.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
 
         $betslip = $this->makeBetslip($seller, price: 100.00);
 
@@ -122,7 +122,20 @@ class RefereeWelcomeDiscountTest extends TestCase
         $this->assertSame(100.00, (float) $purchase->purchase_price);
         $this->assertFalse((bool) $buyer->fresh()->welcome_discount_used);
     }
+    /**
+     * A wallet user who is eligible to sell. The eligibility gate is
+     * irrelevant to settlement mechanics, but the Betslip creating hook
+     * will force price = 1 for anyone whose sellable_status says
+     * otherwise. Every test here needs the price it passed to survive
+     * creation, so every seller is seeded as eligible.
+     */
+    private function makeEligibleSeller(): User
+    {
+        [$seller] = $this->makeUserWithWallet();  
+        $seller->update(['sellable_status' => 'sellable']);
 
+        return $seller;
+    }
     private function makeBetslip(User $seller, float $price): Betslip
     {
         $betslip = Betslip::create([

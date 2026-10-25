@@ -5,6 +5,7 @@ import { ref } from 'vue';
 const props = defineProps({
     user: { type: Object, required: true },
     wallet: { type: Object, required: true },
+    financials: { type: Object, required: true },
     stats: { type: Object, required: true },
     referral_terms: { type: Object, required: true },
     seller_metric: { type: Object, default: null },
@@ -205,12 +206,37 @@ const submitAdjust = () => {
             </p>
         </div>
 
-        <!-- ═══ WALLET ═══ -->
+        <!-- ═══ LIFETIME FINANCIALS ═══ -->
+        <section class="mb-6">
+            <h2 class="mb-3 text-[10px] font-black tracking-widest text-emerald-400 uppercase">
+                Lifetime Financials
+            </h2>
+            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <div class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4">
+                    <span class="text-[10px] font-black tracking-widest text-slate-500 uppercase">Lifetime Deposits</span>
+                    <p class="mt-2 text-lg font-black text-emerald-400">{{ formatKES(wallet.total_deposited) }}</p>
+                </div>
+                <div class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4">
+                    <span class="text-[10px] font-black tracking-widest text-slate-500 uppercase">Lifetime Withdrawals</span>
+                    <p class="mt-2 text-lg font-black text-rose-400">{{ formatKES(wallet.total_withdrawn) }}</p>
+                </div>
+                <div class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4">
+                    <span class="text-[10px] font-black tracking-widest text-slate-500 uppercase">Volume Sold (as Seller)</span>
+                    <p class="mt-2 text-lg font-black text-white">{{ formatKES(financials.total_sales_volume) }}</p>
+                </div>
+                <div class="rounded-lg border border-sky-500/30 bg-sky-500/5 p-4">
+                    <span class="text-[10px] font-black tracking-widest text-sky-400 uppercase">Platform Revenue Generated</span>
+                    <p class="mt-2 text-lg font-black text-sky-400">{{ formatKES(financials.platform_fees_earned) }}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ CURRENT WALLET ═══ -->
         <section class="mb-6">
             <h2
                 class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
             >
-                Wallet
+                Current Wallet State
             </h2>
             <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <div
@@ -229,7 +255,7 @@ const submitAdjust = () => {
                 >
                     <span
                         class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                        >Pending</span
+                        >Locked in Escrow</span
                     >
                     <p class="mt-2 text-lg font-black text-amber-400">
                         {{ formatKES(wallet.escrow_balance) }}
@@ -240,10 +266,10 @@ const submitAdjust = () => {
                 >
                     <span
                         class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                        >Total Deposited</span
+                        >Volume Bought</span
                     >
                     <p class="mt-2 text-lg font-black text-sky-400">
-                        {{ formatKES(wallet.total_deposited) }}
+                        {{ formatKES(financials.total_purchase_volume) }}
                     </p>
                 </div>
                 <div
@@ -251,16 +277,16 @@ const submitAdjust = () => {
                 >
                     <span
                         class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                        >Total Withdrawn</span
+                        >Net Deposit</span
                     >
-                    <p class="mt-2 text-lg font-black text-rose-400">
-                        {{ formatKES(wallet.total_withdrawn) }}
+                    <p class="mt-2 text-lg font-black text-white">
+                        {{ formatKES(financials.net_deposit) }}
                     </p>
                 </div>
             </div>
         </section>
 
-        <!-- ═══ STATS ═══ -->
+        <!-- ═══ ACTIVITY STATS ═══ -->
         <section class="mb-6">
             <h2
                 class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
@@ -315,8 +341,229 @@ const submitAdjust = () => {
             </div>
         </section>
 
+        <!-- ═══ SELLER METRIC ═══ -->
+        <section v-if="seller_metric" class="mb-6">
+            <h2
+                class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
+            >
+                Seller Performance
+            </h2>
+            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <div
+                    class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
+                >
+                    <span
+                        class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
+                        >Win Rate</span
+                    >
+                    <p class="mt-2 text-lg font-black text-emerald-400">
+                        {{ seller_metric.win_rate }}%
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
+                >
+                    <span
+                        class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
+                        >ROI</span
+                    >
+                    <p class="mt-2 text-lg font-black text-sky-400">
+                        {{ seller_metric.roi }}%
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
+                >
+                    <span
+                        class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
+                        >Total Sold</span
+                    >
+                    <p class="mt-2 text-lg font-black text-white">
+                        {{ seller_metric.total_sold }}
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
+                >
+                    <span
+                        class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
+                        >Revenue</span
+                    >
+                    <p class="mt-2 text-lg font-black text-amber-400">
+                        {{ formatKES(seller_metric.total_revenue) }}
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ RECENT TRANSACTIONS ═══ -->
+        <section class="mt-6">
+            <h2
+                class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
+            >
+                Recent Transactions
+            </h2>
+            <div
+                class="overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
+            >
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead
+                            class="bg-[#0f1422] text-[10px] font-black tracking-widest text-slate-500 uppercase"
+                        >
+                            <tr>
+                                <th class="px-4 py-3">Type</th>
+                                <th class="px-4 py-3">Description</th>
+                                <th class="px-4 py-3 text-right">Amount</th>
+                                <th class="px-4 py-3 text-right">Balance After</th>
+                                <th class="px-4 py-3 text-right">When</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#232d42]/60">
+                            <tr
+                                v-for="t in recent_transactions"
+                                :key="t.id"
+                                class="transition-colors hover:bg-[#111a30]"
+                            >
+                                <td
+                                    class="px-4 py-3 font-mono text-[10px] font-bold text-slate-400 uppercase"
+                                >
+                                    {{ t.type }}
+                                </td>
+                                <td
+                                    class="max-w-xs truncate px-4 py-3 text-slate-400"
+                                    :title="t.description"
+                                >
+                                    {{ t.description }}
+                                </td>
+                                <td
+                                    class="px-4 py-3 text-right font-mono font-black"
+                                    :class="
+                                        t.amount >= 0
+                                            ? 'text-emerald-400'
+                                            : 'text-rose-400'
+                                    "
+                                >
+                                    {{ t.amount >= 0 ? '+' : ''
+                                    }}{{ t.amount.toFixed(2) }}
+                                </td>
+                                <td
+                                    class="px-4 py-3 text-right font-mono text-slate-400"
+                                >
+                                    {{ formatKES(t.balance_after) }}
+                                </td>
+                                <td
+                                    class="px-4 py-3 text-right text-[10px] text-slate-500"
+                                >
+                                    {{ t.created_ago }}
+                                </td>
+                            </tr>
+                            <tr v-if="recent_transactions.length === 0">
+                                <td
+                                    colspan="5"
+                                    class="px-4 py-8 text-center text-xs text-slate-500"
+                                >
+                                    No transactions.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ RECENT ACTIVITY (2-col) ═══ -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-6">
+            <!-- Betslips -->
+            <section>
+                <h2
+                    class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                >
+                    Recent Betslips
+                </h2>
+                <div
+                    class="overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
+                >
+                    <div
+                        v-if="recent_betslips.length === 0"
+                        class="p-6 text-center text-xs text-slate-500"
+                    >
+                        No betslips yet.
+                    </div>
+                    <div v-else class="divide-y divide-[#232d42]/60">
+                        <Link
+                            v-for="b in recent_betslips"
+                            :key="b.id"
+                            :href="`/betslip/view/g/${b.code}`"
+                            class="flex items-center justify-between p-3 transition-colors hover:bg-[#111a30]"
+                        >
+                            <div>
+                                <p class="font-mono text-[11px] font-bold text-sky-400">
+                                    {{ b.code }}
+                                </p>
+                                <p class="mt-0.5 text-[10px] text-slate-500">
+                                    {{ b.created_ago }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-mono text-xs font-black text-white">
+                                    {{ b.total_odds }}x
+                                </p>
+                                <p class="text-[10px] text-slate-500">
+                                    {{ formatKES(b.price) }}
+                                </p>
+                            </div>
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Purchases -->
+            <section>
+                <h2
+                    class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
+                >
+                    Recent Purchases
+                </h2>
+                <div
+                    class="overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
+                >
+                    <div
+                        v-if="recent_purchases.length === 0"
+                        class="p-6 text-center text-xs text-slate-500"
+                    >
+                        No purchases yet.
+                    </div>
+                    <div v-else class="divide-y divide-[#232d42]/60">
+                        <div
+                            v-for="p in recent_purchases"
+                            :key="p.id"
+                            class="flex items-center justify-between p-3"
+                        >
+                            <div>
+                                <p class="font-mono text-[11px] font-bold text-sky-400">
+                                    {{ p.betslip_code }}
+                                </p>
+                                <p class="mt-0.5 text-[10px] text-slate-500">
+                                    {{ p.created_ago }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-mono text-xs font-black text-white">
+                                    {{ formatKES(p.purchase_price) }}
+                                </p>
+                                <p class="text-[10px] text-slate-500 uppercase">
+                                    {{ p.status }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
         <!-- ═══ REFERRAL TERMS ═══ -->
-        <section class="mb-6">
+        <section class="mb-6 mt-6">
             <div class="mb-3 flex items-center justify-between">
                 <h2
                     class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
@@ -453,237 +700,6 @@ const submitAdjust = () => {
                 >
                     {{ referral_terms.notes }}
                 </p>
-            </div>
-        </section>
-
-        <!-- ═══ SELLER METRIC ═══ -->
-        <section v-if="seller_metric" class="mb-6">
-            <h2
-                class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
-            >
-                Seller Performance
-            </h2>
-            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <div
-                    class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
-                >
-                    <span
-                        class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                        >Win Rate</span
-                    >
-                    <p class="mt-2 text-lg font-black text-emerald-400">
-                        {{ seller_metric.win_rate }}%
-                    </p>
-                </div>
-                <div
-                    class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
-                >
-                    <span
-                        class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                        >ROI</span
-                    >
-                    <p class="mt-2 text-lg font-black text-sky-400">
-                        {{ seller_metric.roi }}%
-                    </p>
-                </div>
-                <div
-                    class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
-                >
-                    <span
-                        class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                        >Total Sold</span
-                    >
-                    <p class="mt-2 text-lg font-black text-white">
-                        {{ seller_metric.total_sold }}
-                    </p>
-                </div>
-                <div
-                    class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
-                >
-                    <span
-                        class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                        >Revenue</span
-                    >
-                    <p class="mt-2 text-lg font-black text-amber-400">
-                        {{ formatKES(seller_metric.total_revenue) }}
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══ RECENT ACTIVITY (2-col) ═══ -->
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <!-- Betslips -->
-            <section>
-                <h2
-                    class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
-                >
-                    Recent Betslips
-                </h2>
-                <div
-                    class="overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
-                >
-                    <div
-                        v-if="recent_betslips.length === 0"
-                        class="p-6 text-center text-xs text-slate-500"
-                    >
-                        No betslips yet.
-                    </div>
-                    <div v-else class="divide-y divide-[#232d42]/60">
-                        <Link
-                            v-for="b in recent_betslips"
-                            :key="b.id"
-                            :href="`/betslip/view/g/${b.code}`"
-                            class="flex items-center justify-between p-3 transition-colors hover:bg-[#111a30]"
-                        >
-                            <div>
-                                <p
-                                    class="font-mono text-[11px] font-bold text-sky-400"
-                                >
-                                    {{ b.code }}
-                                </p>
-                                <p class="mt-0.5 text-[10px] text-slate-500">
-                                    {{ b.created_ago }}
-                                </p>
-                            </div>
-                            <div class="text-right">
-                                <p
-                                    class="font-mono text-xs font-black text-white"
-                                >
-                                    {{ b.total_odds }}x
-                                </p>
-                                <p class="text-[10px] text-slate-500">
-                                    {{ formatKES(b.price) }}
-                                </p>
-                            </div>
-                        </Link>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Purchases -->
-            <section>
-                <h2
-                    class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
-                >
-                    Recent Purchases
-                </h2>
-                <div
-                    class="overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
-                >
-                    <div
-                        v-if="recent_purchases.length === 0"
-                        class="p-6 text-center text-xs text-slate-500"
-                    >
-                        No purchases yet.
-                    </div>
-                    <div v-else class="divide-y divide-[#232d42]/60">
-                        <div
-                            v-for="p in recent_purchases"
-                            :key="p.id"
-                            class="flex items-center justify-between p-3"
-                        >
-                            <div>
-                                <p
-                                    class="font-mono text-[11px] font-bold text-sky-400"
-                                >
-                                    {{ p.betslip_code }}
-                                </p>
-                                <p class="mt-0.5 text-[10px] text-slate-500">
-                                    {{ p.created_ago }}
-                                </p>
-                            </div>
-                            <div class="text-right">
-                                <p
-                                    class="font-mono text-xs font-black text-white"
-                                >
-                                    {{ formatKES(p.purchase_price) }}
-                                </p>
-                                <p class="text-[10px] text-slate-500 uppercase">
-                                    {{ p.status }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- ═══ TRANSACTIONS ═══ -->
-        <section class="mt-6">
-            <h2
-                class="mb-3 text-[10px] font-black tracking-widest text-sky-400 uppercase"
-            >
-                Recent Transactions
-            </h2>
-            <div
-                class="overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
-            >
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead
-                            class="bg-[#0f1422] text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                        >
-                            <tr>
-                                <th class="px-4 py-3">Type</th>
-                                <th class="px-4 py-3">Description</th>
-                                <th class="px-4 py-3 text-right">Amount</th>
-                                <th class="px-4 py-3 text-right">
-                                    Balance After
-                                </th>
-                                <th class="px-4 py-3 text-right">When</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-[#232d42]/60">
-                            <tr
-                                v-for="t in recent_transactions"
-                                :key="t.id"
-                                class="transition-colors hover:bg-[#111a30]"
-                            >
-                                <td
-                                    class="px-4 py-3 font-mono text-[10px] font-bold text-slate-400 uppercase"
-                                >
-                                    {{ t.type }}
-                                </td>
-                                <td
-                                    class="max-w-xs truncate px-4 py-3 text-slate-400"
-                                    :title="t.description"
-                                >
-                                    {{ t.description }}
-                                </td>
-                                <td
-                                    class="px-4 py-3 text-right font-mono font-black"
-                                    :class="
-                                        t.amount >= 0
-                                            ? 'text-emerald-400'
-                                            : 'text-rose-400'
-                                    "
-                                >
-                                    {{ t.amount >= 0 ? '+' : ''
-                                    }}{{ t.amount.toFixed(2) }}
-                                </td>
-                                <td
-                                    class="px-4 py-3 text-right font-mono text-slate-400"
-                                >
-                                    {{ formatKES(t.balance_after) }}
-                                </td>
-                                <td
-                                    class="px-4 py-3 text-right text-[10px] text-slate-500"
-                                >
-                                    {{ t.created_ago }}
-                                </td>
-                            </tr>
-                            <tr v-if="recent_transactions.length === 0">
-                                <td
-                                    colspan="5"
-                                    class="px-4 py-8 text-center text-xs text-slate-500"
-                                >
-                                    No transactions.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </section>
 

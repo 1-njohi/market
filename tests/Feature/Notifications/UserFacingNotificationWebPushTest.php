@@ -129,7 +129,7 @@ class UserFacingNotificationWebPushTest extends TestCase
             'is_winner'  => false,
         ]);
 
-        $contest = Contest::create([
+        $contest = Contest::withoutHostGuard(fn () => Contest::create([
             'host_id'           => $host->id,
             'name'              => 'Sunday Crew',
             'visibility'        => 'private',
@@ -137,7 +137,7 @@ class UserFacingNotificationWebPushTest extends TestCase
             'entry_deadline_at' => now()->addDay(),
             'starts_at'         => now()->addDay()->addHour(),
             'ends_at'           => now()->addDay()->addHours(2),
-        ]);
+        ]));
 
         $deposit = Deposit::create([
             'user_id'   => $seller->id,

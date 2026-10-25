@@ -14,6 +14,8 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Str;
+use App\Models\Betslip;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class ContestTwoStepCreateTest extends TestCase
@@ -27,7 +29,7 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_authenticated_user_can_save_a_draft(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $response = $this->actingAs($host)
             ->post('/contests/draft', $this->draftPayload($s));
@@ -54,7 +56,7 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_draft_requires_at_least_five_legs(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $response = $this->actingAs($host)->post('/contests/draft', [
             'legs' => [
@@ -72,9 +74,9 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_draft_requires_selection_on_every_leg(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
-        $legs = array_map(fn ($i) => $this->legFrom($s, $i), range(0, 4));
+        $legs = array_map(fn($i) => $this->legFrom($s, $i), range(0, 4));
         unset($legs[2]['selection']);
         $legs = array_values($legs);
 
@@ -89,9 +91,9 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_draft_rejects_invalid_selection(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
-        $legs = array_map(fn ($i) => $this->legFrom($s, $i), range(0, 4));
+        $legs = array_map(fn($i) => $this->legFrom($s, $i), range(0, 4));
         $legs[0]['selection'] = 'Nonsense';
         $legs = array_values($legs);
 
@@ -106,9 +108,9 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_draft_rejects_duplicate_fixture_market_pairs(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
-        $legs = array_map(fn ($i) => $this->legFrom($s, $i), range(0, 4));
+        $legs = array_map(fn($i) => $this->legFrom($s, $i), range(0, 4));
         $legs[1] = $legs[0];
         $legs = array_values($legs);
 
@@ -123,7 +125,7 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_draft_does_not_create_a_contest_row(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $this->actingAs($host)->post('/contests/draft', $this->draftPayload($s));
 
@@ -137,18 +139,19 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_confirm_renders_draft_legs(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $this->actingAs($host)->post('/contests/draft', $this->draftPayload($s));
 
         $response = $this->actingAs($host)->get('/contests/confirm');
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page
-            ->component('Contests/Confirm')
-            ->has('legs', 5)
-            ->where('legs.0.selection', 'Home')
-            ->has('earliest_kickoff')
+        $response->assertInertia(
+            fn($page) => $page
+                ->component('Contests/Confirm')
+                ->has('legs', 5)
+                ->where('legs.0.selection', 'Home')
+                ->has('earliest_kickoff')
         );
     }
 
@@ -168,7 +171,8 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_publish_creates_contest_from_draft(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $this->makeEligibleHost($host);
+        $s = $this->fixtureSet();
 
         $this->actingAs($host)->post('/contests/draft', $this->draftPayload($s));
 
@@ -189,7 +193,8 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_publish_creates_legs_entry_and_picks(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $this->makeEligibleHost($host);
+        $s = $this->fixtureSet();
 
         $this->actingAs($host)->post('/contests/draft', $this->draftPayload($s));
         $this->actingAs($host)->post('/contests', $this->configPayload($s));
@@ -210,8 +215,8 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_publish_clears_the_draft(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
-
+        $this->makeEligibleHost($host);
+        $s = $this->fixtureSet();
         $this->actingAs($host)->post('/contests/draft', $this->draftPayload($s));
         $this->actingAs($host)->post('/contests', $this->configPayload($s));
 
@@ -221,7 +226,7 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_publish_redirects_when_draft_is_missing(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $response = $this->actingAs($host)
             ->post('/contests', $this->configPayload($s));
@@ -233,7 +238,7 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_publish_requires_name(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $this->actingAs($host)->post('/contests/draft', $this->draftPayload($s));
 
@@ -247,7 +252,7 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_publish_requires_deadline(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $this->actingAs($host)->post('/contests/draft', $this->draftPayload($s));
 
@@ -261,7 +266,7 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_publish_requires_deadline_in_the_future(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $this->actingAs($host)->post('/contests/draft', $this->draftPayload($s));
 
@@ -277,7 +282,7 @@ class ContestTwoStepCreateTest extends TestCase
     public function test_publish_rejects_deadline_after_earliest_kickoff(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         // Earliest kickoff is +2h. Deadline +3h is after it.
         $this->actingAs($host)->post('/contests/draft', $this->draftPayload($s));
@@ -298,8 +303,8 @@ class ContestTwoStepCreateTest extends TestCase
     private function fixtureSet(): array
     {
         $league = $this->makeLeague();
-        $home   = $this->makeTeam('Home FC', 900001);
-        $away   = $this->makeTeam('Away FC', 900002);
+        $home = $this->makeTeam('Home FC', 900001);
+        $away = $this->makeTeam('Away FC', 900002);
 
         $fixtures = [];
         for ($i = 0; $i < 6; $i++) {
@@ -312,11 +317,11 @@ class ContestTwoStepCreateTest extends TestCase
         }
 
         return [
-            'league'   => $league,
-            'home'     => $home,
-            'away'     => $away,
+            'league' => $league,
+            'home' => $home,
+            'away' => $away,
             'fixtures' => $fixtures,
-            'market'   => $this->makeMarket(1, 'Match Winner'),
+            'market' => $this->makeMarket(1, 'Match Winner'),
         ];
     }
 
@@ -324,8 +329,8 @@ class ContestTwoStepCreateTest extends TestCase
     {
         return [
             'fixture_id' => $s['fixtures'][$fixtureIndex]->id,
-            'market_id'  => $s['market']->id,
-            'selection'  => 'Home',
+            'market_id' => $s['market']->id,
+            'selection' => 'Home',
         ];
     }
 
@@ -333,7 +338,7 @@ class ContestTwoStepCreateTest extends TestCase
     private function draftPayload(array $s): array
     {
         return [
-            'legs' => array_map(fn ($i) => $this->legFrom($s, $i), range(0, 4)),
+            'legs' => array_map(fn($i) => $this->legFrom($s, $i), range(0, 4)),
         ];
     }
 
@@ -341,8 +346,8 @@ class ContestTwoStepCreateTest extends TestCase
     private function configPayload(array $s, array $overrides = []): array
     {
         return array_merge([
-            'name'              => 'Sunday Crew',
-            'description'       => 'Weekly challenge.',
+            'name' => 'Sunday Crew',
+            'description' => 'Weekly challenge.',
             'entry_deadline_at' => now()->addHour()->toDateTimeString(),
         ], $overrides);
     }
@@ -360,11 +365,11 @@ class ContestTwoStepCreateTest extends TestCase
         return League::firstOrCreate(
             ['id_on_api' => 900100],
             [
-                'sport_id'   => 1,
-                'name'       => 'Test League',
+                'sport_id' => 1,
+                'name' => 'Test League',
                 'country_id' => 1,
-                'country'    => 'Test Country',
-                'season'     => 2026,
+                'country' => 'Test Country',
+                'season' => 2026,
             ]
         );
     }
@@ -383,11 +388,11 @@ class ContestTwoStepCreateTest extends TestCase
         $kickoff = $kickoff ?? now()->addHours(2);
 
         $fixture = Fixture::create([
-            'id_on_api'    => 900000 + random_int(1, 99999),
-            'date'         => $kickoff->toDateTimeString(),
-            'timestamp'    => $kickoff->timestamp,
+            'id_on_api' => 900000 + random_int(1, 99999),
+            'date' => $kickoff->toDateTimeString(),
+            'timestamp' => $kickoff->timestamp,
             'status_short' => 'NS',
-            'league_id'    => $league->id,
+            'league_id' => $league->id,
             'home_team_id' => $home->id,
             'away_team_id' => $away->id,
         ]);
@@ -401,5 +406,60 @@ class ContestTwoStepCreateTest extends TestCase
     private function makeMarket(int $id, string $name): Market
     {
         return Market::firstOrCreate(['id' => $id], ['name' => $name]);
+    }
+
+    /**
+     * Give a host 20 settled picks (12 won, 8 lost → 60% win rate),
+     * so canHost() returns true and the POST /contests guard passes.
+     *
+     * Fixtures use a market id of 100+ for the pick odds to avoid
+     * colliding with market 1, which makeFixture() already populates
+     * with Home/Away odds for each new fixture.
+     */
+    private function makeEligibleHost(User $host): void
+    {
+        $league = $this->makeLeague();
+        $home = $this->makeTeam('Home FC', 900001);
+        $away = $this->makeTeam('Away FC', 900002);
+
+        for ($i = 0; $i < 20; $i++) {
+            $fixture = $this->makeFixture(
+                $league,
+                $home,
+                $away,
+                kickoff: now()->subDay()->addMinutes($i),
+            );
+
+            $odd = Odd::create([
+                'fixture_id' => $fixture->id,
+                'market_id' => 100 + $i,
+                'value' => 'Home',
+                'odd' => 2.00,
+                'status' => 'pending',
+            ]);
+
+            $slip = Betslip::forceCreate([
+                'id' => (string) Str::uuid(),
+                'user_id' => $host->id,
+                'code' => strtoupper(Str::random(10)),
+                'total_odds' => 2.00,
+                'price' => 100,
+                'status' => 'settled',
+                'remaining' => 0,
+                'is_winner' => $i < 12,
+                'is_sellable' => false,
+                'is_delisted' => false,
+                'priority_score' => 1,
+            ]);
+
+            DB::table('betslip_odd')->insert([
+                'betslip_id' => $slip->id,
+                'odd_id' => $odd->id,
+                'status' => $i < 12 ? 'won' : 'lost',
+                'odd_value_at_time' => 2.00,
+                'created_at' => now()->subDay(),
+                'updated_at' => now()->subDay(),
+            ]);
+        }
     }
 }

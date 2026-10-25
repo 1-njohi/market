@@ -114,7 +114,7 @@ class ContestEntryNotificationsTest extends TestCase
 
     private function makeContest(User $host): Contest
     {
-        return Contest::create([
+        return Contest::withoutHostGuard(fn () => Contest::create([
             'host_id'           => $host->id,
             'name'              => 'Sunday Crew',
             'visibility'        => 'private',
@@ -122,6 +122,6 @@ class ContestEntryNotificationsTest extends TestCase
             'entry_deadline_at' => now()->addDays(3),
             'starts_at'         => now()->addDays(4),
             'ends_at'           => now()->addDays(5),
-        ]);
+        ]));
     }
 }

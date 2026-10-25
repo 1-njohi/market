@@ -1,59 +1,43 @@
 <template>
     <div
-        class="mb-1 w-full max-w-xl overflow-hidden rounded-xl border border-marketplace-border bg-marketplace-card font-sans shadow-lg transition-shadow hover:shadow-xl"
-    >
+        class="mb-1 w-full max-w-xl overflow-hidden rounded-xl border border-marketplace-border bg-marketplace-card font-sans shadow-lg transition-shadow hover:shadow-xl">
         <!-- 1. HEADER: Seller Branding & Mini-Heatmap -->
-        <div
-            class="flex items-center justify-between border-b border-marketplace-border/60 bg-marketplace-card/80 p-4"
-        >
+        <div class="flex items-center justify-between border-b border-marketplace-border/60 bg-marketplace-card/80 p-4">
             <!-- Clickable seller block -->
-            <button
-                type="button"
+            <button type="button"
                 class="group -m-2 flex cursor-pointer items-center space-x-3 rounded-lg p-2 text-left transition-colors hover:bg-marketplace-gold/5"
-                @click="viewSellerProfile(slip.seller.code)"
-                :title="`View ${slip.seller.name}'s profile`"
-            >
+                @click="viewSellerProfile(slip.seller.code)" :title="`View ${slip.seller.name}'s profile`">
                 <!-- Seller Avatar -->
                 <div
-                    class="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-marketplace-border bg-marketplace-muted/10"
-                >
-                    <img
-                        :src="
-                            slip.seller.avatar ||
-                            `https://api.dicebear.com/10.x/lorelei-neutral/svg?seed=${slip.seller.code}`
-                        "
-                        :alt="slip.seller.name"
-                        class="h-full w-full rounded-full object-cover"
-                    />
+                    class="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-marketplace-border bg-marketplace-muted/10">
+                    <img :src="slip.seller.avatar ||
+                        `https://api.dicebear.com/10.x/lorelei-neutral/svg?seed=${slip.seller.code}`
+                        " :alt="slip.seller.name" class="h-full w-full rounded-full object-cover" />
                 </div>
                 <!-- Name + stats + view-profile hint -->
                 <div class="min-w-0">
                     <div class="flex items-center gap-1.5">
                         <h4
-                            class="text-xs font-bold tracking-wider text-white uppercase transition-colors group-hover:text-marketplace-gold"
-                        >
+                            class="text-xs font-bold tracking-wider text-white uppercase transition-colors group-hover:text-marketplace-gold">
                             {{ slip.seller.name }}
                         </h4>
+                        <ReputationBadge
+                            v-if="slip.seller?.prediction_points > 0"
+                            :points="slip.seller.prediction_points"
+                            :rank="slip.seller.global_rank ?? null"
+                            :compact="true"
+                            class="ml-1.5"
+                        />
                         <!-- Chevron — brightens on hover -->
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="3"
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
                             stroke="currentColor"
-                            class="h-3 w-3 flex-shrink-0 text-marketplace-muted transition-all group-hover:translate-x-0.5 group-hover:text-marketplace-gold"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                            />
+                            class="h-3 w-3 flex-shrink-0 text-marketplace-muted transition-all group-hover:translate-x-0.5 group-hover:text-marketplace-gold">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                         </svg>
                     </div>
 
                     <div
-                        class="mt-0.5 flex items-center space-x-1 text-[10px] font-semibold tracking-wide text-marketplace-muted uppercase"
-                    >
+                        class="mt-0.5 flex items-center space-x-1 text-[10px] font-semibold tracking-wide text-marketplace-muted uppercase">
                         <span>
                             ROI:
                             <span class="font-bold text-marketplace-green">
@@ -71,22 +55,12 @@
 
                     <!-- Explicit "View profile" hint -->
                     <span
-                        class="mt-1 inline-flex items-center gap-1 text-[9px] font-black tracking-widest text-marketplace-muted uppercase transition-colors group-hover:text-marketplace-gold"
-                    >
+                        class="mt-1 inline-flex items-center gap-1 text-[9px] font-black tracking-widest text-marketplace-muted uppercase transition-colors group-hover:text-marketplace-gold">
                         View profile
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="3"
-                            stroke="currentColor"
-                            class="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                            />
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                            stroke="currentColor" class="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
                     </span>
                 </div>
@@ -95,57 +69,36 @@
             <!-- Mini-Heatmap -->
             <div class="flex flex-shrink-0 flex-col items-end">
                 <div class="flex space-x-1">
-                    <span
-                        v-for="(status, index) in flipRecentForm(
-                            slip.seller.recent_form,
-                        )"
-                        :key="index"
-                        :class="[
-                            'h-3 w-3 rounded-sm border',
-                            status === 'W'
-                                ? 'border-marketplace-green bg-marketplace-green/20'
-                                : status == 'L'
-                                  ? 'border-red-500/60 bg-red-500/20'
-                                  : 'border-marketplace-border bg-marketplace-border/30',
-                        ]"
-                        :title="
-                            status === 'W'
-                                ? 'Won'
-                                : status == 'L'
-                                  ? 'Lost'
-                                  : 'No Bet'
-                        "
-                    ></span>
+                    <span v-for="(status, index) in flipRecentForm(
+                        slip.seller.recent_form,
+                    )" :key="index" :class="[
+                        'h-3 w-3 rounded-sm border',
+                        status === 'W'
+                            ? 'border-marketplace-green bg-marketplace-green/20'
+                            : status == 'L'
+                                ? 'border-red-500/60 bg-red-500/20'
+                                : 'border-marketplace-border bg-marketplace-border/30',
+                    ]" :title="status === 'W'
+                        ? 'Won'
+                        : status == 'L'
+                            ? 'Lost'
+                            : 'No Bet'
+                        "></span>
                 </div>
-                <span
-                    class="mt-1 text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
-                >
+                <span class="mt-1 text-[9px] font-bold tracking-wider text-marketplace-muted uppercase">
                     Recent Form
                 </span>
             </div>
         </div>
 
         <!-- 2. Bet Summary: Multibet / Singlebet + Total Odds -->
-        <div
-            class="flex flex-col border-b border-marketplace-border/40 bg-marketplace-card/30 select-none"
-        >
-            <div
-                class="flex items-center justify-between px-4 pt-3 pb-1.5 text-xs font-bold tracking-wider uppercase"
-            >
+        <div class="flex flex-col border-b border-marketplace-border/40 bg-marketplace-card/30 select-none">
+            <div class="flex items-center justify-between px-4 pt-3 pb-1.5 text-xs font-bold tracking-wider uppercase">
                 <div class="flex items-center space-x-2 text-slate-400">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="2.5"
-                        stroke="currentColor"
-                        class="h-4 w-4"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-3-12v.75m0 3v.75m0 3v.75m0 3V18m-3-12v.75m0 3v.75m0 3v.75m0 3V18m-3-12v.75m0 3v.75m0 3v.75m0 3V18"
-                        />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                        stroke="currentColor" class="h-4 w-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-3-12v.75m0 3v.75m0 3v.75m0 3V18m-3-12v.75m0 3v.75m0 3v.75m0 3V18m-3-12v.75m0 3v.75m0 3v.75m0 3V18" />
                     </svg>
                     <span>{{
                         slip.total_markets > 1
@@ -162,71 +115,38 @@
             </div>
 
             <!-- Tracking Code & Share -->
-            <div
-                v-if="slip.code"
-                class="flex items-center justify-between border-t border-marketplace-border/20 px-4 pt-1.5 pb-3"
-            >
+            <div v-if="slip.code"
+                class="flex items-center justify-between border-t border-marketplace-border/20 px-4 pt-1.5 pb-3">
                 <div
-                    class="flex items-center gap-1.5 text-[10px] font-bold tracking-widest text-marketplace-muted uppercase"
-                >
+                    class="flex items-center gap-1.5 text-[10px] font-bold tracking-widest text-marketplace-muted uppercase">
                     <span> Code:</span>
                     <span
-                        class="rounded border border-marketplace-border bg-marketplace-card/60 px-2 py-0.5 font-mono text-xs font-black tracking-normal text-white"
-                    >
+                        class="rounded border border-marketplace-border bg-marketplace-card/60 px-2 py-0.5 font-mono text-xs font-black tracking-normal text-white">
                         {{ slip.code }}
                     </span>
                 </div>
                 <div class="flex items-center gap-2">
                     <!-- WATCH BUTTON -->
-                    <WatchButton
-                        v-if="slip.can_watch !== false"
-                        :code="slip.code"
-                        :watching="slip.is_watching === true"
-                    />
+                    <WatchButton v-if="slip.can_watch !== false" :code="slip.code"
+                        :watching="slip.is_watching === true" />
                     <!-- COPY BUTTON -->
-                    <button
-                        type="button"
-                        @click="copyToClipboard(slip.code)"
-                        title="Copy tracking code"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-slate-300 uppercase transition-all hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-400 active:scale-95"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="2.5"
-                            stroke="currentColor"
-                            class="h-3 w-3"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
-                            />
+                    <button type="button" @click="copyToClipboard(slip.code)" title="Copy tracking code"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-slate-300 uppercase transition-all hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-400 active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                            stroke="currentColor" class="h-3 w-3">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" />
                         </svg>
                         Copy
                     </button>
 
                     <!-- SHARE BUTTON -->
-                    <button
-                        type="button"
-                        @click="shareSlip"
-                        title="Share this betslip"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-slate-300 uppercase transition-all hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-400 active:scale-95"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="2.5"
-                            stroke="currentColor"
-                            class="h-3 w-3"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"
-                            />
+                    <button type="button" @click="shareSlip" title="Share this betslip"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-marketplace-border bg-marketplace-card/60 px-2.5 py-1.5 text-[10px] font-black tracking-wider text-slate-300 uppercase transition-all hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-400 active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                            stroke="currentColor" class="h-3 w-3">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
                         </svg>
                         Share
                     </button>
@@ -236,15 +156,11 @@
 
         <!-- 3. LEGS (Bet Slip Entries) -->
         <div class="divide-y divide-marketplace-border/40">
-            <div
-                v-for="(leg, idx) in slip.legs"
-                :key="leg.id"
-                class="p-4 transition-colors hover:bg-marketplace-card/60"
-            >
+            <div v-for="(leg, idx) in slip.legs" :key="leg.id"
+                class="p-4 transition-colors hover:bg-marketplace-card/60">
                 <!-- Leg Meta -->
                 <div
-                    class="mb-2 flex items-center justify-between text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
-                >
+                    class="mb-2 flex items-center justify-between text-[10px] font-bold tracking-wider text-marketplace-muted uppercase">
                     <span>Leg {{ idx + 1 }} • {{ leg.league }}</span>
                     <span>{{ formatTime(leg.kickoff_at) }}</span>
                 </div>
@@ -253,56 +169,35 @@
                 <div class="grid grid-cols-12 items-center gap-2">
                     <!-- Teams -->
                     <div class="col-span-7 flex flex-col space-y-0.5">
-                        <span
-                            class="text-xs font-bold tracking-wide text-white uppercase"
-                            >{{ leg.home_team }}</span
-                        >
-                        <span
-                            class="text-xs font-bold tracking-wide text-marketplace-muted uppercase"
-                            >{{ leg.away_team }}</span
-                        >
+                        <span class="text-xs font-bold tracking-wide text-white uppercase">{{ leg.home_team }}</span>
+                        <span class="text-xs font-bold tracking-wide text-marketplace-muted uppercase">{{ leg.away_team
+                            }}</span>
                     </div>
 
                     <!-- Market -->
                     <div class="col-span-3 text-right">
                         <span
-                            class="block text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
-                            >Market</span
-                        >
-                        <span
-                            class="text-xs font-semibold tracking-wide text-slate-200"
-                            >{{ leg.market_name }}</span
-                        >
+                            class="block text-[10px] font-bold tracking-wider text-marketplace-muted uppercase">Market</span>
+                        <span class="text-xs font-semibold tracking-wide text-slate-200">{{ leg.market_name }}</span>
                     </div>
 
                     <!-- Selection / Lock Icon -->
                     <div class="col-span-2 text-right">
-                        <div
-                            v-if="isLocked"
+                        <div v-if="isLocked"
                             class="flex w-full cursor-pointer flex-col items-center justify-center rounded border border-dashed border-marketplace-border bg-marketplace-card/50 py-1.5 text-slate-500 select-none"
-                            @click="$emit('unlock-clicked', slip)"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="h-3 w-3 text-slate-500"
-                            >
-                                <path
-                                    fill-rule="evenodd"
+                            @click="$emit('unlock-clicked', slip)">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="h-3 w-3 text-slate-500">
+                                <path fill-rule="evenodd"
                                     d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"
-                                    clip-rule="evenodd"
-                                />
+                                    clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <div
-                            v-else
-                            class="flex w-full flex-col rounded border border-marketplace-green bg-marketplace-green/10 py-1.5 text-center text-xs font-bold text-marketplace-green"
-                        >
+                        <div v-else
+                            class="flex w-full flex-col rounded border border-marketplace-green bg-marketplace-green/10 py-1.5 text-center text-xs font-bold text-marketplace-green">
                             <span
-                                class="text-[9px] leading-none tracking-tighter text-marketplace-green/70 uppercase"
-                                >{{ leg.selection }}</span
-                            >
+                                class="text-[9px] leading-none tracking-tighter text-marketplace-green/70 uppercase">{{
+                                    leg.selection }}</span>
                         </div>
                     </div>
                 </div>
@@ -310,59 +205,93 @@
         </div>
 
         <!-- 4. SELLER'S CAPTION / PITCH -->
-        <div
-            v-if="slip.caption"
-            class="relative mx-2 mt-1 mb-2 overflow-hidden rounded-xl bg-gradient-to-br from-marketplace-card/80 to-marketplace-card p-4 shadow-sm"
-        >
-            <div
-                class="absolute -top-2 -left-2 text-7xl font-black text-white/5 select-none"
-            >
+        <div v-if="slip.caption"
+            class="relative mx-2 mt-1 mb-2 overflow-hidden rounded-xl bg-gradient-to-br from-marketplace-card/80 to-marketplace-card p-4 shadow-sm">
+            <div class="absolute -top-2 -left-2 text-7xl font-black text-white/5 select-none">
                 "
             </div>
             <div class="relative flex items-start space-x-3">
                 <div class="flex-1">
-                    <p
-                        class="text-sm leading-relaxed font-medium text-white/90"
-                    >
+                    <p class="text-sm leading-relaxed font-medium text-white/90">
                         {{ slip.caption }}
                     </p>
-                    <span
-                        class="mt-1 block text-[10px] font-bold tracking-widest text-marketplace-muted uppercase"
-                    >
+                    <span class="mt-1 block text-[10px] font-bold tracking-widest text-marketplace-muted uppercase">
                         — Seller's insight
                     </span>
                 </div>
             </div>
-            <div
-                class="absolute -right-4 -bottom-4 h-12 w-12 rounded-full bg-marketplace-gold/5 blur-xl"
-            ></div>
+            <div class="absolute -right-4 -bottom-4 h-12 w-12 rounded-full bg-marketplace-gold/5 blur-xl"></div>
         </div>
 
         <!-- 5. CTA / PRICE -->
-        <div
-            v-if="isLocked"
-            class="flex items-center justify-between border-t border-marketplace-border/80 bg-marketplace-card/90 p-4"
-        >
+        <div v-if="isLocked"
+            class="flex items-center justify-between border-t border-marketplace-border/80 bg-marketplace-card/90 p-4">
             <div class="flex flex-col">
-                <span
-                    class="text-[10px] font-bold tracking-widest text-marketplace-muted uppercase"
-                    >Price</span
-                >
-                <span class="text-lg font-black tracking-wide text-white"
-                    >KSH {{ slip.price.toFixed(2) }}</span
-                >
+                <span class="text-[10px] font-bold tracking-widest text-marketplace-muted uppercase">Price</span>
+                <span class="text-lg font-black tracking-wide text-white">KSH {{ slip.price.toFixed(2) }}</span>
+                <span v-if="slip.break_even_stake !== null && slip.break_even_stake !== undefined"
+                    class="mt-1 inline-flex items-center gap-1 text-[10px] font-bold tracking-wide text-marketplace-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                        stroke="currentColor" class="h-3 w-3 text-marketplace-muted/70">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    Break-even: KSH
+                    {{ slip.break_even_stake.toFixed(2) }}
+                    <InfoPopover title="What is break-even?">
+                        <p>
+                            The price you pay for a slip is a cost the moment
+                            you unlock it. To get that money back, you need to
+                            win enough on the actual bet elsewhere.
+                        </p>
+                        <p>
+                            <span class="font-bold text-slate-200">
+                                Break-even stake
+                            </span>
+                            is the amount you'd need to place at a bookmaker
+                            to earn back exactly what you paid — no profit,
+                            no loss.
+                        </p>
+                        <p>
+                            <span class="font-bold text-slate-200">
+                                How it's calculated:
+                            </span>
+                        </p>
+                        <p class="font-mono text-[11px] text-slate-300">
+                            stake × (total odds − 1) = price
+                        </p>
+                        <p class="font-mono text-[11px] text-slate-300">
+                            ⇒ stake = price ÷ (total odds − 1)
+                        </p>
+                        <p>
+                            For this slip:
+                            <span class="font-mono text-slate-300">
+                                KSH {{ slip.price.toFixed(2) }} ÷
+                                ({{ calculateTotalOdds() }} − 1) =
+                                KSH {{ slip.break_even_stake.toFixed(2) }}
+                            </span>
+                        </p>
+                        <p>
+                            Stake anything <span class="font-bold text-slate-200">above</span>
+                            this and you're in profit beyond covering the
+                            slip's price.
+                        </p>
+                        <p class="text-slate-400">
+                            Higher total odds mean a lower break-even stake —
+                            a slip at 10.00 only needs a tenth of its price
+                            staked to break even.
+                        </p>
+                    </InfoPopover>
+                </span>
             </div>
-            <button
-                @click="unlockClicked(slip)"
-                class="cursor-pointer rounded-lg bg-marketplace-gold px-6 py-3 text-xs font-bold tracking-wider text-marketplace-bg uppercase shadow-md transition-all hover:bg-marketplace-gold/90 active:scale-[0.98]"
-            >
+            <button @click="unlockClicked(slip)"
+                class="cursor-pointer rounded-lg bg-marketplace-gold px-6 py-3 text-xs font-bold tracking-wider text-marketplace-bg uppercase shadow-md transition-all hover:bg-marketplace-gold/90 active:scale-[0.98]">
                 Unlock
             </button>
         </div>
-        <div
-            v-else
-            class="border-t border-marketplace-green/30 bg-marketplace-green/10 p-3 text-center text-xs font-bold tracking-widest text-marketplace-green uppercase"
-        >
+
+        <div v-else
+            class="border-t border-marketplace-green/30 bg-marketplace-green/10 p-3 text-center text-xs font-bold tracking-widest text-marketplace-green uppercase">
             ✓ You have unlocked this slip
         </div>
     </div>
@@ -370,7 +299,9 @@
 
 <script setup>
 import { router } from '@inertiajs/vue3';
+import InfoPopover from '@/components/InfoPopover.vue';
 import WatchButton from '@/components/WatchButton.vue';
+import ReputationBadge from '@/components/ReputationBadge.vue';
 
 const props = defineProps({
     slip: {

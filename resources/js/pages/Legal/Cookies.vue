@@ -27,7 +27,7 @@ const lastUpdated = 'September 13, 2026';
 
             <p class="mb-8 text-sm leading-relaxed text-slate-400">
                 This policy explains what cookies and similar technologies
-                Betslip Pirates uses, why we use them, and how you can control
+                Fainali uses, why we use them, and how you can control
                 them. We keep this list short on purpose — we don't run
                 advertising networks or third-party trackers.
             </p>

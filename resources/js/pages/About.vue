@@ -20,7 +20,7 @@ import { Head, Link } from '@inertiajs/vue3';
                 <h1
                     class="text-3xl font-black tracking-wider text-white uppercase md:text-4xl"
                 >
-                    About Betslip Pirates
+                    About Fainali
                 </h1>
                 <p
                     class="mt-4 max-w-2xl text-base leading-relaxed font-medium text-slate-400"
@@ -62,7 +62,7 @@ import { Head, Link } from '@inertiajs/vue3';
                     What we built
                 </h2>
                 <p class="text-sm leading-relaxed text-slate-400">
-                    Betslip Pirates is a
+                    Fainali is a
                     <strong class="text-slate-200">peer-to-peer marketplace</strong>.
                     Sellers list betslips at a price they choose. Buyers unlock
                     those betslips, see the actual picks, and use them however
@@ -213,7 +213,7 @@ import { Head, Link } from '@inertiajs/vue3';
                         </h3>
                         <p class="mt-1 text-sm leading-relaxed text-slate-400">
                             Nobody should have to take a tipster's word for it.
-                            Every seller on Betslip Pirates has an open,
+                            Every seller on Fainali has an open,
                             verifiable win/loss history. Their reputation is
                             earned, not claimed.
                         </p>

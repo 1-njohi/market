@@ -130,6 +130,8 @@ class ReferralRewardTriggerTest extends TestCase
         [$platform] = $this->makeUserWithWallet();
         [$referrer] = $this->makeUserWithWallet();
 
+        $seller->update(['sellable_status' => 'sellable']);
+
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
         $betslip = $this->makeBetslip($seller, legStatus: $legStatus, price: 100.00);

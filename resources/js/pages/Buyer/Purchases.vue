@@ -1,5 +1,5 @@
 <template>
-    <Head title="Purchases — Betslip Pirates" />
+    <Head title="Purchases — Fainali" />
 
     <ListPage
         label="Buyer"

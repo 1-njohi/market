@@ -12,13 +12,39 @@ use RuntimeException;
 class ContestScoringService
 {
     /**
-     * Score a contest: rank every entry by correct picks, then units won.
-     *
-     * Idempotent — a settled contest is a no-op.
+     * Backwards-compatible alias for scoreFinal(). Existing callers —
+     * principally ContestLegResolver::attemptScore — reach scoring
+     * through this entry point and expect final semantics.
+     */
+    public function score(Contest $contest): void
+    {
+        $this->scoreFinal($contest);
+    }
+
+    /**
+     * Interim scoring: called when at least one leg has resolved but the
+     * contest still has legs to play. Writes score_correct, score_units,
+     * rank_current (rolling the old value into rank_previous), and leaves
+     * pending picks untouched. Does not notify, does not flip the
+     * contest's status, does not set settled_at on entries.
+     */
+    public function scoreInterim(Contest $contest): void
+    {
+        if ($contest->status === 'settled') {
+            return;
+        }
+
+        $this->runScoring($contest, isFinal: false);
+    }
+
+    /**
+     * Final scoring: called when every leg has resolved. Same writes as
+     * interim, plus per-entry notifications, settled_at, and the
+     * transition of the contest itself to 'settled'.
      *
      * @throws RuntimeException  if any leg is still pending.
      */
-    public function score(Contest $contest): void
+    public function scoreFinal(Contest $contest): void
     {
         if ($contest->status === 'settled') {
             return;
@@ -26,9 +52,15 @@ class ContestScoringService
 
         $this->assertAllLegsResolved($contest);
 
-        DB::transaction(function () use ($contest) {
-            // Resolve each leg's winning selection. Void legs contribute
-            // nothing — they neither count as a correct pick nor carry units.
+        $this->runScoring($contest, isFinal: true);
+    }
+
+    /**
+     * @throws RuntimeException
+     */
+    private function runScoring(Contest $contest, bool $isFinal): void
+    {
+        DB::transaction(function () use ($contest, $isFinal) {
             $legs = ContestLeg::where('contest_id', $contest->id)
                 ->get()
                 ->keyBy('id');
@@ -43,42 +75,62 @@ class ContestScoringService
 
                 $entry->update([
                     'score_correct' => $correct,
-                    'score_units'   => $units,
-                    'settled_at'    => now(),
+                    'score_units' => $units,
+                    'settled_at' => $isFinal ? now() : $entry->settled_at,
                 ]);
             }
 
-            // Rank: correct desc, units desc, joined_at asc (earliest join
-            // wins the rare full tie).
             $ranked = ContestEntry::where('contest_id', $contest->id)
-            ->where('status', 'accepted')
-            ->orderByDesc('score_correct')
-            ->orderByDesc('score_units')
-            ->orderBy('joined_at')
-            ->with('user')
-            ->get();
+                ->where('status', 'accepted')
+                ->orderByDesc('score_correct')
+                ->orderByDesc('score_units')
+                ->orderBy('joined_at')
+                ->with('user')
+                ->get();
 
             $totalParticipants = $ranked->count();
 
             $rank = 1;
             foreach ($ranked as $entry) {
-            $entry->update(['rank_final' => $rank]);
+                $previousRank = $entry->rank_current;
 
-            $entry->user->notify(new ContestSettledNotification(
-                contest:           $contest,
-                rank:              $rank,
-                correct:           (int) $entry->score_correct,
-                units:             (float) $entry->score_units,
-                totalParticipants: $totalParticipants,
-            ));
+                $entry->update([
+                    'rank_previous' => $previousRank,
+                    'rank_current' => $rank,
+                ]);
 
-            $rank++;
+                if ($isFinal) {
+                    if ($contest->is_matchday) {
+                        $entry->user->notify(new \App\Notifications\Matchday\MatchdaySettledNotification(
+                            contest: $contest,
+                            correct: (int) $entry->score_correct,
+                            total: $legs->count(),
+                            matchdayNumber: (int) $contest->matchday_number,
+                        ));
+                    } else {
+                        $entry->user->notify(new ContestSettledNotification(
+                            contest: $contest,
+                            rank: $rank,
+                            correct: (int) $entry->score_correct,
+                            units: (float) $entry->score_units,
+                            totalParticipants: $totalParticipants,
+                        ));
+                    }
+                }
+
+                $rank++;
+            }
+            if ($isFinal) {
+                $contest->update([
+                    'status' => 'settled',
+                    'settled_at' => now(),
+                ]);
+
+                if ($contest->is_matchday) {
+                    $this->dispatchMatchdayTopThree($contest);
+                }
             }
 
-            $contest->update([
-                'status'     => 'settled',
-                'settled_at' => now(),
-            ]);
         });
     }
 
@@ -89,7 +141,7 @@ class ContestScoringService
     private function scoreEntry(ContestEntry $entry, $legs): array
     {
         $correct = 0;
-        $units   = 0.0;
+        $units = 1.0;  // multiplicative identity — one correct pick leaves this at the pick's odds
 
         foreach ($entry->picks as $pick) {
             $leg = $legs->get($pick->contest_leg_id);
@@ -97,28 +149,42 @@ class ContestScoringService
                 continue;
             }
 
-            // Void leg: exit early, mark the pick void, contribute nothing.
+            // Pending leg: leave the pick alone, contribute nothing.
+            if ($leg->status === 'pending') {
+                continue;
+            }
+
+            // Void leg: neutral — mark the pick, contribute nothing.
             if ($leg->status === 'void') {
                 $pick->update(['status' => 'void', 'points' => 0]);
                 continue;
             }
 
-            $isCorrect = $leg->result_selection !== null
-                && $pick->selection === $leg->result_selection;
+            $winningSelections = $leg->result_selections ?? [];
+            if (!is_array($winningSelections)) {
+                $winningSelections = [$winningSelections];
+            }
+
+            $isCorrect = in_array($pick->selection, $winningSelections, true);
 
             if ($isCorrect) {
                 $correct++;
-                $points = (float) $pick->odds_at_pick;
-                $units += $points;
-                $pick->update(['status' => 'correct', 'points' => $points]);
+                $odds = (float) $pick->odds_at_pick;
+                $units *= $odds;
+                $pick->update(['status' => 'correct', 'points' => $odds]);
             } else {
                 $pick->update(['status' => 'incorrect', 'points' => 0]);
             }
         }
 
+        // No correct picks ⇒ 1.0 must not be reported. Zero is the
+        // conventional value for "you won nothing".
+        if ($correct === 0) {
+            $units = 0.0;
+        }
+
         return [$correct, number_format($units, 2, '.', '')];
     }
-
     private function assertAllLegsResolved(Contest $contest): void
     {
         $pending = ContestLeg::where('contest_id', $contest->id)
@@ -129,6 +195,36 @@ class ContestScoringService
             throw new RuntimeException(
                 "Contest {$contest->uuid} has {$pending} unresolved leg(s); cannot score yet."
             );
+        }
+    }
+
+    /**
+     * Dispatch the per-sub-league top-three recap. Runs after the contest
+     * flips to 'settled' so the leaderboard query sees this contest's
+     * results. One notification per (user, sub-league) pair.
+     */
+    private function dispatchMatchdayTopThree(Contest $contest): void
+    {
+        $subLeagues = \App\Models\SubLeague::where('season', $contest->season)->get();
+
+        $leaderboard = app(\App\Services\Matchday\MatchdayLeaderboardService::class);
+
+        foreach ($subLeagues as $sub) {
+            if (!$sub->coversLeague((string) $contest->league_code)) {
+                continue;
+            }
+
+            $rows = $leaderboard->forSubLeague($sub);
+
+            foreach (array_slice($rows, 0, 3) as $row) {
+                $user = \App\Models\User::find($row['user_id']);
+                $user?->notify(new \App\Notifications\Matchday\MatchdayTopThreeNotification(
+                    contest: $contest,
+                    subLeague: $sub,
+                    rank: $row['rank'],
+                    points: $row['points'],
+                ));
+            }
         }
     }
 }

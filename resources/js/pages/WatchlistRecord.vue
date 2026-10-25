@@ -27,7 +27,7 @@ const unitsColor = computed(() => {
 </script>
 
 <template>
-    <Head title="Watch Record — Betslip Pirates" />
+    <Head title="Watch Record — Fainali" />
 
     <div class="min-h-screen font-sans text-slate-300">
         <div class="mx-auto w-full max-w-[1200px] px-4 py-12 md:px-6 lg:px-8">

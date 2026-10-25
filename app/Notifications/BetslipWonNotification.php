@@ -64,6 +64,6 @@ class BetslipWonNotification extends Notification
                 ? "Your betslip #{$this->betslip->code} won. Your payout has been released to your wallet."
                 : "The betslip #{$this->betslip->code} you purchased won.")
             ->action('View Wallet', url('/wallet'))
-            ->line('Thanks for using Betslip Pirates!');
+            ->line('Thanks for using Fainali!');
     }
 }

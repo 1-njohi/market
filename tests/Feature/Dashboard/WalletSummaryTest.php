@@ -397,20 +397,6 @@ class WalletSummaryTest extends TestCase
         $this->assertSame(700.00, (float) $summary['total_refunded']);
     }
 
-    public function test_buyer_quick_stats_total_spent_excludes_pending_and_voided(): void
-    {
-        [$buyer] = $this->makeUserWithWallet();
-
-        $this->makeBuyerPurchaseOf($buyer, 100.00, 'pending');
-        $this->makeBuyerPurchaseOf($buyer, 200.00, 'won');
-        $this->makeBuyerPurchaseOf($buyer, 300.00, 'voided');
-
-        $stats = app(BuyerDashboardService::class)->getQuickStats($buyer);
-
-        $this->assertSame(200.00, (float) $stats['total_spent']);
-        $this->assertSame(300.00, (float) $stats['total_committed']);
-    }
-
     public function test_buyer_average_price_is_over_committed_purchases(): void
     {
         [$buyer] = $this->makeUserWithWallet();

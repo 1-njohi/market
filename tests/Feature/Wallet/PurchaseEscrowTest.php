@@ -17,6 +17,7 @@ class PurchaseEscrowTest extends TestCase
     {
         [$buyer, $buyerWallet] = $this->makeUserWithWallet(balance: 1000.00);
         [$seller] = $this->makeUserWithWallet(balance: 0.00);
+        $seller->update(['sellable_status' => 'sellable']);
 
         $betslip = $this->makeBetslip(seller: $seller, price: 200.00);
 
@@ -24,18 +25,13 @@ class PurchaseEscrowTest extends TestCase
 
         $buyerWallet->refresh();
 
-        // Buyer's spendable balance drops by the price.
         $this->assertSame(800.00, (float) $buyerWallet->balance);
-
-        // Buyer's escrow rises by the price — the money is held, not gone.
         $this->assertSame(200.00, (float) $buyerWallet->escrow_balance);
 
-        // Seller is untouched at purchase time. They only earn on settlement.
         $sellerWallet = Wallet::where('user_id', $seller->id)->firstOrFail();
         $this->assertSame(0.00, (float) $sellerWallet->balance);
         $this->assertSame(0.00, (float) $sellerWallet->escrow_balance);
     }
-
     // -----------------------------------------------------------------
     // Helpers — inline for now, extract to factories once the shape
     // stabilises across several tests.

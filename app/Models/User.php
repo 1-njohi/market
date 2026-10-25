@@ -47,6 +47,12 @@ use App\Services\ReferralCodeGenerator;
     'referral_code',
     'referred_by_id',
     'welcome_discount_used',
+    'pick_win_rate_rolling',
+    'picks_settled_rolling',
+    'sellable_status',
+    'sellable_status_changed_at',
+    'prediction_points',
+    'sellable_warned_at',
 ])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
@@ -66,7 +72,11 @@ class User extends Authenticatable implements PasskeyUser
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'is_admin' => 'boolean',
-            'suspended_at' => 'datetime'
+            'suspended_at' => 'datetime',
+            'pick_win_rate_rolling' => 'float',
+            'picks_settled_rolling' => 'integer',
+            'sellable_status_changed_at' => 'datetime',
+            'sellable_warned_at' => 'datetime',
         ];
     }
 
@@ -414,5 +424,31 @@ class User extends Authenticatable implements PasskeyUser
         }
 
         return $raw;
+    }
+
+    public function predictions()
+    {
+        return $this->hasMany(Prediction::class);
+    }
+
+    public function predictionPointLogs()
+    {
+        return $this->hasMany(PredictionPointLog::class)->latest();
+    }
+
+    /**
+     * Reputation weight for crowd aggregation. Users at zero or below
+     * carry no extra weight. Users above zero weight logarithmically so
+     * a single oracle doesn't drown out the crowd.
+     *
+     * @return float   Between 1.0 (baseline) and ~4.0 (top oracle).
+     */
+    public function reputationWeight(): float
+    {
+        if ($this->prediction_points <= 0) {
+            return 1.0;
+        }
+
+        return 1.0 + log10($this->prediction_points / 100 + 1);
     }
 }

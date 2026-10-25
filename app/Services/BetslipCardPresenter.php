@@ -35,6 +35,12 @@ class BetslipCardPresenter
             'price' => (float) $betslip->price,
             'caption' => $betslip->caption,
 
+            // Buyer's minimum external stake to earn back the price they
+            // paid. Null when total_odds ≤ 1.0 (corrupted data only).
+            'break_even_stake' => $betslip->break_even_stake !== null
+                ? (float) $betslip->break_even_stake
+                : null,
+
             'is_watching' => $viewer
                 ? $betslip->watchers()->where('user_id', $viewer->id)->exists()
                 : false,
@@ -50,6 +56,10 @@ class BetslipCardPresenter
                 'roi' => $this->calculateROI($seller),
                 'win_rate' => $this->calculateWinRate($seller),
                 'recent_form' => $this->getRecentForm($seller),
+                'prediction_points' => (int) $betslip->seller->prediction_points,
+                'global_rank' => $betslip->seller->prediction_points > 0
+                    ? User::where('prediction_points', '>', $betslip->seller->prediction_points)->count() + 1
+                    : null,
             ],
 
             'total_markets' => $betslip->odds_count,

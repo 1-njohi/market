@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\ReferralTerm;
+
+use Illuminate\Support\Facades\DB;
 use App\Services\ReferralService;
 use App\Referral\ReferralTerms;
 use App\Services\WalletService;
@@ -58,14 +60,34 @@ class AdminUserController extends Controller
             };
         }
 
+        // ── Subquery: total platform fees earned from this user (as a seller) ──
+        // This is the authoritative source: transactions where user_id = platform,
+        // joined to betslip_user_purchases where seller_id = this user.
+        $platformUserId = 1; // or config('platform.user_id')
+        $purchaseClass = \App\Models\BetslipUserPurchase::class;
+
+        $feesSubquery = DB::table('transactions as t')
+            ->selectRaw('SUM(t.amount)')
+            ->join('betslip_user_purchases as p', 'p.id', '=', 't.transactionable_id')
+            ->where('t.transactionable_type', $purchaseClass)
+            ->where('t.type', 'fee')
+            ->where('t.user_id', $platformUserId)
+            ->whereColumn('p.seller_id', 'users.id');
+
+        // Add fees_earned as a select column so we can sort by it.
+        $query->select('users.*')
+            ->selectSub($feesSubquery, 'fees_earned');
+
         // ── Sort ──
         $sort = $request->input('sort', 'newest');
         match ($sort) {
             'oldest' => $query->orderBy('created_at', 'asc'),
             'name' => $query->orderBy('name', 'asc'),
             'balance' => $query->orderByDesc(
-                Wallet::select('balance')->whereColumn('wallets.user_id', 'users.id')
+                Wallet::select('balance')
+                    ->whereColumn('wallets.user_id', 'users.id')
             ),
+            'fees_earned' => $query->orderByDesc('fees_earned'),
             default => $query->orderByDesc('created_at'),
         };
 
@@ -91,6 +113,7 @@ class AdminUserController extends Controller
             ],
         ]);
     }
+
     public function show($id)
     {
         $user = User::with([
@@ -98,24 +121,51 @@ class AdminUserController extends Controller
             'sellerMetric',
             'betslips' => fn($q) => $q->latest()->limit(10),
             'purchases' => fn($q) => $q->with('betslip')->latest()->limit(10),
-            'transactions' => fn($q) => $q->latest()->limit(15),
+            'transactions' => fn($q) => $q->latest()->limit(25),
         ])->findOrFail($id);
 
         $referralTerms = ReferralTerm::where('user_id', $user->id)->first();
-
         $effectiveTerms = app(ReferralService::class)->termsFor($user);
 
         $referralTermsPayload = [
             'is_override' => $effectiveTerms->is_override,
-            'reward_percentage'    => $effectiveTerms->reward_percentage,
-            'max_transactions'     => $effectiveTerms->max_transactions,
-            'window_months'        => $effectiveTerms->window_months,
+            'reward_percentage' => $effectiveTerms->reward_percentage,
+            'max_transactions' => $effectiveTerms->max_transactions,
+            'window_months' => $effectiveTerms->window_months,
             'referee_discount_pct' => $effectiveTerms->referee_discount_pct,
             'referee_discount_cap' => $effectiveTerms->referee_discount_cap,
-            'notes'                => $referralTerms?->notes,
-            'granted_at'           => $referralTerms?->granted_at?->toISOString(),
-            'expires_at'           => $referralTerms?->expires_at?->toISOString(),
+            'notes' => $referralTerms?->notes,
+            'granted_at' => $referralTerms?->granted_at?->toISOString(),
+            'expires_at' => $referralTerms?->expires_at?->toISOString(),
         ];
+
+        // ── Financial Aggregates ──────────────────────────────────
+        $totalSalesVolume = (float) \DB::table('betslip_user_purchases')
+            ->where('seller_id', $user->id)
+            ->sum('purchase_price');
+
+        $totalPurchaseVolume = (float) \DB::table('betslip_user_purchases')
+            ->where('buyer_id', $user->id)
+            ->sum('purchase_price');
+
+        // Fees earned from this user as a seller — authoritative via ledger.
+        $platformFeesEarned = (float) \DB::table('transactions as t')
+            ->join('betslip_user_purchases as p', 'p.id', '=', 't.transactionable_id')
+            ->where('t.transactionable_type', \App\Models\BetslipUserPurchase::class)
+            ->where('t.type', 'fee')
+            ->where('t.user_id', 1)
+            ->where('p.seller_id', $user->id)
+            ->sum('t.amount');
+
+        $totalDeposits = (float) \DB::table('transactions')
+            ->where('user_id', $user->id)
+            ->where('type', 'deposit')
+            ->sum('amount');
+
+        $totalWithdrawals = (float) \DB::table('transactions')
+            ->where('user_id', $user->id)
+            ->where('type', 'withdrawal')
+            ->sum('amount');
 
         return Inertia::render('admin/users/Show', [
             'user' => [
@@ -140,9 +190,16 @@ class AdminUserController extends Controller
             'wallet' => [
                 'balance' => (float) ($user->wallet->balance ?? 0),
                 'escrow_balance' => (float) ($user->wallet->escrow_balance ?? 0),
-                'total_deposited' => (float) ($user->wallet->total_deposited ?? 0),
-                'total_withdrawn' => (float) ($user->wallet->total_withdrawn ?? 0),
+                'total_deposited' => $totalDeposits,
+                'total_withdrawn' => $totalWithdrawals,
                 'currency' => $user->wallet->currency ?? 'KES',
+            ],
+
+            'financials' => [
+                'total_sales_volume' => $totalSalesVolume,
+                'total_purchase_volume' => $totalPurchaseVolume,
+                'platform_fees_earned' => $platformFeesEarned,
+                'net_deposit' => $totalDeposits - $totalWithdrawals,
             ],
 
             'stats' => [

@@ -26,7 +26,7 @@ const lastUpdated = 'September 13, 2026';
             </div>
 
             <p class="mb-8 text-sm leading-relaxed text-slate-400">
-                This Privacy Policy explains what data Betslip Pirates
+                This Privacy Policy explains what data Fainali
                 collects, why we collect it, how we protect it, and the rights
                 you have over it. We comply with the
                 <strong class="text-slate-200">Kenya Data Protection Act, 2019</strong>.
@@ -136,7 +136,7 @@ const lastUpdated = 'September 13, 2026';
                     8. Contact
                 </h2>
                 <p class="text-sm leading-relaxed text-slate-400">
-                    Data controller: Betslip Pirates, Nairobi, Kenya. Email
+                    Data controller: Fainali, Nairobi, Kenya. Email
                     <a href="mailto:privacy@betslip-pirates.com" class="text-sky-400 hover:underline">
                         privacy@betslip-pirates.com
                     </a>.

@@ -84,7 +84,7 @@ class ContestJoinRequestedWebPushTest extends TestCase
             'code' => 'ALICE001',
         ]);
 
-        $contest = Contest::create([
+        $contest = Contest::withoutHostGuard(fn () => Contest::create([
             'host_id'           => $host->id,
             'name'              => 'Sunday Crew',
             'description'       => 'Weekly picks.',
@@ -93,7 +93,7 @@ class ContestJoinRequestedWebPushTest extends TestCase
             'entry_deadline_at' => now()->addDay(),
             'starts_at'         => now()->addDay()->addHour(),
             'ends_at'           => now()->addDay()->addHours(2),
-        ]);
+        ]));
 
         return [
             new ContestJoinRequestedNotification($contest, $requester),

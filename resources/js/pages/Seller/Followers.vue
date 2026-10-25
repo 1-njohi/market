@@ -1,5 +1,5 @@
 <template>
-    <Head title="Followers — Betslip Pirates" />
+    <Head title="Followers — Fainali" />
 
     <ListPage
         label="Seller"

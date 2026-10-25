@@ -16,12 +16,16 @@ class Betslip extends Model
         'user_id',
         'total_odds',
         'price',
-        'status', //pending, underway, settled, voided
+        'status',
         'remaining',
         'is_winner',
         'code',
         'priority_score',
-        'caption'
+        'break_even_stake',
+        'caption',
+        'is_sellable',
+        'is_delisted',
+        'settled_at',
     ];
 
     protected $casts = [
@@ -29,6 +33,10 @@ class Betslip extends Model
         'price' => 'float',
         'remaining' => 'integer',
         'is_winner' => 'boolean',
+        'is_sellable' => 'boolean',
+        'is_delisted' => 'boolean',
+        'break_even_stake' => 'decimal:2',
+        'settled_at' => 'datetime',
     ];
 
     // Relationship with the user (seller)
@@ -152,5 +160,37 @@ class Betslip extends Model
     public function isAvailableForPurchase(): bool
     {
         return $this->status === 'pending' && $this->remaining > 0;
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Betslip $betslip) {
+            $user = User::find($betslip->user_id);
+            if (!$user) {
+                return;
+            }
+
+            $canSell = app(\App\Services\SellerEligibilityService::class)->canSell($user);
+
+            // Explicit intent wins. Callers that pass `is_sellable`
+            // (the controller does, based on the user's toggle) get
+            // their choice respected. Callers that don't — seeders,
+            // test fixtures — default to true, matching the UI's
+            // "toggle is ON by default" contract.
+            $requested = array_key_exists('is_sellable', $betslip->getAttributes())
+                ? (bool) $betslip->is_sellable
+                : true;
+
+            $final = $canSell && $requested;
+            $betslip->is_sellable = $final;
+
+            if (!$final) {
+                // Sentinel price so ROI aggregates stay coherent for
+                // non-listed slips. The value never reaches the
+                // marketplace (is_sellable is false), so it's a
+                // bookkeeping device only.
+                $betslip->price = 1;
+            }
+        });
     }
 }

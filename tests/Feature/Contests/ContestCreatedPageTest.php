@@ -11,16 +11,18 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Str;
+use Tests\Concerns\CreatesEligibleActors;
 use Tests\TestCase;
 
 class ContestCreatedPageTest extends TestCase
 {
     use DatabaseMigrations;
+    use CreatesEligibleActors;
 
     public function test_publish_redirects_to_the_created_page(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $this->draft($host, $s);
         $response = $this->publish($host);
@@ -32,7 +34,7 @@ class ContestCreatedPageTest extends TestCase
     public function test_created_page_renders_for_host(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $this->draft($host, $s);
         $this->publish($host);
@@ -41,22 +43,23 @@ class ContestCreatedPageTest extends TestCase
         $response = $this->actingAs($host)->get("/contests/{$contest->id}/created");
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page
-            ->component('Contests/Created')
-            ->where('contest.id', $contest->id)
-            ->where('contest.uuid', $contest->uuid)
-            ->where('contest.name', 'Sunday Crew')
-            ->where('contest.status', 'open')
-            ->where('contest.legs_count', 5)
-            ->has('contest.entry_deadline_at')
+        $response->assertInertia(
+            fn($page) => $page
+                ->component('Contests/Created')
+                ->where('contest.id', $contest->id)
+                ->where('contest.uuid', $contest->uuid)
+                ->where('contest.name', 'Sunday Crew')
+                ->where('contest.status', 'open')
+                ->where('contest.legs_count', 5)
+                ->has('contest.entry_deadline_at')
         );
     }
 
     public function test_created_page_forbidden_for_non_host(): void
     {
-        $host    = $this->makeUser('Host');
-        $other   = $this->makeUser('Other');
-        $s       = $this->fixtureSet();
+        $host = $this->makeUser('Host');
+        $other = $this->makeUser('Other');
+        $s = $this->fixtureSet();
 
         $this->draft($host, $s);
         $this->publish($host);
@@ -70,7 +73,7 @@ class ContestCreatedPageTest extends TestCase
     public function test_created_page_redirects_guests_to_login(): void
     {
         $host = $this->makeUser('Host');
-        $s    = $this->fixtureSet();
+        $s = $this->fixtureSet();
 
         $this->draft($host, $s);
         $this->publish($host);
@@ -89,12 +92,14 @@ class ContestCreatedPageTest extends TestCase
 
     private function draft(User $host, array $s): void
     {
+        $this->makeEligibleHost($host);
+
         $legs = [];
         for ($i = 0; $i < 5; $i++) {
             $legs[] = [
                 'fixture_id' => $s['fixtures'][$i]->id,
-                'market_id'  => $s['market1']->id,
-                'selection'  => 'Home',
+                'market_id' => $s['market1']->id,
+                'selection' => 'Home',
             ];
         }
 
@@ -104,8 +109,8 @@ class ContestCreatedPageTest extends TestCase
     private function publish(User $host)
     {
         return $this->actingAs($host)->post('/contests', [
-            'name'              => 'Sunday Crew',
-            'description'       => 'Weekly challenge.',
+            'name' => 'Sunday Crew',
+            'description' => 'Weekly challenge.',
             'entry_deadline_at' => now()->addHour()->toDateTimeString(),
         ]);
     }
@@ -113,23 +118,25 @@ class ContestCreatedPageTest extends TestCase
     private function fixtureSet(): array
     {
         $league = $this->makeLeague();
-        $home   = $this->makeTeam('Home FC', 900001);
-        $away   = $this->makeTeam('Away FC', 900002);
+        $home = $this->makeTeam('Home FC', 900001);
+        $away = $this->makeTeam('Away FC', 900002);
 
         $fixtures = [];
         for ($i = 0; $i < 6; $i++) {
             $fixtures[] = $this->makeFixture(
-                $league, $home, $away,
+                $league,
+                $home,
+                $away,
                 kickoff: now()->addHours(2 + $i * 2),
             );
         }
 
         return [
-            'league'   => $league,
-            'home'     => $home,
-            'away'     => $away,
+            'league' => $league,
+            'home' => $home,
+            'away' => $away,
             'fixtures' => $fixtures,
-            'market1'  => $this->makeMarket(1, 'Match Winner'),
+            'market1' => $this->makeMarket(1, 'Match Winner'),
         ];
     }
 
@@ -146,11 +153,11 @@ class ContestCreatedPageTest extends TestCase
         return League::firstOrCreate(
             ['id_on_api' => 900100],
             [
-                'sport_id'   => 1,
-                'name'       => 'Test League',
+                'sport_id' => 1,
+                'name' => 'Test League',
                 'country_id' => 1,
-                'country'    => 'Test Country',
-                'season'     => 2026,
+                'country' => 'Test Country',
+                'season' => 2026,
             ]
         );
     }
@@ -169,11 +176,11 @@ class ContestCreatedPageTest extends TestCase
         $kickoff = $kickoff ?? now()->addHours(2);
 
         $fixture = Fixture::create([
-            'id_on_api'    => 900000 + random_int(1, 99999),
-            'date'         => $kickoff->toDateTimeString(),
-            'timestamp'    => $kickoff->timestamp,
+            'id_on_api' => 900000 + random_int(1, 99999),
+            'date' => $kickoff->toDateTimeString(),
+            'timestamp' => $kickoff->timestamp,
             'status_short' => 'NS',
-            'league_id'    => $league->id,
+            'league_id' => $league->id,
             'home_team_id' => $home->id,
             'away_team_id' => $away->id,
         ]);

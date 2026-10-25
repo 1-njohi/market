@@ -14,7 +14,7 @@ class PlatformUserSeeder extends Seeder
         $platform = User::firstOrCreate(
             ['email' => 'platform@betslip-pirates.com'],
             [
-                'name' => 'Betslip Pirates Platform',
+                'name' => 'Fainali Platform',
                 'phone' => '0000000000',
                 'code' => 'PLATFORM',
                 'country_code' => '+254',

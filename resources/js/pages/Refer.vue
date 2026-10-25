@@ -40,7 +40,7 @@ const shareUrl = computed(() => dashboard.value.share_url);
 
 const shareText = computed(
     () =>
-        `Join me on Betslip Pirates — buy and sell verified betslips with a refund guarantee. My code is ${dashboard.value.code}`,
+        `Join me on Fainali — buy and sell verified betslips with a refund guarantee. My code is ${dashboard.value.code}`,
 );
 
 const socialLinks = computed(() => ({
@@ -104,7 +104,7 @@ const triggerNativeShare = async () => {
     if (navigator.share) {
         try {
             await navigator.share({
-                title: 'Join Betslip Pirates',
+                title: 'Join Fainali',
                 text: shareText.value,
                 url: shareUrl.value,
             });
@@ -120,7 +120,7 @@ const triggerNativeShare = async () => {
 </script>
 
 <template>
-    <Head title="Refer — Betslip Pirates" />
+    <Head title="Refer — Fainali" />
 
     <div class="min-h-screen font-sans text-slate-300">
         <div class="mx-auto w-full max-w-[1200px] px-4 py-12 md:px-6 lg:px-8">

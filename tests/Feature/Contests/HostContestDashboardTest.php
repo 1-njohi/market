@@ -25,10 +25,10 @@ class HostContestDashboardTest extends TestCase
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Contests/Mine')
                 ->has('contests', 2)
-                ->where('contests.0.name', 'KPL Degens')  // newest first
+                ->where('contests.0.name', 'KPL Degens')
                 ->where('contests.1.name', 'Sunday Crew')
         );
     }
@@ -45,7 +45,7 @@ class HostContestDashboardTest extends TestCase
         $response = $this->actingAs($host)->get('/contests/mine');
 
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->where('contests.0.pending_entries', 2)
                 ->where('contests.0.accepted_entries', 1)
         );
@@ -62,18 +62,19 @@ class HostContestDashboardTest extends TestCase
     {
         $host = $this->makeUser('Host');
         $alice = $this->makeUser('Alice');
-        $bob   = $this->makeUser('Bob');
+        $bob = $this->makeUser('Bob');
 
         $contest = $this->makeContest($host);
         $this->makeEntry($contest, $alice, 'pending');
         $this->makeEntry($contest, $bob, 'accepted');
 
+        // uuid route — matches the seller dashboard's contestHref() URL.
         $response = $this->actingAs($host)
-            ->get("/contests/{$contest->id}/manage");
+            ->get("/contests/{$contest->uuid}/manage");
 
         $response->assertOk();
         $response->assertInertia(
-            fn ($page) => $page
+            fn($page) => $page
                 ->component('Contests/Manage')
                 ->has('contest.entries', 2)
                 ->where('contest.entries.0.user.name', 'Alice')
@@ -83,12 +84,12 @@ class HostContestDashboardTest extends TestCase
 
     public function test_non_host_cannot_view_manage_page(): void
     {
-        $host  = $this->makeUser('Host');
+        $host = $this->makeUser('Host');
         $other = $this->makeUser('Other');
         $contest = $this->makeContest($host);
 
         $response = $this->actingAs($other)
-            ->get("/contests/{$contest->id}/manage");
+            ->get("/contests/{$contest->uuid}/manage");
 
         $response->assertStatus(403);
     }
@@ -108,24 +109,24 @@ class HostContestDashboardTest extends TestCase
         string $name = 'Test Contest',
         string $status = 'open',
     ): Contest {
-        return Contest::create([
-            'host_id'           => $host->id,
-            'name'              => $name,
-            'visibility'        => 'private',
-            'status'            => $status,
+        return Contest::withoutHostGuard(fn() => Contest::create([
+            'host_id' => $host->id,
+            'name' => $name,
+            'visibility' => 'private',
+            'status' => $status,
             'entry_deadline_at' => now()->addDays(3),
-            'starts_at'         => now()->addDays(4),
-            'ends_at'           => now()->addDays(5),
-        ]);
+            'starts_at' => now()->addDays(4),
+            'ends_at' => now()->addDays(5),
+        ]));
     }
 
     private function makeEntry(Contest $contest, User $user, string $status): ContestEntry
     {
         return ContestEntry::create([
             'contest_id' => $contest->id,
-            'user_id'    => $user->id,
-            'status'     => $status,
-            'joined_at'  => now(),
+            'user_id' => $user->id,
+            'status' => $status,
+            'joined_at' => now(),
         ]);
     }
 }

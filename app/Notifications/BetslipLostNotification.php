@@ -60,6 +60,6 @@ class BetslipLostNotification extends Notification
             ->greeting("Hi {$notifiable->name},")
             ->line("Betslip #{$this->betslip->code} lost. Your purchase has been refunded to your wallet.")
             ->action('View Wallet', url('/wallet'))
-            ->line('Thanks for using Betslip Pirates!');
+            ->line('Thanks for using Fainali!');
     }
 }

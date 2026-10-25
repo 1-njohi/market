@@ -13,12 +13,13 @@ class ContestLeg extends Model
         'fixture_id',
         'market_id',
         'status',
-        'result_selection',
+        'result_selections',
         'resolved_at',
     ];
 
     protected $casts = [
-        'resolved_at' => 'datetime',
+        'resolved_at'       => 'datetime',
+        'result_selections' => 'array',
     ];
 
     public function contest(): BelongsTo

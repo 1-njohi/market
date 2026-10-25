@@ -2,12 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Services\MarketSettlementService;
 use App\Models\Fixture;
-use App\Models\Market;
 use App\Models\Odd;
+
 use App\Services\ApiSportsClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+
 
 class SyncUpcomingOddsCommand extends Command
 {
@@ -74,16 +76,14 @@ class SyncUpcomingOddsCommand extends Command
         $bets = $bookmakers[0]['bets'] ?? [];
 
         foreach ($bets as $bet) {
-            $marketId = $bet['id']   ?? null;
-            $name     = $bet['name'] ?? null;
-            if (!$marketId || !$name) {
+            $marketId = (int) ($bet['id'] ?? 0);
+
+            // Only sync markets the settlement engine can resolve. Unhandled
+            // markets are skipped so `odds` never contains rows the engine
+            // would have to fall through on.
+            if (!in_array($marketId, MarketSettlementService::SETTLEABLE_MARKET_IDS, true)) {
                 continue;
             }
-
-            Market::updateOrCreate(
-                ['id' => (int) $marketId],
-                ['name' => (string) $name],
-            );
 
             foreach ($bet['values'] ?? [] as $entry) {
                 $value = $entry['value'] ?? null;

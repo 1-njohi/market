@@ -7,7 +7,7 @@ const categories = [
         title: 'Getting Started',
         description: 'Create an account, fund your wallet, and make your first transaction.',
         articles: [
-            'How to register on Betslip Pirates',
+            'How to register on Fainali',
             'Funding your wallet with M-Pesa',
             'Understanding your dashboard',
             'Verifying your email address',

@@ -91,7 +91,7 @@ const events = [
                     Community
                 </h1>
                 <p class="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400">
-                    Betslip Pirates is bigger than a marketplace. It's a
+                    Fainali is bigger than a marketplace. It's a
                     network of Kenyan bettors who analyse the game and share
                     what they see. Join the conversation.
                 </p>

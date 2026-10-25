@@ -28,7 +28,7 @@ const statusClass = (status) => {
 </script>
 
 <template>
-    <Head title="My Contests — Betslip Pirates" />
+    <Head title="My Contests — Fainali" />
 
     <div class="min-h-screen font-sans text-slate-300">
         <div class="mx-auto w-full max-w-4xl px-2 py-12 md:px-6 lg:px-8">
@@ -131,7 +131,7 @@ const statusClass = (status) => {
                 <Link
                     v-for="c in contests"
                     :key="c.id"
-                    :href="`/contests/${c.id}/manage`"
+                    :href="`/contests/${c.uuid}/manage`"
                     class="block overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a] transition-colors hover:border-sky-500/40"
                 >
                     <div class="flex items-center justify-between gap-4 p-4">

@@ -24,7 +24,7 @@ class ContestCreationTest extends TestCase
     {
         $host = $this->makeUser('Denis Wanjohi');
 
-        $contest = Contest::create([
+        $contest = Contest::withoutHostGuard(fn () => Contest::create([
             'host_id'     => $host->id,
             'name'        => 'Sunday Crew',
             'description' => 'Weekly five-pick challenge among friends.',
@@ -33,7 +33,7 @@ class ContestCreationTest extends TestCase
             'entry_deadline_at' => now()->addDays(3),
             'starts_at'         => now()->addDays(4),
             'ends_at'           => now()->addDays(5),
-        ]);
+        ]));
 
         $this->assertNotNull($contest->uuid);
         $this->assertMatchesRegularExpression(
@@ -49,7 +49,7 @@ class ContestCreationTest extends TestCase
     {
         $host = $this->makeUser('Host');
 
-        $contest = Contest::create([
+        $contest = Contest::withoutHostGuard(fn () => Contest::create([
             'host_id'     => $host->id,
             'name'        => 'Test',
             'visibility'  => 'private',
@@ -57,7 +57,7 @@ class ContestCreationTest extends TestCase
             'entry_deadline_at' => now()->addDays(1),
             'starts_at'         => now()->addDays(2),
             'ends_at'           => now()->addDays(3),
-        ]);
+        ]));
 
         $this->assertNotEmpty($contest->uuid);
     }
@@ -68,7 +68,7 @@ class ContestCreationTest extends TestCase
         $uuids = [];
 
         for ($i = 0; $i < 10; $i++) {
-            $contest = Contest::create([
+            $contest = Contest::withoutHostGuard(fn () => Contest::create([
                 'host_id'     => $host->id,
                 'name'        => "Contest {$i}",
                 'visibility'  => 'private',
@@ -76,7 +76,7 @@ class ContestCreationTest extends TestCase
                 'entry_deadline_at' => now()->addDays(1),
                 'starts_at'         => now()->addDays(2),
                 'ends_at'           => now()->addDays(3),
-            ]);
+            ]));
 
             $this->assertNotContains($contest->uuid, $uuids);
             $uuids[] = $contest->uuid;
@@ -233,7 +233,7 @@ class ContestCreationTest extends TestCase
 
     private function makeContest(User $host): Contest
     {
-        return Contest::create([
+        return Contest::withoutHostGuard(fn () => Contest::create([
             'host_id'     => $host->id,
             'name'        => 'Test Contest',
             'visibility'  => 'private',
@@ -241,7 +241,7 @@ class ContestCreationTest extends TestCase
             'entry_deadline_at' => now()->addDays(3),
             'starts_at'         => now()->addDays(4),
             'ends_at'           => now()->addDays(5),
-        ]);
+        ]));
     }
 
     private function makeFixture(): Fixture

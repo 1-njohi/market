@@ -65,7 +65,7 @@ class MpesaWithdrawalService
                 $response = Mpesa::b2cSend(
                     amount: (int) $amount,
                     phone: $phone,
-                    remarks: 'Betslip Pirates Withdrawal',
+                    remarks: 'Fainali Withdrawal',
                     commandId: $reference,
                 );
 

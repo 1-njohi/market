@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Betslip;
 use App\Models\Odd;
-use App\Models\Fixture;
-use App\Models\Team;
+use App\Services\SellerEligibilityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +37,7 @@ class BetslipController extends Controller
     {
         $oddIds = session('betslip_draft');
 
+        \Log::info($oddIds);
         if (!$oddIds || count($oddIds) === 0) {
             return Redirect::route('home')
                 ->with('error', 'Your betslip draft expired. Please build it again.');
@@ -57,10 +58,14 @@ class BetslipController extends Controller
 
         $totalOdds = $odds->reduce(fn($carry, $odd) => $carry * $odd->odd, 1);
 
+        $canSell = app(SellerEligibilityService::class)->canSell(Auth::user());
+
         return Inertia::render('BetslipConfirm', [
             'selections' => $odds->map(fn($odd) => [
                 'odd_id' => $odd->id,
                 'odds' => (float) $odd->odd,
+                'confidence' => 0,
+                'selection' => $odd->value,
                 'market' => $odd->market->name ?? 'Unknown Market',
                 'home_team' => $odd->fixture->homeTeam->name ?? 'Unknown',
                 'away_team' => $odd->fixture->awayTeam->name ?? 'Unknown',
@@ -71,44 +76,106 @@ class BetslipController extends Controller
                     : null,
             ])->values(),
             'total_odds' => round($totalOdds, 2),
+            'can_sell' => $canSell,
+            'seller_progress' => app(SellerEligibilityService::class)->progress(Auth::user()),
+            'seller_status' => Auth::user()->sellable_status,
         ]);
     }
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'price' => 'required|numeric|min:1|max:1000000',
+            'should_list' => 'sometimes|boolean',
+            'price' => 'nullable|numeric|min:1|max:1000000',
             'caption' => 'nullable|string|max:280',
+            'break_even_stake' => 'nullable|numeric|min:0',
+            'odds' => ['required', 'array', 'min:1'],
+            'odds.*.odd_id' => ['required', 'exists:odds,id'],
+            'odds.*.confidence' => ['required', 'integer', 'min:1', 'max:5'],
         ]);
 
-        $oddIds = session('betslip_draft');
+        $draft = session('betslip_draft');
 
-        if (!$oddIds || count($oddIds) === 0) {
+        if (!$draft || count($draft) === 0) {
             return Redirect::route('home')
                 ->withErrors(['error' => 'Your draft expired. Please build the betslip again.']);
+        }
+
+        // Cross-check: the odd_ids the client submitted must match the
+        // draft the user built. `$draft` is a flat list of odd_ids, so
+        // we compare values (not keys).
+        $submittedIds = collect($validated['odds'])
+            ->pluck('odd_id')
+            ->map(fn($id) => (int) $id)
+            ->sort()
+            ->values()
+            ->all();
+
+        $draftIds = collect($draft)
+            ->map(fn($id) => (int) $id)
+            ->sort()
+            ->values()
+            ->all();
+
+        if ($submittedIds !== $draftIds) {
+            return redirect()->back()->withErrors([
+                'error' => 'The submitted betslip does not match your draft. Please review and try again.',
+            ]);
+        }
+
+        $user = Auth::user();
+        $canSell = app(SellerEligibilityService::class)->canSell($user);
+        $shouldList = $canSell && ($validated['should_list'] ?? false);
+
+        if ($shouldList && ($validated['price'] ?? null) === null) {
+            return redirect()->back()->withErrors([
+                'price' => 'A price is required to list this betslip.',
+            ]);
         }
 
         DB::beginTransaction();
 
         try {
-            $oddsCollection = Odd::whereIn('id', $oddIds)->get()->keyBy('id');
+            $oddsCollection = Odd::whereIn('id', $draftIds)->get()->keyBy('id');
 
-            if ($oddsCollection->count() !== count($oddIds)) {
+            if ($oddsCollection->count() !== count($draftIds)) {
                 throw new \Exception('One or more selections are no longer available.');
             }
 
             $total_odds = $oddsCollection->reduce(fn($carry, $odd) => $carry * $odd->odd, 1);
 
+            $serverBreakEven = $shouldList
+                ? $this->computeBreakEvenStake((float) $validated['price'], (float) $total_odds)
+                : null;
+
+            if ($shouldList) {
+                $clientBreakEven = $validated['break_even_stake'] ?? null;
+
+                if (
+                    $clientBreakEven !== null && $serverBreakEven !== null
+                    && abs((float) $clientBreakEven - $serverBreakEven) > 1.0
+                ) {
+                    \Log::warning('Betslip break_even_stake drift', [
+                        'client' => $clientBreakEven,
+                        'server' => $serverBreakEven,
+                        'price' => $validated['price'],
+                        'total_odds' => $total_odds,
+                    ]);
+                }
+            }
+
             $code = Str::random(3) . '-' . Str::random(4) . '-' . Str::random(3);
 
             $betslip = Betslip::create([
-                'user_id' => Auth::id(),
+                'user_id' => $user->id,
                 'code' => strtoupper($code),
-                'price' => $validated['price'],
+                'price' => $shouldList ? (float) $validated['price'] : 1,
                 'total_odds' => $total_odds,
+                'break_even_stake' => $serverBreakEven,
                 'status' => 'pending',
                 'remaining' => $oddsCollection->count(),
                 'is_winner' => false,
                 'caption' => $validated['caption'] ?? null,
+                'is_sellable' => $shouldList,
             ]);
 
             $attachData = [];
@@ -123,30 +190,76 @@ class BetslipController extends Controller
 
             $betslip->odds()->attach($attachData);
 
+            // Record a prediction for each leg
+            $predictionRecorder = app(\App\Services\PredictionRecorderService::class);
+
+            $confidenceByOddId = collect($validated['odds'])
+                ->keyBy('odd_id')
+                ->map(fn($row) => (int) $row['confidence']);
+
+            foreach ($oddsCollection as $oddId => $oddModel) {
+                $confidence = $confidenceByOddId->get($oddId);
+                if ($confidence === null) {
+                    continue;
+                }
+
+                $predictionRecorder->record(
+                    userId: $user->id,
+                    fixtureId: $oddModel->fixture_id,
+                    marketId: $oddModel->market_id,
+                    selection: $oddModel->value,
+                    odds: (float) $oddModel->odd,
+                    confidence: $confidence,
+                    sourceType: 'betslip',
+                    sourceId: (string) $betslip->id,
+                );
+            }
+
             DB::commit();
 
             session()->forget('betslip_draft');
-            Cache::forget(DashboardController::cacheKey(Auth::user()));
+            Cache::forget(DashboardController::cacheKey($user));
 
-            $successMessage = "Your Betslip has been created successfully. It was assigned the tracking code "
-                . $betslip->code . ". You can share it with potential buyers";
+            $successMessage = $shouldList
+                ? "Your betslip is live and listed for sale at KES "
+                . number_format((float) $validated['price'], 2)
+                . ". Tracking code " . $betslip->code . "."
+                : "Your betslip is saved to your record. Tracking code "
+                . $betslip->code . ".";
 
             return Redirect::route('betslip.success', ['code' => $betslip->code])
                 ->with('success', $successMessage);
-
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Betslip creation failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
 
             return redirect()->back()->withErrors([
                 'error' => $e->getMessage() ?: 'Failed to create betslip. Please try again.',
             ]);
         }
     }
+    /**
+     * List a previously non-sellable betslip for sale.
+     *
+     * The upgrade flow: a user who was ineligible at slip-creation time
+     * becomes eligible later. Existing slips don't auto-list — the seller
+     * deliberately picks which ones to sell and at what price. This
+     * endpoint flips is_sellable true and (re)sets is_delisted false.
+     *
+     * Also serves as the relist action for delisted slips: same guards,
+     * same outcome.
+     */
     public function success(Request $request)
     {
-        $betslip = Betslip::query()->where('code', $request->code)->first();
+        $betslip = Betslip::query()->where('code', $request->code)->firstOrFail();
+
+        $formatted = $this->getBetslip($betslip->code, Auth::user());
+
         return Inertia::render('BetslipCreated', [
-            'betslip' => $betslip
+            'betslip' => $formatted,
         ]);
     }
 
@@ -176,98 +289,262 @@ class BetslipController extends Controller
 
         return response()->json([
             'success' => true,
-            'code'    => $betslip->code,
-            'url'     => "/betslip/view/g/{$betslip->code}",
+            'code' => $betslip->code,
+            'url' => "/betslip/view/g/{$betslip->code}",
         ]);
     }
-
     public function show(Request $request)
     {
         $code = $request->code;
-        if (Auth::user()) {
-            $formattedBetslip = $this->getBetslip($code, Auth::user());
-        } else {
-            $formattedBetslip = $this->getBetslip($code, null);
-        }
 
-        // If API request, return JSON
+        $formattedBetslip = $this->getBetslip($code, Auth::user());
+
         if (request()->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'data' => $formattedBetslip
+                'data' => $formattedBetslip,
             ]);
         }
 
-        // If Inertia request, render view
         return Inertia::render('Betslip', [
-            'betslip' => $formattedBetslip
+            'betslip' => $formattedBetslip,
         ]);
     }
 
     /**
-     * Display a single betslip for potential buyers
+     * Build the full betslip payload consumed by resources/js/Pages/Betslip.vue
      */
-    public function getBetslip($code, $user)
+    private function getBetslip(string $code, ?\App\Models\User $user): array
     {
-        // Load the betslip with all necessary relationships
-        $betslip = Betslip::with([
-            'seller' => function ($query) {
-                $query->select('id', 'name', 'email', 'created_at', 'code');
-            },
-            'odds' => function ($query) {
-                $query->select('odds.id', 'odds.fixture_id', 'odds.market_id', 'odds.value', 'odds.odd')
-                    ->withPivot('odd_value_at_time', 'status');
-            },
-            'odds.fixture' => function ($query) {
-                $query->select('id', 'id_on_api', 'date', 'timestamp', 'league_id', 'home_team_id', 'away_team_id');
-            },
-            'odds.fixture.homeTeam' => function ($query) {
-                $query->select('id', 'id_on_api', 'name');
-            },
-            'odds.fixture.awayTeam' => function ($query) {
-                $query->select('id', 'id_on_api', 'name');
-            },
-            'odds.fixture.league' => function ($query) {
-                $query->select('id', 'name', 'country');
-            },
-            'odds.market' => function ($query) {
-                $query->select('id', 'name');
-            },
-            'buyers',
-        ])
-            ->where('code', $code)
-            ->firstOrFail();
+        $slip = Betslip::with([
+            'seller',
+            'odds.market',
+            'odds.fixture.league',
+            'odds.fixture.homeTeam',
+            'odds.fixture.awayTeam',
+        ])->where('code', $code)->firstOrFail();
 
-        // Check if the logged-in user is the seller or has purchased the betslip
-        $watchlist = app(WatchlistService::class);
-
+        // ------------------------------------------------------------------
+        // Access / watch state
+        // ------------------------------------------------------------------
+        $hasAccess = false;
         if ($user) {
-            $is_watching = $betslip->watchers()->where('user_id', $user->id)->exists();
-            $can_watch = $watchlist->canWatch($user, $betslip);
-            $isSeller = (int) $betslip->user_id === (int) $user->id;
-            $hasPurchased = $betslip->buyers()->where('buyer_id', $user->id)->exists();
-        } else {
-            $is_watching = false;
-            $can_watch = false;
-            $isSeller = false;
-            $hasPurchased = false;
+            $hasAccess = (int) $slip->user_id === (int) $user->id
+                || $slip->isPurchasedBy($user);
         }
 
-        // Calculate seller statistics
-        $sellerStats = $this->calculateSellerStats($betslip->seller);
-        
-        $formattedBetslip = $this->formatBetslipForDisplay(
-            $betslip,
-            $sellerStats,
-            $isSeller,
-            $hasPurchased,
-            $is_watching,
-            $can_watch,
-        );
+        $isWatching = $user
+            ? $slip->watchers()->where('user_id', $user->id)->exists()
+            : false;
 
-        return $formattedBetslip;
+        // ------------------------------------------------------------------
+        // Seller statistics — computed the same way the profile page does
+        // ------------------------------------------------------------------
+        $sellerStats = $this->computeSellerStats($slip->seller);
+
+        // ------------------------------------------------------------------
+        // Betslip statistics
+        // ------------------------------------------------------------------
+        $uniqueMarkets = $slip->odds->pluck('market_id')->unique()->count();
+
+        $statistics = [
+            'total_legs' => $slip->odds->count(),
+            'unique_markets' => $uniqueMarkets,
+        ];
+
+        // ------------------------------------------------------------------
+        // Purchase info
+        // ------------------------------------------------------------------
+        $price = (float) $slip->price;
+
+        $purchaseInfo = [
+            'price_to_purchase' => $price,
+            'message' => match (true) {
+                // Buyer / owner, slip still live
+                $hasAccess && $slip->status === 'underway'
+                => 'This slip is in play. Follow along as the remaining fixtures settle.',
+
+                // Buyer / owner, slip settled as a win
+                $hasAccess && $slip->status === 'settled' && $slip->is_winner
+                => 'This slip won. Your payout has been settled.',
+
+                // Buyer / owner, slip settled as a loss
+                $hasAccess && $slip->status === 'settled'
+                => 'This slip lost — your purchase was refunded automatically.',
+
+                // Buyer / owner, still pending
+                $hasAccess
+                => 'You have full access to the picks and odds on this slip.',
+
+                // Settled slips are public — non-buyers see picks now
+                $slip->status === 'settled' && $slip->is_winner
+                => 'This slip settled as a winner — the picks and results are public.',
+
+                $slip->status === 'settled'
+                => 'This slip settled as a loss — the picks, results and refunds are public.',
+
+                // Live but locked
+                $slip->status === 'underway'
+                => 'This slip is in play. Unlock to see the picks and follow the action — full refund if it loses.',
+
+                // Default: pending + locked
+                default
+                => 'Unlock this betslip to see the seller\'s actual picks. If the slip loses, you get your money back automatically.',
+            },
+        ];
+        // ------------------------------------------------------------------
+        // Correct outcome lookup for lost legs
+        // key = "{fixture_id}-{market_id}" -> winning Odd
+        // ------------------------------------------------------------------
+        $correctOdds = Odd::query()
+            ->whereIn('fixture_id', $slip->odds->pluck('fixture_id')->unique())
+            ->whereIn('market_id', $slip->odds->pluck('market_id')->unique())
+            ->where('status', 'won')
+            ->get()
+            ->keyBy(fn(Odd $o) => "{$o->fixture_id}-{$o->market_id}");
+
+        // ------------------------------------------------------------------
+        // Legs
+        // ------------------------------------------------------------------
+        $legs = $slip->odds->map(function (Odd $odd) use ($correctOdds) {
+            $legStatus = $odd->pivot->status ?? 'pending';
+
+            $leg = [
+                'id' => $odd->id,
+                'status' => $legStatus,
+                'odds' => (float) ($odd->pivot->odd_value_at_time ?? $odd->odd),
+                'selection' => $odd->value,
+                'result_selections' => [], // <-- Default empty
+                'market' => [
+                    'id' => $odd->market_id,
+                    'name' => $odd->market->name ?? '—',
+                ],
+                'fixture' => [
+                    'id' => $odd->fixture_id,
+                    'league' => $odd->fixture->league->name ?? '—',
+                    'home_team' => $odd->fixture->homeTeam->name ?? 'Home',
+                    'away_team' => $odd->fixture->awayTeam->name ?? 'Away',
+                    'status' => $odd->fixture->status_short ?? 'NS',
+                ],
+            ];
+
+            // Attach the actual winning selection if the market is settled
+            $win = $correctOdds->get("{$odd->fixture_id}-{$odd->market_id}");
+            if ($win) {
+                $leg['result_selections'] = [$win->value];
+            }
+            if ($legStatus === 'lost') {
+                $win = $correctOdds->get("{$odd->fixture_id}-{$odd->market_id}");
+                if ($win) {
+                    $leg['correct_selection'] = $win->value;
+                    $leg['correct_odds'] = (float) $win->odd;
+                }
+            }
+
+            return $leg;
+        })->values()->all();
+
+        $legs = $this->attachCrowdWisdomToLegs($legs);
+        // ------------------------------------------------------------------
+        // Final payload — matches every binding in Betslip.vue
+        // ------------------------------------------------------------------
+        return [
+            'id' => $slip->id,
+            'code' => $slip->code,
+            'status' => $slip->status,
+            'is_winner' => (bool) $slip->is_winner,
+            'total_odds' => (float) $slip->total_odds,
+            'has_access' => $hasAccess,
+            'can_watch' => $slip->status !== 'settled' && $slip->is_sellable,
+            'is_watching' => $isWatching,
+            'is_owner' => $user ? (int) $slip->user_id === (int) $user->id : false, // ← new
+
+            'statistics' => $statistics,
+
+            'seller' => [
+                'id' => $slip->seller->id,
+                'code' => $slip->seller->code,
+                'name' => $slip->seller->name,
+                'avatar' => $slip->seller->profile_picture_url
+                    ?? $slip->seller->avatar
+                    ?? 'https://ui-avatars.com/api/?name=' . urlencode($slip->seller->name),
+                'member_since' => optional($slip->seller->created_at)->format('M Y'),
+                'prediction_points' => (int) $slip->seller->prediction_points,
+                'global_rank' => $slip->seller->prediction_points > 0
+                    ? User::where('prediction_points', '>', $slip->seller->prediction_points)->count() + 1
+                    : null,
+                'statistics' => $sellerStats,
+            ],
+
+            'purchase_info' => $purchaseInfo,
+
+            'legs' => $legs,
+        ];
     }
 
+    /**
+     * Compute the seller's public performance stats.
+     * Shape mirrors what Betslip.vue binds to:
+     *   slip.seller.statistics.{total_betslips,won_betslips,win_rate,roi,recent_form}
+     */
+    private function computeSellerStats(\App\Models\User $seller): array
+    {
+        // Only settled slips count toward win rate / ROI / recent form.
+        $settled = Betslip::query()
+            ->where('user_id', $seller->id)
+            ->where('status', 'settled')
+            ->orderByDesc('settled_at')
+            ->orderByDesc('updated_at')
+            ->get([
+                'id',
+                'status',
+                'is_winner',
+                'total_odds',
+                'price',
+                'settled_at',
+                'updated_at',
+            ]);
+
+        $totalBetslips = $settled->count();
+        $wonBetslips = $settled->where('is_winner', true)->count();
+
+        $winRate = $totalBetslips > 0
+            ? round(($wonBetslips / $totalBetslips) * 100, 1)
+            : 0.0;
+
+        // ROI: treat the slip price as what buyers paid, and a winning
+        // payout as price × total_odds. Non-winners return 0.
+        $staked = 0.0;
+        $returns = 0.0;
+
+        foreach ($settled as $s) {
+            $stake = (float) $s->price;
+            $staked += $stake;
+
+            if ($s->is_winner) {
+                $returns += $stake * (float) $s->total_odds;
+            }
+        }
+
+        $roi = $staked > 0
+            ? round((($returns - $staked) / $staked) * 100, 1)
+            : 0.0;
+
+        // Recent form — most recent first, capped at 8 to match the UI dots.
+        $recentForm = $settled
+            ->take(8)
+            ->map(fn($s) => $s->is_winner ? 'W' : 'L')
+            ->values()
+            ->all();
+
+        return [
+            'total_betslips' => $totalBetslips,
+            'won_betslips' => $wonBetslips,
+            'win_rate' => $winRate,
+            'roi' => $roi,
+            'recent_form' => $recentForm,
+        ];
+    }
     /**
      * Calculate seller statistics
      */
@@ -436,5 +713,58 @@ class BetslipController extends Controller
         }
 
         return 'This betslip is no longer available';
+    }
+
+    /**
+     * Stake a buyer must place at total_odds to earn back the price
+     * they paid for this slip:
+     *
+     *     profit = stake × (total_odds − 1)  must equal  price
+     *     ⇒ stake = price / (total_odds − 1)
+     *
+     * Returns null when total_odds ≤ 1.0 — the equation has no
+     * solution. Real odds are always > 1.0, so this only fires on
+     * corrupted data.
+     */
+    private function computeBreakEvenStake(float $price, float $totalOdds): ?float
+    {
+        if ($totalOdds <= 1.0) {
+            return null;
+        }
+
+        return round($price / ($totalOdds - 1), 2);
+    }
+
+    /**
+     * Attach crowd wisdom to every leg of the given betslip.
+     * Returns the legs array with `crowd_wisdom` key added.
+     *
+     * Caller decides whether to *show* the payload — the flag
+     * `is_visible` and the raw distributions are always attached; the
+     * frontend hides the data when hasAccess is false.
+     *
+     * @param  array<int, array>  $legs
+     * @return array<int, array>
+     */
+    private function attachCrowdWisdomToLegs(array $legs): array
+    {
+        $service = app(\App\Services\CrowdWisdomService::class);
+
+        // The legs array in the `show` path already has fixture + market
+        // ids nested. For `success` (which reuses show's structure) this
+        // works too.
+        foreach ($legs as &$leg) {
+            $fixtureId = (int) ($leg['fixture']['id'] ?? 0);
+            $marketId = (int) ($leg['market']['id'] ?? 0);
+
+            if ($fixtureId === 0 || $marketId === 0) {
+                $leg['crowd_wisdom'] = null;
+                continue;
+            }
+
+            $leg['crowd_wisdom'] = $service->forFixture($fixtureId, $marketId);
+        }
+
+        return $legs;
     }
 }

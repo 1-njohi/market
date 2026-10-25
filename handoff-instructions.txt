@@ -1,0 +1,284 @@
+Scheduling strategy for sync + settlement
+The mental model: three independent layers
+Your data flows through three stages, and each should be its own scheduled command so failures in one don't cascade into the others:
+
+Layer	What it does	Talks to API?	Cadence
+Sync	Pull fixtures, odds, and live scores from API into local DB	Yes	Variable — see below
+Settle	Resolve local odds from settled fixtures, cascade to betslips and contests	No	Frequently, idempotent
+Notify	Deliver queued notifications (DB + push)	No	Frequently
+The key insight: settlement is a local operation. Once a fixture's status_short = 'FT' and its score columns are populated, everything downstream — odds resolution, betslip scoring, contest ranking, wallet credits, notification fan-out — is pure local computation on data you already have. It doesn't need the API at all. That's what makes it cheap to run every minute and safe to re-run.
+
+Layer 1: Sync
+fixtures:sync-upcoming — daily at 03:00 UTC
+Pulls fixtures scheduled for the next 14 days.
+
+Algorithm:
+
+text
+for each of the next 14 days:
+    GET /fixtures?date=YYYY-MM-DD
+    for each fixture in response:
+        upsert into fixtures table keyed by id_on_api
+        upsert home_team, away_team, league if missing
+        set status_short, date, timestamp, referee, venue_id, etc.
+    sleep 1s between days to respect rate limits
+Idempotency: Use updateOrCreate(['id_on_api' => ...], [...]). Re-running is safe.
+
+Rate limit: Most football APIs allow 10 requests/minute. 14 days = 14 requests. Sleep 7 seconds between calls, or batch by requesting a date range in one call if the API supports it (?from=...&to=...).
+
+Failure mode: If the API is down, log and continue. Don't fail the whole job — partial data is better than none.
+
+odds:sync-upcoming — hourly
+Refreshes odds for fixtures kicking off in the next 48 hours.
+
+Algorithm:
+
+text
+$fixtures = Fixture::where('status_short', 'NS')
+    ->whereBetween('date', [now(), now()->addHours(48)])
+    ->get();
+
+foreach ($fixtures as $fixture) {
+    GET /odds?fixture={id_on_api}
+    upsert each odd into odds table keyed by (fixture_id, market_id, value)
+    sleep 1s
+}
+Why 48 hours: Odds drift more as kickoff approaches. Fixtures 3+ days out rarely change. This saves 80% of your API quota.
+
+Why hourly: Good balance between freshness and quota. Adjust to every 6 hours if quota is tight.
+
+fixtures:sync-live — every 3 minutes, only during match windows
+Pulls current status and scores for fixtures that are live or recently finished.
+
+Algorithm:
+
+text
+$kickoffWindow = [now()->subHours(3), now()->addMinutes(15)];
+$candidates = Fixture::where('status_short', 'NS')
+    ->orWhereIn('status_short', ['1H', 'HT', '2H', 'ET', 'P'])
+    ->whereBetween('date', $kickoffWindow)
+    ->pluck('id_on_api');
+
+if ($candidates->isEmpty()) {
+    return; // No fixtures to poll. Skip the API call entirely.
+}
+
+GET /fixtures?ids={comma-separated}   // one call, many fixtures
+// OR: GET /fixtures?live=all         // if the API supports it
+
+for each fixture in response:
+    Fixture::where('id_on_api', ...)->update([
+        'status_short'  => ...,
+        'status_long'   => ...,
+        'status_elapsed'=> ...,
+        'goals_home'    => ...,
+        'goals_away'    => ...,
+        'halftime_home' => ...,
+        'halftime_away' => ...,
+        'fulltime_home' => ...,  // populated when FT
+        'fulltime_away' => ...,
+        'home_winner'   => ...,  // populated when FT
+    ]);
+Critical: Skip the API call entirely if no fixtures are candidates. This drops your idle-time quota usage to zero.
+
+Rate limit: One call per tick. Every 3 minutes = 20 calls/hour. Football is typically 12:00–23:00 UTC. So ~220 calls/day. Well within any paid tier.
+
+Layer 2: Settle
+fixtures:settle — every 2 minutes
+Resolves odds for fixtures that have finished.
+
+Algorithm:
+
+text
+$fixtures = Fixture::where('status_short', 'FT')
+    ->where('settled', false)
+    ->get();
+
+foreach ($fixtures as $fixture) {
+    DB::transaction(function () use ($fixture) {
+        // Lock the fixture to prevent double-settlement from
+        // overlapping scheduler runs.
+        $fixture = Fixture::where('id', $fixture->id)->lockForUpdate()->first();
+
+        if ($fixture->settled) {
+            return; // Another process beat us. Nothing to do.
+        }
+
+        // 1. Resolve every odd attached to this fixture.
+        foreach ($fixture->odds as $odd) {
+            $odd->update([
+                'status' => $this->resolveOddStatus($odd, $fixture),
+                // 'won' | 'lost' | 'voided'
+            ]);
+        }
+
+        // 2. Cascade to betslips containing those odds.
+        $this->cascadeToBetslips($fixture);
+
+        // 3. Cascade to contests containing those legs.
+        $this->cascadeToContests($fixture);
+
+        // 4. Mark fixture done.
+        $fixture->update(['settled' => true]);
+    });
+}
+Odds resolution rules are in the MarketSettlementService
+
+Build a resolveOddStatus(Odd $odd, Fixture $fixture): string method that switches on $odd->market->name (or market slug) and applies the rules.
+
+Voided fixtures: If the API returns a fixture with status_short in ['CANC', 'ABD', 'AWD', 'WO', 'PST'], treat it as voided. All odds voided, all betslips containing those odds get refunded.
+
+The cascade to betslips:
+
+text
+When an odd resolves, find all betslips that contain it via the
+pivot table (betslip_odds or similar).
+
+For each such betslip:
+    update pivot row: status = 'won'|'lost'|'voided'
+    decrement betslip.remaining
+
+    if betslip.remaining === 0:
+        all odds on this betslip have now resolved
+        betslip.status = 'settled'
+        if any odd is 'lost': betslip.is_winner = false
+        else if all odds are 'voided': betslip is 'voided'
+        else: betslip.is_winner = true
+
+        dispatch event: BetslipSettled($betslip)
+The cascade to contests:
+
+text
+For each contest that has a leg on this fixture:
+    update contest_leg.status = resolved
+    for each contest_pick tied to that leg:
+        contest_pick.status = won|lost|voided
+        contest_pick.result_selection = winning odd's value
+
+    if all contest_legs are resolved:
+        contest.status = 'settled'
+
+        for each contest_entry:
+            entry.score = count of picks where status='won'
+            entry.units = sum of units for won picks
+
+        rank entries by score desc, then units desc
+        assign rank 1..N
+
+        dispatch event: ContestSettled($contest)
+Idempotency contract: Every step checks the target's current status before mutating. if ($betslip->status !== 'pending') return;. lockForUpdate() prevents concurrent runs.
+
+Event listeners:
+
+BetslipSettled → credit seller's wallet, refund buyer if lost, fire BetslipWonNotification / BetslipLostNotification / BetslipVoidedNotification to the appropriate parties
+
+ContestSettled → fire ContestSettledNotification to every participant with their rank
+
+Both listeners should be queueable so settlement doesn't block on wallet operations or notification fan-out.
+
+Layer 3: Notify
+If your notification classes don't yet implement ShouldQueue, do it now. Every notification should queue.
+
+app/Notifications/ContestJoinRequestedNotification.php — add to the class:
+
+php
+class ContestJoinRequestedNotification extends Notification implements ShouldQueue
+Same for all eleven classes. Import Illuminate\Contracts\Queue\ShouldQueue.
+
+Then run a queue worker as a separate process. In Laravel Cloud, this is a managed "Worker" or "Queue" process — you don't run queue:work manually.
+
+No separate "notifications:flush" command needed. The queue is your flusher.
+
+Scheduling registration
+Laravel 11+ (routes/console.php or app/Console/Kernel.php for older):
+
+php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('fixtures:sync-upcoming')
+    ->dailyAt('03:00')
+    ->withoutOverlapping()
+    ->onOneServer();           // if you run multiple app instances
+                             // requires a shared cache driver
+
+Schedule::command('odds:sync-upcoming')
+    ->hourly()
+    ->withoutOverlapping()
+    ->onOneServer();
+
+Schedule::command('fixtures:sync-live')
+    ->everyThreeMinutes()
+    ->withoutOverlapping()
+    ->onOneServer();
+
+Schedule::command('fixtures:settle')
+    ->everyTwoMinutes()
+    ->withoutOverlapping()
+    ->onOneServer();
+withoutOverlapping() prevents a slow run from stacking on the next tick. onOneServer() prevents parallel execution across horizontally scaled app instances — critical if you ever add a second app server.
+
+Both require a shared cache driver. If your CACHE_STORE is array, onOneServer() silently no-ops and you get duplicate execution under load. Use redis or database in production.
+
+Testing recipe — full pipeline with the mock API
+Using the mock API you built, you can exercise everything end-to-end in three minutes:
+
+Setup once:
+
+bash
+# .env on dev/staging
+MOCK_FOOTBALL_ENABLED=true
+MOCK_FOOTBALL_SECRET=23456789ijbvcfdswerdtfygbunioipo0
+Walk the pipeline:
+
+bash
+# 1. Reset mock state to fresh NS fixtures.
+curl -X POST https://your-host/dev/mock-api/MOCK_FOOTBALL_SECRET=23456789ijbvcfdswerdtfygbunioipo0/reset
+
+# 2. Trigger the sync. Fixtures appear locally with status='NS'.
+php artisan fixtures:sync-upcoming
+
+# 3. User picks legs and creates betslips / contests via the UI.
+#    Do this manually in a browser.
+
+# 4. Advance all fixtures to 1H.
+curl -X POST https://your-host/dev/mock-api/MOCK_FOOTBALL_SECRET=23456789ijbvcfdswerdtfygbunioipo0/advance
+php artisan fixtures:sync-live
+
+# 5. Advance through HT and 2H.
+curl -X POST https://your-host/dev/mock-api/MOCK_FOOTBALL_SECRET=23456789ijbvcfdswerdtfygbunioipo0/advance
+php artisan fixtures:sync-live
+curl -X POST https://your-host/dev/mock-api/MOCK_FOOTBALL_SECRET=23456789ijbvcfdswerdtfygbunioipo0/advance
+php artisan fixtures:sync-live
+
+# 6. Advance to FT. Mock assigns deterministic scores.
+curl -X POST https://your-host/dev/mock-api/MOCK_FOOTBALL_SECRET=23456789ijbvcfdswerdtfygbunioipo0/advance
+php artisan fixtures:sync-live
+
+# 7. Settle. Everything cascades.
+php artisan fixtures:settle
+
+# 8. Verify:
+#    - fixtures.settled = true
+#    - odds.status = won|lost|voided
+#    - betslips.status = settled, is_winner correct
+#    - contests.status = settled, entries ranked
+#    - wallets credited
+#    - notifications landed (check your phone)
+To force a specific outcome on one fixture:
+
+bash
+curl -X POST https://your-host/dev/mock-api/MOCK_FOOTBALL_SECRET=23456789ijbvcfdswerdtfygbunioipo0/fixtures/900000/score \
+  -H 'Content-Type: application/json' \
+  -d '{"home": 3, "away": 0}'
+php artisan fixtures:sync-live
+php artisan fixtures:settle
+To test the void path:
+
+bash
+curl -X POST https://your-host/dev/mock-api/MOCK_FOOTBALL_SECRET=23456789ijbvcfdswerdtfygbunioipo0/fixtures/900000/status \
+  -H 'Content-Type: application/json' \
+  -d '{"status": "CANC"}'
+php artisan fixtures:sync-live
+php artisan fixtures:settle
+# Expect: betslips refunded, contests with that leg voided or adjusted
+

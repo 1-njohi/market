@@ -14,7 +14,7 @@ const facts = [
 const pressReleases = [
     {
         date: 'September 2026',
-        title: 'Betslip Pirates launches peer-to-peer betslip marketplace in Kenya',
+        title: 'Fainali launches peer-to-peer betslip marketplace in Kenya',
         excerpt:
             'A new platform lets tipsters sell betslips to verified buyers, with a full refund guarantee on losing bets.',
     },
@@ -74,7 +74,7 @@ const legal = [
                     class="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400"
                 >
                     Everything journalists, bloggers, and partners need to write
-                    about Betslip Pirates accurately. For interviews, contact
+                    about Fainali accurately. For interviews, contact
                     <a
                         href="mailto:press@betslip-pirates.com"
                         class="text-sky-400 hover:underline"
@@ -95,7 +95,7 @@ const legal = [
                     class="rounded-lg border border-[#232d42] bg-[#161c2a] p-5"
                 >
                     <p class="text-sm leading-relaxed text-slate-400">
-                        Betslip Pirates is a peer-to-peer marketplace for buying
+                        Fainali is a peer-to-peer marketplace for buying
                         and selling betslips, based in Kabarnet, Baringo County,
                         Kenya. Founded in 2026, the platform lets verified
                         sellers list their betslips at prices they choose, and
@@ -106,7 +106,7 @@ const legal = [
                         accept wagers.
                     </p>
                     <p class="mt-4 text-sm leading-relaxed text-slate-400">
-                        Betslip Pirates is a trading name of Wazo
+                        Fainali is a trading name of Wazo
                         Tank (BN-EZCBKQ26), a business registered in the
                         Republic of Kenya.
                     </p>
@@ -252,7 +252,7 @@ const legal = [
                         <li>· Don't recolor or distort the logo.</li>
                         <li>· Always include clear space around the mark.</li>
                         <li>
-                            · Refer to us as "Betslip Pirates" — one word,
+                            · Refer to us as "Fainali" — one word,
                             capital B, capital P.
                         </li>
                         <li>

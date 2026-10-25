@@ -44,11 +44,11 @@
                 <div class="flex flex-shrink-0 items-center gap-2">
                     <AsOf :at="generatedAt" class="hidden lg:inline" />
                     <DashboardSwitcher active="seller" />
-                    <NotificationBell
+                    <!-- <NotificationBell
                         :initial-unread-count="
                             seller_data.notifications.unread_count
                         "
-                    />
+                    /> -->
                 </div>
             </div>
 

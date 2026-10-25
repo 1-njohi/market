@@ -65,7 +65,7 @@ const formDotClass = (mark) => {
 </script>
 
 <template>
-    <Head title="Leaderboard — Betslip Pirates" />
+    <Head title="Leaderboard — Fainali" />
 
     <div class="min-h-screen font-sans text-slate-300">
         <div class="mx-auto w-full max-w-[1200px] px-2 py-12 md:px-6 lg:px-8">

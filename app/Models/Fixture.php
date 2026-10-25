@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 
 class Fixture extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'id_on_api',
         'referee',
@@ -64,20 +67,20 @@ class Fixture extends Model
         return $this->belongsTo(League::class);
     }
 
-    public function Goals()
-    {
-        return $this->hasOne(FixtureGoals::class);
-    }
+    // public function Goals()
+    // {
+    //     return $this->hasOne(FixtureGoals::class);
+    // }
 
-    public function Score()
-    {
-        return $this->hasOne(FixtureScore::class);
-    }
+    // public function Score()
+    // {
+    //     return $this->hasOne(FixtureScore::class);
+    // }
 
-    public function Status()
-    {
-        return $this->hasOne(FixtureStatus::class);
-    }
+    // public function Status()
+    // {
+    //     return $this->hasOne(FixtureStatus::class);
+    // }
 
     public function homeTeam()
     {

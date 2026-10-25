@@ -102,13 +102,13 @@ const handleSubscribe = () => {
                     <div class="flex items-center space-x-2">
                         <img
                             src="../../img/logo.png"
-                            alt="Betslip Pirates Logo"
+                            alt="Fainali Logo"
                             class="pointer-events-none h-10 w-auto object-contain select-none"
                         />
                         <span
                             class="text-sm font-black tracking-widest text-slate-200 uppercase"
                         >
-                            Betslip Pirates
+                            Fainali
                         </span>
                     </div>
 
@@ -304,7 +304,7 @@ const handleSubscribe = () => {
                     <p
                         class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase"
                     >
-                        Betslip Pirates is a trading name of Wazo Tank (BN-EZCBKQ26)
+                        Fainali is a trading name of Wazo Tank (BN-EZCBKQ26)
                     </p>
                     <p
                         class="font-mono text-[9px] font-medium tracking-wider text-white"

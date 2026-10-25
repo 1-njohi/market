@@ -68,9 +68,16 @@ class BetslipSettlementService
                 foreach ($byStatus as $status => $pivotIds) {
                     DB::table('betslip_odd')
                         ->whereIn('id', $pivotIds)
-                        ->update(['status' => $status]);
+                        ->update([
+                            'status' => $status,
+                            // Settlement is the moment the pick resolves.
+                            // The seller eligibility rolling window reads
+                            // updated_at as "when did this pick settle", so
+                            // it must move here — not stay at the moment
+                            // the odd was attached to the betslip.
+                            'updated_at' => now(),
+                        ]);
                 }
-
                 Log::info("Betslip {$betslip->code}: synced {$syncableRows->count()} pivot rows from odds.status.");
             }
 

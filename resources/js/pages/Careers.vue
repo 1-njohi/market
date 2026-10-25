@@ -165,7 +165,7 @@ const roles = [
                         products.
                     </li>
                     <li>
-                        Tell us one thing you'd improve about Betslip Pirates.
+                        Tell us one thing you'd improve about Fainali.
                     </li>
                     <li>
                         Applications go to

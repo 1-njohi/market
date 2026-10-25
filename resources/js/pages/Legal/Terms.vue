@@ -30,7 +30,7 @@ const lastUpdated = 'September 13, 2026';
             <!-- Intro -->
             <p class="mb-8 text-sm leading-relaxed text-slate-400">
                 These Terms of Service ("Terms") govern your access to and use of
-                Betslip Pirates (the "Platform"), operated in Nairobi, Kenya. By
+                Fainali (the "Platform"), operated in Nairobi, Kenya. By
                 creating an account, you agree to be bound by these Terms. If you
                 do not agree, do not use the Platform.
             </p>
@@ -38,10 +38,10 @@ const lastUpdated = 'September 13, 2026';
             <!-- 1 -->
             <section class="mb-8">
                 <h2 class="mb-3 text-sm font-black tracking-widest text-white uppercase">
-                    1. What Betslip Pirates Is
+                    1. What Fainali Is
                 </h2>
                 <p class="text-sm leading-relaxed text-slate-400">
-                    Betslip Pirates is a <strong class="text-slate-200">marketplace</strong>.
+                    Fainali is a <strong class="text-slate-200">marketplace</strong>.
                     We are not a bookmaker, we do not accept wagers, and we do not
                     hold a betting licence. Sellers list betslips — collections of
                     selections — for buyers to purchase. Buyers pay sellers directly
@@ -114,7 +114,7 @@ const lastUpdated = 'September 13, 2026';
                 <p class="mt-3 text-sm leading-relaxed text-slate-400">
                     Unlocking a betslip reveals the seller's selections. You use
                     those selections to place your own wager on any betting platform
-                    of your choice. Betslip Pirates is not responsible for your
+                    of your choice. Fainali is not responsible for your
                     interaction with any external betting platform.
                 </p>
             </section>
@@ -174,7 +174,7 @@ const lastUpdated = 'September 13, 2026';
                     9. Disclaimers
                 </h2>
                 <p class="text-sm leading-relaxed text-slate-400">
-                    Betslip Pirates provides the marketplace on an
+                    Fainali provides the marketplace on an
                     <strong class="text-slate-200">"as is"</strong> basis. We do not
                     guarantee that any betslip will win, that any seller's track
                     record will continue, or that the Platform will be available
@@ -189,7 +189,7 @@ const lastUpdated = 'September 13, 2026';
                     10. Limitation of Liability
                 </h2>
                 <p class="text-sm leading-relaxed text-slate-400">
-                    To the fullest extent permitted by Kenyan law, Betslip Pirates
+                    To the fullest extent permitted by Kenyan law, Fainali
                     and its operators shall not be liable for any indirect,
                     incidental, or consequential damages arising from your use of the
                     Platform. Our total liability to you shall not exceed the total
@@ -260,7 +260,7 @@ const lastUpdated = 'September 13, 2026';
                 class="mt-12 rounded-lg border border-[#232d42] bg-[#161c2a] p-4 text-center"
             >
                 <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
-                    By using Betslip Pirates, you confirm you are 18 or older.
+                    By using Fainali, you confirm you are 18 or older.
                 </p>
             </div>
         </div>

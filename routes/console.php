@@ -43,7 +43,18 @@ Schedule::command('fixtures:settle')
     ->everyTwoMinutes()
     ->withoutOverlapping()
     ->onOneServer();
+
+
+Schedule::command('contests:lock-due')
+    ->everyMinute();
+
+Schedule::command('users:recompute-seller-status')
+    ->dailyAt('03:00')
+    ->withoutOverlapping()
+    ->onOneServer();
+
 /*
+
 |--------------------------------------------------------------------------
 | Business Metrics Warmer
 |--------------------------------------------------------------------------
@@ -64,3 +75,8 @@ Schedule::command('health:check')
     ->withoutOverlapping(4)
     ->runInBackground();
 
+
+Schedule::command('matchdays:remind')
+    ->hourly()
+    ->withoutOverlapping()
+    ->onOneServer();

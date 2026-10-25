@@ -19,7 +19,7 @@ import { Head, Link } from '@inertiajs/vue3';
                     How It Works
                 </h1>
                 <p class="mt-4 max-w-2xl text-base leading-relaxed font-medium text-slate-400">
-                    Betslip Pirates is a marketplace for betslips — not a
+                    Fainali is a marketplace for betslips — not a
                     bookmaker. Here's exactly what that means, step by step.
                 </p>
             </div>
@@ -67,7 +67,7 @@ import { Head, Link } from '@inertiajs/vue3';
                         <h3 class="mt-1 text-base font-bold text-slate-200">Place your own bet</h3>
                         <p class="mt-2 text-sm leading-relaxed text-slate-400">
                             Use the selections on any bookmaker you like — no
-                            lock-in to Betslip Pirates. Copy the picks, stake
+                            lock-in to Fainali. Copy the picks, stake
                             however much you want, keep 100% of the winnings.
                         </p>
                     </li>

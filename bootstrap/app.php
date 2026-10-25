@@ -37,7 +37,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'not.suspended' => \App\Http\Middleware\EnsureUserIsNotSuspended::class,
+            'seller.access' => \App\Http\Middleware\EnsureSellerAccess::class,
         ]);
+
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
@@ -45,6 +48,9 @@ return Application::configure(basePath: dirname(__DIR__))
         );
         $exceptions->render(function (InsufficientBalanceException $e, $request) {
             return response()->json(['message' => $e->getMessage()], 422);
+        });
+        $exceptions->render(function (\App\Exceptions\UnauthorizedHostingException $e, $request, ) {
+            return response($e->getMessage(), 403);
         });
     })
     ->withSchedule(function ($schedule) {

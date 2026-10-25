@@ -21,15 +21,15 @@ use Inertia\Response;
 
 class ContestCreateController extends Controller
 {
-    private const MIN_LEGS       = 5;
-    private const MAX_LEGS       = 50;
+    private const MIN_LEGS = 5;
+    private const MAX_LEGS = 50;
     private const LOOKAHEAD_DAYS = 14;
-    private const FIXTURE_LIMIT  = 200;
+    private const FIXTURE_LIMIT = 200;
 
     public function create(): Response
     {
         $from = now();
-        $to   = now()->addDays(self::LOOKAHEAD_DAYS);
+        $to = now()->addDays(self::LOOKAHEAD_DAYS);
 
         $leagues = League::with([
             'fixtures' => function ($q) use ($from, $to) {
@@ -40,7 +40,7 @@ class ContestCreateController extends Controller
                     ->with([
                         'homeTeam',
                         'awayTeam',
-                        'Odds' => fn ($o) => $o->select('id', 'fixture_id', 'market_id', 'value', 'odd'),
+                        'Odds' => fn($o) => $o->select('id', 'fixture_id', 'market_id', 'value', 'odd'),
                     ]);
             },
         ])
@@ -49,22 +49,22 @@ class ContestCreateController extends Controller
                     ->where('status_short', 'NS');
             })
             ->get()
-            ->map(fn (League $l) => [
-                'id'   => $l->id,
+            ->map(fn(League $l) => [
+                'id' => $l->id,
                 'name' => $l->name,
-                'fixtures' => $l->fixtures->map(fn (Fixture $f) => [
-                    'id'        => $f->id,
+                'fixtures' => $l->fixtures->map(fn(Fixture $f) => [
+                    'id' => $f->id,
                     'home_team' => $f->homeTeam?->name ?? 'Unknown',
                     'away_team' => $f->awayTeam?->name ?? 'Unknown',
-                    'kickoff'   => $f->date,
-                    'markets'   => $f->Odds
+                    'kickoff' => $f->date,
+                    'markets' => $f->Odds
                         ->groupBy('market_id')
-                        ->map(fn ($odds, $marketId) => [
-                            'id'      => (int) $marketId,
-                            'label'   => 'Market ' . $marketId,
-                            'options' => $odds->map(fn ($o) => [
+                        ->map(fn($odds, $marketId) => [
+                            'id' => (int) $marketId,
+                            'label' => 'Market ' . $marketId,
+                            'options' => $odds->map(fn($o) => [
                                 'value' => $o->value,
-                                'odd'   => (float) $o->odd,
+                                'odd' => (float) $o->odd,
                             ])->values()->all(),
                         ])
                         ->values()
@@ -85,7 +85,7 @@ class ContestCreateController extends Controller
         unset($league, $fixture, $market);
 
         return Inertia::render('Contests/Create', [
-            'leagues'  => $leagues,
+            'leagues' => $leagues,
             'min_legs' => self::MIN_LEGS,
             'max_legs' => self::MAX_LEGS,
         ]);
@@ -118,19 +118,15 @@ class ContestCreateController extends Controller
         }
 
         return Inertia::render('Contests/Confirm', [
-            'legs'             => $this->hydrateLegs($draft),
-            'min_legs'         => self::MIN_LEGS,
-            'max_legs'         => self::MAX_LEGS,
+            'legs' => $this->hydrateLegs($draft),
+            'min_legs' => self::MIN_LEGS,
+            'max_legs' => self::MAX_LEGS,
             'earliest_kickoff' => $this->earliestKickoff($draft),
+            'can_publish_public' => Auth::user()->isAdmin(),
+            'seasons' => config('marketplace.matchday.seasons', []),
         ]);
     }
 
-    /**
-     * Step 2 submit. Reads legs from the session, re-validates them
-     * (fixtures can vanish between draft and publish), validates the
-     * config payload, then persists contest + legs + host entry + picks
-     * in a single transaction.
-     */
     public function store(Request $request): RedirectResponse
     {
         $draftLegs = session('contest_draft');
@@ -140,82 +136,192 @@ class ContestCreateController extends Controller
                 ->with('warn', 'Your contest draft expired. Pick your legs again.');
         }
 
-        // Re-validate the draft legs. Guards against fixtures that have
-        // been removed, or odds that have disappeared, while the draft
-        // sat in the session.
-        $legs = $this->validateLegs($draftLegs);
+        // Backward compat: accept is_matchday=true as an alias for type='matchday'
+// so existing callers don't break during the transition.
+        $type = $request->input('type');
+        if ($type === null && $request->boolean('is_matchday')) {
+            $type = 'matchday';
+        }
+        $type = $type ?? 'standard';
+        $isMatchday = $type === 'matchday';
+        $isJackpot = $type === 'jackpot';
 
-        // Config-only validation. Legs are not part of this request body.
-        $config = $request->validate([
-            'name'              => ['required', 'string', 'max:80'],
-            'description'       => ['nullable', 'string', 'max:500'],
-            'entry_deadline_at' => ['required', 'date', 'after:now'],
-        ]);
+        // Re-validate the draft legs with the right bounds for this type.
+        $legs = $this->validateLegs($draftLegs, $type);
 
-        $deadline = \Carbon\Carbon::parse($config['entry_deadline_at']);
+        // ── Validation rules ────────────────────────────────────────
+        $rules = [
+            'name' => ['required', 'string', 'max:80'],
+            'description' => ['nullable', 'string', 'max:500'],
+            'auto_entry' => ['sometimes', 'boolean'],
+            'type' => ['sometimes', 'string', 'in:standard,matchday,jackpot'],
+        ];
 
+        if ($isMatchday) {
+            $rules['season'] = [
+                'required',
+                'string',
+                \Illuminate\Validation\Rule::in(config('marketplace.matchday.seasons', [])),
+            ];
+            $rules['matchday_number'] = ['required', 'integer', 'min:1'];
+        } elseif (!$isJackpot) {
+            // Standard contests require an explicit deadline. Matchday and
+            // jackpot both derive it from the earliest kickoff.
+            $rules['entry_deadline_at'] = ['required', 'date', 'after:now'];
+        }
+
+        $config = $request->validate($rules);
+
+        // ── Load fixtures once — reused for starts/ends/lock ────────
         $fixtures = Fixture::whereIn('id', array_column($legs, 'fixture_id'))
             ->get()
             ->keyBy('id');
 
         $earliest = $fixtures->min('date');
-
-        if ($deadline->greaterThanOrEqualTo($earliest)) {
-            throw ValidationException::withMessages([
-                'entry_deadline_at' => 'Deadline must be before the earliest kickoff.',
-            ]);
-        }
-
         $latest = $fixtures->max('date');
 
-        $contest = DB::transaction(function () use ($config, $legs, $deadline, $earliest, $latest) {
-            $contest = Contest::create([
-                'host_id'           => Auth::id(),
-                'name'              => $config['name'],
-                'description'       => $config['description'] ?? null,
-                'visibility'        => 'private',
-                'status'            => 'open',
+        // ── Derive lock/deadline + league based on type ─────────────
+        if ($isMatchday) {
+            // Existing matchday flow — infers league from fixtures and
+            // computes locks_at via the builder.
+            $provisional = new Contest([
+                'is_matchday' => true,
+                'season' => $config['season'],
+                'matchday_number' => (int) $config['matchday_number'],
+            ]);
+
+            app(\App\Services\Matchday\MatchdayContestBuilder::class)
+                ->hydrate($provisional, $fixtures->pluck('id')->all());
+
+            $deadline = $provisional->entry_deadline_at;
+            $locksAt = $provisional->locks_at;
+            $leagueCode = $provisional->league_code;
+        } elseif ($isJackpot) {
+            // Jackpots skip league inference (they can span leagues) and
+            // derive locks_at from the earliest kickoff.
+            $locksAt = app(\App\Services\Matchday\MatchdayLockCalculator::class)
+                ->lockTime($fixtures);
+
+            if ($locksAt === null) {
+                throw ValidationException::withMessages([
+                    'legs' => 'Jackpot contests require at least one fixture.',
+                ]);
+            }
+
+            $deadline = $locksAt;
+            $leagueCode = null;
+        } else {
+            // Standard contest — client supplied the deadline.
+            $deadline = \Carbon\Carbon::parse($config['entry_deadline_at']);
+
+            if ($deadline->greaterThanOrEqualTo($earliest)) {
+                throw ValidationException::withMessages([
+                    'entry_deadline_at' => 'Deadline must be before the earliest kickoff.',
+                ]);
+            }
+
+            $locksAt = null;
+            $leagueCode = null;
+        }
+
+        // ── Persist ─────────────────────────────────────────────────
+        $contest = DB::transaction(function () use ($config, $legs, $deadline, $earliest, $latest, $isMatchday, $isJackpot, $type, $locksAt, $leagueCode) {
+            $host = Auth::user();
+
+            // Visibility: jackpots are always public; otherwise it's
+            // derived from admin status + auto_entry opt-in.
+            $visibility = $isJackpot
+                ? 'public'
+                : (($host->isAdmin() && (bool) ($config['auto_entry'] ?? false)) ? 'public' : 'private');
+
+            $attributes = [
+                'host_id' => $host->id,
+                'name' => $config['name'],
+                'description' => $config['description'] ?? null,
+                'visibility' => $visibility,
+                'type' => $type,
+                'auto_entry' => $isJackpot ? false : (bool) ($config['auto_entry'] ?? false),
+                'status' => 'open',
                 'entry_deadline_at' => $deadline,
-                'starts_at'         => $earliest,
-                'ends_at'           => $latest,
-            ]);
+                'starts_at' => $earliest,
+                'ends_at' => $latest,
+                'is_matchday' => $isMatchday,
+            ];
 
-            $entry = ContestEntry::create([
-                'contest_id' => $contest->id,
-                'user_id'    => Auth::id(),
-                'status'     => 'accepted',
-                'joined_at'  => now(),
-            ]);
+            if ($isMatchday) {
+                $attributes['season'] = $config['season'];
+                $attributes['league_code'] = $leagueCode;
+                $attributes['matchday_number'] = (int) $config['matchday_number'];
+                $attributes['locks_at'] = $locksAt;
+            }
 
-            foreach ($legs as $leg) {
-                $contestLeg = ContestLeg::create([
+            if ($isJackpot) {
+                $attributes['locks_at'] = $locksAt;
+                $attributes['season'] = null;
+                $attributes['league_code'] = null;
+                $attributes['matchday_number'] = null;
+            }
+
+            $contest = Contest::create($attributes);
+
+            // ── Host entry + picks ──────────────────────────────────
+            // Skipped for jackpots: the admin creates it, then enters
+            // separately like any other user.
+            if (!$isJackpot) {
+                $entry = ContestEntry::create([
                     'contest_id' => $contest->id,
-                    'fixture_id' => $leg['fixture_id'],
-                    'market_id'  => $leg['market_id'],
-                    'status'     => 'pending',
+                    'user_id' => Auth::id(),
+                    'status' => 'accepted',
+                    'joined_at' => now(),
                 ]);
 
-                $odd = Odd::where('fixture_id', $leg['fixture_id'])
-                    ->where('market_id', $leg['market_id'])
-                    ->where('value', $leg['selection'])
-                    ->firstOrFail();
+                foreach ($legs as $leg) {
+                    $contestLeg = ContestLeg::create([
+                        'contest_id' => $contest->id,
+                        'fixture_id' => $leg['fixture_id'],
+                        'market_id' => $leg['market_id'],
+                        'status' => 'pending',
+                    ]);
 
-                ContestPick::create([
-                    'contest_entry_id' => $entry->id,
-                    'contest_leg_id'   => $contestLeg->id,
-                    'selection'        => $leg['selection'],
-                    'odds_at_pick'     => $odd->odd,
-                    'status'           => 'pending',
-                ]);
+                    $odd = Odd::where('fixture_id', $leg['fixture_id'])
+                        ->where('market_id', $leg['market_id'])
+                        ->where('value', $leg['selection'])
+                        ->firstOrFail();
+
+                    ContestPick::create([
+                        'contest_entry_id' => $entry->id,
+                        'contest_leg_id' => $contestLeg->id,
+                        'selection' => $leg['selection'],
+                        'odds_at_pick' => $odd->odd,
+                        'status' => 'pending',
+                    ]);
+                }
+            } else {
+                // Jackpot: create legs without picks. Everyone enters later.
+                foreach ($legs as $leg) {
+                    ContestLeg::create([
+                        'contest_id' => $contest->id,
+                        'fixture_id' => $leg['fixture_id'],
+                        'market_id' => $leg['market_id'],
+                        'status' => 'pending',
+                    ]);
+                }
             }
 
             return $contest;
         });
 
+        // Auto-enter eligible users for matchday contests after the row
+        // is committed. Jackpots are entered manually.
+        if ($isMatchday) {
+            app(\App\Services\Matchday\MatchdayEntryService::class)
+                ->enterAllEligibleUsers($contest);
+        }
+
         session()->forget('contest_draft');
 
         return Redirect::route('contests.created', ['contest' => $contest->id])
-        ->with('success', "Contest “{$contest->name}” is live.");
+            ->with('success', "Contest “{$contest->name}” is live.");
     }
 
     /**
@@ -228,12 +334,12 @@ class ContestCreateController extends Controller
 
         return Inertia::render('Contests/Created', [
             'contest' => [
-                'id'                => $contest->id,
-                'uuid'              => $contest->uuid,
-                'name'              => $contest->name,
-                'description'       => $contest->description,
-                'status'            => $contest->status,
-                'legs_count'        => $contest->legs()->count(),
+                'id' => $contest->id,
+                'uuid' => $contest->uuid,
+                'name' => $contest->name,
+                'description' => $contest->description,
+                'status' => $contest->status,
+                'legs_count' => $contest->legs()->count(),
                 'entry_deadline_at' => $contest->entry_deadline_at->toIso8601String(),
             ],
         ]);
@@ -249,15 +355,19 @@ class ContestCreateController extends Controller
      * @param  mixed  $rawLegs
      * @return array<int, array{fixture_id:int, market_id:int, selection:string}>
      */
-    private function validateLegs($rawLegs): array
+    private function validateLegs($rawLegs, string $type = 'standard'): array
     {
+        // Jackpots have a stricter range than standard/matchday contests.
+        $min = $type === 'jackpot' ? 7 : self::MIN_LEGS;
+        $max = $type === 'jackpot' ? 20 : self::MAX_LEGS;
+
         $validated = validator(
             ['legs' => $rawLegs],
             [
-                'legs'              => ['required', 'array', 'min:' . self::MIN_LEGS, 'max:' . self::MAX_LEGS],
+                'legs' => ['required', 'array', "min:{$min}", "max:{$max}"],
                 'legs.*.fixture_id' => ['required', 'integer'],
-                'legs.*.market_id'  => ['required', 'integer'],
-                'legs.*.selection'  => ['required', 'string', 'max:50'],
+                'legs.*.market_id' => ['required', 'integer'],
+                'legs.*.selection' => ['required', 'string', 'max:50'],
             ]
         )->validate();
 
@@ -265,7 +375,7 @@ class ContestCreateController extends Controller
 
         // No duplicate (fixture, market) pairs.
         $pairs = array_map(
-            fn ($l) => $l['fixture_id'] . '-' . $l['market_id'],
+            fn($l) => $l['fixture_id'] . '-' . $l['market_id'],
             $legs,
         );
 
@@ -276,7 +386,7 @@ class ContestCreateController extends Controller
         }
 
         $fixtureIds = array_column($legs, 'fixture_id');
-        $fixtures   = Fixture::whereIn('id', $fixtureIds)->get()->keyBy('id');
+        $fixtures = Fixture::whereIn('id', $fixtureIds)->get()->keyBy('id');
 
         if ($fixtures->count() !== count(array_unique($fixtureIds))) {
             throw ValidationException::withMessages([
@@ -335,15 +445,15 @@ class ContestCreateController extends Controller
                 : null;
 
             return [
-                'fixture_id'   => $leg['fixture_id'],
-                'market_id'    => $leg['market_id'],
-                'selection'    => $leg['selection'],
-                'home_team'    => $fixture?->homeTeam?->name ?? 'Unknown',
-                'away_team'    => $fixture?->awayTeam?->name ?? 'Unknown',
-                'league'       => $fixture?->league?->name,
-                'kickoff'      => $fixture?->date,
+                'fixture_id' => $leg['fixture_id'],
+                'market_id' => $leg['market_id'],
+                'selection' => $leg['selection'],
+                'home_team' => $fixture?->homeTeam?->name ?? 'Unknown',
+                'away_team' => $fixture?->awayTeam?->name ?? 'Unknown',
+                'league' => $fixture?->league?->name,
+                'kickoff' => $fixture?->date,
                 'market_label' => $marketNames[$leg['market_id']] ?? 'Unknown Market',
-                'odds'         => $odd ? (float) $odd->odd : null,
+                'odds' => $odd ? (float) $odd->odd : null,
             ];
         })->values()->all();
     }

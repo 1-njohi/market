@@ -19,7 +19,7 @@ import { Head, Link } from '@inertiajs/vue3';
                     Responsible Gaming
                 </h1>
                 <p class="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400">
-                    Betting carries real risk. Betslip Pirates is a marketplace
+                    Betting carries real risk. Fainali is a marketplace
                     for adults who choose to engage with betting — we take that
                     responsibility seriously.
                 </p>
@@ -149,7 +149,7 @@ import { Head, Link } from '@inertiajs/vue3';
                     Our commitment
                 </h2>
                 <p class="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-400">
-                    Betslip Pirates is a marketplace, not a promoter. We will
+                    Fainali is a marketplace, not a promoter. We will
                     never send marketing that pushes you to bet more, we will
                     never reward you for volume, and we will never make you
                     feel bad for stopping.

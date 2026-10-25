@@ -33,7 +33,7 @@ class BetslipSettlementTest extends TestCase
     public function test_win_settlement_pays_seller_gross_and_credits_platform_fee(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 0, escrow: 200.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
@@ -53,7 +53,7 @@ class BetslipSettlementTest extends TestCase
     public function test_loss_settlement_refunds_buyer_and_leaves_seller_untouched(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 0, escrow: 200.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
@@ -74,7 +74,7 @@ class BetslipSettlementTest extends TestCase
     public function test_settlement_is_idempotent(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 0, escrow: 200.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
@@ -101,7 +101,7 @@ class BetslipSettlementTest extends TestCase
     public function test_all_void_betslip_refunds_buyer_with_voided_pivot_status(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 0, escrow: 200.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
@@ -124,7 +124,7 @@ class BetslipSettlementTest extends TestCase
     public function test_mixed_win_and_void_betslip_pays_seller(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 0, escrow: 200.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
@@ -143,7 +143,7 @@ class BetslipSettlementTest extends TestCase
     public function test_platform_account_is_cached_across_settlements(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 0, escrow: 300.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
 
         app(\App\Services\PlatformAccount::class)->setUser($platform);
@@ -189,7 +189,7 @@ class BetslipSettlementTest extends TestCase
     public function test_settlement_invalidates_buyer_and_seller_dashboard_cache(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 0, escrow: 200.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
@@ -213,7 +213,7 @@ class BetslipSettlementTest extends TestCase
     public function test_end_to_end_deposit_purchase_settle_and_withdraw(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 1000.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
@@ -255,7 +255,7 @@ class BetslipSettlementTest extends TestCase
     public function test_purchase_transaction_is_linked_to_pivot(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 1000.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
 
         $betslip = $this->makeBetslipWithLegs($seller, ['pending'], price: 200.00, remaining: 1);
 
@@ -283,7 +283,7 @@ class BetslipSettlementTest extends TestCase
     public function test_settlement_sets_settled_at_and_tags_all_money_rows(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 0, escrow: 200.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
@@ -309,7 +309,7 @@ class BetslipSettlementTest extends TestCase
     public function test_voided_settlement_sets_settled_at_with_voided_status(): void
     {
         [$buyer] = $this->makeUserWithWallet(balance: 0, escrow: 200.00);
-        [$seller] = $this->makeUserWithWallet();
+        $seller = $this->makeEligibleSeller();
         [$platform] = $this->makeUserWithWallet();
         config(['services.betslip_pirates.platform_user_email' => $platform->email]);
 
@@ -340,6 +340,21 @@ class BetslipSettlementTest extends TestCase
             'payment_reference' => 'TEST-' . uniqid(),
             'purchased_at' => now(),
         ]);
+    }
+
+    /**
+     * A wallet user who is eligible to sell. The eligibility gate is
+     * irrelevant to settlement mechanics, but the Betslip creating hook
+     * will force price = 1 for anyone whose sellable_status says
+     * otherwise. Every test here needs the price it passed to survive
+     * creation, so every seller is seeded as eligible.
+     */
+    private function makeEligibleSeller(): User
+    {
+        [$seller] = $this->makeUserWithWallet(); 
+        $seller->update(['sellable_status' => 'sellable']);
+
+        return $seller;
     }
 
     // -----------------------------------------------------------------

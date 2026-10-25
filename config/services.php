@@ -36,8 +36,18 @@ return [
     ],
 
     'api_sports' => [
-        'key' => env('API_FOOTBALL_KEY'),
-        'base_url' => env('API_FOOTBALL_BASE_URL'),
+        'key' => env('API_SPORTS_KEY'),
+        'base_url' => env('API_SPORTS_BASE_URL'),
+
+        'upcoming_days'          => (int) env('API_SPORTS_UPCOMING_DAYS', 14),
+        'live_lookback_hours'    => (int) env('API_SPORTS_LIVE_LOOKBACK_HOURS', 3),
+        'live_lookahead_minutes' => (int) env('API_SPORTS_LIVE_LOOKAHEAD_MINUTES', 15),
+        'sleep_between_requests' => (int) env('API_SPORTS_SLEEP_BETWEEN_REQUESTS', 1),
+    ],
+
+    'mock_api' => [
+        'enabled' => env('MOCK_FOOTBALL_ENABLED', false),
+        'secret'  => env('MOCK_FOOTBALL_SECRET', ''),
     ],
 
     'betslip_pirates' => [

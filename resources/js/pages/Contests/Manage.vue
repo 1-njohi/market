@@ -14,7 +14,7 @@ const shareUrl = computed(
 
 const shareText = computed(
     () =>
-        `Join my contest "${contest.value.name}" on Betslip Pirates — ${contest.value.legs_count} legs, picks lock at the deadline.`,
+        `Join my contest "${contest.value.name}" on Fainali — ${contest.value.legs_count} legs, picks lock at the deadline.`,
 );
 
 const socialLinks = computed(() => ({
@@ -24,6 +24,46 @@ const socialLinks = computed(() => ({
 }));
 
 const resultsUrl = computed(() => `/contests/${contest.value.uuid}/results`);
+
+const isOpen = computed(() => contest.value.status === 'open');
+
+const statusLabel = computed(() => contest.value.status ?? '');
+
+const statusColorClass = computed(() => {
+    switch (contest.value.status) {
+        case 'underway':
+            return 'text-amber-400';
+        case 'settled':
+            return 'text-emerald-400';
+        case 'void':
+            return 'text-slate-400';
+        default:
+            return 'text-slate-300';
+    }
+});
+
+const statusDotClass = computed(() => {
+    switch (contest.value.status) {
+        case 'underway':
+            return 'bg-amber-400';
+        case 'settled':
+            return 'bg-emerald-400';
+        case 'void':
+            return 'bg-slate-500';
+        default:
+            return 'bg-slate-500';
+    }
+});
+
+const statusHint = computed(() => {
+    if (contest.value.status === 'underway') {
+        return 'Fixtures are being played. Results update as legs settle.';
+    }
+    if (contest.value.status === 'settled') {
+        return 'This contest has settled. Final standings are available.';
+    }
+    return 'This contest is no longer accepting new entries.';
+});
 
 const copyToClipboard = async (text) => {
     try {
@@ -104,6 +144,10 @@ const statusPill = (status) => {
         return 'border-rose-500/30 bg-rose-500/10 text-rose-400';
     return 'border-slate-500/30 bg-slate-500/10 text-slate-400';
 };
+
+const pendingCount = computed(
+    () => contest.value.entries?.filter((e) => e.status === 'pending').length ?? 0,
+);
 </script>
 
 <template>
@@ -120,57 +164,85 @@ const statusPill = (status) => {
 
             <!-- HEADER -->
             <div class="mt-6 mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-[#232d42] pb-6">
-    <div>
-        <div class="flex items-center gap-2">
-            <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
-                Managing
-            </p>
-            <InfoPopover title="Managing your contest">
-                <p>
-                    Share the invite link with anyone you want in the contest. Their
-                    requests appear below for you to approve or reject.
-                </p>
-                <p>
-                    You've already made your picks at creation — they're locked in and
-                    shown above. You play against everyone you accept.
-                </p>
-                <p class="text-slate-400">
-                    Everyone else's picks stay hidden until the contest settles.
-                </p>
-            </InfoPopover>
-        </div>
-        <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
-            {{ contest.name }}
-        </h1>
-        <p class="mt-3 text-sm text-slate-400">
-            {{ contest.legs_count }} legs · Deadline
-            {{ formatDate(contest.entry_deadline_at) }}
-        </p>
-    </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
+                            Managing
+                        </p>
+                        <InfoPopover title="Managing your contest">
+                            <p>
+                                Share the invite link with anyone you want in the contest. Their
+                                requests appear below for you to approve or reject.
+                            </p>
+                            <p>
+                                You've already made your picks at creation — they're locked in and
+                                shown above. You play against everyone you accept.
+                            </p>
+                            <p class="text-slate-400">
+                                Everyone else's picks stay hidden until the contest settles.
+                            </p>
+                        </InfoPopover>
+                    </div>
+                    <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
+                        {{ contest.name }}
+                    </h1>
+                    <p class="mt-3 text-sm text-slate-400">
+                        {{ contest.legs_count }} legs · Deadline
+                        {{ formatDate(contest.entry_deadline_at) }}
+                    </p>
+                </div>
 
-    <div class="flex flex-wrap items-center gap-2">
-        <button
-            v-if="contest.status === 'open'"
-            type="button"
-            @click="scrollToShare"
-            class="cursor-pointer rounded-lg border border-[#232d42] bg-[#111622] px-5 py-2.5 text-[10px] font-black tracking-widest text-slate-300 uppercase transition-colors hover:border-sky-500/40 hover:text-sky-400"
-        >
-            Share invite
-        </button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button
+                        v-if="isOpen"
+                        type="button"
+                        @click="scrollToShare"
+                        class="cursor-pointer rounded-lg border border-[#232d42] bg-[#111622] px-5 py-2.5 text-[10px] font-black tracking-widest text-slate-300 uppercase transition-colors hover:border-sky-500/40 hover:text-sky-400"
+                    >
+                        Share invite
+                    </button>
+                </div>
+            </div>
 
-        <Link
-            v-if="contest.status === 'settled'"
-            :href="resultsUrl"
-            class="rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
-        >
-            View results →
-        </Link>
-    </div>
-</div>
+            <!-- Status card — shown whenever the contest is no longer open -->
+            <div
+                v-if="!isOpen"
+                class="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#232d42] bg-[#161c2a] px-5 py-4"
+            >
+                <div class="flex items-center gap-3">
+                    <span
+                        class="inline-block h-2 w-2 shrink-0 rounded-full"
+                        :class="statusDotClass"
+                    ></span>
+                    <div>
+                        <p
+                            class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
+                        >
+                            Status
+                        </p>
+                        <p
+                            class="mt-0.5 text-sm font-black tracking-widest uppercase"
+                            :class="statusColorClass"
+                        >
+                            {{ statusLabel }}
+                        </p>
+                        <p class="mt-1 text-[11px] text-slate-500">
+                            {{ statusHint }}
+                        </p>
+                    </div>
+                </div>
+
+                <Link
+                    :href="resultsUrl"
+                    class="rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400"
+                >
+                    View results →
+                </Link>
+            </div>
 
             <!-- SHARE CARD -->
             <section
-                v-if="contest.status === 'open'"
+                v-if="isOpen"
                 id="share-section"
                 class="mb-8 overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]"
             >

@@ -11,7 +11,7 @@ const shareUrl = computed(
 );
 
 const shareText = computed(
-    () => `Join my contest “${contest.name}” on Betslip Pirates — ${contest.legs_count} legs, closes ${formatDeadline(contest.entry_deadline_at)}.`,
+    () => `Join my contest “${contest.name}” on Fainali — ${contest.legs_count} legs, closes ${formatDeadline(contest.entry_deadline_at)}.`,
 );
 
 const socialLinks = computed(() => ({
@@ -59,7 +59,7 @@ const formatDeadline = (iso) => {
 </script>
 
 <template>
-    <Head title="Contest created — Betslip Pirates" />
+    <Head title="Contest created — Fainali" />
 
     <div class="min-h-screen bg-[#070b14] px-4 py-12 font-sans text-slate-300 md:px-6 lg:px-8">
         <div class="mx-auto w-full max-w-3xl">
