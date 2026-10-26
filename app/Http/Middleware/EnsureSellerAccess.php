@@ -23,7 +23,7 @@ class EnsureSellerAccess
         }
 
         if ($user->sellable_status === 'ineligible') {
-            return redirect('/buyer/dashboard')
+            return redirect('/dashboard')
                 ->with('error', 'The seller dashboard unlocks once you qualify as a seller.');
         }
 

@@ -617,7 +617,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     Route::get('/play-preview', [\App\Http\Controllers\Play\PlayDashboardController::class, 'index'])
-    ->name('play.preview');
+        ->name('play.preview');
 
     // ── Dev / Maintenance ──
     Route::get('/deletebetslips', function () {
@@ -641,7 +641,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ── Buyer ──
-    Route::prefix('buyer')->group(function () {
+
+    Route::middleware('has.purchased')->prefix('buyer')->group(function () {
         Route::get('/following', [BuyerDashboardController::class, 'followingIndex'])
             ->name('buyer.following.index');
 
@@ -656,6 +657,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/wallet', [BuyerDashboardController::class, 'getWalletSummary'])->name('buyer.dashboard.wallet');
             Route::get('/insights', [BuyerDashboardController::class, 'getInsights'])->name('buyer.dashboard.insights');
         });
+    });
+
+
+
+    // ── Play — gated dashboard switcher targets ──
+    Route::middleware('has.purchased')->prefix('dashboard')->group(function () {
+        Route::get('/buy', [\App\Http\Controllers\Play\PlayDashboardController::class, 'buy'])
+            ->name('play.buy');
+    });
+
+    Route::middleware('seller.access')->prefix('dashboard')->group(function () {
+        Route::get('/sell', [\App\Http\Controllers\Play\PlayDashboardController::class, 'sell'])
+            ->name('play.sell');
     });
 
     Route::get('/portfolio', [\App\Http\Controllers\PredictionPortfolioController::class, 'index'])

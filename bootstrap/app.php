@@ -38,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'not.suspended' => \App\Http\Middleware\EnsureUserIsNotSuspended::class,
             'seller.access' => \App\Http\Middleware\EnsureSellerAccess::class,
+            'has.purchased' => \App\Http\Middleware\EnsureHasPurchased::class,
         ]);
 
         $middleware->trustProxies(at: '*');

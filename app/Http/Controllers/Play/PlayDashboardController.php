@@ -474,4 +474,24 @@ class PlayDashboardController extends Controller
             'logs' => $logs,
         ];
     }
+
+    /**
+     * The Buy pill's destination once the user has purchased at least once.
+     * Renders a small interstitial with a link to the full buyer dashboard.
+     * Gate is enforced by the `has.purchased` middleware.
+     */
+    public function buy(): Response
+    {
+        return Inertia::render('play/BuyGate');
+    }
+
+    /**
+     * The Sell pill's destination once the user qualifies.
+     * Gate is enforced by `seller.access` (same middleware that guards
+     * /seller/*, so behaviour is identical to every existing seller entry).
+     */
+    public function sell(): Response
+    {
+        return Inertia::render('play/SellGate');
+    }
 }

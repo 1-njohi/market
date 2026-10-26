@@ -28,15 +28,6 @@ class SellerDashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Get dashboard data with caching
-        // $dashboardData = Cache::remember(
-        //     "seller_dashboard_{$user->id}",
-        //     300, // 5 minutes
-        //     function () use ($user) {
-        //         return $this->dashboardService->getDashboardData($user);
-        //     }
-        // );
-
         $dashboardData = $this->dashboardService->getDashboardData($user);
         return Inertia::render('SellerDashboard')->with([
             'seller_data' => $dashboardData,
