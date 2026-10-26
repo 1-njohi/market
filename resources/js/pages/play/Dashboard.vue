@@ -45,7 +45,15 @@
                             <section class="relative overflow-hidden rounded-3xl border border-amber-400/20 bg-gradient-to-br from-amber-500/15 via-[#0b1220] to-[#0b1220] p-5 sm:p-6">
                                 <div class="pointer-events-none absolute -top-20 -right-16 h-52 w-52 rounded-full bg-amber-400/15 blur-3xl" aria-hidden="true"></div>
 
-                                <p class="relative text-sm text-slate-400">Reputation</p>
+                                <div class="relative flex items-center gap-2">
+                                    <p class="text-sm text-slate-400">Reputation</p>
+                                    <InfoPopover title="Your reputation" label="What is reputation?">
+                                        <p v-for="(row, i) in reputationInfo" :key="i">
+                                            <span class="font-bold text-slate-100">{{ row.lead }}</span>
+                                            {{ row.text }}
+                                        </p>
+                                    </InfoPopover>
+                                </div>
                                 <p class="relative mt-1 flex items-baseline gap-2">
                                     <span
                                         class="text-5xl font-black tracking-tight tabular-nums"
@@ -62,49 +70,30 @@
                                 </div>
                             </section>
 
-                            <!-- Where you're playing: tap a tile to jump to that tab -->
+                            <!-- Where you're playing: tap a tile to jump to that tab, tap the ? to learn what it counts -->
                             <section class="grid grid-cols-2 gap-3 lg:col-span-2">
-                                <button
-                                    type="button"
-                                    @click="activeTab = 'betslips'"
-                                    class="group cursor-pointer rounded-3xl border border-white/[0.07] bg-[#0b1220] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-400/40 focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:outline-none active:scale-[0.98]"
-                                >
-                                    <p class="text-sm text-slate-400">Active slips</p>
-                                    <p class="mt-1 text-4xl font-black text-emerald-300 tabular-nums">{{ play_data.overview.stats.active_betslips }}</p>
-                                    <p class="mt-2 text-xs font-semibold text-slate-500 transition-colors group-hover:text-emerald-300">View slips →</p>
-                                </button>
+                                <div v-for="t in metricTiles" :key="t.key" class="relative">
+                                    <button
+                                        type="button"
+                                        @click="activeTab = t.tab"
+                                        class="group h-full w-full cursor-pointer rounded-3xl border border-white/[0.07] bg-[#0b1220] p-5 pr-12 text-left transition-all duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]"
+                                        :class="t.focus"
+                                    >
+                                        <p class="text-sm text-slate-400">{{ t.label }}</p>
+                                        <p class="mt-1 text-4xl font-black tabular-nums" :class="t.text">{{ t.value }}</p>
+                                        <p class="mt-2 text-xs font-semibold text-slate-500 transition-colors" :class="t.hintHover">{{ t.hint }}</p>
+                                    </button>
 
-                                <button
-                                    type="button"
-                                    @click="activeTab = 'matchdays'"
-                                    class="group cursor-pointer rounded-3xl border border-white/[0.07] bg-[#0b1220] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-rose-400/40 focus-visible:ring-2 focus-visible:ring-rose-300 focus-visible:outline-none active:scale-[0.98]"
-                                >
-                                    <p class="text-sm text-slate-400">Open matchdays</p>
-                                    <p class="mt-1 text-4xl font-black text-rose-300 tabular-nums">{{ play_data.overview.stats.open_matchdays }}</p>
-                                    <p class="mt-2 text-xs font-semibold text-slate-500 transition-colors group-hover:text-rose-300">Make your picks →</p>
-                                </button>
-
-                                <button
-                                    type="button"
-                                    @click="activeTab = 'contests'"
-                                    class="group cursor-pointer rounded-3xl border border-white/[0.07] bg-[#0b1220] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/40 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none active:scale-[0.98]"
-                                >
-                                    <p class="text-sm text-slate-400">Contests</p>
-                                    <p class="mt-1 text-4xl font-black text-amber-300 tabular-nums">{{ play_data.overview.stats.created_contests + play_data.overview.stats.entered_contests }}</p>
-                                    <p class="mt-2 text-xs font-semibold text-slate-500 transition-colors group-hover:text-amber-300">
-                                        {{ play_data.overview.stats.created_contests }} hosted · {{ play_data.overview.stats.entered_contests }} entered
-                                    </p>
-                                </button>
-
-                                <button
-                                    type="button"
-                                    @click="activeTab = 'jackpots'"
-                                    class="group cursor-pointer rounded-3xl border border-white/[0.07] bg-[#0b1220] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-purple-400/40 focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:outline-none active:scale-[0.98]"
-                                >
-                                    <p class="text-sm text-slate-400">Jackpots</p>
-                                    <p class="mt-1 text-4xl font-black text-purple-300 tabular-nums">{{ play_data.overview.stats.open_jackpots }}</p>
-                                    <p class="mt-2 text-xs font-semibold text-slate-500 transition-colors group-hover:text-purple-300">See open jackpots →</p>
-                                </button>
+                                    <!-- Sibling of the button, not inside it: a button can't contain a button -->
+                                    <div class="absolute top-3.5 right-3.5 z-10">
+                                        <InfoPopover :title="t.infoTitle" :label="`What are ${t.label.toLowerCase()}?`">
+                                            <p v-for="(row, i) in t.info" :key="i">
+                                                <span class="font-bold text-slate-100">{{ row.lead }}</span>
+                                                {{ row.text }}
+                                            </p>
+                                        </InfoPopover>
+                                    </div>
+                                </div>
                             </section>
                         </div>
 
@@ -430,7 +419,15 @@
                             <section class="relative overflow-hidden rounded-3xl border border-amber-400/20 bg-gradient-to-br from-amber-500/15 via-[#0b1220] to-[#0b1220] p-5 sm:p-6 md:col-span-2">
                                 <div class="pointer-events-none absolute -top-20 -right-16 h-52 w-52 rounded-full bg-amber-400/15 blur-3xl" aria-hidden="true"></div>
 
-                                <p class="relative text-sm text-slate-400">Current reputation</p>
+                                <div class="relative flex items-center gap-2">
+                                    <p class="text-sm text-slate-400">Current reputation</p>
+                                    <InfoPopover title="Your reputation" label="What is reputation?">
+                                        <p v-for="(row, i) in reputationInfo" :key="i">
+                                            <span class="font-bold text-slate-100">{{ row.lead }}</span>
+                                            {{ row.text }}
+                                        </p>
+                                    </InfoPopover>
+                                </div>
                                 <p class="relative mt-1 flex items-baseline gap-2">
                                     <span
                                         class="text-5xl font-black tracking-tight tabular-nums sm:text-6xl"
@@ -504,6 +501,7 @@ import AsOf from '@/components/AsOf.vue';
 import PlayTabs from '@/components/PlayTabs.vue';
 import DashboardSwitcher from '@/components/DashboardSwitcher.vue';
 import SellerProgressCard from '@/components/SellerProgressCard.vue';
+import InfoPopover from '@/components/InfoPopover.vue';
 
 const page = usePage();
 const play_data = page.props.play_data;
@@ -522,6 +520,86 @@ const tabs = computed(() => [
       badge: play_data.overview.stats.open_jackpots || null },
     { key: 'portfolio', label: 'Portfolio', shortLabel: 'Record',   accent: 'slate' },
 ]);
+
+// The four "where you're playing" tiles. `info` is what each popover explains.
+// Colour classes are written out in full so Tailwind can find them.
+const metricTiles = computed(() => {
+    const s = play_data.overview.stats;
+    return [
+        {
+            key: 'betslips',
+            tab: 'betslips',
+            label: 'Active slips',
+            value: s.active_betslips,
+            hint: 'View slips →',
+            text: 'text-emerald-300',
+            focus: 'hover:border-emerald-400/40 focus-visible:ring-emerald-300',
+            hintHover: 'group-hover:text-emerald-300',
+            infoTitle: 'Active slips',
+            info: [
+                { lead: 'What it counts:', text: "Betslips you've built for yourself that haven't settled yet. Open the tab to follow each one live through to settlement." },
+                { lead: 'Why it matters:', text: "Every selection counts toward your record, whether or not the slip is listed on the marketplace. A pick only counts once its game has finished." },
+            ],
+        },
+        {
+            key: 'matchdays',
+            tab: 'matchdays',
+            label: 'Open matchdays',
+            value: s.open_matchdays,
+            hint: 'Make your picks →',
+            text: 'text-rose-300',
+            focus: 'hover:border-rose-400/40 focus-visible:ring-rose-300',
+            hintHover: 'group-hover:text-rose-300',
+            infoTitle: 'Open matchdays',
+            info: [
+                { lead: 'What it counts:', text: "Matchday rounds you can still pick for. Every weekend brings a fresh set of fixtures." },
+                { lead: 'How it works:', text: "One pick per game, usually 10 picks at once. No entry fee." },
+                { lead: 'Sub-leagues:', text: "If you're in a sub-league, you're entered automatically. If not, join one with an invite code." },
+            ],
+        },
+        {
+            key: 'contests',
+            tab: 'contests',
+            label: 'Contests',
+            value: s.created_contests + s.entered_contests,
+            hint: `${s.created_contests} hosted · ${s.entered_contests} entered`,
+            text: 'text-amber-300',
+            focus: 'hover:border-amber-400/40 focus-visible:ring-amber-300',
+            hintHover: 'group-hover:text-amber-300',
+            infoTitle: 'Contests',
+            info: [
+                { lead: 'What it counts:', text: "Contests you've created plus contests you've entered." },
+                { lead: 'Public and private:', text: "Public contests are run by our team and copy the big weekend jackpots. Private contests are yours: invite friends, pick the legs, set a deadline." },
+                { lead: 'How you win:', text: "Pick one selection per leg. The player with the most correct picks takes first place; if two players tie, the one whose picks had bigger odds wins. Contests are free, and the prize is the top spot on the results board." },
+            ],
+        },
+        {
+            key: 'jackpots',
+            tab: 'jackpots',
+            label: 'Jackpots',
+            value: s.open_jackpots,
+            hint: 'See open jackpots →',
+            text: 'text-purple-300',
+            focus: 'hover:border-purple-400/40 focus-visible:ring-purple-300',
+            hintHover: 'group-hover:text-purple-300',
+            infoTitle: 'Jackpots',
+            info: [
+                { lead: 'What it counts:', text: "Public jackpots that are still open for entries." },
+                { lead: 'How it works:', text: "Enter the public crowd. Pick 7–20 legs with confidence, commit before the reveal, and see how the crowd read the fixtures." },
+            ],
+        },
+    ];
+});
+
+// Shared by the two reputation cards (Overview and Portfolio).
+// Only states what the dashboard itself shows: points can rise and fall, they're ranked, and the ledger lists every change.
+const reputationInfo = [
+    { lead: 'What it is:', text: "Your reputation score, in points. Making picks is how you build it, and it can go down as well as up." },
+    { lead: 'Every change is recorded:', text: "The point ledger in your Portfolio tab lists each addition and deduction, newest first." },
+    { lead: 'Global rank:', text: "Players are ranked by points, so your rank shows where you stand among everyone who is ranked." },
+    { lead: 'Where others see it:', text: "Sellers and contest hosts with a positive score show it as a badge next to their name." },
+    { lead: 'Accuracy:', text: "Based on settled picks only, so a pick counts once its game has finished." },
+];
 
 const readHash = () => {
     const hash = (window.location.hash || '').replace('#', '');
