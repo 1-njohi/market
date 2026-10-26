@@ -6,7 +6,7 @@ import FixtureSummaryCard from '@/components/FixtureSummaryCard.vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 import BetSlipSummaryCard from '@/components/BetSlipSummaryCard.vue';
 import PublicContestCard from '@/components/PublicContestCard.vue';
-import LeaderboardSummaryCard from '@/components/LeaderboardSummaryCard.vue';
+import PublicContestCorousel from '@/components/landing/PublicContestCorousel.vue';
 import BetslipWrapper from '@/components/BetslipWrapper.vue';
 import Footer from '@/components/Footer.vue';
 import NavMenu from '@/components/NavMenu.vue';
@@ -295,6 +295,11 @@ const submitBetslipSearch = async () => {
             'mx-auto w-full max-w-[1200px] space-y-8 px-2 md:px-6 lg:px-8',
             $page.props.auth.user ? 'pt-' : 'pt-8',
         ]">
+            <!-- ─── Public Contests ─── -->
+            <section v-if="($page.props.public_contests?.length ?? 0) > 0">
+                <PublicContestCorousel :contests="$page.props.public_contests" />
+            </section>
+
             <!-- ─── Featured Betslips ─── -->
             <section>
                 <div
@@ -349,68 +354,7 @@ const submitBetslipSearch = async () => {
                 </div>
             </section>
 
-            <!-- ─── Public Contests ─── -->
-            <section v-if="($page.props.public_contests?.length ?? 0) > 0">
-                <div
-                    class="mb-4 flex flex-col items-start justify-between gap-3 border-b border-[#232d42] pb-4 md:flex-row md:items-center">
-                    <div class="flex items-center gap-2 text-amber-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                            stroke="currentColor" class="h-4 w-4">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225.012.45.036.671M18 18.72a9.05 9.05 0 0 1-6 0m6 0v-.014a9.05 9.05 0 0 0-6 .014m0 0a9.09 9.09 0 0 1-3.741-.479 3 3 0 0 1 4.682-2.72m.94 3.198v.031c0 .225-.012.45-.036.671M6 18.72v-.014A9.05 9.05 0 0 1 12 18.72m0 0v-.014a9.05 9.05 0 0 0 6 .014M15.75 9.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                        <h3 class="text-xs font-black tracking-widest text-white uppercase">
-                            Public Contests
-                        </h3>
-                        <InfoPopover title="How public contests work">
-                            <p>
-                                <span class="font-bold text-slate-200">Public contests</span>
-                                are run by our team. We copy the big weekend
-                                jackpots you see from bookies — same game, no
-                                bookie.
-                            </p>
-                            <p>
-                                <span class="font-bold text-slate-200">Private contests</span>
-                                are yours. Invite your friends, pick the legs,
-                                set a deadline. Same rules, just your circle.
-                            </p>
-                            <p>
-                                <span class="font-bold text-slate-200">How you win:</span>
-                                pick one selection per leg. Every pick you get
-                                right counts. The player with the most correct
-                                picks takes first place — if two players tie,
-                                the one whose picks had bigger odds wins.
-                            </p>
-                            <p>
-                                <span class="font-bold text-slate-200">Both are free.</span>
-                                No money changes hands. What you win is the top
-                                spot on the results board, seen by everyone who
-                                played.
-                            </p>
-                            <p class="text-slate-400">
-                                Tap a card to join a public one. Hit Create
-                                Contest to start your own.
-                            </p>
-                        </InfoPopover>
-                    </div>
-                    <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
-                        Open to everyone · Join instantly
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <PublicContestCard v-for="contest in $page.props.public_contests" :key="contest.uuid"
-                        :contest="contest" />
-                </div>
-            </section>
-
             <!-- ─── Top Tipsters ─── -->
-            <!-- <section>
-                <LeaderboardSummaryCard ref="leaderboardRef" :leaders="$page.props.leaders || []"
-                    @seller-clicked="handleSellerClick" @view-all-clicked="handleViewAllLeaders"
-                    @search-submitted="handleLeaderSearch" />
-            </section> -->
-
             <section class="py-16 lg:py-20">
                 <TopTipstersCarousel :leaders="$page.props.leaders || []" @seller-clicked="handleSellerClick"
                     @view-all-clicked="handleViewAllLeaders" @search-submitted="handleLeaderSearch" />

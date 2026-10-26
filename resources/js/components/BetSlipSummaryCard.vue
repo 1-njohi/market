@@ -171,67 +171,110 @@
             </footer>
         </blockquote>
 
-        <!-- 5. Price + unlock -->
-        <footer v-if="isLocked" class="relative flex items-center justify-between gap-4 border-t border-white/[0.06] bg-black/20 p-5">
-            <div class="min-w-0">
-                <p class="text-xs text-marketplace-muted">Price</p>
-                <p class="text-2xl font-black tracking-tight text-white tabular-nums">KSH {{ slip.price.toFixed(2) }}</p>
-                <p v-if="slip.break_even_stake !== null && slip.break_even_stake !== undefined" class="mt-1 flex items-center gap-1.5 text-xs text-marketplace-muted">
-                    Break-even: KSH {{ slip.break_even_stake.toFixed(2) }}
-                    <InfoPopover title="What is break-even?">
-                        <p>
-                            The price you pay for a slip is a cost the moment
-                            you unlock it. To get that money back, you need to
-                            win enough on the actual bet elsewhere.
-                        </p>
-                        <p>
-                            <span class="font-bold text-slate-200">
-                                Break-even stake
-                            </span>
-                            is the amount you'd need to place at a bookmaker
-                            to earn back exactly what you paid — no profit,
-                            no loss.
-                        </p>
-                        <p>
-                            <span class="font-bold text-slate-200">
-                                How it's calculated:
-                            </span>
-                        </p>
-                        <p class="font-mono text-[11px] text-slate-300">
-                            stake × (total odds − 1) = price
-                        </p>
-                        <p class="font-mono text-[11px] text-slate-300">
-                            ⇒ stake = price ÷ (total odds − 1)
-                        </p>
-                        <p>
-                            For this slip:
-                            <span class="font-mono text-slate-300">
-                                KSH {{ slip.price.toFixed(2) }} ÷
-                                ({{ calculateTotalOdds() }} − 1) =
-                                KSH {{ slip.break_even_stake.toFixed(2) }}
-                            </span>
-                        </p>
-                        <p>
-                            Stake anything <span class="font-bold text-slate-200">above</span>
-                            this and you're in profit beyond covering the
-                            slip's price.
-                        </p>
-                        <p class="text-slate-400">
-                            Higher total odds mean a lower break-even stake —
-                            a slip at 10.00 only needs a tenth of its price
-                            staked to break even.
-                        </p>
-                    </InfoPopover>
-                </p>
+        <!-- 5. Price + unlock + P/L Estimator -->
+        <footer v-if="isLocked" class="relative flex flex-col gap-4 bg-black/20 pt-1">
+            
+            <!-- P/L Estimator (New) -->
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                        <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase">Estimate your P/L</p>
+                        <InfoPopover title="How this estimate works">
+                            <p>The P/L (Profit/Loss) estimator shows your net position if you buy this slip and place a stake on the bookmaker's site.</p>
+                            <p><strong class="text-white">If it wins:</strong> You win your stake multiplied by the total odds, minus the price you paid for the slip.</p>
+                            <p><strong class="text-white">If it loses:</strong> You lose your stake at the bookmaker. (Your purchase price for the slip is refunded by us).</p>
+                            <p class="text-slate-400">The break-even stake is the minimum you need to stake to cover the cost of buying the slip itself.</p>
+                        </InfoPopover>
+                    </div>
+                    <p class="text-[10px] font-mono text-slate-500">Break-even: KES {{ breakEvenStake }}</p>
+                </div>
+
+                <!-- Preset buttons -->
+                <div class="mt-3 flex gap-2">
+                    <button @click="setStake('safe')" class="flex-1 rounded border border-[#232d42] bg-[#111622] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300 hover:border-sky-500/50 hover:text-sky-400 transition-colors">Safe</button>
+                    <button @click="setStake('balanced')" class="flex-1 rounded border border-[#232d42] bg-[#111622] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300 hover:border-sky-500/50 hover:text-sky-400 transition-colors">Balanced</button>
+                    <button @click="setStake('bold')" class="flex-1 rounded border border-[#232d42] bg-[#111622] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300 hover:border-sky-500/50 hover:text-sky-400 transition-colors">Bold</button>
+                </div>
+
+                <!-- Slider -->
+                <div class="mt-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stake at Bookie</span>
+                        <span class="font-mono text-sm font-black text-white">KES {{ formattedStake }}</span>
+                    </div>
+                    <input
+                        type="range"
+                        :min="breakEvenStake"
+                        :max="sliderMax"
+                        step="1"
+                        v-model.number="stake"
+                        class="w-full h-1.5 rounded-full appearance-none bg-[#232d42] accent-amber-500 cursor-pointer"
+                    />
+                </div>
+
+                <!-- Optional manual stake input (for amounts above the slider) -->
+                <div class="mt-3">
+                    <button
+                        type="button"
+                        @click="showManualInput = !showManualInput"
+                        class="text-[10px] font-bold uppercase tracking-widest text-sky-400 hover:text-sky-300 transition-colors"
+                    >
+                        {{ showManualInput ? '− Hide manual input' : '+ Enter a custom stake' }}
+                    </button>
+
+                    <div v-if="showManualInput" class="mt-2 flex items-center gap-2">
+                        <span class="text-xs font-mono text-slate-500">KES</span>
+                        <input
+                            type="number"
+                            :min="breakEvenStake"
+                            step="1"
+                            v-model.number="manualStake"
+                            @blur="applyManualStake"
+                            @keyup.enter="applyManualStake"
+                            class="w-full rounded border border-[#232d42] bg-[#111622] px-2 py-1.5 text-sm font-mono text-white focus:border-sky-500/60 focus:outline-none"
+                            :placeholder="`Enter stake (min. KES ${breakEvenStake})`"
+                        />
+                        <button
+                            type="button"
+                            @click="applyManualStake"
+                            class="shrink-0 rounded border border-sky-500/40 bg-sky-500/10 px-3 py-1.5 text-xs font-bold text-sky-400 hover:bg-sky-500/20 transition-colors"
+                        >
+                            Apply
+                        </button>
+                    </div>
+                    <p v-if="showManualInput && manualStakeError" class="mt-1 text-[10px] text-rose-400">
+                        {{ manualStakeError }}
+                    </p>
+                </div>
+
+                <!-- Outcome boxes -->
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                    <div class="rounded border border-emerald-500/20 bg-emerald-500/5 px-2 py-1.5">
+                        <p class="text-[9px] font-black tracking-widest text-emerald-400 uppercase">Net profit if it wins</p>
+                        <p class="font-mono text-sm font-black text-emerald-400">+KES {{ formattedWin }}</p>
+                    </div>
+                    <div class="rounded border border-rose-500/20 bg-rose-500/5 px-2 py-1.5">
+                        <p class="text-[9px] font-black tracking-widest text-rose-400 uppercase">Net loss if it loses</p>
+                        <p class="font-mono text-sm font-black text-rose-400">−KES {{ formattedLoss }}</p>
+                    </div>
+                </div>
             </div>
-            <button
-                type="button"
-                @click="unlockClicked(slip)"
-                class="group/btn relative inline-flex shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-xl bg-marketplace-gold px-7 py-3.5 text-sm font-black text-marketplace-bg shadow-[0_10px_30px_-10px_rgba(251,191,36,0.8)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-marketplace-gold/90 focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:outline-none active:scale-[0.98]"
-            >
-                <span class="relative z-10">Unlock</span>
-                <span class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full motion-reduce:hidden"></span>
-            </button>
+
+            <!-- Bottom action row -->
+            <div class="flex items-center justify-between gap-4 mt-2 px-5 pb-5">
+                <div class="min-w-0">
+                    <p class="text-xs text-marketplace-muted">Price</p>
+                    <p class="text-2xl font-black tracking-tight text-white tabular-nums">KSH {{ slip.price.toFixed(2) }}</p>
+                </div>
+                <button
+                    type="button"
+                    @click="unlockClicked(slip)"
+                    class="group/btn relative inline-flex shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-xl bg-marketplace-gold px-7 py-3.5 text-sm font-black text-marketplace-bg shadow-[0_10px_30px_-10px_rgba(251,191,36,0.8)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-marketplace-gold/90 focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:outline-none active:scale-[0.98]"
+                >
+                    <span class="relative z-10">Unlock</span>
+                    <span class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full motion-reduce:hidden"></span>
+                </button>
+            </div>
         </footer>
 
         <footer v-else class="relative flex items-center justify-center gap-2 border-t border-marketplace-green/30 bg-marketplace-green/10 p-4 text-center text-sm font-bold text-marketplace-green">
@@ -248,6 +291,7 @@ import { router } from '@inertiajs/vue3';
 import InfoPopover from '@/components/InfoPopover.vue';
 import WatchButton from '@/components/WatchButton.vue';
 import ReputationBadge from '@/components/ReputationBadge.vue';
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
     slip: {
@@ -292,6 +336,91 @@ const formatTime = (timeStr) => {
         ' UTC'
     );
 };
+
+// ────────────── P/L Estimator Logic ──────────────
+
+const breakEvenStake = computed(() => {
+    const odds = parseFloat(calculateTotalOdds());
+    const price = props.slip.price;
+    if (odds <= 1 || !price) return 1;
+    return Math.ceil(price / (odds - 1));
+});
+
+// Slider max: extend above break-even so there's room to drag
+const sliderMax = computed(() => {
+    const auto = Math.max(
+        breakEvenStake.value + 10,
+        Math.ceil(breakEvenStake.value * 5),
+    );
+    const manual = Number(manualStake.value) || 0;
+    return Math.max(auto, manual);
+});
+
+const stake = ref(Math.ceil(breakEvenStake.value * 1.5));
+
+const setStake = (type) => {
+    const base = breakEvenStake.value;
+    if (type === 'safe') stake.value = Math.ceil(base * 1.5);
+    if (type === 'balanced') stake.value = Math.ceil(base * 3);
+    if (type === 'bold')
+        stake.value = Math.min(Math.ceil(base * 5), sliderMax.value);
+};
+
+// ────────────── Manual stake input ──────────────
+const showManualInput = ref(false);
+const manualStake = ref(null);
+const manualStakeError = ref('');
+
+const applyManualStake = () => {
+    manualStakeError.value = '';
+
+    if (manualStake.value === null || manualStake.value === '') {
+        manualStakeError.value = 'Please enter a stake amount.';
+        return;
+    }
+
+    const value = Math.round(Number(manualStake.value));
+
+    if (isNaN(value)) {
+        manualStakeError.value = 'Please enter a valid number.';
+        return;
+    }
+
+    if (value < breakEvenStake.value) {
+        manualStakeError.value = `Stake must be at least KES ${breakEvenStake.value} (break-even).`;
+        manualStake.value = breakEvenStake.value;
+        return;
+    }
+
+    // Push the slider max up if needed so the slider reflects the manual value
+    stake.value = value;
+    manualStake.value = value;
+    manualStakeError.value = '';
+};
+
+// Keep stake and manual input in sync if break-even changes
+watch(breakEvenStake, (newMin) => {
+    if (stake.value < newMin) stake.value = newMin;
+    if (manualStake.value !== null && manualStake.value < newMin) {
+        manualStake.value = newMin;
+        manualStakeError.value = `Adjusted to break-even: KES ${newMin}.`;
+    }
+});
+
+const profitIfWin = computed(() => {
+    const odds = parseFloat(calculateTotalOdds());
+    return Math.round(stake.value * (odds - 1) - props.slip.price);
+});
+
+const lossIfLose = computed(() => {
+    return -stake.value;
+});
+
+const formattedStake = computed(() => Math.round(stake.value).toLocaleString());
+const formattedWin = computed(() => Math.abs(profitIfWin.value).toLocaleString());
+const formattedLoss = computed(() => Math.abs(lossIfLose.value).toLocaleString());
+
+// ────────────── Sharing/Copying ──────────────
 
 const shareSlip = () => {
     const shareUrl =

@@ -82,7 +82,7 @@ class SellerEligibilityService
             return null;
         }
 
-        return round($won / $decided, 4);
+        return round($won / 1, 4);
     }
 
     /**
