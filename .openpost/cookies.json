@@ -1,24 +1,24 @@
 [
   {
     "name": "XSRF-TOKEN",
-    "value": "eyJpdiI6Im5VNEczajd3d3RVZTg5U0w2SzRkalE9PSIsInZhbHVlIjoiaVJkY0hqdUxDdTlpSHBaSmo1SjFYQUlnMDZqVElCMmYveDVNeWFid3IyLzRMeEUvYjNxTzd6YityMlh5M2dJdnRtTHNxbmgzaWVGQ0NwbGxTN2VOZzdiNUh5YWo2MHpOTjBQTXh6a0x5ZVhsZW9FQXZqSGxVdzNPTS9oOWZhTkkiLCJtYWMiOiJhYTE3NDRjNzc2OGZlYmM2ODEzZGVhMmU3Y2I4M2QyN2QxYmU2ZDU4ZDFjMGUxMWFhOGRiNTA5ZDQxODgxMTg3IiwidGFnIjoiIn0%3D",
+    "value": "eyJpdiI6IjN3RmtpZWM3RjJaTTFaSXFXUkxibnc9PSIsInZhbHVlIjoiTE1QRW01R2wzNGtBemhHRXVRL0RzYnJVQVlqRnduSzJvNElEZHV2eVA5MCtlc0xOK2g3VXpPbHc5Y3RsTlYxMFVlWFd2RUxCdlN2Mmp2YUxtZzdEYnRZcDBYc1dzSDA2NlpPcWFOek5TWUlmWnlDT2VCUmlFR2NzZ01CeWpJeGEiLCJtYWMiOiIwNjBlYzEyNWI3OTM0YjliNGM3YmM2MTY3OTkzOWFmNGU2YmU4NjAzNGQzZTBlODhkY2VhNjg4OGUxNWYyYzYzIiwidGFnIjoiIn0%3D",
     "domain": "localhost",
     "path": "/",
-    "expires": "2026-10-26T13:40:39.014Z",
+    "expires": "2026-10-26T14:03:06.727Z",
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax",
-    "createdAt": "2026-10-26T11:40:39.014Z"
+    "createdAt": "2026-10-26T12:03:06.727Z"
   },
   {
     "name": "laravel-session",
-    "value": "eyJpdiI6InRsUXFZR1BJZjBhbE15cDdONzkzdWc9PSIsInZhbHVlIjoiUDIvSksvalpmMldoQ0NYYWEvbEtnWllRa04va0pmS0owdHFocVhSbEZBUE1ZaURQS2pWY2lWR0ZCMThUNjI5S0szOVVvVjhJaERORzRIcDltajU1Ny9EQWQrVzRPQld5V2x3R3BJMS9Jc3FiWkZnVVNneFNzVUlpTjU0Zy9NQlkiLCJtYWMiOiI3M2MzZDU2NjQ4NDU3ZTM5NjY0ZWNjZmU5NDA5OTFiYzllNmYwZDg1ZmFlNTA1NTY0NGE2MTcwMGZkZjUyMmRhIiwidGFnIjoiIn0%3D",
+    "value": "eyJpdiI6ImtlMkN0cmNONVRPZUhwcDFWNDVJR0E9PSIsInZhbHVlIjoidWpneFpmYXY0OEk0ZVNOYVVUY0lZZFNJOWxwMzVyQ2NMblJ0V3JKWm5JOU9RZEx1VXJDNlBCQWErc0hHTU4rRHRRUEljd3R1bE92bDEvaFZGeG1ELzVzdFBId2F0cU5aRGVQZ2FnRUFRcmFvVzN2TFJXVVFoMjMwWHlIc0VEZVEiLCJtYWMiOiJiMDJjNjNiMzk5OGRjZjRmMzI4NTcyMzYyYWFkNWU2YmY4YmNiODJmOWQ0Zjk3ZTMzMjQ3ZDAyMzY3NThiOTg2IiwidGFnIjoiIn0%3D",
     "domain": "localhost",
     "path": "/",
-    "expires": "2026-10-26T13:40:39.014Z",
+    "expires": "2026-10-26T14:03:06.727Z",
     "httpOnly": true,
     "secure": false,
     "sameSite": "Lax",
-    "createdAt": "2026-10-26T11:40:39.014Z"
+    "createdAt": "2026-10-26T12:03:06.727Z"
   }
 ]
