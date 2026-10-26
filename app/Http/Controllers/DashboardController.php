@@ -18,21 +18,22 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user();
+        return app(\App\Http\Controllers\Play\PlayDashboardController::class)->index();
+        // $user = $request->user();
 
-        // Optional escape hatch: /dashboard?as=seller or ?as=buyer
-        $override = $request->query('as');
-        if (in_array($override, ['buyer', 'seller'], true)) {
-            return redirect()->to("/{$override}/dashboard");
-        }
+        // // Optional escape hatch: /dashboard?as=seller or ?as=buyer
+        // $override = $request->query('as');
+        // if (in_array($override, ['buyer', 'seller'], true)) {
+        //     return redirect()->to("/{$override}/dashboard");
+        // }
 
-        $role = Cache::remember(
-            $this->cacheKey($user),
-            self::ROLE_CACHE_TTL,
-            fn () => $this->determineRole($user),
-        );
+        // $role = Cache::remember(
+        //     $this->cacheKey($user),
+        //     self::ROLE_CACHE_TTL,
+        //     fn () => $this->determineRole($user),
+        // );
 
-        return redirect()->to("/{$role}/dashboard");
+        // return redirect()->to("/{$role}/dashboard");
     }
 
     /**

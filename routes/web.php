@@ -615,6 +615,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ── Dashboard ──
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+
+    Route::get('/play-preview', [\App\Http\Controllers\Play\PlayDashboardController::class, 'index'])
+    ->name('play.preview');
+
     // ── Dev / Maintenance ──
     Route::get('/deletebetslips', function () {
         try {
