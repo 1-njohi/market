@@ -1,10 +1,7 @@
 <template>
     <div ref="betslipRef">
-        <!-- ═══ Sticky sidebar (desktop, /fixtures page) ═══ -->
-        <section
-            v-if="variant === 'sticky-sidebar'"
-            class="hidden md:block"
-        >
+        <!-- ═══ Sticky sidebar (desktop) ═══ -->
+        <section v-if="variant === 'sticky-sidebar'" class="hidden md:block">
             <div class="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
                 <div
                     class="overflow-hidden rounded-xl border border-[#232d42] bg-[#0d1527] font-sans shadow-2xl"
@@ -44,7 +41,7 @@
             <BetslipCard />
         </section>
 
-        <!-- ═══ Inline (default, normal flow) ═══ -->
+        <!-- ═══ Inline (default) ═══ -->
         <section
             v-else
             class="mb-2 hidden w-full max-w-2xl overflow-hidden rounded-xl border border-[#232d42] bg-[#0d1527] font-sans shadow-2xl md:block"
@@ -55,16 +52,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import BetslipCard from './BetslipCard.vue';
 
 const props = defineProps({
-    /**
-     * 'inline'         — current default (fixed bottom sheet on scroll,
-     *                    in-flow otherwise). Used by Welcome and Fixture pages.
-     * 'sticky-sidebar' — always visible in a sticky container. Used by the
-     *                    /fixtures page's two-column layout.
-     */
     variant: {
         type: String,
         default: 'inline',
@@ -76,6 +67,16 @@ const betslipRef = ref(null);
 const isFixed = ref(false);
 const isOpen = ref(false);
 let scrollListener = null;
+
+// Broadcast close transitions so page-level UI (mobile trigger) can
+// hide itself. We only emit on open→closed, not on closed→open, because
+// `betslipOpened` is how the page tells *us* to open — not a broadcast
+// we re-emit.
+watch(isOpen, (open, prev) => {
+    if (prev === true && open === false) {
+        window.dispatchEvent(new CustomEvent('betslipClosed'));
+    }
+});
 
 const checkPosition = () => {
     if (props.variant === 'sticky-sidebar') return;

@@ -1,4 +1,5 @@
 <template>
+
     <Head title="Fixtures — Fainali" />
 
     <div class="bg-[#070b14] font-sans text-slate-300">
@@ -6,9 +7,7 @@
             <!-- ═══ HEADER ═══ -->
             <div class="mb-8 border-b border-[#232d42] pb-6">
                 <div class="flex items-center gap-2">
-                    <p
-                        class="text-[10px] font-black tracking-widest text-sky-400 uppercase"
-                    >
+                    <p class="text-[10px] font-black tracking-widest text-sky-400 uppercase">
                         Fixtures
                     </p>
                     <InfoPopover title="How picking works">
@@ -29,17 +28,13 @@
                     </InfoPopover>
                 </div>
 
-                <h1
-                    class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl"
-                >
+                <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
                     {{ headlineCount }} Fixtures Across
                     {{ leagueCount }}
                     {{ leagueCount === 1 ? 'League' : 'Leagues' }}
                 </h1>
 
-                <p
-                    class="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400"
-                >
+                <p class="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
                     Build your slip by tapping odds that catch your eye.
                     Multi-leg selections across different leagues are
                     supported.
@@ -48,53 +43,25 @@
                 <!-- SEARCH -->
                 <div class="mt-6 max-w-md select-none">
                     <div
-                        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-marketplace-muted"
-                    ></div>
+                        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-marketplace-muted">
+                    </div>
                     <div class="relative">
                         <div
-                            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="2.5"
-                                stroke="currentColor"
-                                class="h-4 w-4"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.604 10.604Z"
-                                />
+                            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="h-4 w-4">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.604 10.604Z" />
                             </svg>
                         </div>
-                        <input
-                            v-model="search"
-                            type="text"
-                            placeholder="Search for a team…"
-                            class="w-full rounded-lg border border-[#232d42] bg-[#111622] py-2.5 pr-9 pl-10 text-xs font-semibold tracking-wide text-white placeholder-slate-500 transition-colors focus:border-sky-500 focus:outline-none"
-                        />
-                        <button
-                            v-if="search"
-                            type="button"
-                            @click="search = ''"
+                        <input v-model="search" type="text" placeholder="Search for a team…"
+                            class="w-full rounded-lg border border-[#232d42] bg-[#111622] py-2.5 pr-9 pl-10 text-xs font-semibold tracking-wide text-white placeholder-slate-500 transition-colors focus:border-sky-500 focus:outline-none" />
+                        <button v-if="search" type="button" @click="search = ''"
                             class="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-slate-500 transition-colors hover:text-white"
-                            aria-label="Clear search"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="2.5"
-                                stroke="currentColor"
-                                class="h-4 w-4"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M6 18 18 6M6 6l12 12"
-                                />
+                            aria-label="Clear search">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="h-4 w-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
@@ -105,32 +72,22 @@
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
                 <!-- Fixtures list -->
                 <div class="lg:col-span-8">
-                    <div
-                        v-if="fixtures.length === 0"
-                        class="rounded-lg border border-[#232d42] bg-[#111622] p-12 text-center"
-                    >
-                        <p
-                            class="text-[10px] font-black tracking-widest text-slate-500 uppercase"
-                        >
+                    <div v-if="fixtures.length === 0"
+                        class="rounded-lg border border-[#232d42] bg-[#111622] p-12 text-center">
+                        <p class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
                             No fixtures available
                         </p>
                         <p class="mt-3 text-sm text-slate-400">
                             Check back later — new fixtures are added as they
                             become available.
                         </p>
-                        <Link
-                            href="/marketplace"
-                            class="mt-6 inline-block rounded-lg bg-sky-500 px-6 py-3 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-sky-400"
-                        >
+                        <Link href="/marketplace"
+                            class="mt-6 inline-block rounded-lg bg-sky-500 px-6 py-3 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-sky-400">
                             Browse marketplace
                         </Link>
                     </div>
 
-                    <FixtureList
-                        v-else
-                        :leagues="fixtures"
-                        :search="search"
-                    />
+                    <FixtureList v-else :leagues="fixtures" :search="search" />
                 </div>
 
                 <!-- Betslip sidebar (desktop) -->
@@ -142,16 +99,23 @@
 
         <!-- Mobile: floating button + bottom-sheet betslip -->
         <div v-if="selections.length > 0">
-            <button
-                type="button"
-                @click="openBetslip"
-                class="fixed right-4 bottom-6 z-50 flex cursor-pointer items-center space-x-2 rounded-full bg-[#ff8c00] px-5 py-3 text-xs font-black tracking-wider text-black uppercase shadow-2xl transition-transform hover:scale-105 active:scale-95 lg:hidden"
-            >
-                <span>⚡ Betslip</span>
-                <span
-                    class="flex h-5 w-5 items-center justify-center rounded-full bg-black text-[10px] font-black text-[#ff8c00]"
-                >
-                    {{ selections.length }}
+            <button type="button" @click="openBetslip"
+                class="group fixed right-4 bottom-6 z-50 flex min-h-14 cursor-pointer items-center justify-between gap-3 rounded-2xl bg-amber-400 pr-3 pl-5 text-[#070b14] shadow-[0_16px_40px_-12px_rgba(251,191,36,0.8)] transition-all duration-200 hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-amber-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070b14] focus-visible:outline-none active:scale-[0.98]"
+                :aria-label="`Open betslip, ${selections.length} ${selections.length === 1 ? 'pick' : 'picks'}`">
+                <span class="flex items-center gap-2.5 text-base font-black">
+                    View betslip
+                </span>
+                <span class="flex items-center gap-2">
+                    <span
+                        class="flex h-8 min-w-8 items-center justify-center rounded-full bg-[#070b14] px-2 text-sm font-black text-amber-300 tabular-nums">
+                        {{ selections.length }}
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                        stroke="currentColor"
+                        class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
                 </span>
             </button>
         </div>

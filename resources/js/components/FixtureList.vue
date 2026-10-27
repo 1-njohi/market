@@ -1,878 +1,181 @@
 <template>
-    <div
-        class="overflow-hidden rounded-lg border border-marketplace-border bg-marketplace-card"
-    >
-        <!-- DESKTOP HEADER ROW -->
-        <div
-            class="hidden grid-cols-12 items-center gap-2 border-b border-marketplace-border bg-marketplace-card/60 px-4 py-2 text-center text-[10px] font-bold lg:grid"
-        >
-            <div class="col-span-4 text-left text-marketplace-muted">
-                MATCH DETAILS
-            </div>
-            <div class="col-span-2 grid grid-cols-3 gap-1">
-                <div class="col-span-3 mb-1 text-marketplace-muted">
-                    3 WAY
+    <div class="overflow-hidden rounded- border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm">
+        <!-- DESKTOP COLUMN HEADERS: generated from the same market list as the rows, so they always line up -->
+        <div :class="['hidden items-end gap-3 border-b border-white/[0.06] bg-black/25 px-5 py-3 lg:grid', GRID]">
+            <p class="text-xs font-semibold text-slate-400">Match</p>
+            <div v-for="m in MARKETS" :key="m.type" class="text-center">
+                <p class="mb-1.5 text-xs font-bold text-slate-200">{{ m.title }}</p>
+                <div class="grid gap-1.5" :style="{ gridTemplateColumns: `repeat(${m.options.length}, minmax(0, 1fr))` }">
+                    <span v-for="o in m.options" :key="o.key" class="text-xs text-slate-400">{{ o.label }}</span>
                 </div>
-                <div>HOME</div>
-                <div>DRAW</div>
-                <div>AWAY</div>
             </div>
-            <div class="col-span-2 grid grid-cols-3 gap-1">
-                <div class="col-span-3 mb-1 text-marketplace-muted">
-                    DOUBLE CHANCE
-                </div>
-                <div>1 OR X</div>
-                <div>X OR 2</div>
-                <div>1 OR 2</div>
-            </div>
-            <div class="col-span-2 grid grid-cols-2 gap-1">
-                <div class="col-span-2 mb-1 text-marketplace-muted">
-                    OVER/UNDER 2.5
-                </div>
-                <div>OVER</div>
-                <div>UNDER</div>
-            </div>
-            <div class="col-span-2 grid grid-cols-2 gap-1">
-                <div class="col-span-2 mb-1 text-marketplace-muted">
-                    BOTH TEAMS TO SCORE
-                </div>
-                <div>YES</div>
-                <div>NO</div>
-            </div>
+            <span></span>
         </div>
 
         <!-- EMPTY STATE -->
-        <div
-            v-if="filteredLeagues.length === 0"
-            class="p-8 text-center text-xs font-bold tracking-wider text-marketplace-muted uppercase"
-        >
-            {{
-                totalFixtures === 0
-                    ? 'No fixtures available right now.'
-                    : 'No fixtures match your search.'
-            }}
+        <div v-if="filteredLeagues.length === 0" class="flex flex-col items-center gap-3 px-6 py-14 text-center">
+            <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.05] text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.604 10.604Z" />
+                </svg>
+            </span>
+            <p class="text-base font-bold text-slate-200">
+                {{ totalFixtures === 0 ? 'No fixtures available right now.' : 'No fixtures match your search.' }}
+            </p>
+            <p v-if="totalFixtures !== 0" class="text-sm text-slate-400">Try a different team name.</p>
         </div>
 
         <!-- LEAGUE BLOCK -->
         <template v-else>
-            <div
-                v-for="league in filteredLeagues"
-                :key="league.id"
-                class="border-b border-marketplace-border last:border-none"
-            >
-                <!-- LEAGUE TITLE HEADER -->
-                <div
+            <section v-for="league in filteredLeagues" :key="league.id" class="border-b border-white/[0.06] last:border-none">
+                <!-- LEAGUE HEADER -->
+                <button
+                    type="button"
                     @click="toggleLeague(league.id)"
-                    class="flex cursor-pointer items-center justify-between bg-marketplace-card/60 px-4 py-3 transition-colors select-none hover:bg-marketplace-card/90"
+                    :aria-expanded="isLeagueExpanded(league.id)"
+                    :aria-controls="`league-${league.id}`"
+                    class="flex w-full cursor-pointer items-center justify-between gap-3 bg-white/[0.03] px-5 py-4 text-left transition-colors select-none hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none focus-visible:ring-inset"
                 >
-                    <div class="flex items-center space-x-3">
+                    <div class="flex min-w-0 items-center gap-3">
                         <span
-                            class="h-2 w-2 rounded-full bg-marketplace-gold shadow-[0_0_8px_rgba(245,166,35,0.4)]"
+                            class="h-2.5 w-2.5 shrink-0 rounded-full transition-all"
+                            :class="isLeagueExpanded(league.id) ? 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.7)]' : 'bg-white/25'"
                         ></span>
-                        <div class="flex flex-col">
-                            <h4
-                                class="text-xs font-black tracking-widest text-white uppercase"
-                            >
-                                {{ league.name }}
-                            </h4>
-                            <span
-                                class="text-[9px] font-bold tracking-wider text-marketplace-muted uppercase"
-                            >
-                                {{ league.country }} •
-                                {{ league.fixtures?.length ?? 0 }}
-                                {{
-                                    (league.fixtures?.length ?? 0) === 1
-                                        ? 'Match'
-                                        : 'Matches'
-                                }}
-                                Available
-                            </span>
+                        <div class="min-w-0">
+                            <h4 class="truncate text-base font-bold text-white">{{ league.name }}</h4>
+                            <p class="text-xs text-slate-400">
+                                {{ league.country }} · {{ league.fixtures?.length ?? 0 }}
+                                {{ (league.fixtures?.length ?? 0) === 1 ? 'match' : 'matches' }}
+                            </p>
                         </div>
                     </div>
 
-                    <div
-                        :class="[
-                            'rounded p-1 text-marketplace-muted transition-transform duration-200 ease-out hover:bg-marketplace-border/50 hover:text-white',
-                            isLeagueExpanded(league.id)
-                                ? 'rotate-180 text-marketplace-gold'
-                                : '',
-                        ]"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="3"
-                            stroke="currentColor"
-                            class="h-3.5 w-3.5"
+                    <div class="flex shrink-0 items-center gap-3">
+                        <span v-if="pickedInLeague(league) > 0" class="rounded-full bg-amber-400 px-2.5 py-1 text-xs font-black text-[#070b14] tabular-nums">
+                            {{ pickedInLeague(league) }} picked
+                        </span>
+                        <span
+                            :class="['text-slate-400 transition-transform duration-200 ease-out', isLeagueExpanded(league.id) ? 'rotate-180 text-amber-300' : '']"
+                            aria-hidden="true"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                            />
-                        </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-4 w-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </span>
                     </div>
-                </div>
+                </button>
 
                 <!-- LEAGUE FIXTURES (COLLAPSIBLE) -->
                 <Transition
-                    enter-active-class="transition-[max-height,opacity] duration-300 ease-out"
-                    enter-from-class="max-height-0 opacity-0"
-                    enter-to-class="max-height-[5000px] opacity-100"
-                    leave-active-class="transition-[max-height,opacity] duration-200 ease-in"
-                    leave-from-class="max-height-[5000px] opacity-100"
-                    leave-to-class="max-height-0 opacity-0"
+                    enter-active-class="transition-opacity duration-300 ease-out"
+                    enter-from-class="opacity-0"
+                    enter-to-class="opacity-100"
+                    leave-active-class="transition-opacity duration-150 ease-in"
+                    leave-from-class="opacity-100"
+                    leave-to-class="opacity-0"
                 >
-                    <div
-                        v-show="isLeagueExpanded(league.id)"
-                        class="divide-y divide-marketplace-border/50 overflow-hidden"
-                    >
-                        <div class="p-4 text-center text-xs font-bold text-marketplace-muted uppercase">
-                            <div class="divide-y divide-marketplace-border/50">
-                                <div
-                                    v-for="match in league.fixtures"
-                                    :key="match.id"
-                                    class="p-3 lg:p-0 bg--900 mt-6 border-b border-dashed border-marketplace-gold p-3 last:border-0 lg:p-0"
-                                >
-                                    <!-- DESKTOP VIEW -->
-                                    <div
-                                        class="hidden grid-cols-12 items-center gap-2 bg-marketplace-card px-4 py-3 text-center text-xs text-white transition-colors hover:bg-marketplace-card/70 lg:grid"
-                                    >
-                                        <div
-                                            class="col-span-4 flex flex-col justify-center space-y-1 text-left"
-                                        >
-                                            <div
-                                                class="flex items-center space-x-1.5 text-[10px] text-marketplace-muted"
-                                            >
-                                                <span
-                                                    v-if="match.boosted"
-                                                    class="rounded-[3px] bg-marketplace-gold px-1 text-[8px] font-black tracking-wider text-marketplace-bg uppercase"
-                                                    >⚡ BOOSTED ODDS</span
-                                                >
-                                                <span class="text-marketplace-gold">{{
-                                                    match.date
-                                                }}</span>
-                                                <span class="text-marketplace-border">|</span>
-                                                <span
-                                                    >ID: {{ match.id_on_api }}</span
-                                                >
-                                            </div>
-                                            <div
-                                                class="text-[11px] font-bold tracking-wide text-white uppercase"
-                                            >
-                                                <div>{{ match.home_team }}</div>
-                                                <div>{{ match.away_team }}</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- 3 WAY -->
-                                        <div class="col-span-2 grid grid-cols-3 gap-1">
-                                            <button
-                                                v-for="(odd, idx) in [
-                                                    match.odds?.three_way?.home,
-                                                    match.odds?.three_way?.draw,
-                                                    match.odds?.three_way?.away,
-                                                ]"
-                                                :key="idx"
-                                                @click.stop.prevent="
-                                                    () =>
-                                                        handleSelectionMade(
-                                                            odd,
-                                                            match,
-                                                            'three_way',
-                                                            idx,
-                                                        )
-                                                "
-                                                :class="[
-                                                    'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-gold transition-all hover:bg-marketplace-border/40',
-                                                    isSelected(
-                                                        match.id,
-                                                        'three_way',
-                                                        ['Home', 'Draw', 'Away'][idx],
-                                                    )
-                                                        ? 'border-marketplace-gold bg-marketplace-gold/20 text-white ring-1 ring-marketplace-gold/40'
-                                                        : 'border-transparent',
-                                                ]"
-                                            >
-                                                {{ formatOdd(odd?.value) }}
-                                            </button>
-                                        </div>
-
-                                        <!-- DOUBLE CHANCE -->
-                                        <div class="col-span-2 grid grid-cols-3 gap-1">
-                                            <button
-                                                v-for="(odd, idx) in [
-                                                    match.odds?.double_chance?.one_x,
-                                                    match.odds?.double_chance?.x_two,
-                                                    match.odds?.double_chance?.one_two,
-                                                ]"
-                                                :key="idx"
-                                                @click.stop.prevent="
-                                                    () =>
-                                                        handleSelectionMade(
-                                                            odd,
-                                                            match,
-                                                            'double_chance',
-                                                            idx,
-                                                        )
-                                                "
-                                                :class="[
-                                                    'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/40',
-                                                    isSelected(
-                                                        match.id,
-                                                        'double_chance',
-                                                        ['one_x', 'x_two', 'one_two'][idx],
-                                                    )
-                                                        ? 'border-marketplace-gold bg-marketplace-gold/20 text-white ring-1 ring-marketplace-gold/40'
-                                                        : 'border-transparent',
-                                                ]"
-                                            >
-                                                {{ formatOdd(odd?.value) }}
-                                            </button>
-                                        </div>
-
-                                        <!-- OVER/UNDER 2.5 -->
-                                        <div class="col-span-2 grid grid-cols-2 gap-1">
-                                            <button
-                                                @click.stop.prevent="
-                                                    () =>
-                                                        handleSelectionMade(
-                                                            match.odds?.over_under?.over,
-                                                            match,
-                                                            'over_under_2.5',
-                                                            'Over',
-                                                        )
-                                                "
-                                                :class="[
-                                                    'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/40',
-                                                    isSelected(
-                                                        match.id,
-                                                        'over_under_2.5',
-                                                        'Over',
-                                                    )
-                                                        ? 'border-marketplace-gold bg-marketplace-gold/20 text-white ring-1 ring-marketplace-gold/40'
-                                                        : 'border-transparent',
-                                                ]"
-                                            >
-                                                {{
-                                                    formatOdd(
-                                                        match.odds?.over_under?.over?.value,
-                                                    )
-                                                }}
-                                            </button>
-                                            <button
-                                                @click.stop.prevent="
-                                                    () =>
-                                                        handleSelectionMade(
-                                                            match.odds?.over_under?.under,
-                                                            match,
-                                                            'over_under_2.5',
-                                                            'Under',
-                                                        )
-                                                "
-                                                :class="[
-                                                    'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/40',
-                                                    isSelected(
-                                                        match.id,
-                                                        'over_under_2.5',
-                                                        'Under',
-                                                    )
-                                                        ? 'border-marketplace-gold bg-marketplace-gold/20 text-white ring-1 ring-marketplace-gold/40'
-                                                        : 'border-transparent',
-                                                ]"
-                                            >
-                                                {{
-                                                    formatOdd(
-                                                        match.odds?.over_under?.under?.value,
-                                                    )
-                                                }}
-                                            </button>
-                                        </div>
-
-                                        <!-- BTTS -->
-                                        <div class="group relative col-span-2 grid grid-cols-2 gap-1">
-                                            <button
-                                                @click.stop.prevent="
-                                                    () =>
-                                                        handleSelectionMade(
-                                                            match.odds?.both_team_to_score?.yes,
-                                                            match,
-                                                            'both_team_to_score',
-                                                            'Yes',
-                                                        )
-                                                "
-                                                :class="[
-                                                    'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/40',
-                                                    isSelected(
-                                                        match.id,
-                                                        'both_team_to_score',
-                                                        'Yes',
-                                                    )
-                                                        ? 'border-marketplace-gold bg-marketplace-gold/20 text-white ring-1 ring-marketplace-gold/40'
-                                                        : 'border-transparent',
-                                                ]"
-                                            >
-                                                {{
-                                                    formatOdd(
-                                                        match.odds?.both_team_to_score?.yes?.value,
-                                                    )
-                                                }}
-                                            </button>
-                                            <button
-                                                @click.stop.prevent="
-                                                    () =>
-                                                        handleSelectionMade(
-                                                            match.odds?.both_team_to_score?.no,
-                                                            match,
-                                                            'both_team_to_score',
-                                                            'No',
-                                                        )
-                                                "
-                                                :class="[
-                                                    'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/40',
-                                                    isSelected(
-                                                        match.id,
-                                                        'both_team_to_score',
-                                                        'No',
-                                                    )
-                                                        ? 'border-marketplace-gold bg-marketplace-gold/20 text-white ring-1 ring-marketplace-gold/40'
-                                                        : 'border-transparent',
-                                                ]"
-                                            >
-                                                {{
-                                                    formatOdd(
-                                                        match.odds?.both_team_to_score?.no?.value,
-                                                    )
-                                                }}
-                                            </button>
-                                            <div
-                                                @click="viewFixture(match.id_on_api)"
-                                                class="absolute top-1/2 -right-6 h-5 w-5 -translate-y-1/2 cursor-pointer rounded-xl bg-marketplace-gold/80 px-1 text-sm font-bold text-marketplace-bg opacity-60 transition-opacity group-hover:opacity-100"
-                                            >
-                                                ❯
-                                            </div>
-                                        </div>
+                    <ul v-show="isLeagueExpanded(league.id)" :id="`league-${league.id}`" class="divide-y divide-white/[0.05]">
+                        <li v-for="match in league.fixtures" :key="match.id">
+                            <!-- DESKTOP VIEW -->
+                            <div :class="['hidden items-center gap-3 px-5 py-3.5 transition-colors hover:bg-white/[0.03] lg:grid', GRID]">
+                                <div class="min-w-0 space-y-1.5">
+                                    <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-400">
+                                        <span v-if="match.boosted" class="inline-flex items-center gap-1 rounded-md bg-amber-400 px-1.5 py-0.5 text-xs font-black text-[#070b14]">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3" aria-hidden="true"><path d="M11.3 1.05a.75.75 0 0 1 .4.82L10.6 8h4.65a.75.75 0 0 1 .58 1.23l-7 8.5a.75.75 0 0 1-1.32-.6L8.4 12H3.75a.75.75 0 0 1-.58-1.23l7-8.5a.75.75 0 0 1 1.13-.22Z" /></svg>
+                                            Boosted odds
+                                        </span>
+                                        <span class="font-semibold text-amber-300">{{ match.date }}</span>
+                                        <span class="text-white/20" aria-hidden="true">|</span>
+                                        <span class="tabular-nums">ID {{ match.id_on_api }}</span>
+                                    </p>
+                                    <div class="text-sm font-bold text-white">
+                                        <p class="truncate">{{ match.home_team }}</p>
+                                        <p class="truncate">{{ match.away_team }}</p>
                                     </div>
+                                </div>
 
-                                    <!-- MOBILE VIEW -->
-                                    <div class="block text-white lg:hidden">
-                                        <div
-                                            class="mb-3 flex items-start justify-between"
-                                            @click="viewFixture(match.id_on_api)"
-                                        >
-                                            <div>
-                                                <div
-                                                    v-if="match.boosted"
-                                                    class="mb-1 inline-block rounded-[3px] bg-marketplace-gold px-1 py-0.5 text-[8px] font-black tracking-wider text-marketplace-bg uppercase"
-                                                >
-                                                    ⚡ BOOSTED ODDS
-                                                </div>
-                                                <div
-                                                    class="space-y-0.5 text-xs font-bold tracking-wide text-white uppercase md:text-sm"
-                                                >
-                                                    <div
-                                                        class="flex w-full flex-col items-start justify-start gap-1.5 select-none"
-                                                    >
-                                                        <div
-                                                            class="space-y-0.5 text-left text-xs font-black tracking-widest text-white uppercase md:text-sm"
-                                                        >
-                                                            <div class="flex items-center gap-2">
-                                                                <span
-                                                                    class="text-[10px] text-marketplace-muted"
-                                                                    >H</span
-                                                                >
-                                                                <span>{{
-                                                                    match.home_team
-                                                                }}</span>
-                                                            </div>
-                                                            <div class="flex items-center gap-2">
-                                                                <span
-                                                                    class="text-[10px] text-marketplace-muted"
-                                                                    >A</span
-                                                                >
-                                                                <span>{{
-                                                                    match.away_team
-                                                                }}</span>
-                                                            </div>
-                                                        </div>
+                                <div v-for="m in MARKETS" :key="m.type" class="grid gap-1.5" :style="{ gridTemplateColumns: `repeat(${m.options.length}, minmax(0, 1fr))` }">
+                                    <button
+                                        v-for="o in m.options"
+                                        :key="o.key"
+                                        type="button"
+                                        :disabled="!hasOdd(match, o)"
+                                        :aria-pressed="isSelected(match.id, m.type, o.key)"
+                                        :aria-label="`${m.title}: ${o.label}, odds ${formatOdd(oddFor(match, o)?.value)}`"
+                                        @click.stop.prevent="() => handleSelectionMade(oddFor(match, o), match, m.type, o.arg)"
+                                        :class="[ODD_BTN, isSelected(match.id, m.type, o.key) ? ODD_ON : ODD_OFF]"
+                                    >
+                                        {{ formatOdd(oddFor(match, o)?.value) }}
+                                    </button>
+                                </div>
 
-                                                        <div
-                                                            class="flex items-center justify-start gap-1.5 text-[10px] font-bold tracking-wider text-marketplace-muted uppercase"
-                                                        >
-                                                            <span class="text-marketplace-gold">{{
-                                                                match.date
-                                                            }}</span>
-                                                            <span
-                                                                class="font-normal text-marketplace-border"
-                                                                >|</span
-                                                            >
-                                                            <span
-                                                                >ID:
-                                                                <span
-                                                                    class="font-mono font-semibold text-marketplace-slate"
-                                                                    >{{
-                                                                        match.id_on_api
-                                                                    }}</span
-                                                                ></span
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex items-center space-x-1.5 self-center">
-                                                <button
-                                                    class="rounded bg-marketplace-card/80 p-2 text-xs text-marketplace-slate hover:bg-marketplace-border/40"
-                                                >
-                                                    📊
-                                                </button>
-                                                <button
-                                                    class="rounded bg-marketplace-card/80 px-3 py-1.5 text-xs font-bold text-marketplace-slate hover:bg-marketplace-border/40"
-                                                >
-                                                    {{
-                                                        match.additional_markets_count
-                                                    }}
-                                                </button>
-                                            </div>
-                                        </div>
+                                <button
+                                    type="button"
+                                    @click="viewFixture(match.id_on_api)"
+                                    :title="`${match.additional_markets_count} more markets`"
+                                    :aria-label="`More markets for ${match.home_team} v ${match.away_team}`"
+                                    class="flex h-9 w-9 cursor-pointer items-center justify-center justify-self-end rounded-full border border-white/10 bg-white/[0.04] text-slate-400 transition-all hover:border-amber-300/60 hover:text-amber-300 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </button>
+                            </div>
 
-                                        <div class="space-y-3 text-xs">
-                                            <!-- 3 Way -->
-                                            <div>
-                                                <div
-                                                    class="rounded-t border-b border-marketplace-border/50 bg-marketplace-card/60 px-3 py-1.5 text-[10px] font-bold tracking-wider text-marketplace-slate uppercase"
-                                                >
-                                                    3 Way
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-3 divide-x divide-marketplace-border/50 overflow-hidden rounded-b bg-marketplace-card/80"
-                                                >
-                                                    <button
-                                                        :class="[
-                                                            'rounded p-2.5 text-center hover:bg-marketplace-border/30',
-                                                            isSelected(
-                                                                match.id,
-                                                                'three_way',
-                                                                'Home',
-                                                            )
-                                                                ? 'border border-marketplace-gold bg-marketplace-gold/20'
-                                                                : '',
-                                                        ]"
-                                                        @click.stop.prevent="
-                                                            () =>
-                                                                handleSelectionMade(
-                                                                    match.odds?.three_way?.home,
-                                                                    match,
-                                                                    'three_way',
-                                                                    0,
-                                                                )
-                                                        "
-                                                    >
-                                                        <div
-                                                            class="truncate px-0.5 text-[9px] tracking-tight text-marketplace-muted uppercase"
-                                                        >
-                                                            {{ match.home_team }}
-                                                        </div>
-                                                        <div
-                                                            class="mt-0.5 font-bold text-marketplace-gold"
-                                                        >
-                                                            {{
-                                                                formatOdd(
-                                                                    match.odds?.three_way?.home
-                                                                        ?.value,
-                                                                )
-                                                            }}
-                                                        </div>
-                                                    </button>
-                                                    <button
-                                                        class="p-2.5 text-center hover:bg-marketplace-border/30"
-                                                        :class="[
-                                                            'rounded p-2.5 text-center hover:bg-marketplace-border/30',
-                                                            isSelected(
-                                                                match.id,
-                                                                'three_way',
-                                                                'Draw',
-                                                            )
-                                                                ? 'border border-marketplace-gold bg-marketplace-gold/20'
-                                                                : '',
-                                                        ]"
-                                                        @click.stop.prevent="
-                                                            () =>
-                                                                handleSelectionMade(
-                                                                    match.odds?.three_way?.draw,
-                                                                    match,
-                                                                    'three_way',
-                                                                    1,
-                                                                )
-                                                        "
-                                                    >
-                                                        <div
-                                                            class="text-[9px] tracking-tight text-marketplace-muted uppercase"
-                                                        >
-                                                            Draw
-                                                        </div>
-                                                        <div
-                                                            class="mt-0.5 font-bold text-marketplace-gold"
-                                                        >
-                                                            {{
-                                                                formatOdd(
-                                                                    match.odds?.three_way?.draw
-                                                                        ?.value,
-                                                                )
-                                                            }}
-                                                        </div>
-                                                    </button>
-                                                    <button
-                                                        class="p-2.5 text-center hover:bg-marketplace-border/30"
-                                                        :class="[
-                                                            'rounded p-2.5 text-center hover:bg-marketplace-border/30',
-                                                            isSelected(
-                                                                match.id,
-                                                                'three_way',
-                                                                'Away',
-                                                            )
-                                                                ? 'border border-marketplace-gold bg-marketplace-gold/20'
-                                                                : '',
-                                                        ]"
-                                                        @click.stop.prevent="
-                                                            () =>
-                                                                handleSelectionMade(
-                                                                    match.odds?.three_way?.away,
-                                                                    match,
-                                                                    'three_way',
-                                                                    2,
-                                                                )
-                                                        "
-                                                    >
-                                                        <div
-                                                            class="truncate px-0.5 text-[9px] tracking-tight text-marketplace-muted uppercase"
-                                                        >
-                                                            {{ match.away_team }}
-                                                        </div>
-                                                        <div
-                                                            class="mt-0.5 font-bold text-marketplace-gold"
-                                                        >
-                                                            {{
-                                                                formatOdd(
-                                                                    match.odds?.three_way?.away
-                                                                        ?.value,
-                                                                )
-                                                            }}
-                                                        </div>
-                                                    </button>
-                                                </div>
-                                            </div>
+                            <!-- MOBILE VIEW -->
+                            <div class="space-y-4 px-4 py-5 lg:hidden">
+                                <div class="flex items-start justify-between gap-3">
+                                    <button type="button" class="min-w-0 cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none" @click="viewFixture(match.id_on_api)">
+                                        <span v-if="match.boosted" class="mb-1.5 inline-flex items-center gap-1 rounded-md bg-amber-400 px-1.5 py-0.5 text-xs font-black text-[#070b14]">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3" aria-hidden="true"><path d="M11.3 1.05a.75.75 0 0 1 .4.82L10.6 8h4.65a.75.75 0 0 1 .58 1.23l-7 8.5a.75.75 0 0 1-1.32-.6L8.4 12H3.75a.75.75 0 0 1-.58-1.23l7-8.5a.75.75 0 0 1 1.13-.22Z" /></svg>
+                                            Boosted odds
+                                        </span>
+                                        <span class="block text-base font-bold text-white">{{ match.home_team }}</span>
+                                        <span class="block text-base font-bold text-slate-300">{{ match.away_team }}</span>
+                                        <span class="mt-1.5 flex items-center gap-2 text-xs text-slate-400">
+                                            <span class="font-semibold text-amber-300">{{ match.date }}</span>
+                                            <span class="text-white/20" aria-hidden="true">|</span>
+                                            <span class="tabular-nums">ID {{ match.id_on_api }}</span>
+                                        </span>
+                                    </button>
 
-                                            <!-- Double Chance -->
-                                            <div>
-                                                <div
-                                                    class="rounded-t border-b border-marketplace-border/50 bg-marketplace-card/60 px-3 py-1.5 text-[10px] font-bold tracking-wider text-marketplace-slate uppercase"
-                                                >
-                                                    Double Chance
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-3 divide-x divide-marketplace-border/50 overflow-hidden rounded-b bg-marketplace-card/80"
-                                                >
-                                                    <button
-                                                        class="p-2.5 text-center hover:bg-marketplace-border/30"
-                                                        @click.stop.prevent="
-                                                            () =>
-                                                                handleSelectionMade(
-                                                                    match.odds?.double_chance
-                                                                        ?.one_x,
-                                                                    match,
-                                                                    'double_chance',
-                                                                    0,
-                                                                )
-                                                        "
-                                                        :class="[
-                                                            'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/30',
-                                                            isSelected(
-                                                                match.id,
-                                                                'double_chance',
-                                                                'one_x',
-                                                            )
-                                                                ? 'border-marketplace-gold bg-marketplace-gold/20 text-white'
-                                                                : 'border-transparent',
-                                                        ]"
-                                                    >
-                                                        <div class="text-[9px] text-marketplace-muted">
-                                                            1 or X
-                                                        </div>
-                                                        <div
-                                                            class="mt-0.5 font-bold text-marketplace-slate"
-                                                        >
-                                                            {{
-                                                                formatOdd(
-                                                                    match.odds?.double_chance
-                                                                        ?.one_x?.value,
-                                                                )
-                                                            }}
-                                                        </div>
-                                                    </button>
-                                                    <button
-                                                        class="p-2.5 text-center hover:bg-marketplace-border/30"
-                                                        @click.stop.prevent="
-                                                            () =>
-                                                                handleSelectionMade(
-                                                                    match.odds?.double_chance
-                                                                        ?.x_two,
-                                                                    match,
-                                                                    'double_chance',
-                                                                    1,
-                                                                )
-                                                        "
-                                                        :class="[
-                                                            'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/30',
-                                                            isSelected(
-                                                                match.id,
-                                                                'double_chance',
-                                                                'x_two',
-                                                            )
-                                                                ? 'border-marketplace-gold bg-marketplace-gold/20 text-white'
-                                                                : 'border-transparent',
-                                                        ]"
-                                                    >
-                                                        <div class="text-[9px] text-marketplace-muted">
-                                                            X or 2
-                                                        </div>
-                                                        <div
-                                                            class="mt-0.5 font-bold text-marketplace-slate"
-                                                        >
-                                                            {{
-                                                                formatOdd(
-                                                                    match.odds?.double_chance
-                                                                        ?.x_two?.value,
-                                                                )
-                                                            }}
-                                                        </div>
-                                                    </button>
-                                                    <button
-                                                        class="p-2.5 text-center hover:bg-marketplace-border/30"
-                                                        @click.stop.prevent="
-                                                            () =>
-                                                                handleSelectionMade(
-                                                                    match.odds?.double_chance
-                                                                        ?.one_two,
-                                                                    match,
-                                                                    'double_chance',
-                                                                    2,
-                                                                )
-                                                        "
-                                                        :class="[
-                                                            'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/30',
-                                                            isSelected(
-                                                                match.id,
-                                                                'double_chance',
-                                                                'one_two',
-                                                            )
-                                                                ? 'border-marketplace-gold bg-marketplace-gold/20 text-white'
-                                                                : 'border-transparent',
-                                                        ]"
-                                                    >
-                                                        <div class="text-[9px] text-marketplace-muted">
-                                                            1 or 2
-                                                        </div>
-                                                        <div
-                                                            class="mt-0.5 font-bold text-marketplace-slate"
-                                                        >
-                                                            {{
-                                                                formatOdd(
-                                                                    match.odds?.double_chance
-                                                                        ?.one_two?.value,
-                                                                )
-                                                            }}
-                                                        </div>
-                                                    </button>
-                                                </div>
-                                            </div>
+                                    <button
+                                        type="button"
+                                        @click="viewFixture(match.id_on_api)"
+                                        class="inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-bold text-slate-300 transition-colors hover:border-amber-300/60 hover:text-amber-300 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+                                    >
+                                        +{{ match.additional_markets_count }}
+                                        <span class="text-xs font-semibold text-slate-400">markets</span>
+                                    </button>
+                                </div>
 
-                                            <!-- Over/Under & BTTS -->
-                                            <div class="grid grid-cols-2 gap-2">
-                                                <div>
-                                                    <div
-                                                        class="truncate rounded-t bg-marketplace-card/60 px-3 py-1.5 text-[10px] font-bold text-marketplace-slate uppercase"
-                                                    >
-                                                        Over/Under 2.5
-                                                    </div>
-                                                    <div
-                                                        class="grid grid-cols-2 divide-x divide-marketplace-border/50 overflow-hidden rounded-b bg-marketplace-card/80"
-                                                    >
-                                                        <button
-                                                            class="p-2.5 text-center hover:bg-marketplace-border/30"
-                                                            @click.stop.prevent="
-                                                                () =>
-                                                                    handleSelectionMade(
-                                                                        match.odds?.over_under
-                                                                            ?.over,
-                                                                        match,
-                                                                        'over_under_2.5',
-                                                                        'Over',
-                                                                    )
-                                                            "
-                                                            :class="[
-                                                                'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/30',
-                                                                isSelected(
-                                                                    match.id,
-                                                                    'over_under_2.5',
-                                                                    'Over',
-                                                                )
-                                                                    ? 'border-marketplace-gold bg-marketplace-gold/20 text-white'
-                                                                    : 'border-transparent',
-                                                            ]"
-                                                        >
-                                                            <div class="text-[9px] text-marketplace-muted">
-                                                                Over 2.50
-                                                            </div>
-                                                            <div
-                                                                class="mt-0.5 font-bold text-marketplace-slate"
-                                                            >
-                                                                {{
-                                                                    formatOdd(
-                                                                        match.odds?.over_under
-                                                                            ?.over?.value,
-                                                                    )
-                                                                }}
-                                                            </div>
-                                                        </button>
-                                                        <button
-                                                            class="p-2.5 text-center hover:bg-marketplace-border/30"
-                                                            @click.stop.prevent="
-                                                                () =>
-                                                                    handleSelectionMade(
-                                                                        match.odds?.over_under
-                                                                            ?.under,
-                                                                        match,
-                                                                        'over_under_2.5',
-                                                                        'Under',
-                                                                    )
-                                                            "
-                                                            :class="[
-                                                                'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/30',
-                                                                isSelected(
-                                                                    match.id,
-                                                                    'over_under_2.5',
-                                                                    'Under',
-                                                                )
-                                                                    ? 'border-marketplace-gold bg-marketplace-gold/20 text-white'
-                                                                    : 'border-transparent',
-                                                            ]"
-                                                        >
-                                                            <div class="text-[9px] text-marketplace-muted">
-                                                                Under 2.50
-                                                            </div>
-                                                            <div
-                                                                class="mt-0.5 font-bold text-marketplace-slate"
-                                                            >
-                                                                {{
-                                                                    formatOdd(
-                                                                        match.odds?.over_under
-                                                                            ?.under?.value,
-                                                                    )
-                                                                }}
-                                                            </div>
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <div
-                                                        class="truncate rounded-t bg-marketplace-card/60 px-3 py-1.5 text-[10px] font-bold text-marketplace-slate uppercase"
-                                                    >
-                                                        Both Teams To Score
-                                                    </div>
-                                                    <div
-                                                        class="grid grid-cols-2 divide-x divide-marketplace-border/50 overflow-hidden rounded-b bg-marketplace-card/80"
-                                                    >
-                                                        <button
-                                                            class="p-2.5 text-center hover:bg-marketplace-border/30"
-                                                            @click.stop.prevent="
-                                                                () =>
-                                                                    handleSelectionMade(
-                                                                        match.odds
-                                                                            ?.both_team_to_score
-                                                                            ?.yes,
-                                                                        match,
-                                                                        'both_team_to_score',
-                                                                        'Yes',
-                                                                    )
-                                                            "
-                                                            :class="[
-                                                                'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/30',
-                                                                isSelected(
-                                                                    match.id,
-                                                                    'both_team_to_score',
-                                                                    'Yes',
-                                                                )
-                                                                    ? 'border-marketplace-gold bg-marketplace-gold/20 text-white'
-                                                                    : 'border-transparent',
-                                                            ]"
-                                                        >
-                                                            <div class="text-[9px] text-marketplace-muted">
-                                                                Yes (GG)
-                                                            </div>
-                                                            <div
-                                                                class="mt-0.5 font-bold text-marketplace-slate"
-                                                            >
-                                                                {{
-                                                                    formatOdd(
-                                                                        match.odds
-                                                                            ?.both_team_to_score
-                                                                            ?.yes?.value,
-                                                                    )
-                                                                }}
-                                                            </div>
-                                                        </button>
-                                                        <button
-                                                            class="p-2.5 text-center hover:bg-marketplace-border/30"
-                                                            @click.stop.prevent="
-                                                                () =>
-                                                                    handleSelectionMade(
-                                                                        match.odds
-                                                                            ?.both_team_to_score
-                                                                            ?.no,
-                                                                        match,
-                                                                        'both_team_to_score',
-                                                                        'No',
-                                                                    )
-                                                            "
-                                                            :class="[
-                                                                'cursor-pointer rounded border bg-marketplace-card/80 py-2.5 text-center font-bold text-marketplace-slate transition-colors hover:bg-marketplace-border/30',
-                                                                isSelected(
-                                                                    match.id,
-                                                                    'both_team_to_score',
-                                                                    'No',
-                                                                )
-                                                                    ? 'border-marketplace-gold bg-marketplace-gold/20 text-white'
-                                                                    : 'border-transparent',
-                                                            ]"
-                                                        >
-                                                            <div class="text-[9px] text-marketplace-muted">
-                                                                No (NG)
-                                                            </div>
-                                                            <div
-                                                                class="mt-0.5 font-bold text-marketplace-slate"
-                                                            >
-                                                                {{
-                                                                    formatOdd(
-                                                                        match.odds
-                                                                            ?.both_team_to_score
-                                                                            ?.no?.value,
-                                                                    )
-                                                                }}
-                                                            </div>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div v-for="(m, mi) in MARKETS" :key="m.type" :class="mi < 2 ? 'col-span-2' : 'col-span-1'">
+                                        <p class="mb-1.5 text-xs font-semibold text-slate-400">{{ m.title }}</p>
+                                        <div class="grid gap-1.5" :style="{ gridTemplateColumns: `repeat(${m.options.length}, minmax(0, 1fr))` }">
+                                            <button
+                                                v-for="o in m.options"
+                                                :key="o.key"
+                                                type="button"
+                                                :disabled="!hasOdd(match, o)"
+                                                :aria-pressed="isSelected(match.id, m.type, o.key)"
+                                                :aria-label="`${m.title}: ${o.mobileLabel ? o.mobileLabel(match) : o.label}, odds ${formatOdd(oddFor(match, o)?.value)}`"
+                                                @click.stop.prevent="() => handleSelectionMade(oddFor(match, o), match, m.type, o.arg)"
+                                                :class="[ODD_BTN, 'flex min-h-14 flex-col items-center justify-center gap-0.5 px-1', isSelected(match.id, m.type, o.key) ? ODD_ON : ODD_OFF]"
+                                            >
+                                                <span class="w-full truncate px-0.5 text-xs font-semibold" :class="isSelected(match.id, m.type, o.key) ? 'text-[#070b14]/70' : 'text-slate-400'">
+                                                    {{ o.mobileLabel ? o.mobileLabel(match) : o.label }}
+                                                </span>
+                                                <span class="text-base">{{ formatOdd(oddFor(match, o)?.value) }}</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </li>
+                    </ul>
                 </Transition>
-            </div>
+            </section>
         </template>
     </div>
 </template>
@@ -885,6 +188,61 @@ const props = defineProps({
     search: { type: String, default: '' },
     defaultExpandedLeagueId: { type: [Number, String], default: 1 },
 });
+
+// ── MARKETS ───────────────────────────────────────────────────
+// One description of every market, used for the desktop headers, the desktop rows and the mobile blocks.
+//   key : what isSelected() matches on (the stored selection value)
+//   arg : the 4th argument handleSelectionMade() expects (an index for 3-way/double chance, the label otherwise)
+//   path: where the odd lives inside match.odds
+const MARKETS = [
+    {
+        type: 'three_way',
+        title: '3 way',
+        options: [
+            { key: 'Home', label: 'Home', arg: 0, path: ['three_way', 'home'], mobileLabel: (m) => m.home_team },
+            { key: 'Draw', label: 'Draw', arg: 1, path: ['three_way', 'draw'] },
+            { key: 'Away', label: 'Away', arg: 2, path: ['three_way', 'away'], mobileLabel: (m) => m.away_team },
+        ],
+    },
+    {
+        type: 'double_chance',
+        title: 'Double chance',
+        options: [
+            { key: 'one_x', label: '1 or X', arg: 0, path: ['double_chance', 'one_x'] },
+            { key: 'x_two', label: 'X or 2', arg: 1, path: ['double_chance', 'x_two'] },
+            { key: 'one_two', label: '1 or 2', arg: 2, path: ['double_chance', 'one_two'] },
+        ],
+    },
+    {
+        type: 'over_under_2.5',
+        title: 'Over/Under 2.5',
+        options: [
+            { key: 'Over', label: 'Over', arg: 'Over', path: ['over_under', 'over'] },
+            { key: 'Under', label: 'Under', arg: 'Under', path: ['over_under', 'under'] },
+        ],
+    },
+    {
+        type: 'both_team_to_score',
+        title: 'Both teams to score',
+        options: [
+            { key: 'Yes', label: 'Yes', arg: 'Yes', path: ['both_team_to_score', 'yes'], mobileLabel: () => 'Yes (GG)' },
+            { key: 'No', label: 'No', arg: 'No', path: ['both_team_to_score', 'no'], mobileLabel: () => 'No (NG)' },
+        ],
+    },
+];
+
+// Desktop columns: match | 3 way | double chance | over/under | btts | more-markets button.
+// Proportional to the number of buttons in each market, so every button is about the same width.
+const GRID = 'lg:grid-cols-[minmax(0,3fr)_minmax(0,2.4fr)_minmax(0,2.4fr)_minmax(0,1.6fr)_minmax(0,1.6fr)_2.25rem]';
+
+// Odds buttons (full class strings so Tailwind can see them)
+const ODD_BTN =
+    'min-h-11 w-full cursor-pointer rounded-xl border text-sm font-black tabular-nums transition-all duration-150 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none active:scale-95 disabled:pointer-events-none disabled:opacity-40';
+const ODD_OFF = 'border-white/[0.08] bg-white/[0.04] text-white hover:border-amber-300/50 hover:bg-white/[0.09]';
+const ODD_ON = 'border-amber-400 bg-amber-400 text-[#070b14] shadow-[0_8px_20px_-8px_rgba(251,191,36,0.8)]';
+
+const oddFor = (match, option) => option.path.reduce((o, k) => o?.[k], match.odds);
+const hasOdd = (match, option) => Number.isFinite(Number(oddFor(match, option)?.value));
 
 const filteredLeagues = computed(() => {
     const q = props.search.trim().toLowerCase();
@@ -940,6 +298,12 @@ const selectedSet = computed(() => {
 
 const isSelected = (fixture_id, market_name, selectionx) => {
     return selectedSet.value.has(`${fixture_id}-${market_name}-${selectionx}`);
+};
+
+// How many fixtures in this league already have a pick, shown on the league header.
+const pickedInLeague = (league) => {
+    const picked = new Set(selections.value.map((s) => s.fixture_id));
+    return (league.fixtures ?? []).filter((f) => picked.has(f.id)).length;
 };
 
 const viewFixture = (id) => {

@@ -1,19 +1,17 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { dashboard, login, register } from '@/routes';
 import HeroSection from '@/components/HeroSection.vue';
 import FixtureSummaryCard from '@/components/FixtureSummaryCard.vue';
-import InfoPopover from '@/components/InfoPopover.vue';
 import BetSlipSummaryCard from '@/components/BetSlipSummaryCard.vue';
-import PublicContestCard from '@/components/PublicContestCard.vue';
 import PublicContestCorousel from '@/components/landing/PublicContestCorousel.vue';
+import OpenRoundsSection from '@/components/landing/OpenRoundsSection.vue';
 import BetslipWrapper from '@/components/BetslipWrapper.vue';
 import Footer from '@/components/Footer.vue';
 import NavMenu from '@/components/NavMenu.vue';
+import NotificationBell from '@/components/NotificationBell.vue';
 import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
 import axios from 'axios';
-import Hero from '@/components/landing/Hero.vue';
 import RecordSection from '@/components/landing/RecordSection.vue';
 import FourWaysSection from '@/components/landing/FourWaysSection.vue';
 import MarketplaceTeaser from '@/components/landing/MarketplaceTeaser.vue';
@@ -23,11 +21,11 @@ import FeatureRail from '@/components/landing/FeatureRail.vue';
 import FinalCtaSection from '@/components/landing/FinalCtaSection.vue';
 import TopTipstersCarousel from '@/components/TopTipstersCarousel.vue';
 
+const page = usePage();
+
 const socialProofRecords = computed(
     () => page.props.social_proof_records ?? [],
 );
-
-const page = usePage();
 
 const leaderboardRef = ref(null);
 
@@ -124,6 +122,7 @@ const handleViewAllLeaders = () => {
 };
 
 const selections = ref([]);
+const betslipOpen = ref(false);
 
 const getSelectionsFromLocalStorage = () => {
     try {
@@ -148,15 +147,27 @@ const handleStorageChange = (event) => {
     }
 };
 
+const markBetslipOpen = () => {
+    betslipOpen.value = true;
+};
+
+const markBetslipClosed = () => {
+    betslipOpen.value = false;
+};
+
 onMounted(() => {
     updateSelections();
     window.addEventListener('betSelectionUpdated', updateSelections);
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('betslipOpened', markBetslipOpen);
+    window.addEventListener('betslipClosed', markBetslipClosed);
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener('betSelectionUpdated', updateSelections);
     window.removeEventListener('storage', handleStorageChange);
+    window.removeEventListener('betslipOpened', markBetslipOpen);
+    window.removeEventListener('betslipClosed', markBetslipClosed);
 });
 
 const openBetslip = () => {
@@ -176,11 +187,6 @@ const clearSearch = () => {
     searchQuery.value = '';
 };
 
-/**
- * Look up a betslip by tracking code and navigate to its public view.
- * Codes are stored uppercased server-side, so we normalize before the
- * request. The lookup endpoint returns a relative URL on success.
- */
 const submitBetslipSearch = async () => {
     const code = searchQuery.value.trim().toUpperCase();
     if (!code) return;
@@ -223,13 +229,11 @@ const submitBetslipSearch = async () => {
                     class="flex min-h-11 items-center gap-2.5 rounded-xl pr-2 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none">
                     <img src="../../img/logo.png" alt="Fainali Logo"
                         class="pointer-events-none h-9 w-auto object-contain select-none" />
-                    <span class="hidden text-base font-black tracking-tight text-white md:block">Betslip Pirates</span>
                 </Link>
 
                 <!-- NAV ACTIONS -->
                 <div class="flex items-center gap-2">
                     <template v-if="$page.props.auth.user">
-                        <!-- Balance pill: the number people check most, one tap from the wallet -->
                         <Link :href="dashboard()"
                             class="flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/[0.07] px-3.5 transition-all duration-200 hover:border-emerald-300/50 hover:bg-emerald-400/10 focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:outline-none active:scale-[0.98]"
                             title="Available balance">
@@ -247,7 +251,7 @@ const submitBetslipSearch = async () => {
                             </span>
                         </Link>
 
-                        <NotificationBell :initial-unread-count="notifications.unread_count" />
+                        <NotificationBell :initial-unread-count="$page.props.notifications?.unread_count ?? 0" />
 
                         <NavMenu />
                     </template>
@@ -264,7 +268,8 @@ const submitBetslipSearch = async () => {
                 </div>
             </nav>
         </header>
-        <!-- ═══════════════ HERO (guests only) ═══════════════ -->
+
+        <!-- ═══════════════ HERO + LANDING (guests only) ═══════════════ -->
         <div>
             <HeroSection v-if="!$page.props.auth.user" />
             <template v-if="!$page.props.auth.user">
@@ -280,14 +285,21 @@ const submitBetslipSearch = async () => {
 
         <!-- ═══════════════ MAIN COLUMN ═══════════════ -->
         <main :class="[
-            'mx-auto w-full max-w-[1200px] space-y-8 px-2 md:px-6 lg:px-8',
-            $page.props.auth.user ? 'pt-' : 'pt-8',
+            'mx-auto w-full max-w-[1200px] space-y -8 px-2 md:px-6 lg:px-8',
+            $page.props.auth.user ? 'pt-24' : 'pt-8',
         ]">
+            <section v-if="($page.props.open_matchdays?.length ?? 0) > 0">
+                <OpenRoundsSection kind="matchday" :rounds="$page.props.open_matchdays" />
+            </section>
+
             <!-- ─── Public Contests ─── -->
             <section v-if="($page.props.public_contests?.length ?? 0) > 0">
                 <PublicContestCorousel :contests="$page.props.public_contests" />
             </section>
 
+            <section v-if="($page.props.open_jackpots?.length ?? 0) > 0">
+                <OpenRoundsSection kind="jackpot" :rounds="$page.props.open_jackpots" />
+            </section>
             <!-- ─── Featured Betslips ─── -->
             <section>
                 <div
@@ -331,7 +343,6 @@ const submitBetslipSearch = async () => {
                     <BetSlipSummaryCard v-for="(sample_slip, i) in $page.props.bet_slips" :key="i" :slip="sample_slip"
                         :isLocked="true" class="w-full" />
 
-                    <!-- Full width separator -->
                     <div
                         class="w-full rounded-lg border border-[#232d42] bg-[#111622]/40 p-4 text-center md:col-span-2">
                         <Link href="/marketplace"
@@ -348,9 +359,14 @@ const submitBetslipSearch = async () => {
                     @view-all-clicked="handleViewAllLeaders" @search-submitted="handleLeaderSearch" />
             </section>
 
-            <!-- ─── Create Your Betslip ─── -->
-            <section>
-                <FixtureSummaryCard :leagues="$page.props.fixtures" />
+            <!-- ─── Create Your Betslip (fixture list + betslip sidebar) ─── -->
+            <section class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                <div class="lg:col-span-3 order-2 lg:order-1">
+                    <BetslipWrapper />
+                </div>
+                <div class="lg:col-span-9 order-1 lg:order-2">
+                    <FixtureSummaryCard :leagues="$page.props.fixtures" />
+                </div>
             </section>
         </main>
 
@@ -358,7 +374,30 @@ const submitBetslipSearch = async () => {
 
         <Footer />
 
-        <!-- ─── Toast container (unchanged) ─── -->
+        <!-- ─── Mobile floating betslip trigger (hidden when sheet is open) ─── -->
+        <div v-if="selections && selections.length > 0 && !betslipOpen">
+            <button type="button" @click="openBetslip"
+                class="group fixed right-4 bottom-6 z-50 flex min-h-14 cursor-pointer items-center justify-between gap-3 rounded-2xl bg-amber-400 pr-3 pl-5 text-[#070b14] shadow-[0_16px_40px_-12px_rgba(251,191,36,0.8)] transition-all duration-200 hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-amber-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070b14] focus-visible:outline-none active:scale-[0.98]"
+                :aria-label="`Open betslip, ${selections.length} ${selections.length === 1 ? 'pick' : 'picks'}`">
+                <span class="flex items-center gap-2.5 text-base font-black">
+                    View betslip
+                </span>
+                <span class="flex items-center gap-2">
+                    <span
+                        class="flex h-8 min-w-8 items-center justify-center rounded-full bg-[#070b14] px-2 text-sm font-black text-amber-300 tabular-nums">
+                        {{ selections.length }}
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                        stroke="currentColor"
+                        class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
+                </span>
+            </button>
+        </div>
+
+        <!-- ─── Toast container ─── -->
         <Teleport to="body">
             <div
                 class="pointer-events-none fixed inset-x-0 bottom-0 z-[9999] flex flex-col items-center gap-2 p-4 sm:items-end sm:p-6">
@@ -419,8 +458,5 @@ const submitBetslipSearch = async () => {
                 </Transition>
             </div>
         </Teleport>
-
-        <!-- Betslip overlay (unchanged) -->
-        <BetslipWrapper />
     </div>
 </template>

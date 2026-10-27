@@ -27,13 +27,13 @@ const props = defineProps({
 const wrapperClass = computed(() => {
     switch (props.variant) {
         case 'darker':
-            return 'relative w-full overflow-hidden bg-[#070f1c] py-20 lg:py-28';
+            return 'relative w-full overflow-hidden bg-[#070f1c] py-2 lg:py-28';
         case 'hero':
             return 'relative w-full overflow-hidden bg-[#0a1628]';
         case 'final':
-            return 'relative w-full overflow-hidden bg-[#0a1628] py-16 lg:py-20';
+            return 'relative w-full overflow-hidden bg-[#0a1628] py-4 lg:py-20';
         default:
-            return 'relative w-full bg-[#0a1628] py-20 lg:py-28';
+            return 'relative w-full bg-[#0a1628] py-2 lg:py-28';
     }
 });
 </script>
