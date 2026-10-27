@@ -15,7 +15,7 @@ window.axios = axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
+    title: (title) => (title ? `${appName}: ${title}` : appName),
     layout: (name) => {
         switch (true) {
             case name === 'Welcome':
