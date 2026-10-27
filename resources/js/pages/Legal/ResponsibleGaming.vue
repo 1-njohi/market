@@ -87,7 +87,7 @@ import { Head, Link } from '@inertiajs/vue3';
                     <div class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4">
                         <h3 class="text-sm font-bold text-slate-200">Self-exclusion</h3>
                         <p class="mt-1 text-sm leading-relaxed text-slate-400">
-                            Email us at responsible@betslip-pirates.com and we
+                            Email us at responsible@fainali.com and we
                             will permanently close your account and prevent
                             reactivation. Funds in your wallet will be returned
                             to your registered M-Pesa number.

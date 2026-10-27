@@ -324,17 +324,27 @@ const stopPolling = () => {
 let currentBalance = 0;
 
 const handleClickOutside = (event) => {
-    if (
-        isOpen.value &&
-        modalElement.value &&
-        !modalElement.value.contains(event.target) &&
-        popoverContainer.value &&
-        !popoverContainer.value.contains(event.target)
-    ) {
-        closePopover();
-    }
-};
+    if (!isOpen.value) return;
 
+    // Don't react to clicks inside our own modal or trigger
+    if (
+        modalElement.value?.contains(event.target) ||
+        popoverContainer.value?.contains(event.target)
+    ) {
+        return;
+    }
+
+    // Don't react to clicks inside ANY other modal/dialog that was
+    // teleported to <body> (e.g. DepositPopover stacked on top of us).
+    if (
+        event.target.closest?.('[role="dialog"]') ||
+        event.target.closest?.('[data-popover-layer]')
+    ) {
+        return;
+    }
+
+    closePopover();
+};
 const handleKeydown = (e) => {
     if (e.key === 'Escape' && isOpen.value) closePopover();
 };

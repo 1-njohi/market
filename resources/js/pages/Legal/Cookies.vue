@@ -143,8 +143,8 @@ const lastUpdated = 'September 13, 2026';
                 </h2>
                 <p class="text-sm leading-relaxed text-slate-400">
                     Questions about this policy? Email
-                    <a href="mailto:privacy@betslip-pirates.com" class="text-sky-400 hover:underline">
-                        privacy@betslip-pirates.com
+                    <a href="mailto:privacy@fainali.com" class="text-sky-400 hover:underline">
+                        privacy@fainali.com
                     </a>.
                 </p>
             </section>

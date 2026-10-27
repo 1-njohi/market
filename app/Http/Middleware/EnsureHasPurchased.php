@@ -18,14 +18,15 @@ class EnsureHasPurchased
     {
         $user = $request->user();
 
-        if (! $user) {
+        if (!$user) {
             return redirect('/login');
         }
 
         $hasPurchased = BetslipUserPurchase::where('buyer_id', $user->id)->exists();
 
-        if (! $hasPurchased) {
-            return redirect('/dashboard')
+        if (!$hasPurchased) {
+            return redirect()
+                ->back()
                 ->with('error', 'The buyer dashboard unlocks after your first purchase.');
         }
 

@@ -45,8 +45,8 @@ const legal = [
         value: 'Nyeri, Kenya',
         wide: true,
     },
-    { label: 'Press enquiries', value: 'press@betslip-pirates.com' },
-    { label: 'General contact', value: 'hello@betslip-pirates.com' },
+    { label: 'Press enquiries', value: 'press@fainali.com' },
+    { label: 'General contact', value: 'hello@fainali.com' },
 ];
 </script>
 
@@ -76,10 +76,10 @@ const legal = [
                     Everything journalists, bloggers, and partners need to write
                     about Fainali accurately. For interviews, contact
                     <a
-                        href="mailto:press@betslip-pirates.com"
+                        href="mailto:press@fainali.com"
                         class="text-sky-400 hover:underline"
                     >
-                        press@betslip-pirates.com </a
+                        press@fainali.com </a
                     >.
                 </p>
             </div>
@@ -230,7 +230,7 @@ const legal = [
                             </p>
                         </div>
                         <a
-                            href="mailto:press@betslip-pirates.com?subject=Brand assets request"
+                            href="mailto:press@fainali.com?subject=Brand assets request"
                             class="rounded border border-sky-500/30 bg-sky-500/5 px-3 py-1.5 text-[10px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:border-sky-500 hover:bg-sky-500/10"
                         >
                             Request
@@ -308,10 +308,10 @@ const legal = [
                     respond within one business day.
                 </p>
                 <a
-                    href="mailto:press@betslip-pirates.com"
+                    href="mailto:press@fainali.com"
                     class="mt-5 inline-block rounded-lg bg-[#ff8c00] px-6 py-3 text-xs font-black tracking-widest text-black uppercase transition-transform hover:scale-[1.02]"
                 >
-                    press@betslip-pirates.com
+                    press@fainali.com
                 </a>
             </section>
         </div>

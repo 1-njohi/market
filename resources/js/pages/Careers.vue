@@ -137,7 +137,7 @@ const roles = [
                             </span>
                         </div>
                         <a
-                            :href="`mailto:careers@betslip-pirates.com?subject=Application: ${role.title}`"
+                            :href="`mailto:careers@fainali.com?subject=Application: ${role.title}`"
                             class="mt-4 inline-block rounded-lg border border-sky-500/30 bg-sky-500/5 px-4 py-2 text-[10px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:border-sky-500 hover:bg-sky-500/10"
                         >
                             Apply via email →
@@ -170,9 +170,9 @@ const roles = [
                     <li>
                         Applications go to
                         <a
-                            href="mailto:careers@betslip-pirates.com"
+                            href="mailto:careers@fainali.com"
                             class="text-sky-400 hover:underline"
-                            >careers@betslip-pirates.com</a
+                            >careers@fainali.com</a
                         >.
                     </li>
                 </ul>
@@ -194,7 +194,7 @@ const roles = [
                     anyway. We've hired people without a job posting before.
                 </p>
                 <a
-                    href="mailto:careers@betslip-pirates.com"
+                    href="mailto:careers@fainali.com"
                     class="mt-5 inline-block rounded-lg bg-[#ff8c00] px-6 py-3 text-xs font-black tracking-widest text-black uppercase transition-transform hover:scale-[1.02]"
                 >
                     Email us

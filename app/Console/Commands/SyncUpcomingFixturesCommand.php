@@ -84,6 +84,8 @@ class SyncUpcomingFixturesCommand extends Command
             $this->upsertTeam($awayTeamApiId, $teams['away']);
         }
 
+        \Log::info($leagueData);
+        
         $leagueLocalId = $this->upsertLeague($leagueData);
 
         $fixture = Fixture::updateOrCreate(

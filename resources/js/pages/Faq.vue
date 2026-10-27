@@ -94,7 +94,7 @@ const faqs = [
             },
             {
                 q: 'What if I suspect fraud?',
-                a: 'Email support@betslip-pirates.com with the betslip code and your concern. We investigate every report and freeze suspicious accounts within 24 hours.',
+                a: 'Email support@fainali.com with the betslip code and your concern. We investigate every report and freeze suspicious accounts within 24 hours.',
             },
             {
                 q: 'Is my personal data safe?',
@@ -133,7 +133,7 @@ const flatFaqs = faqs.flatMap((cat) =>
                 </h1>
                 <p class="mt-4 text-sm leading-relaxed text-slate-400">
                     Answers to the questions we get most. If yours isn't here,
-                    email support@betslip-pirates.com.
+                    email support@fainali.com.
                 </p>
             </div>
 

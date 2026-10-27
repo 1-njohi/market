@@ -246,10 +246,10 @@ const lastUpdated = 'September 13, 2026';
                 <p class="text-sm leading-relaxed text-slate-400">
                     Questions about these Terms? Email
                     <a
-                        href="mailto:legal@betslip-pirates.com"
+                        href="mailto:legal@fainali.com"
                         class="text-sky-400 underline decoration-dotted hover:text-sky-300"
                     >
-                        legal@betslip-pirates.com
+                        legal@fainali.com
                     </a>
                     .
                 </p>

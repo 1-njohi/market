@@ -309,8 +309,8 @@ const submit = () => {
                 <p class="mt-2 text-xs leading-relaxed text-slate-400">
                     If you believe your account has been compromised and money
                     is at immediate risk, email
-                    <a href="mailto:security@betslip-pirates.com" class="text-rose-300 underline decoration-dotted hover:text-rose-200">
-                        security@betslip-pirates.com
+                    <a href="mailto:security@fainali.com" class="text-rose-300 underline decoration-dotted hover:text-rose-200">
+                        security@fainali.com
                     </a>
                     directly, or use the form above with severity set to
                     "Critical". We monitor security reports 24/7.

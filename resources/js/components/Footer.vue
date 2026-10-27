@@ -89,34 +89,24 @@ const handleSubscribe = () => {
 </script>
 
 <template>
-    <footer
-        class="mt-12 w-full border-t border-[#232d42] bg-[#070b14] font-sans text-[#93a3b8]"
-    >
-        <div class="mx-auto w-full max-w-[1200px] px-4 py-12 md:px-6 lg:px-0">
+    <footer class="relative mt-12 w-full overflow-hidden border-t border-white/[0.08] bg-[#070b14] font-sans text-slate-400">
+        <!-- Same soft glows as the landing sections -->
+        <div class="pointer-events-none absolute -top-24 left-[10%] h-64 w-64 rounded-full bg-sky-600/10 blur-[120px]" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -top-24 right-[10%] h-64 w-64 rounded-full bg-amber-500/10 blur-[120px]" aria-hidden="true"></div>
+
+        <div class="relative mx-auto w-full max-w-[1200px] px-5 py-14 md:px-6 lg:px-8">
             <!-- TOP: brand + newsletter -->
-            <div
-                class="grid grid-cols-1 gap-8 border-b border-[#232d42] pb-10 lg:grid-cols-12"
-            >
+            <div class="grid grid-cols-1 gap-10 lg:grid-cols-12">
                 <!-- BRAND -->
                 <div class="lg:col-span-5">
-                    <div class="flex items-center space-x-2">
-                        <img
-                            src="../../img/logo.png"
-                            alt="Fainali Logo"
-                            class="pointer-events-none h-10 w-auto object-contain select-none rounded-xl"
-                        />
-                    </div>
+                    <img src="../../img/logo.png" alt="Fainali Logo" class="pointer-events-none h-11 w-auto rounded-xl object-contain select-none" />
 
-                    <p
-                        class="mt-4 max-w-md text-xs leading-relaxed font-medium text-slate-400"
-                    >
-                        Discover, copy and share winning betslips from the
-                        sharpest tipsters in the game. Built for punters who
-                        take value seriously.
+                    <p class="mt-5 max-w-md text-base leading-relaxed text-slate-400">
+                        Discover, copy and share winning betslips from the sharpest tipsters in the game. Built for punters who take value seriously.
                     </p>
 
                     <!-- SOCIALS -->
-                    <div class="mt-5 flex items-center gap-3">
+                    <div class="mt-6 flex items-center gap-2.5">
                         <a
                             v-for="s in socials"
                             :key="s.name"
@@ -124,14 +114,9 @@ const handleSubscribe = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             :aria-label="s.name"
-                            class="flex h-9 w-9 items-center justify-center rounded-lg border border-[#232d42] bg-[#161c2a] text-slate-400 transition-colors hover:border-sky-500/50 hover:bg-[#1e2942] hover:text-sky-400"
+                            class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-400 transition-all duration-200 hover:border-amber-300/50 hover:bg-white/[0.08] hover:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none active:scale-95"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="h-4 w-4"
-                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4" aria-hidden="true">
                                 <path :d="s.path" />
                             </svg>
                         </a>
@@ -140,201 +125,115 @@ const handleSubscribe = () => {
 
                 <!-- NEWSLETTER -->
                 <div class="lg:col-span-7 lg:pl-8">
-                    <h4
-                        class="text-[10px] font-black tracking-widest text-slate-200 uppercase"
-                    >
-                        Join the Crew
-                    </h4>
-                    <p class="mt-2 text-xs font-medium text-slate-400">
-                        Get weekly value picks, market insights and product
-                        updates — no spam.
-                    </p>
+                    <div class="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-6 backdrop-blur-sm sm:p-8">
+                        <h4 class="text-xl font-black tracking-tight text-white">Join the crew</h4>
+                        <p class="mt-1.5 text-sm leading-relaxed text-slate-400">Get weekly value picks, market insights and product updates — no spam.</p>
 
-                    <form
-                        class="mt-4 flex w-full max-w-md flex-col gap-2 sm:flex-row"
-                        @submit.prevent="handleSubscribe"
-                    >
-                        <input
-                            v-model="email"
-                            type="email"
-                            required
-                            placeholder="you@example.com"
-                            class="w-full flex-1 rounded-lg border border-[#232d42] bg-[#111622] px-4 py-2.5 text-xs font-semibold tracking-wide text-white placeholder-slate-500 transition-all duration-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 focus:outline-none"
-                        />
-                        <button
-                            type="submit"
-                            class="cursor-pointer rounded-lg bg-[#ff8c00] px-5 py-2.5 text-xs font-black tracking-widest text-black uppercase transition-transform hover:scale-[1.02] active:scale-95"
-                        >
-                            Subscribe
-                        </button>
-                    </form>
+                        <form class="mt-5 flex w-full flex-col gap-2.5 sm:flex-row" @submit.prevent="handleSubscribe">
+                            <label for="footer-email" class="sr-only">Email address</label>
+                            <input
+                                id="footer-email"
+                                v-model="email"
+                                type="email"
+                                inputmode="email"
+                                autocomplete="email"
+                                required
+                                placeholder="you@example.com"
+                                class="h-12 w-full flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-4 text-base font-medium text-white placeholder-slate-500 transition-all focus:border-amber-300/60 focus:bg-white/[0.06] focus:ring-2 focus:ring-amber-300/20 focus:outline-none"
+                            />
+                            <button
+                                type="submit"
+                                class="h-12 shrink-0 cursor-pointer rounded-xl bg-amber-400 px-7 text-sm font-black text-[#070b14] shadow-[0_12px_32px_-12px_rgba(251,191,36,0.8)] transition-all duration-200 hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070b14] focus-visible:outline-none active:scale-[0.98]"
+                            >
+                                Subscribe
+                            </button>
+                        </form>
 
-                    <p
-                        v-if="subscribed"
-                        class="mt-2 text-[10px] font-bold tracking-widest text-emerald-400 uppercase"
-                    >
-                        ✓ You're in. Check your inbox.
-                    </p>
+                        <p v-if="subscribed" role="status" class="mt-3 text-sm font-semibold text-emerald-300">✓ You're in. Check your inbox.</p>
+                    </div>
                 </div>
             </div>
 
             <!-- MIDDLE: link columns -->
-            <div
-                class="grid grid-cols-2 gap-8 border-b border-[#232d42] py-10 md:grid-cols-4"
-            >
-                <div v-for="col in columns" :key="col.title">
-                    <h5
-                        class="text-[10px] font-black tracking-widest text-slate-200 uppercase"
-                    >
-                        {{ col.title }}
-                    </h5>
-                    <ul class="mt-4 space-y-2.5">
+            <div class="mt-12 grid grid-cols-2 gap-x-6 gap-y-10 border-t border-white/[0.08] pt-12 md:grid-cols-4">
+                <nav v-for="col in columns" :key="col.title" :aria-label="col.title">
+                    <h5 class="text-sm font-bold text-white">{{ col.title }}</h5>
+                    <ul class="mt-3 space-y-0.5">
                         <li v-for="link in col.links" :key="link.label">
                             <Link
                                 :href="link.href"
-                                class="text-xs font-semibold text-slate-400 transition-colors hover:text-sky-400"
+                                class="-mx-2 inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-slate-400 transition-colors hover:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
                             >
                                 {{ link.label }}
                             </Link>
                         </li>
                     </ul>
-                </div>
+                </nav>
             </div>
 
             <!-- RESPONSIBLE GAMING STRIP -->
-            <div
-                class="mt-8 rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
-            >
-                <p
-                    class="text-[10px] leading-relaxed font-semibold tracking-wide text-slate-500 uppercase"
-                >
-                    <span class="text-sky-400">18+</span> · Please gamble
-                    responsibly. Betting involves risk — never stake more than
-                    you can afford to lose. If you need support, visit
+            <div class="mt-12 flex items-start gap-4 rounded-2xl border border-amber-300/20 bg-amber-300/[0.06] p-5">
+                <span class="flex h-9 shrink-0 items-center justify-center rounded-lg bg-amber-300 px-2.5 text-sm font-black text-[#070b14]">18+</span>
+                <p class="text-sm leading-relaxed text-slate-300">
+                    Please gamble responsibly. Betting involves risk — never stake more than you can afford to lose. If you need support, visit
                     <a
                         href="https://www.begambleaware.org"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="text-slate-300 underline decoration-dotted hover:text-sky-400"
+                        class="font-semibold text-amber-200 underline decoration-dotted underline-offset-4 hover:text-amber-100"
                     >
-                        BeGambleAware.org
-                    </a>
-                    .
+                        BeGambleAware.org</a
+                    >.
                 </p>
             </div>
 
             <!-- REGISTERED BUSINESS -->
-            <div
-                class="mt-4 rounded-lg border border-[#232d42] bg-[#161c2a] p-4"
-            >
-                <p
-                    class="text-[10px] font-black tracking-widest text-slate-200 uppercase"
-                >
-                    Registered Business
-                </p>
-                <div
-                    class="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 text-[10px] font-semibold sm:grid-cols-2 md:grid-cols-4"
-                >
+            <div class="mt-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5">
+                <p class="text-sm font-bold text-white">Registered business</p>
+                <dl class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 md:grid-cols-5">
                     <div>
-                        <span
-                            class="block tracking-wider text-slate-600 uppercase"
-                            >Business Name</span
-                        >
-                        <span class="mt-0.5 block text-slate-300"
-                            >Wazo Tank</span
-                        >
+                        <dt class="text-xs text-slate-500">Business name</dt>
+                        <dd class="mt-0.5 text-sm font-semibold text-slate-200">Wazo Tank</dd>
                     </div>
                     <div>
-                        <span
-                            class="block tracking-wider text-slate-600 uppercase"
-                            >Registration No.</span
-                        >
-                        <span class="mt-0.5 block font-mono text-slate-300"
-                            >BN-EZCBKQ26</span
-                        >
+                        <dt class="text-xs text-slate-500">Registration no.</dt>
+                        <dd class="mt-0.5 font-mono text-sm font-semibold text-slate-200">BN-EZCBKQ26</dd>
                     </div>
                     <div>
-                        <span
-                            class="block tracking-wider text-slate-600 uppercase"
-                            >Registered</span
-                        >
-                        <span class="mt-0.5 block text-slate-300"
-                            >11 May 2021</span
-                        >
+                        <dt class="text-xs text-slate-500">Registered</dt>
+                        <dd class="mt-0.5 text-sm font-semibold text-slate-200">11 May 2021</dd>
                     </div>
                     <div>
-                        <span
-                            class="block tracking-wider text-slate-600 uppercase"
-                            >Jurisdiction</span
-                        >
-                        <span class="mt-0.5 block text-slate-300"
-                            >Republic of Kenya</span
-                        >
+                        <dt class="text-xs text-slate-500">Jurisdiction</dt>
+                        <dd class="mt-0.5 text-sm font-semibold text-slate-200">Republic of Kenya</dd>
                     </div>
-                    <div>
-                        <span
-                            class="block tracking-wider text-slate-600 uppercase"
-                            >Contact</span
-                        >
-                        <a
-                            href="mailto:hello@betslip-pirates.com"
-                            class="mt-0.5 block text-sky-400 underline decoration-dotted hover:text-sky-300"
-                        >
-                            hello@betslip-pirates.com
-                        </a>
+                    <div class="min-w-0">
+                        <dt class="text-xs text-slate-500">Contact</dt>
+                        <dd class="mt-0.5">
+                            <a href="mailto:hello@fainali.com" class="block truncate text-sm font-semibold text-sky-300 underline decoration-dotted underline-offset-4 hover:text-sky-200">
+                                hello@fainali.com
+                            </a>
+                        </dd>
                     </div>
-                </div>
+                </dl>
             </div>
 
             <!-- BOTTOM: copyright + legal links -->
-            <div
-                class="mt-8 flex flex-col items-center justify-between gap-4 border-t border-[#232d42] pt-6 md:flex-row"
-            >
-                <div class="flex flex-col items-center gap-1 md:items-start">
-                    <p
-                        class="text-[10px] font-bold tracking-widest text-slate-500 uppercase"
-                    >
-                        © {{ year }} Wazo Tank. All rights reserved.
-                    </p>
-                    <p
-                        class="text-[9px] font-semibold tracking-wider text-slate-600 uppercase"
-                    >
-                        Fainali is a trading name of Wazo Tank (BN-EZCBKQ26)
-                    </p>
-                    <p
-                        class="font-mono text-[9px] font-medium tracking-wider text-white"
-                    >
+            <div class="mt-10 flex flex-col items-center justify-between gap-5 border-t border-white/[0.08] pt-8 md:flex-row md:items-start">
+                <div class="flex flex-col items-center gap-1 text-center md:items-start md:text-left">
+                    <p class="text-sm text-slate-400">© {{ year }} Wazo Tank. All rights reserved.</p>
+                    <p class="text-xs text-slate-500">Fainali is a trading name of Wazo Tank (BN-EZCBKQ26)</p>
+                    <p class="text-xs text-slate-600 tabular-nums">
                         v{{ version }}
-                        <span v-if="releasedAt" class="ml-2">{{
-                            releasedAt
-                        }}</span>
+                        <span v-if="releasedAt" class="ml-2">{{ releasedAt }}</span>
                     </p>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-5">
-                    <Link
-                        href="/terms"
-                        class="text-[10px] font-bold tracking-widest text-slate-500 uppercase transition-colors hover:text-sky-400"
-                    >
-                        Terms
-                    </Link>
-                    <Link
-                        href="/privacy"
-                        class="text-[10px] font-bold tracking-widest text-slate-500 uppercase transition-colors hover:text-sky-400"
-                    >
-                        Privacy
-                    </Link>
-                    <Link
-                        href="/cookies"
-                        class="text-[10px] font-bold tracking-widest text-slate-500 uppercase transition-colors hover:text-sky-400"
-                    >
-                        Cookies
-                    </Link>
-                    <span
-                        class="text-[10px] font-bold tracking-widest text-slate-600 uppercase"
-                    >
-                        Made in Kenya
-                    </span>
+                <div class="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 md:justify-end">
+                    <Link href="/terms" class="inline-flex min-h-11 items-center rounded-lg px-3 text-sm text-slate-400 transition-colors hover:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none">Terms</Link>
+                    <Link href="/privacy" class="inline-flex min-h-11 items-center rounded-lg px-3 text-sm text-slate-400 transition-colors hover:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none">Privacy</Link>
+                    <Link href="/cookies" class="inline-flex min-h-11 items-center rounded-lg px-3 text-sm text-slate-400 transition-colors hover:text-amber-200 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none">Cookies</Link>
+                    <span class="px-3 text-sm text-slate-600">Made in Kenya</span>
                 </div>
             </div>
         </div>

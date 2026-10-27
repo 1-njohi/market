@@ -289,25 +289,25 @@ import { Head, Link } from '@inertiajs/vue3';
                 </p>
                 <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <a
-                        href="mailto:hello@betslip-pirates.com"
+                        href="mailto:hello@fainali.com"
                         class="rounded-lg border border-[#232d42] bg-[#161c2a] p-3 transition-colors hover:border-sky-500/40"
                     >
                         <span class="block text-[10px] font-black tracking-widest text-slate-500 uppercase">
                             General
                         </span>
                         <span class="mt-1 block text-xs font-semibold text-slate-300">
-                            hello@betslip-pirates.com
+                            hello@fainali.com
                         </span>
                     </a>
                     <a
-                        href="mailto:press@betslip-pirates.com"
+                        href="mailto:press@fainali.com"
                         class="rounded-lg border border-[#232d42] bg-[#161c2a] p-3 transition-colors hover:border-sky-500/40"
                     >
                         <span class="block text-[10px] font-black tracking-widest text-slate-500 uppercase">
                             Press
                         </span>
                         <span class="mt-1 block text-xs font-semibold text-slate-300">
-                            press@betslip-pirates.com
+                            press@fainali.com
                         </span>
                     </a>
                 </div>

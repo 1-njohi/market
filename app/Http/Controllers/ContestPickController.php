@@ -63,7 +63,7 @@ class ContestPickController extends Controller
             ->where('status', 'accepted')
             ->first();
 
-        if (!$entry && !($contest->is_matchday && !$isEligible)) {
+        if (!$entry && !($contest->is_matchday)) {
             abort(403);
         }
 

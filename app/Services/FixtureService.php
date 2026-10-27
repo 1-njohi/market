@@ -64,7 +64,6 @@ class FixtureService
             'homeTeam',
             'awayTeam',
             'league',
-            'league.Country',
         ])
             ->whereHas('odds', function ($query) use ($marketIds) {
                 $query->whereIn('market_id', $marketIds);
@@ -136,7 +135,7 @@ class FixtureService
             return [
                 'name'      => $league->name,
                 'id'        => $league->id,
-                'country'   => $league->Country?->name ?? 'Unknown',
+                'country'   => $league,//->Country?->name ?? 'Unknown',
                 'logo'      => $league->logo,
                 'league_id' => $leagueId,
                 'fixtures'  => $mappedFixtures->values(),

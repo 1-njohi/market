@@ -124,47 +124,47 @@ const submit = () => {
                 <!-- Direct contacts -->
                 <div class="space-y-3 lg:col-span-2">
                     <a
-                        href="mailto:hello@betslip-pirates.com"
+                        href="mailto:hello@fainali.com"
                         class="block rounded-lg border border-[#232d42] bg-[#161c2a] p-4 transition-colors hover:border-sky-500/40"
                     >
                         <span class="block text-[10px] font-black tracking-widest text-slate-500 uppercase">
                             General
                         </span>
                         <span class="mt-1 block text-xs font-semibold text-slate-300 break-all">
-                            hello@betslip-pirates.com
+                            hello@fainali.com
                         </span>
                     </a>
                     <a
-                        href="mailto:support@betslip-pirates.com"
+                        href="mailto:support@fainali.com"
                         class="block rounded-lg border border-[#232d42] bg-[#161c2a] p-4 transition-colors hover:border-sky-500/40"
                     >
                         <span class="block text-[10px] font-black tracking-widest text-slate-500 uppercase">
                             Support
                         </span>
                         <span class="mt-1 block text-xs font-semibold text-slate-300 break-all">
-                            support@betslip-pirates.com
+                            support@fainali.com
                         </span>
                     </a>
                     <a
-                        href="mailto:legal@betslip-pirates.com"
+                        href="mailto:legal@fainali.com"
                         class="block rounded-lg border border-[#232d42] bg-[#161c2a] p-4 transition-colors hover:border-sky-500/40"
                     >
                         <span class="block text-[10px] font-black tracking-widest text-slate-500 uppercase">
                             Legal
                         </span>
                         <span class="mt-1 block text-xs font-semibold text-slate-300 break-all">
-                            legal@betslip-pirates.com
+                            legal@fainali.com
                         </span>
                     </a>
                     <a
-                        href="mailto:press@betslip-pirates.com"
+                        href="mailto:press@fainali.com"
                         class="block rounded-lg border border-[#232d42] bg-[#161c2a] p-4 transition-colors hover:border-sky-500/40"
                     >
                         <span class="block text-[10px] font-black tracking-widest text-slate-500 uppercase">
                             Press
                         </span>
                         <span class="mt-1 block text-xs font-semibold text-slate-300 break-all">
-                            press@betslip-pirates.com
+                            press@fainali.com
                         </span>
                     </a>
 

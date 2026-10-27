@@ -54,6 +54,7 @@ const primaryLinks = [
     { label: 'Marketplace', hint: 'Browse betslips', href: '/marketplace' },
     { label: 'Fixtures', hint: 'Create a betslip', href: '/fixtures' },
     { label: 'Watchlist', hint: 'Monitor betslips', href: '/watchlist' },
+    { label: 'Matchday', hint: 'View matchdays', href: '/matchday' },
     { label: 'Contests', hint: 'View contests', href: '/contests/mine' },
     { label: 'Jackpots', hint: 'View jackpots', href: '/jackpots' },
     { label: 'Leaderboard', hint: 'View tipster rankings', href: '/leaderboard' },

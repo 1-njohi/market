@@ -44,7 +44,7 @@
                         <div class="min-w-0">
                             <h4 class="truncate text-base font-bold text-white">{{ league.name }}</h4>
                             <p class="text-xs text-slate-400">
-                                {{ league.country }} · {{ league.fixtures?.length ?? 0 }}
+                                {{ league.country.country }} · {{ league.fixtures?.length ?? 0 }}
                                 {{ (league.fixtures?.length ?? 0) === 1 ? 'match' : 'matches' }}
                             </p>
                         </div>
