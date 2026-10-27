@@ -32,7 +32,7 @@
                 </Link>
                 <Link href="/dashboard"
                     class="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] px-5 text-sm font-bold text-slate-200 transition-all hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:outline-none active:scale-[0.98]">
-                    Back to Play
+                    Back to Play Dashboard
                 </Link>
             </div>
         </div>

@@ -105,7 +105,7 @@
                 :disabled="selections.length === 0 || submitting"
                 class="col-span-7 cursor-pointer rounded-lg bg-[#ff8c00] px-3 py-3 text-xs font-black tracking-widest text-black uppercase transition-transform hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
             >
-                {{ submitting ? 'Loading…' : 'Create bet' }}
+                {{ submitting ? 'Loading…' : 'Create slip' }}
             </button>
         </div>
     </div>

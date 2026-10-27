@@ -228,7 +228,7 @@ const submitBetslipSearch = async () => {
                 <Link href="/"
                     class="flex min-h-11 items-center gap-2.5 rounded-xl pr-2 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none">
                     <img src="../../img/logo.png" alt="Fainali Logo"
-                        class="pointer-events-none h-9 w-auto object-contain select-none" />
+                        class="pointer-events-none h-9 w-auto object-contain select-none rounded-xl" />
                 </Link>
 
                 <!-- NAV ACTIONS -->

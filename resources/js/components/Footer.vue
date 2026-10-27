@@ -103,7 +103,7 @@ const handleSubscribe = () => {
                         <img
                             src="../../img/logo.png"
                             alt="Fainali Logo"
-                            class="pointer-events-none h-10 w-auto object-contain select-none"
+                            class="pointer-events-none h-10 w-auto object-contain select-none rounded-xl"
                         />
                     </div>
 
