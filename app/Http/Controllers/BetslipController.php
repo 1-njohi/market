@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
+use App\Services\AnalystPickService;
 use App\Services\WatchlistService;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Cache;
@@ -79,10 +80,19 @@ class BetslipController extends Controller
             'can_sell' => $canSell,
             'seller_progress' => app(SellerEligibilityService::class)->progress(Auth::user()),
             'seller_status' => Auth::user()->sellable_status,
+            'is_analyst' => Auth::user()->isAnalyst(),
+            'analyst_published_today' => Auth::user()->isAnalyst()
+                ? app(AnalystPickService::class)->hasPublishedToday(Auth::user()->id)
+                : false,
         ]);
     }
     public function store(Request $request)
     {
+        // ── ANALYST PICK ── validation additions:
+        //  - is_analyst_slip (bool, only honored for is_analyst users)
+        //  - analyst_title (required when is_analyst_slip=true)
+        //  - reasoning (required, 100–500 words when is_analyst_slip=true)
+        //  - odds.*.comment (required per leg when is_analyst_slip=true)
         $validated = $request->validate([
             'should_list' => 'sometimes|boolean',
             'price' => 'nullable|numeric|min:1|max:1000000',
@@ -91,6 +101,25 @@ class BetslipController extends Controller
             'odds' => ['required', 'array', 'min:1'],
             'odds.*.odd_id' => ['required', 'exists:odds,id'],
             'odds.*.confidence' => ['required', 'integer', 'min:1', 'max:5'],
+
+            // ── ANALYST PICK ──
+            'is_analyst_slip' => ['sometimes', 'boolean'],
+            'analyst_title' => ['required_if:is_analyst_slip,true', 'nullable', 'string', 'max:140'],
+            'odds.*.comment' => ['required_if:is_analyst_slip,true', 'nullable', 'string', 'max:200'],
+            'reasoning' => [
+                'required_if:is_analyst_slip,true',
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail) use ($request) {
+                    if (!$request->boolean('is_analyst_slip')) {
+                        return;
+                    }
+                    $words = str_word_count(strip_tags((string) $value));
+                    if ($words < 100 || $words > 500) {
+                        $fail('Reasoning must be between 100 and 500 words.');
+                    }
+                },
+            ],
         ]);
 
         $draft = session('betslip_draft');
@@ -130,6 +159,26 @@ class BetslipController extends Controller
             return redirect()->back()->withErrors([
                 'price' => 'A price is required to list this betslip.',
             ]);
+        }
+
+        // ── ANALYST PICK ── pre-flight intent checks (before the transaction).
+        // These are cheap guards; the definitive check for "one per day" also
+        // runs inside publishOnCreate() inside the transaction, so a race
+        // cannot double-publish.
+        $isAnalystIntent = $request->boolean('is_analyst_slip');
+
+        if ($isAnalystIntent) {
+            if (!$user->isAnalyst()) {
+                return redirect()->back()->withErrors([
+                    'is_analyst_slip' => 'Only analysts can publish analyst picks.',
+                ]);
+            }
+
+            if (app(\App\Services\AnalystPickService::class)->hasPublishedToday($user->id)) {
+                return redirect()->back()->withErrors([
+                    'is_analyst_slip' => 'You have already published an analyst pick today.',
+                ]);
+            }
         }
 
         DB::beginTransaction();
@@ -178,11 +227,24 @@ class BetslipController extends Controller
                 'is_sellable' => $shouldList,
             ]);
 
+            // ── ANALYST PICK ── confidence and comment are keyed by odd_id
+            // so they can be picked up inside the attach loop below.
+            $confidenceByOddId = collect($validated['odds'])
+                ->keyBy('odd_id')
+                ->map(fn($row) => (int) $row['confidence']);
+
+            $commentByOddId = collect($validated['odds'])
+                ->keyBy('odd_id')
+                ->map(fn($row) => $row['comment'] ?? null);
+
             $attachData = [];
             foreach ($oddsCollection as $oddId => $oddModel) {
                 $attachData[$oddId] = [
                     'odd_value_at_time' => $oddModel->odd,
                     'status' => 'pending',
+                    // ── ANALYST PICK ── null for ordinary betslips.
+                    'comment' => $commentByOddId->get($oddId),
+                    'confidence' => $confidenceByOddId->get($oddId),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -190,12 +252,27 @@ class BetslipController extends Controller
 
             $betslip->odds()->attach($attachData);
 
+            // ── ANALYST PICK ── stamp the analyst metadata + editorial content.
+            // publishOnCreate() throws if the one-per-day race lost; the outer
+            // try/catch rolls back the whole transaction in that case.
+            if ($isAnalystIntent) {
+                $analystService = app(\App\Services\AnalystPickService::class);
+                $analystService->publishOnCreate($betslip, $user);
+
+                $editorial = [];
+                if (!empty($validated['analyst_title'])) {
+                    $editorial['analyst_title'] = $validated['analyst_title'];
+                }
+                if (!empty($validated['reasoning'])) {
+                    $editorial['reasoning'] = $validated['reasoning'];
+                }
+                if (!empty($editorial)) {
+                    $betslip->update($editorial);
+                }
+            }
+
             // Record a prediction for each leg
             $predictionRecorder = app(\App\Services\PredictionRecorderService::class);
-
-            $confidenceByOddId = collect($validated['odds'])
-                ->keyBy('odd_id')
-                ->map(fn($row) => (int) $row['confidence']);
 
             foreach ($oddsCollection as $oddId => $oddModel) {
                 $confidence = $confidenceByOddId->get($oddId);
@@ -220,12 +297,18 @@ class BetslipController extends Controller
             session()->forget('betslip_draft');
             Cache::forget(DashboardController::cacheKey($user));
 
-            $successMessage = $shouldList
-                ? "Your betslip is live and listed for sale at KES "
-                . number_format((float) $validated['price'], 2)
-                . ". Tracking code " . $betslip->code . "."
-                : "Your betslip is saved to your record. Tracking code "
-                . $betslip->code . ".";
+            // ── ANALYST PICK ── success message branch.
+            if ($isAnalystIntent) {
+                $successMessage = "Your analyst pick is live. Published at /analyst-picks, tracking code "
+                    . $betslip->code . ".";
+            } elseif ($shouldList) {
+                $successMessage = "Your betslip is live and listed for sale at KES "
+                    . number_format((float) $validated['price'], 2)
+                    . ". Tracking code " . $betslip->code . ".";
+            } else {
+                $successMessage = "Your betslip is saved to your record. Tracking code "
+                    . $betslip->code . ".";
+            }
 
             return Redirect::route('betslip.success', ['code' => $betslip->code])
                 ->with('success', $successMessage);
@@ -241,6 +324,7 @@ class BetslipController extends Controller
             ]);
         }
     }
+    
     /**
      * List a previously non-sellable betslip for sale.
      *

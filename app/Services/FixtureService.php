@@ -26,9 +26,9 @@ class FixtureService
         // 1. Resolve the four primary market IDs by name (case-insensitive,
         //    name-driven so seeders or renames don't break the mapping).
         $primaryMarkets = [
-            'three_way'          => 'Match Winner',
-            'double_chance'      => 'Double Chance',
-            'over_under'         => 'Goals Over/Under',
+            'three_way' => 'Match Winner',
+            'double_chance' => 'Double Chance',
+            'over_under' => 'Goals Over/Under',
             'both_team_to_score' => 'Both Teams Score',
         ];
 
@@ -52,7 +52,7 @@ class FixtureService
 
         // 2. Live time window — today through `daysAhead` days from now.
         $from = now();
-        $to   = now()->addDays($daysAhead);
+        $to = now()->addDays($daysAhead);
 
         $fixtures = Fixture::with([
             'odds' => function ($query) use ($marketIds) {
@@ -81,7 +81,7 @@ class FixtureService
         // 3. Group fixtures by league. Preserve sort order within groups.
         $groupedFixtures = $fixtures->groupBy('league_id');
 
-        // 4. Transform each group.
+        // 4. Transform each group, then sort leagues by priority (desc).
         return $groupedFixtures->map(function ($leagueFixtures, $leagueId) use ($marketIdMap) {
             $league = $leagueFixtures->first()->league;
 
@@ -99,15 +99,15 @@ class FixtureService
                 };
 
                 return [
-                    'id'        => $fixture->id,
+                    'id' => $fixture->id,
                     'id_on_api' => $fixture->id_on_api,
-                    'date'      => $fixture->date
+                    'date' => $fixture->date
                         ? Carbon::parse($fixture->date)->format('d/m/y - H:i')
                         : null,
-                    'kickoff'   => $fixture->date?->toIso8601String(),
+                    'kickoff' => $fixture->date?->toIso8601String(),
                     'home_team' => $fixture->homeTeam?->name ?? 'Unknown',
                     'away_team' => $fixture->awayTeam?->name ?? 'Unknown',
-                    'boosted'   => false,
+                    'boosted' => false,
                     'additional_markets_count' => $additionalMarketsCount,
                     'odds' => [
                         'three_way' => [
@@ -116,30 +116,34 @@ class FixtureService
                             'away' => $getOdd($marketIdMap['three_way'], 'Away'),
                         ],
                         'double_chance' => [
-                            'one_x'   => $getOdd($marketIdMap['double_chance'], 'Home/Draw'),
-                            'x_two'   => $getOdd($marketIdMap['double_chance'], 'Draw/Away'),
+                            'one_x' => $getOdd($marketIdMap['double_chance'], 'Home/Draw'),
+                            'x_two' => $getOdd($marketIdMap['double_chance'], 'Draw/Away'),
                             'one_two' => $getOdd($marketIdMap['double_chance'], 'Home/Away'),
                         ],
                         'over_under' => [
-                            'over'  => $getOdd($marketIdMap['over_under'], 'Over 2.5'),
+                            'over' => $getOdd($marketIdMap['over_under'], 'Over 2.5'),
                             'under' => $getOdd($marketIdMap['over_under'], 'Under 2.5'),
                         ],
                         'both_team_to_score' => [
                             'yes' => $getOdd($marketIdMap['both_team_to_score'], 'Yes'),
-                            'no'  => $getOdd($marketIdMap['both_team_to_score'], 'No'),
+                            'no' => $getOdd($marketIdMap['both_team_to_score'], 'No'),
                         ],
                     ],
+                    '_priority' => $league->priority ?? 0, // temp field for sorting
                 ];
             });
 
             return [
-                'name'      => $league->name,
-                'id'        => $league->id,
-                'country'   => $league,//->Country?->name ?? 'Unknown',
-                'logo'      => $league->logo,
+                'name' => $league->name,
+                'id' => $league->id,
+                'country' => $league,//->Country?->name ?? 'Unknown',
+                'logo' => $league->logo,
                 'league_id' => $leagueId,
-                'fixtures'  => $mappedFixtures->values(),
+                'priority' => $league->priority ?? 0,
+                'fixtures' => $mappedFixtures->values(),
             ];
-        })->values();
+        })
+            ->sortByDesc('priority')
+            ->values(); 
     }
 }

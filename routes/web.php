@@ -558,6 +558,15 @@ Route::get('/fixture/{id}', [FixtureController::class, 'index'])->name('fixture'
 Route::get('/fixtures', [FixturesController::class, 'index'])->name('fixtures.index');
 Route::get('/profile/{user_code}', [ProfileController::class, 'index'])->name('profile');
 Route::get('/sellers/lookup', [SellerLookupController::class, 'show']);
+// ── Analyst Picks (public) ──
+Route::get('/analyst-picks', [\App\Http\Controllers\AnalystPickController::class, 'index'])
+    ->name('analyst-picks.index');
+
+Route::get('/analyst-picks/{betslip}', [\App\Http\Controllers\AnalystPickController::class, 'show'])
+    ->name('analyst-picks.show');
+
+Route::get('/analysts/{slug}', [\App\Http\Controllers\AnalystProfileController::class, 'show'])
+    ->name('analysts.show');
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard');
 
 // ── Reporting ──

@@ -192,9 +192,9 @@ const statusLabel = computed(() => contest.value.status ?? '');
 const statusColorClass = computed(() => {
     switch (contest.value.status) {
         case 'underway':
-            return 'text-amber-400';
+            return 'text-amber-300';
         case 'settled':
-            return 'text-emerald-400';
+            return 'text-emerald-300';
         case 'void':
             return 'text-slate-400';
         default:
@@ -237,28 +237,43 @@ const backHref = computed(() =>
 );
 
 const backLabel = computed(() =>
-    isMatchday.value ? '← Matchday dashboard' : '← Back to contest',
+    isMatchday.value ? 'Matchday dashboard' : 'Back to contest',
 );
+
+// How far through the legs you are, for the progress bar (display only).
+const progressPct = computed(() => {
+    const total = contest.value.legs?.length ?? 0;
+    return total > 0 ? Math.min(100, (pickCount.value / total) * 100) : 0;
+});
+
+// Option buttons: same look as the odds buttons everywhere else (full class strings for Tailwind).
+const OPT_BTN =
+    'flex min-h-14 w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-xl border px-2 text-center transition-all duration-150 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none active:scale-95 disabled:cursor-not-allowed';
+const OPT_OFF = 'border-white/[0.08] bg-white/[0.04] text-white hover:border-amber-300/50 hover:bg-white/[0.09]';
+const OPT_ON = 'border-amber-400 bg-amber-400 text-[#070b14] shadow-[0_8px_20px_-8px_rgba(251,191,36,0.8)]';
 </script>
 
 <template>
 
     <Head :title="`Picks — ${contest.name}`" />
 
-    <div class="min-h-screen font-sans text-slate-300">
-        <div class="mx-auto w-full max-w-3xl px-2 py-12 md:px-6 lg:px-8">
-            <Link :href="backHref"
-                class="text-[10px] font-black tracking-widest text-sky-400 uppercase hover:underline">
+    <div class="min-h-screen bg-[#070b14] font-sans text-slate-300">
+        <div class="mx-auto w-full max-w-3xl px-4 pt-6 pb-16 md:px-6 lg:px-8">
+            <Link
+                :href="backHref"
+                class="inline-flex min-h-11 items-center gap-2 rounded-xl pr-3 text-sm font-bold text-slate-400 transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3.5 w-3.5" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                </svg>
                 {{ backLabel }}
             </Link>
 
             <!-- Header -->
-            <div class="mt-6 mb-8 border-b border-[#232d42] pb-6">
+            <header class="mt-4 mb-8">
                 <div class="flex items-center gap-2">
-                    <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
-                        <template v-if="isMatchday && contest.matchday_number">
-                            Matchday {{ contest.matchday_number }} ·
-                        </template>
+                    <p class="text-sm font-semibold text-amber-400">
+                        <template v-if="isMatchday && contest.matchday_number">Matchday {{ contest.matchday_number }} · </template>
                         {{ isOpen ? 'Your picks' : 'Your picks (locked)' }}
                     </p>
                     <InfoPopover title="How picks are scored">
@@ -267,83 +282,60 @@ const backLabel = computed(() =>
                             earn the odds value as points, wrong picks earn
                             zero.
                         </p>
-                        <div class="rounded border border-[#232d42] bg-[#070b14] px-3 py-2 font-mono text-[11px]">
-                            <p class="text-emerald-400">
-                                Correct: +odds as points
-                            </p>
-                            <p class="text-rose-400">Wrong: 0 points</p>
-                            <p class="text-slate-400">
-                                Void: 0 points, excluded
-                            </p>
+                        <div class="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm">
+                            <p class="text-emerald-300">Correct: +odds as points</p>
+                            <p class="text-rose-300">Wrong: 0 points</p>
+                            <p class="text-slate-400">Void: 0 points, excluded</p>
                         </div>
-                        <p>
-                            Ranked by correct count first, then total points.
-                        </p>
-                        <p class="text-slate-400">
-                            You can change your picks any time before the
-                            deadline.
-                        </p>
+                        <p>Ranked by correct count first, then total points.</p>
+                        <p class="text-slate-400">You can change your picks any time before the deadline.</p>
                     </InfoPopover>
                 </div>
-                <h1 class="mt-2 text-3xl font-black tracking-wider text-white uppercase md:text-4xl">
-                    {{ contest.name }}
-                </h1>
+                <h1 class="mt-1 text-4xl font-black tracking-tight text-white md:text-5xl">{{ contest.name }}</h1>
 
                 <!-- Matchday context line -->
-                <p v-if="isMatchday && isOpen && !isLocked && isEligible"
-                    class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-400">
-                    <span class="font-mono font-black text-slate-200">
-                        {{ pickCount }} / {{ contest.legs.length }}
-                    </span>
-                    <span>picks submitted</span>
-                    <span class="text-slate-600">·</span>
-                    <span class="inline-flex items-center gap-1.5"
-                        :class="isUrgent ? 'text-rose-400' : 'text-amber-400'">
-                        <span v-if="isUrgent"
-                            class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400"></span>
+                <p v-if="isMatchday && isOpen && !isLocked && isEligible" class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-400">
+                    <span><span class="text-base font-black text-white tabular-nums">{{ pickCount }} / {{ contest.legs.length }}</span> picks submitted</span>
+                    <span
+                        class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold"
+                        :class="isUrgent ? 'bg-rose-400/10 text-rose-300' : 'bg-amber-400/10 text-amber-300'"
+                    >
+                        <span v-if="isUrgent" class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400 motion-reduce:animate-none"></span>
                         Locks in {{ lockCountdown }}
                     </span>
                 </p>
 
                 <!-- Regular contest context line -->
-                <p v-else-if="!isMatchday || isEligible" class="mt-3 text-sm text-slate-400">
-                    {{ pickCount }} of {{ contest.legs.length }} legs picked ·
-                    Deadline {{ formatKickoff(contest.entry_deadline_at) }}
+                <p v-else-if="!isMatchday || isEligible" class="mt-4 text-sm text-slate-400">
+                    <span class="font-black text-white tabular-nums">{{ pickCount }}</span> of {{ contest.legs.length }} legs picked · Deadline {{ formatKickoff(contest.entry_deadline_at) }}
                 </p>
-            </div>
+            </header>
 
             <!-- Sub-league strip / Eligibility Warning (matchday only) -->
             <div v-if="isMatchday" class="mb-6">
-                <!-- The Good Path: They are in at least one covering sub-league -->
-                <div v-if="isEligible && subLeagues.length > 0"
-                    class="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-2.5">
-                    <p class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
-                        Competing in
-                    </p>
-                    <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <span v-for="sub in subLeagues" :key="sub.id"
-                            class="font-mono text-[11px] font-black text-slate-200">
-                            {{ sub.name }}
-                        </span>
+                <!-- The good path: in at least one covering sub-league -->
+                <div v-if="isEligible && subLeagues.length > 0" class="rounded-2xl border border-amber-400/25 bg-amber-400/[0.06] px-5 py-3.5">
+                    <p class="text-xs font-semibold text-amber-300">Competing in</p>
+                    <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                        <span v-for="sub in subLeagues" :key="sub.id" class="rounded-lg bg-white/[0.07] px-2.5 py-1 text-sm font-bold text-slate-100">{{ sub.name }}</span>
                     </div>
                 </div>
 
-                <!-- The Bad Path: They lack a sub-league covering this league -->
-                <div v-else-if="!isEligible" class="rounded-lg border border-rose-500/40 bg-rose-500/10 p-5 md:p-6">
-                    <div class="flex items-start gap-3">
-                        <span class="text-2xl">⚠️</span>
+                <!-- The bad path: no sub-league covering this league -->
+                <div v-else-if="!isEligible" class="rounded-3xl border border-rose-400/30 bg-rose-400/[0.08] p-5 md:p-6" role="alert">
+                    <div class="flex items-start gap-3.5">
+                        <span class="text-2xl" aria-hidden="true">⚠️</span>
                         <div>
-                            <h3 class="text-sm font-black tracking-widest text-rose-400 uppercase">
-                                You cannot make picks
-                            </h3>
-                            <p class="mt-1 text-sm leading-relaxed text-slate-300">
-                                To participate in the <strong>{{ leagueLabel }}</strong> matchday, you must be a member
-                                of a
-                                sub-league that includes the {{ leagueLabel }}.
+                            <h3 class="text-lg font-black tracking-tight text-rose-200">You can't make picks yet</h3>
+                            <p class="mt-1.5 text-sm leading-relaxed text-slate-300">
+                                To take part in the <strong class="text-white">{{ leagueLabel }}</strong> matchday, you must be a member of a sub-league that includes the {{ leagueLabel }}.
                             </p>
-                            <button @click="openCreateModal" type="button"
-                                class="mt-4 cursor-pointer rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
-                                Create a {{ leagueLabel }} Sub-league
+                            <button
+                                @click="openCreateModal"
+                                type="button"
+                                class="mt-4 inline-flex min-h-12 cursor-pointer items-center rounded-xl bg-amber-400 px-6 text-sm font-black text-[#070b14] shadow-[0_12px_32px_-12px_rgba(251,191,36,0.8)] transition-all hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:outline-none active:scale-[0.98]"
+                            >
+                                Create a {{ leagueLabel }} sub-league
                             </button>
                         </div>
                     </div>
@@ -351,188 +343,158 @@ const backLabel = computed(() =>
             </div>
 
             <!-- Draft restored notice -->
-            <div v-if="restoredFromDraft && isOpen && !isLocked"
-                class="mb-4 flex items-center gap-2 rounded border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-300">
-                <span class="font-mono text-[10px] font-black uppercase">
-                    Draft restored
-                </span>
-                <span class="text-slate-500">
-                    — your unsaved picks from this session are back.
-                </span>
+            <div v-if="restoredFromDraft && isOpen && !isLocked" class="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl border border-amber-400/20 bg-amber-400/[0.06] px-4 py-3 text-sm text-amber-200" role="status">
+                <span class="font-bold">Draft restored</span>
+                <span class="text-slate-400">— your unsaved picks from this session are back.</span>
             </div>
 
-            <!-- Status card — shown whenever the contest is no longer open -->
-            <div v-if="!isOpen"
-                class="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#232d42] bg-[#161c2a] px-5 py-4">
-                <div class="flex items-center gap-3">
-                    <span class="inline-block h-2 w-2 shrink-0 rounded-full" :class="statusDotClass"></span>
+            <!-- Status card: shown whenever the contest is no longer open -->
+            <div v-if="!isOpen" class="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/[0.07] bg-[#0b1220] p-5">
+                <div class="flex items-start gap-3.5">
+                    <span class="mt-2 inline-block h-2.5 w-2.5 shrink-0 rounded-full" :class="statusDotClass"></span>
                     <div>
-                        <p class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
-                            Status
-                        </p>
-                        <p class="mt-0.5 text-sm font-black tracking-widest uppercase" :class="statusColorClass">
-                            {{ statusLabel }}
-                        </p>
-                        <p class="mt-1 text-[11px] text-slate-500">
-                            {{ statusHint }}
-                        </p>
+                        <p class="text-xs text-slate-500">Status</p>
+                        <p class="mt-0.5 text-lg font-black capitalize" :class="statusColorClass">{{ statusLabel }}</p>
+                        <p class="mt-1 text-sm text-slate-500">{{ statusHint }}</p>
                     </div>
                 </div>
 
-                <Link :href="resultsUrl"
-                    class="rounded-lg bg-amber-500 px-5 py-2.5 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
+                <Link
+                    :href="resultsUrl"
+                    class="inline-flex min-h-12 items-center rounded-xl bg-amber-400 px-6 text-sm font-black text-[#070b14] shadow-[0_12px_32px_-12px_rgba(251,191,36,0.8)] transition-all hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:outline-none active:scale-[0.98]"
+                >
                     View results →
                 </Link>
             </div>
 
-            <!-- EDITABLE PICKS — contest is still open -->
+            <!-- EDITABLE PICKS: contest is still open -->
             <template v-if="isOpen">
-                <div class="space-y-3">
-                    <div v-for="(leg, i) in contest.legs" :key="leg.id"
-                        class="rounded-lg border border-[#232d42] bg-[#161c2a] p-4">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="min-w-0">
-                                <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
-                                    Leg {{ i + 1 }} · {{ leg.market }}
-                                </p>
-                                <p class="mt-1 truncate text-sm font-bold text-slate-200">
-                                    {{ leg.fixture.home_team }}
-                                    <span class="text-slate-500">vs</span>
-                                    {{ leg.fixture.away_team }}
-                                </p>
-                                <p class="mt-0.5 text-[10px] text-slate-500">
-                                    Kickoff
-                                    {{ formatKickoff(leg.fixture.kickoff) }}
-                                </p>
-                            </div>
+                <div class="space-y-4">
+                    <section v-for="(leg, i) in contest.legs" :key="leg.id" class="overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1220]">
+                        <div class="px-5 pt-5">
+                            <p class="text-xs font-semibold text-slate-500">Leg {{ i + 1 }} · {{ leg.market }}</p>
+                            <p class="mt-1 text-lg font-bold text-white">
+                                {{ leg.fixture.home_team }}
+                                <span class="font-normal text-slate-500">vs</span>
+                                {{ leg.fixture.away_team }}
+                            </p>
+                            <p class="mt-0.5 text-xs text-slate-500">Kickoff {{ formatKickoff(leg.fixture.kickoff) }}</p>
                         </div>
 
-                        <div class="mt-3 flex flex-wrap gap-2 justify-center">
-                            <button v-for="option in leg.options" :key="option.value" type="button"
-                                :disabled="isLocked || !isEligible || !!leg.distribution"
-                                @click="setPick(leg.id, option.value)" :class="[
-                                    'flex flex-1 min-w-[120px] items-center justify-between gap-2 rounded border px-3 py-2 text-[11px] font-bold tracking-wide uppercase transition-all',
-                                    picks[leg.id] === option.value
-                                        ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-400'
-                                        : 'border-[#232d42] bg-[#111622] text-slate-300 hover:border-sky-500/40 hover:text-sky-400',
-                                    (isLocked || !isEligible || !!leg.distribution) && picks[leg.id] !== option.value
-                                        ? 'opacity-40'
-                                        : '',
-                                ]">
-                                <span>{{ option.value }}</span>
+                        <div class="p-5 pt-4">
+                            <div class="grid grid-cols-[repeat(auto-fit,minmax(7.5rem,1fr))] gap-2">
+                                <button
+                                    v-for="option in leg.options"
+                                    :key="option.value"
+                                    type="button"
+                                    :disabled="isLocked || !isEligible || !!leg.distribution"
+                                    :aria-pressed="picks[leg.id] === option.value"
+                                    @click="setPick(leg.id, option.value)"
+                                    :class="[
+                                        OPT_BTN,
+                                        picks[leg.id] === option.value ? OPT_ON : OPT_OFF,
+                                        (isLocked || !isEligible || !!leg.distribution) && picks[leg.id] !== option.value ? 'opacity-40' : '',
+                                    ]"
+                                >
+                                    <span class="w-full truncate text-sm font-bold">{{ option.value }}</span>
 
-                                <!-- Show live crowd data if the leg is revealed -->
-                                <span v-if="leg.distribution && leg.distribution[option.value]"
-                                    class="flex flex-col items-end leading-none">
-                                    <span class="font-mono text-[9px] text-sky-400 font-black">{{
-                                        leg.distribution[option.value].percentage }}%</span>
-                                    <span class="font-mono text-[8px] text-slate-500 mt-0.5">{{
-                                        leg.distribution[option.value].fraction }}</span>
-                                </span>
-                                <!-- Show odds if not yet revealed -->
-                                <span v-else class="font-mono text-[10px] text-slate-500">
-                                    {{ option.odd.toFixed(2) }}
-                                </span>
-                            </button>
-                            <!-- Crowd distribution — only present after the user picks this leg -->
-                            <div v-if="leg.distribution"
-                                class="mt-3 rounded border border-sky-500/20 bg-sky-500/5 px-3 py-2 w-[100vw]">
+                                    <!-- Live crowd data if the leg is revealed -->
+                                    <span v-if="leg.distribution && leg.distribution[option.value]" class="flex flex-col items-center leading-tight">
+                                        <span class="text-sm font-black tabular-nums" :class="picks[leg.id] === option.value ? 'text-[#070b14]' : 'text-sky-300'">{{ leg.distribution[option.value].percentage }}%</span>
+                                        <span class="text-xs tabular-nums" :class="picks[leg.id] === option.value ? 'text-[#070b14]/70' : 'text-slate-500'">{{ leg.distribution[option.value].fraction }}</span>
+                                    </span>
+                                    <!-- Odds if not yet revealed -->
+                                    <span v-else class="text-sm font-black tabular-nums" :class="picks[leg.id] === option.value ? 'text-[#070b14]/80' : 'text-slate-400'">
+                                        {{ option.odd.toFixed(2) }}
+                                    </span>
+                                </button>
+                            </div>
 
-
-                                <!-- {{  leg.distribution  }} -->
-                                <p class="text-[9px] font-black tracking-widest text-sky-400 uppercase">Crowd</p>
-                                <div class="mt-1 space-y-1">
-                                    <div v-for="(pct, option) in leg.distribution" :key="option"
-                                        class="flex items-center gap-2 text-[10px] text-emerald-400">
-                                        <span class="w-14 shrink-0 font-mono font-black"
-                                            :class="picks[leg.id] === option ? 'text-emerald-400' : 'text-slate-300'">
-                                            {{ option }}
-                                        </span>
-                                        <div class="h-1.5 flex-1 overflow-hidden rounded bg-[#0f1422]">
-                                            <div class="h-full bg-sky-500/60" :style="{ width: `${pct.percentage}%` }">
-                                            </div>
+                            <!-- Crowd distribution: only present after the user picks this leg -->
+                            <div v-if="leg.distribution" class="mt-4 rounded-2xl border border-sky-400/20 bg-sky-400/[0.05] p-4">
+                                <p class="text-sm font-bold text-sky-300">The crowd</p>
+                                <div class="mt-2.5 space-y-2.5">
+                                    <div v-for="(pct, option) in leg.distribution" :key="option" class="flex items-center gap-3 text-sm">
+                                        <span class="w-20 shrink-0 truncate" :class="picks[leg.id] === option ? 'font-black text-amber-300' : 'text-slate-300'">{{ option }}</span>
+                                        <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-white/[0.07]">
+                                            <div class="h-full rounded-full" :class="picks[leg.id] === option ? 'bg-amber-400/80' : 'bg-sky-400/60'" :style="{ width: `${pct.percentage}%` }"></div>
                                         </div>
-                                        <span class="w-10 shrink-0 text-right font-mono"
-                                            :class="picks[leg.id] === option ? 'text-emerald-400' : 'text-slate-300'">
-                                            {{ `${pct.percentage}%` }}
-                                        </span>
+                                        <span class="w-11 shrink-0 text-right font-bold tabular-nums" :class="picks[leg.id] === option ? 'text-amber-300' : 'text-slate-300'">{{ `${pct.percentage}%` }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
                 </div>
 
-                <!-- Submit — sticky on mobile for one-thumb access -->
-                <div v-if="!isLocked && isEligible"
-                    class="sticky bottom-0 z-30 mt-6 -mx-2 border-t border-[#232d42] bg-[#070b14]/95 px-2 py-3 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
-                    <div class="flex items-center justify-between gap-3 md:justify-end">
-                        <span
-                            class="font-mono text-[10px] font-bold tracking-widest text-slate-500 uppercase md:hidden">
-                            {{ pickCount }} / {{ contest.legs.length }} picks
-                        </span>
-                        <button type="button" @click="submit" :disabled="isProcessing || pickCount === 0"
-                            class="cursor-pointer rounded-lg bg-amber-500 px-6 py-3 text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50">
+                <!-- Submit: sticky so the thumb never has to hunt for it -->
+                <div
+                    v-if="!isLocked && isEligible"
+                    class="sticky bottom-0 z-30 mt-6 -mx-4 border-t border-white/[0.08] bg-[#070b14]/90 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:static md:mx-0 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none"
+                >
+                    <div class="flex items-center justify-between gap-4 md:justify-end">
+                        <div class="min-w-0 flex-1 md:hidden">
+                            <p class="text-sm font-bold text-white tabular-nums">{{ pickCount }} / {{ contest.legs.length }} picks</p>
+                            <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.08]" aria-hidden="true">
+                                <div class="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-200 transition-all duration-300" :style="{ width: progressPct + '%' }"></div>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            @click="submit"
+                            :disabled="isProcessing || pickCount === 0"
+                            :aria-busy="isProcessing"
+                            class="inline-flex min-h-12 shrink-0 cursor-pointer items-center rounded-xl bg-amber-400 px-8 text-sm font-black text-[#070b14] shadow-[0_12px_32px_-12px_rgba(251,191,36,0.8)] transition-all duration-200 hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:outline-none active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                        >
                             {{ isProcessing ? 'Saving…' : 'Save picks' }}
                         </button>
                     </div>
                 </div>
             </template>
 
-            <!-- READ-ONLY PICKS — contest is no longer open -->
+            <!-- READ-ONLY PICKS: contest is no longer open -->
             <template v-else>
-                <section class="overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]">
-                    <div class="flex items-center justify-between border-b border-[#232d42] bg-[#111a30] px-5 py-3">
-                        <span class="text-[10px] font-black tracking-widest text-emerald-400 uppercase">
-                            Your picks (locked)
-                        </span>
-                        <span class="font-mono text-[10px] tracking-widest text-slate-500 uppercase">
-                            {{ lockedPickRows.length }} legs
-                        </span>
+                <section class="overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1220]">
+                    <div class="flex items-center justify-between border-b border-white/[0.06] bg-black/25 px-5 py-3.5">
+                        <h2 class="text-base font-bold text-emerald-300">Your picks (locked)</h2>
+                        <span class="text-xs text-slate-500 tabular-nums">{{ lockedPickRows.length }} legs</span>
                     </div>
 
-                    <ul class="divide-y divide-[#232d42]/60">
-                        <li v-for="pick in lockedPickRows" :key="pick.leg_id"
-                            class="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+                    <ul class="divide-y divide-white/[0.06]">
+                        <li v-for="pick in lockedPickRows" :key="pick.leg_id" class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
                             <div class="min-w-0 flex-1">
-                                <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
-                                    Leg {{ pick.index }} · {{ pick.market }}
-                                </p>
-                                <p class="mt-0.5 truncate text-sm font-bold text-slate-200">
+                                <p class="text-xs font-semibold text-slate-500">Leg {{ pick.index }} · {{ pick.market }}</p>
+                                <p class="mt-0.5 truncate text-base font-bold text-white">
                                     {{ pick.home_team }}
-                                    <span class="text-slate-500">vs</span>
+                                    <span class="font-normal text-slate-500">vs</span>
                                     {{ pick.away_team }}
                                 </p>
                             </div>
 
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2.5">
                                 <template v-if="pick.selection">
-                                    <span
-                                        class="rounded border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-[10px] font-black tracking-wide text-emerald-400 uppercase">
-                                        {{ pick.selection }}
-                                    </span>
-                                    <span v-if="pick.odds !== null" class="font-mono text-[10px] text-amber-400">
-                                        @{{ Number(pick.odds).toFixed(2) }}
-                                    </span>
+                                    <span class="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-1.5 text-sm font-black text-amber-200">{{ pick.selection }}</span>
+                                    <span v-if="pick.odds !== null" class="text-sm font-black text-slate-300 tabular-nums">@{{ Number(pick.odds).toFixed(2) }}</span>
                                 </template>
-                                <span v-else class="text-[10px] font-bold tracking-widest text-slate-600 uppercase">
-                                    —
-                                </span>
+                                <span v-else class="text-sm font-bold text-slate-600">—</span>
                             </div>
                         </li>
                     </ul>
 
-                    <div class="border-t border-[#232d42] bg-[#0a101f] px-5 py-2 text-[10px] text-slate-500">
-                        Picks are locked once the deadline passes. You can no
-                        longer change them.
-                    </div>
+                    <div class="border-t border-white/[0.06] bg-black/25 px-5 py-3 text-sm text-slate-500">Picks are locked once the deadline passes. You can no longer change them.</div>
                 </section>
             </template>
         </div>
 
         <!-- SubLeague Modal for quick creation -->
-        <SubLeagueModal :open="modalOpen" mode="create" :seasons="[contest.season]" :active-season="contest.season"
-            :league-options="[{ code: contest.league_code, label: leagueLabel }]" @close="closeModal"
-            @success="closeModal" />
+        <SubLeagueModal
+            :open="modalOpen"
+            mode="create"
+            :seasons="[contest.season]"
+            :active-season="contest.season"
+            :league-options="[{ code: contest.league_code, label: leagueLabel }]"
+            @close="closeModal"
+            @success="closeModal"
+        />
     </div>
 </template>

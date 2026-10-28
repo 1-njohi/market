@@ -41,7 +41,6 @@ class BetslipSettlementService
             }
 
             // Idempotency guard
-            // Idempotency guard
             if (in_array($betslip->status, ['settled', 'voided'], true)) {
                 Log::info("Betslip {$betslip->code} already settled/voided. Skipping.");
                 return;
@@ -122,9 +121,19 @@ class BetslipSettlementService
 
                 Log::info("Betslip {$betslip->code} voided: all {$void} legs void.");
 
-                $this->settlePurchases($betslip, false, 'voided');   // <— add the third arg
+                $this->settlePurchases($betslip, false, 'voided');
+
+                // ── ANALYST PICK ── stamp settlement time on analyst slips only.
+                // The betslip_odd pivot `comment`/`confidence` and betslips
+                // `analyst_title`/`reasoning` stay untouched — settlement is
+                // read-only from the pick's editorial perspective.
+                if ($betslip->is_analyst_slip && $betslip->settled_at === null) {
+                    $betslip->update(['settled_at' => now()]);
+                }
+
                 return;
             }
+
             // ─────────────────────────────────────────────────────────
             // Normal win/loss resolution
             //   - Winner: at least one won, no lost (void legs ignored)
@@ -140,8 +149,15 @@ class BetslipSettlementService
 
             // Distribute payouts/refunds per purchase
             $this->settlePurchases($betslip, $isWinner);
+
+            // ── ANALYST PICK ── stamp settlement time on analyst slips only.
+            if ($betslip->is_analyst_slip && $betslip->settled_at === null) {
+                $betslip->update(['settled_at' => now()]);
+            }
+
             // Bust the cached leaderboard so the homepage reflects the new results
             LeaderboardService::forget(10);
+
             Log::info("Betslip {$betslip->code} settled as " . ($isWinner ? 'WIN' : 'LOSS') . " ({$won}W/{$lost}L/{$void}V).");
         });
     }

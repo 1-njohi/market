@@ -26,6 +26,15 @@ class Betslip extends Model
         'is_sellable',
         'is_delisted',
         'settled_at',
+        'is_analyst_slip',
+        'analyst_id',
+        'reasoning',
+        'analyst_published_at',
+        'is_edited',
+        'revision_count',
+        'analyst_unpublished_reason',
+        'post_settlement_note',
+        'post_settlement_note_at',
     ];
 
     protected $casts = [
@@ -37,6 +46,11 @@ class Betslip extends Model
         'is_delisted' => 'boolean',
         'break_even_stake' => 'decimal:2',
         'settled_at' => 'datetime',
+        'is_analyst_slip' => 'boolean',
+        'analyst_published_at' => 'datetime',
+        'is_edited' => 'boolean',
+        'revision_count' => 'integer',
+        'post_settlement_note_at' => 'datetime',
     ];
 
     // Relationship with the user (seller)
@@ -192,5 +206,74 @@ class Betslip extends Model
                 $betslip->price = 1;
             }
         });
+    }
+    public function analyst(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'analyst_id');
+    }
+
+    public function revisions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BetslipRevision::class);
+    }
+
+
+    public function scopeAnalystSlips($q)
+    {
+        return $q->where('is_analyst_slip', true);
+    }
+
+    public function scopePublishedAnalystSlips($q)
+    {
+        return $q->where('is_analyst_slip', true)->whereNotNull('analyst_published_at');
+    }
+
+    public function scopeOpenAnalystSlips($q)
+    {
+        return $q->where('is_analyst_slip', true)
+            ->whereNotNull('analyst_published_at')
+            ->whereIn('status', ['pending', 'underway']);
+    }
+
+    public function scopeSettledAnalystSlips($q)
+    {
+        return $q->where('is_analyst_slip', true)
+            ->whereNotNull('analyst_published_at')
+            ->whereIn('status', ['settled', 'voided']);
+    }
+
+
+    public function isAnalystSlip(): bool
+    {
+        return $this->is_analyst_slip === true;
+    }
+
+    public function isAnalystPublished(): bool
+    {
+        return $this->is_analyst_slip && $this->analyst_published_at !== null;
+    }
+
+    public function isEditableAsAnalyst(): bool
+    {
+        return $this->is_analyst_slip
+            && $this->analyst_published_at !== null
+            && in_array($this->status, ['pending', 'underway'], true);
+    }
+
+    /**
+     * Per-unit profit at slip level. Uses total_odds (the slip's combined
+     * price), not the marketplace KES price. Pending/underway → null.
+     */
+    public function analystProfitUnits(): ?float
+    {
+        if (!$this->isAnalystSlip()) {
+            return null;
+        }
+
+        return match ($this->status) {
+            'settled' => $this->is_winner ? (float) $this->total_odds - 1.0 : -1.0,
+            'voided' => 0.0,
+            default => null,
+        };
     }
 }

@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\Betslip;
 use App\Services\BetslipCardPresenter;
 use App\Services\FixtureService;
+use App\Services\AnalystArchiveService;
+use App\Http\Resources\AnalystPickResource;
 use App\Services\LeaderboardService;
 use Inertia\Inertia;
 use App\Models\Contest;
@@ -21,6 +23,28 @@ class HomeController extends Controller
 
     public function index()
     {
+
+        $analystArchive = app(AnalystArchiveService::class);
+
+        $currentPicks = Betslip::publishedAnalystSlips()
+            ->whereIn('status', ['pending', 'underway'])
+            ->where('analyst_published_at', '>=', now()->subDays(7))
+            ->with([
+                'analyst',
+                'odds.market',
+                'odds.fixture.homeTeam',
+                'odds.fixture.awayTeam',
+                'odds.fixture.league',
+            ])
+            ->orderByDesc('analyst_published_at')
+            ->limit(3)
+            ->get();
+
+        $analyst = User::where('is_analyst', true)
+            ->whereNotNull('analyst_slug')
+            ->orderBy('id')
+            ->first();
+
         return Inertia::render('Welcome', [
             'fixtures' => $this->fixtureService->leaguesWithUpcomingFixtures(),
             'bet_slips' => $this->getBetslips(),
@@ -28,6 +52,16 @@ class HomeController extends Controller
             'public_contests' => $this->getPublicContests(),
             'open_matchdays' => $this->getOpenMatchdays(),
             'open_jackpots' => $this->getOpenJackpots(),
+            'analyst_picks' => [
+                'current' => AnalystPickResource::collection($currentPicks)->resolve(),
+                'last_settled' => $analystArchive->lastSettledBatch(),
+                'analyst' => $analyst ? [
+                    'name' => $analyst->byline(),
+                    'slug' => $analyst->analyst_slug,
+                    'avatar_url' => $analyst->profile_picture_url,
+                ] : null,
+            ],
+
         ]);
     }
     /**

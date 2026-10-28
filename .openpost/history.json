@@ -986,306 +986,6 @@
     }
   },
   {
-    "id": "1792830891345",
-    "timestamp": 1792830891345,
-    "request": {
-      "id": "1792830886347",
-      "name": "New Request",
-      "method": "POST",
-      "url": "http://localhost:8001/dev/mock-api/drowning/reset",
-      "params": [],
-      "headers": [
-        {
-          "key": "Accept",
-          "value": "application/json",
-          "enabled": true
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/json",
-          "enabled": true
-        },
-        {
-          "key": "Cookie",
-          "value": "XSRF-TOKEN=eyJpdiI6IlJCZEdzZElabUFnanlMNTZCc0RrVFE9PSIsInZhbHVlIjoiT3dHR1BmSmFFVk85QytwVEVvQU40dXFJVHc2MVZySHNBR3pGRVVVWVMyaVcwQmwrVkhvNjRnSThkdUt6M0wvbXcyL3VnU25PVC9oMTNYUkE3STF0SWwyUnpGbzM5b2NjbUxSRXd6bEpkVjdvUHgrc285S2lRZHpXTGZtczF1d2MiLCJtYWMiOiIyNTUwOWU0YjFmNjJmMmQ4NThlYWI2NDg3YmVhNzE5YmI3Y2U3MGUxNTMyMTcxY2E3OTY1ZTA0OTM5Yjg3MGNkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IklGakI1L0lRK25QOUZUdHMyM1UvdWc9PSIsInZhbHVlIjoiTUhVZHhXV0pQZ21ja0dBODJXaHYybGdoMTkzNHJuMnQva3AxSCtzdTkvUUlNckpoNWFUSFp2dTBkOEx1YzJubTNobzR0N0p0WVVFK0Z4ai9sL2VocnBXSmJ6MUVKckR0WE1PYjMzV21mZitzQ2hSK1RHQVB5STNDMWVBdDFRZmgiLCJtYWMiOiJlNDQ0OThmMDgzZWVkMjIxYWExN2VhYzYxMGYwYzk0NWVjNGI3MzYzYmFhZjI2Y2UzODQxOWMxYmIwODRkYjljIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InpaM0c0K2dlcXhCdytSUE9DTmdqS2c9PSIsInZhbHVlIjoiUWZWNHUva2lIU2FSVTFiZFExcS9lUlJlVFdmeE0wNFFPWGd0WTNaS3pGa1dhODVacCtZVDlyZk5WVjlDS3NBYThud1VZTWlYQUVZTWg0SlJZNGQzdytKUjFiNVRRVk9rTE9vU3ZETWlMblhiZEdscFpxZE51bTVEOHEraGRGcWMiLCJtYWMiOiJmMDMwMDA5NDU3NTA3MGU0NDhjMGM4M2U0YTE1ODZmMGZkMDc5MDkyNWVhMWQ1OGEwMDc5OTgzM2I5OWY5MzA2IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlNoRStwN1E1Q1JUOVVyaytENFR5emc9PSIsInZhbHVlIjoiNmtlQ3BYYzhRcEQyVlY2UEdUK01nU2NjeGxhZVlOeWdPclY2ZlVtSU5TaDdKL1h5dEhMY3Bva0xrOS9UOGV2UUFyRFNFNnhqQmYxaTZJL0dNUzdjRktRaHV1MUhROFUrbE1ybGdFTGp6L3B5T1FLNGVkRHN0S0w4SmRnSXRlTy8iLCJtYWMiOiJiMzM4MWU1N2RjNGE3ZjM5YmIxMDBiNDU4OTc3ZjczMWFhNGMxYmQxYWQ1YTliNTNlNjBmOGQ3OWE3NzY2MDZmIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InhUbmFjUTdwdmwxeFZLMElIWDJtRUE9PSIsInZhbHVlIjoiN1hSbVpNTUZVWHFJYlRUK1lzN2FGOFFJYXZ5aEtLbXEvY2sxTHNCdWJ1b3psUitOVUV0akJtVHZXdVk5cFVSRlhNVVFDNGU1RFlsWDVVeWd2NXNCd0hteG1MQ1o1dm55elFPd2FhS2MwSml5VnFBUTA4RFhmUENkS1Nld3IwVnIiLCJtYWMiOiJhNjM1NGM3YTM0ZjRiNWNhYzliZTg2OGJlMDM4ZWIxZThiNTIzNTBhOTgzNmNmZjkyNmIzZjQ5ZDlmMzhkN2EzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ind0RHhUWUFTR3Z6eTdYc0tTM1Q4alE9PSIsInZhbHVlIjoiNlowQVM2MEFQR21FMUpGOUwzZkR4VTJ2TVRqVkI5YURGeHFmQ085N2trQWt6ZmN6L1VKQWx4bVFjUXVtVHREMHRhYWNmQ0RHZnRBc0Y2U0JPN2IxNDQ5UFhKMjRVMmxSRzlTQVhleFFaem1DenZpWkUvZnhQMHhoR3VPOG0yUXkiLCJtYWMiOiIyMGViYzJhMGEzOWI3OWQ3MzgzZjM4N2M1MjFhYzY5NjlkNGU5MGRiMzNmN2ZiZDNjOTg0ZjRlZTExNWVmYjUzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InY1M2ZuakFwWDVoYk1xRkIvSkpuVnc9PSIsInZhbHVlIjoiUEZ0U3RxRDJQcWhIaWJaaklxTmszUnN6bk9QcFR0ellEQzZTMVN1cWtnd01kbnVoNEFDRjUzVlZ6Q2Jkc1RXakNpVk5lVy9BSU4zQm94VlVCM0RQODNmL0JIK05yNmZrQXNYcit2VVJQWERmWTh6emwyODRTc3BqZjZLdy9KUE8iLCJtYWMiOiIzZmUyNGUzMzU3ODMxYjAyZjQwZGQ2MTQ5OWFmNzU0MzIxODY1MjYxMWViNTgzZmMxMmI3OGFiNGI1MDVmMWFlIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhIMjAxalpaNG5RWHNJMTA4aENZMVE9PSIsInZhbHVlIjoiQVM0S2dtS1U0NWhuMWdBc2FmUnJpWlJZVUx3RUxJWWtNbmpDNndvUlBWN21WSUZ1NllqVzhac2FjR0g0eXU5WTBJN2J0NDlaN1FPL2FRTlFoY3JzYUNLUkU5bXFkUGp3U0tNQWt1MnYwNnd3Z2o5b2VVZE1DUGNlNXlRSVY1YmIiLCJtYWMiOiIzMThhYTliMGEzNWJmNDQwOTA4MDUyYTRiNTVmNGE4OGNlYThjOWM5YzEyMmQyNGM4ZTM1MmUyZDhkOWI4YWU1IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkF5eGxyV3hTZTJtQkdQeEV6MXRRdEE9PSIsInZhbHVlIjoidkxxRWVBQWJWU3EzL0M5ckMxc2N4a1doTEw5a1BYNkNIZ0JyNjNSWGppVm1HeURpS0NaMytGWFNyaWx3WC9KSXdwVVN3RG1wS3BYT0wreXU1NU14dHBNQjkwdzFWZHhzM1NiZUVHcHNiYW5mR1ZKdm5OTTQrMWpsdUdUQXNCUEsiLCJtYWMiOiIzZGIyMzAxYWU4ZjgwMmZjNTcyMTVhOTQ4NTQyN2FlMDQxY2NlYmU5OTZmMjRlMjg1MDg0NmRmYWNlMTI5ZGZmIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVkbWdESnRtMFVaU0VhRU1vRXdsMXc9PSIsInZhbHVlIjoiS1FwSURpZlVqUDluWFJmYi9BZytyWUhzUmFudC9BUDNIaFdSYVpXMEpBUXhteTlSOFc2WGtVL2JVUzlkSElwMDZza0xmMUVEVXpGcEl2dytuSDh4UytjaTl4Mll6Q1pNWFBNWjhsMGpoQXV2Rmg1VXE0R1p3M2xVTFdhTkU4YU8iLCJtYWMiOiI4OTgzZGViYzRjYzU2ZDRlMTNiNzJlOTc3MjA0NGE5MmRkMTRkNDRhZWRiZjQyZjE1YjdjM2MzMGNhZDRlOGQ4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjRhMkpiTnBjbEJQR0lZWmtIb044U3c9PSIsInZhbHVlIjoiQU92bHZSYTdxRUZqOVJQbWYwdEd0cy8zSEtuNElxcWZDUlFTSW5RbGRiQXpudjNuYS80S1pSdVgxS2czdll6VXZDZXIvWUVMVHdSNlJSWTExRlJwSjdwZzYxQW9nV3hjNUxpQ1BnTFBNUmdma2dWODZMMkNXSWQ2SE1Vc3RmYVUiLCJtYWMiOiI3ZTc0YmU4NjhmNWY3Y2UwYmNhZTAyYWUzOGViMzc3NmMyZWUwYjAwZTZhYTcyYmY2OWVlMDc0Yjg2YTVhZmRjIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhmNUsxQWdpZzhvb21WVGtCL2lRUVE9PSIsInZhbHVlIjoiZWw3NGFXSEZSTHRJbUtGcTFRN3lnd1FXMHRzdEkzYmtYTWxEYWlqaW1DMFdHTmNGWUx1RzVOd0p3SzhxSmJVQndyU09Qa2xkb0NVY0dXblhqTVZpd083SVdjN0hJVEdWQ2xMS2w5Y1B3bTM1NDZnU0dGRm04N3lRUU16b01xMGciLCJtYWMiOiJjY2ZkY2I2YjhiNDA0N2I4ZjliYWZhNmE4ZDNkZTk5YzNkOWI2ODEzNGFmZjgwZGU2ZmU2ZmJiMDU4ZTEwMzVkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImtVZnYrblozUW5tTzFqbmk1akI1TWc9PSIsInZhbHVlIjoibElPbTU4RUJ3azF3MytpTytWR0NtZDBPVHVrQ2xoR3pIbzlwNnBSblpYaHJxWTZGRFo3elRMQ1BTM2c2Ulh4RTBldjgyUDJtb2ljWnBPalRWQWVmUFNna3BaM0doWHhyRWRWcmNUaFJ4RUZpSFRRY0c1N1RFd1Z0VDRkUjEvYk8iLCJtYWMiOiJjNDJiZTBkMjVhYTkyYmUyZTNmZDMyNTNjZDA4MmY4NTMzZjlkZmI5NTlmZmQ3MTMwNmExMjBiM2QyZGQwNmQxIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjF3d3JVaWVjbjVHOTRDbXJyZXYzV1E9PSIsInZhbHVlIjoiVU5xRlRpUWVyanNxVThmbGlJWmtmOTJpcVNvc3djMkVFekNQVjl3bGsxU0NMZmF6MXhwZXBzR0hrVVlnZVJhc0d1UStncTJKSnB2TEtETlpQci9pUzJsbURCbGR4SzRqNENqTXZ4MnY1MGZJU1hZWTN5a0V1NENxTkdpcjZBaHAiLCJtYWMiOiIyNTNkNTI4MDliYjQ2OTQ0ZDRmMzg5NGZiNWMzMTdiMDU5MTkwZTViMzI5ZjE1NmZkZDhjMDllMTVkNzkzY2JkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imo0MVhaVW91Qy83UVo0U2Z1amFHeUE9PSIsInZhbHVlIjoiajJqTDd3M3FMTXEzbXVGem5rRXhjdkpKS3ZSVjNkMFVSRzYyeWxHWFdiZ1FHZFVYOTEvSXA4WGU3WUMwUUQwYWdaVTkvYm9FV2pRQnd2YjlIOXdXbUZERjRkdjRpSlZ1ejhqa1hZZDQwUzFqVUxSQkZHcUh4ZXN0Q3poQUQ5ejMiLCJtYWMiOiI5ZmU5ZDE0ZjRiYTc4MWI5NjAyN2JiZTRlMjNiZTM0MzYyOTkzYzcyNjA4M2M4YTIxNjJlYjBiN2RhYTZkMGQzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InBuMjNRZGJwaUZudmdCejNEcldiS1E9PSIsInZhbHVlIjoiV2JodXVXR2J5T25KOFY3NlVobGQzZCtUc25IOFZ5YlA0MlVhRERvMnQrbFFlTnZ0QmQ2ZDAxejZQZXl5WDRUNE5iVFh3dzQ1Vjk4VDBPRHBLcHdsKzd2RFlqNWZvbDBXdVphczFibmduQ3lzREo5OGRnZG1IZlVVRG1HdW9qSkMiLCJtYWMiOiIxZTYxZGMzNWMxNDAyZGJlMDY1MjQyNWZlNjYwZmZlMTdlZmMwODlhYWFjODcyYjM1ZDYyZDE2ZGQ0MTc2ODhjIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkhxaXZNSURTa28wa2daUTdQbDlOQUE9PSIsInZhbHVlIjoidHV3SEE1SHQ1TllwRmZYMWYzTzczWFFveVlFeEw4Y0dUNG1JbVJ5U0RMamNFNFVaRnA4bkNDZTJZQ2hyVU43SHZMTk1OdE8zc2F3VDVmdm5mdFJBeFFqcUluekJud3FwbmlsQkxDVUprc2dOaXlOM2VNeUFPaENQVlJUMDZEblUiLCJtYWMiOiJiNjBiMjFjMTk0Mzc0NDczYTBmMTg1NWE5NDJmNTljYWUzZWVkNWYxYzlkZjgyNzc1NTBlZTNlODZiYjBjY2M1IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjdRVXhneW9ZeFhyZUpuMGZ3VmpOU3c9PSIsInZhbHVlIjoieVh4MUs2V0YySURSbVNGSmowZXNMR2hOL1YvY3FnaHgySkJubGNWYTJ3TWkxdEdTeTVQeG9DRER1ZGJhSFA0a3lMdlA0dVhwenF4cUExU3RMN1hOZTdmcHl0Q2pHa01Sb1p1SnBjeHQyN1pVYUZIaWxNNVZ6KzV4TDUybHEvaSsiLCJtYWMiOiIyMmE5OTBkMzlhZmJlMjJlNzYzNDEzZTRlYTBiNGNlMTBlYmU3OWUwNDcyNmEwNjVjOWNjODY1M2ZkZDNiYzgwIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkxLZVFwd0h0U3VvcGlhWUFVVUUyTXc9PSIsInZhbHVlIjoiOHYzeW4vSWhXcnY5TXN1WkJoYlM2SGN2NHI3cXJQN2hjbUlhenBhd2NyekxLWjlPK3FrcVYrTlViT3o5Y0h6RG5uM0o5OHF3R09LdUtUQUVoMWN6QzdHbkZ3RFN3S3Nsa295MkkvVzFoZy9QRllTMXQ3ZTdhcllYQnc5a3BqRUsiLCJtYWMiOiI0YzlmOTdmNWE0YTJjMjQ1ZTdhNmIyNzJiNDQ1ZmFmMTZmM2ZiMzMyYjk0OWU0N2EzZThjMmI2ODYwNTRjMzg3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkYwQ1FCek0rWERDWUovNVJaZENWUkE9PSIsInZhbHVlIjoiMXk0ckNFVTFvZisrRzN5R3VIdDZxMVpzcVB6L3lETUoxNW54SDM0SlI0SjRINmtOdlFWUTFtWkd0cFpidHFGZGlYZDlKOWoyK3U5NXQ4Mk9yZkZ2TnN6WmNuMkFPUHpPNTBKU1ExSkJCZUFPVnd2V00rWHYxWjN5VENwSkxFczUiLCJtYWMiOiI5ZjllMDY2ODhhZGVkNjk1ZjUxOTQ0OTE1YThjYjVhZTEwNTU4NTIyOTNmYjllNTUyNjIwZmU2NTAwYWE3ZTQzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp2K3lGb2czdE12T0hOMGd3WE1XaHc9PSIsInZhbHVlIjoiMGFHNkJFNmN2eVhleE9KQlNXZnNSNUJDdmVlcy9JQklRd0Z3eVBseUxYNkdWa1hKVHFYWnlzVGdiNlYwaTQyWmpTK3BSbWkwVjIwOG5hRHlUc0tXN2lldS9Gb3lrOWpoOU16Z3g3dmhLZmN5STFrMUVHajR1V25MeFhGVkczRDgiLCJtYWMiOiJjMjJlNzY2Y2E1MWJmZmU5YmE1MGEwYmE0YzEzM2I1YjU0NjA0MDQyNjdiN2I1NTVmNGRhZDRhMmZiN2I1ZjNhIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVqL1pKcDlJeG51MExUdTZSQWhkemc9PSIsInZhbHVlIjoiYVNtbCt0bHc5ei9oWmJGK3VGUm53ZTNpZGNNUG9yS2ZKSjV1Y0ppNmNQZ2J3ay9FcThWdzNZbDVIY0J1Ny9lemxMUjdYUXNQSTR3NFh1K1lGUkVEU25vYjA1MzY5ekp5dTlxU1ZISkRuRXlqVEN2OHRSNXB6VVpNOHk4dVpPNnQiLCJtYWMiOiJlMWYzZWY3Y2RhMTFlYTdkNzViNzAwMzI0OTQ3OGRiMWYyZGNhZWNhZWY0MTQ0ZjgwMzEwOThhY2E3YWI0Njk4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImZsb0tsdE9Vazh2VC83U1VuVFRLWHc9PSIsInZhbHVlIjoiNFpQMmxuVDRVeDY4N0VFZW1wQXVHQ3owT243Rk9lSnJ1Rk9HbHBPWEZtdFRRZmc4RUUzZDdEZmJaVW9pQ3BUamN1dVBESlNkdjBRUzdnTUJvUnIvUzBUVkgvdXFIVERqdGtxSVBhZ0h6ZTZDUmVJek9zL0RHdUxlYW1yM0w1aloiLCJtYWMiOiI5NWQ0NjMwNDFlYzIwZDc1NTlkZGE2M2Y3YWQ1MjhkYjFmMjdjNzkyYzFiMjdhYzJiMmNjY2NiMzkzMWFjODAwIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkEyekw2YlM0ckFGdTZUd2Fnd2lkN1E9PSIsInZhbHVlIjoiVm9ZZzFUemR1VzhiNkQxM1NWd1EwZEE2SHlDTXhObUcycDB2QTFlMWpERVU2ak16NWhZa0I1aHZZN3FLUmZ0QlZQTGlnSExUZ2pPN0RzdElaNWtMM0pGcFNZaFhWd2NrUjFJM3c5WS9DVTltZTdLbldGK1NPUzRyQlRUMjFVeHUiLCJtYWMiOiIxMzRhYTc4YTBjOTQzYTVmZDg3ZDU4MGVmYzVhZmM5ZjIwYjBjMzAwZTNjOTdmMDE5NmI1Yzc5MjhmMmE0MjhkIiwidGFnIjoiIn0%3D",
-          "enabled": true
-        }
-      ],
-      "body": {
-        "type": "none"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "inheritAuth": true
-    },
-    "response": {
-      "status": 200,
-      "statusText": "OK",
-      "headers": {
-        "cache-control": "no-cache, private",
-        "connection": "close",
-        "content-type": "application/json",
-        "date": "Sat, 24 Oct 2026 08:34:50 GMT",
-        "host": "localhost:8001",
-        "set-cookie": "laravel-session=eyJpdiI6ImhhWndJN014U0x5NmZxRWpMUENXMUE9PSIsInZhbHVlIjoiOUhkeStVUnRzNEdJaEl1TDVxWitjOTI5MlNOSnVRbXZ0c2JyRjhrWGpuQVo1UHN3NmNtU3hYaERvVnIxRVNrVXNzWS94c2l2b1V2VzI0YitFMnhYYU42bFJ0OW91ZFd3NS9UdFplaFZEalVpaC9iOElQWEFNRm1ZdkFVaDlMMTQiLCJtYWMiOiI4N2Y3MjQzY2U0Zjc0OTBlNjg1ZmY5NGYwN2YzNzc0NDI4MGE2YmVlOGZjMWI3OWZjNjc5OGMwYTk2MGY2ZGU0IiwidGFnIjoiIn0%3D; expires=Sat, 24 Oct 2026 10:34:51 GMT; Max-Age=7200; path=/; httponly; samesite=lax",
-        "x-powered-by": "PHP/8.4.5"
-      },
-      "body": "[{\"id\":3001,\"match\":\"Manchester United vs Newcastle\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3002,\"match\":\"Liverpool vs Manchester City\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3003,\"match\":\"Arsenal vs Tottenham\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3004,\"match\":\"Chelsea vs Brighton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3005,\"match\":\"Aston Villa vs Brentford\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3006,\"match\":\"Fulham vs Everton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3007,\"match\":\"West Ham vs Crystal Palace\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3008,\"match\":\"Leicester vs Wolves\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3009,\"match\":\"Southampton vs Bournemouth\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3010,\"match\":\"Ipswich vs Nottingham Forest\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4001,\"match\":\"Barcelona vs Real Madrid\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4002,\"match\":\"Atletico Madrid vs Sevilla\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4003,\"match\":\"Valencia vs Villarreal\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4004,\"match\":\"Athletic Club vs Real Betis\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4005,\"match\":\"Real Sociedad vs Celta Vigo\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4006,\"match\":\"Espanyol vs Getafe\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4007,\"match\":\"Girona vs Leganes\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4008,\"match\":\"Osasuna vs Rayo Vallecano\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4009,\"match\":\"Mallorca vs Alaves\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4010,\"match\":\"Valladolid vs Almeria\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}}]",
-      "time": 4891,
-      "size": 2633,
-      "cookies": [
-        {
-          "name": "XSRF-TOKEN",
-          "value": "eyJpdiI6InBqenFwNWJQeTU0VGR5Q2tHNFRib1E9PSIsInZhbHVlIjoiQk0wOEVBMzMxVjBzSEd1WlhuMHlYVXFXdHpvenNpOGFGSHdBbWZqRDBkZHI3LzNWbzhlQ0hmR1d4MXJDSlc3QWVzbU5mcUFyQWUyTEtnRGR3ZUxDK0VoYXZHS3FFNEtTL29oUzI1d29BYjh5UkdEUFJ1SFhaeDVKQmhhVzM1TUoiLCJtYWMiOiI4ZWM1ODM0M2JhZjdmZTMwMGNiNDc1N2I0YjVkMGM0NGQwYTI2NWNiYWM2YjEyMWNlY2UyZjAxMDIwOTUzNDkzIiwidGFnIjoiIn0%3D",
-          "domain": "localhost",
-          "path": "/",
-          "expires": "2026-10-24T10:34:51.310Z",
-          "httpOnly": false,
-          "secure": false,
-          "sameSite": "Lax",
-          "createdAt": "2026-10-24T08:34:51.310Z"
-        },
-        {
-          "name": "laravel-session",
-          "value": "eyJpdiI6ImhhWndJN014U0x5NmZxRWpMUENXMUE9PSIsInZhbHVlIjoiOUhkeStVUnRzNEdJaEl1TDVxWitjOTI5MlNOSnVRbXZ0c2JyRjhrWGpuQVo1UHN3NmNtU3hYaERvVnIxRVNrVXNzWS94c2l2b1V2VzI0YitFMnhYYU42bFJ0OW91ZFd3NS9UdFplaFZEalVpaC9iOElQWEFNRm1ZdkFVaDlMMTQiLCJtYWMiOiI4N2Y3MjQzY2U0Zjc0OTBlNjg1ZmY5NGYwN2YzNzc0NDI4MGE2YmVlOGZjMWI3OWZjNjc5OGMwYTk2MGY2ZGU0IiwidGFnIjoiIn0%3D",
-          "domain": "localhost",
-          "path": "/",
-          "expires": "2026-10-24T10:34:51.311Z",
-          "httpOnly": true,
-          "secure": false,
-          "sameSite": "Lax",
-          "createdAt": "2026-10-24T08:34:51.311Z"
-        }
-      ]
-    }
-  },
-  {
-    "id": "1792837396641",
-    "timestamp": 1792837396641,
-    "request": {
-      "id": "1792837395245",
-      "name": "New Request",
-      "method": "POST",
-      "url": "http://localhost:8001/dev/mock-api/drowning/reset",
-      "params": [],
-      "headers": [
-        {
-          "key": "Accept",
-          "value": "application/json",
-          "enabled": true
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/json",
-          "enabled": true
-        },
-        {
-          "key": "Cookie",
-          "value": "XSRF-TOKEN=eyJpdiI6IlJCZEdzZElabUFnanlMNTZCc0RrVFE9PSIsInZhbHVlIjoiT3dHR1BmSmFFVk85QytwVEVvQU40dXFJVHc2MVZySHNBR3pGRVVVWVMyaVcwQmwrVkhvNjRnSThkdUt6M0wvbXcyL3VnU25PVC9oMTNYUkE3STF0SWwyUnpGbzM5b2NjbUxSRXd6bEpkVjdvUHgrc285S2lRZHpXTGZtczF1d2MiLCJtYWMiOiIyNTUwOWU0YjFmNjJmMmQ4NThlYWI2NDg3YmVhNzE5YmI3Y2U3MGUxNTMyMTcxY2E3OTY1ZTA0OTM5Yjg3MGNkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IklGakI1L0lRK25QOUZUdHMyM1UvdWc9PSIsInZhbHVlIjoiTUhVZHhXV0pQZ21ja0dBODJXaHYybGdoMTkzNHJuMnQva3AxSCtzdTkvUUlNckpoNWFUSFp2dTBkOEx1YzJubTNobzR0N0p0WVVFK0Z4ai9sL2VocnBXSmJ6MUVKckR0WE1PYjMzV21mZitzQ2hSK1RHQVB5STNDMWVBdDFRZmgiLCJtYWMiOiJlNDQ0OThmMDgzZWVkMjIxYWExN2VhYzYxMGYwYzk0NWVjNGI3MzYzYmFhZjI2Y2UzODQxOWMxYmIwODRkYjljIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InpaM0c0K2dlcXhCdytSUE9DTmdqS2c9PSIsInZhbHVlIjoiUWZWNHUva2lIU2FSVTFiZFExcS9lUlJlVFdmeE0wNFFPWGd0WTNaS3pGa1dhODVacCtZVDlyZk5WVjlDS3NBYThud1VZTWlYQUVZTWg0SlJZNGQzdytKUjFiNVRRVk9rTE9vU3ZETWlMblhiZEdscFpxZE51bTVEOHEraGRGcWMiLCJtYWMiOiJmMDMwMDA5NDU3NTA3MGU0NDhjMGM4M2U0YTE1ODZmMGZkMDc5MDkyNWVhMWQ1OGEwMDc5OTgzM2I5OWY5MzA2IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlNoRStwN1E1Q1JUOVVyaytENFR5emc9PSIsInZhbHVlIjoiNmtlQ3BYYzhRcEQyVlY2UEdUK01nU2NjeGxhZVlOeWdPclY2ZlVtSU5TaDdKL1h5dEhMY3Bva0xrOS9UOGV2UUFyRFNFNnhqQmYxaTZJL0dNUzdjRktRaHV1MUhROFUrbE1ybGdFTGp6L3B5T1FLNGVkRHN0S0w4SmRnSXRlTy8iLCJtYWMiOiJiMzM4MWU1N2RjNGE3ZjM5YmIxMDBiNDU4OTc3ZjczMWFhNGMxYmQxYWQ1YTliNTNlNjBmOGQ3OWE3NzY2MDZmIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InhUbmFjUTdwdmwxeFZLMElIWDJtRUE9PSIsInZhbHVlIjoiN1hSbVpNTUZVWHFJYlRUK1lzN2FGOFFJYXZ5aEtLbXEvY2sxTHNCdWJ1b3psUitOVUV0akJtVHZXdVk5cFVSRlhNVVFDNGU1RFlsWDVVeWd2NXNCd0hteG1MQ1o1dm55elFPd2FhS2MwSml5VnFBUTA4RFhmUENkS1Nld3IwVnIiLCJtYWMiOiJhNjM1NGM3YTM0ZjRiNWNhYzliZTg2OGJlMDM4ZWIxZThiNTIzNTBhOTgzNmNmZjkyNmIzZjQ5ZDlmMzhkN2EzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ind0RHhUWUFTR3Z6eTdYc0tTM1Q4alE9PSIsInZhbHVlIjoiNlowQVM2MEFQR21FMUpGOUwzZkR4VTJ2TVRqVkI5YURGeHFmQ085N2trQWt6ZmN6L1VKQWx4bVFjUXVtVHREMHRhYWNmQ0RHZnRBc0Y2U0JPN2IxNDQ5UFhKMjRVMmxSRzlTQVhleFFaem1DenZpWkUvZnhQMHhoR3VPOG0yUXkiLCJtYWMiOiIyMGViYzJhMGEzOWI3OWQ3MzgzZjM4N2M1MjFhYzY5NjlkNGU5MGRiMzNmN2ZiZDNjOTg0ZjRlZTExNWVmYjUzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InY1M2ZuakFwWDVoYk1xRkIvSkpuVnc9PSIsInZhbHVlIjoiUEZ0U3RxRDJQcWhIaWJaaklxTmszUnN6bk9QcFR0ellEQzZTMVN1cWtnd01kbnVoNEFDRjUzVlZ6Q2Jkc1RXakNpVk5lVy9BSU4zQm94VlVCM0RQODNmL0JIK05yNmZrQXNYcit2VVJQWERmWTh6emwyODRTc3BqZjZLdy9KUE8iLCJtYWMiOiIzZmUyNGUzMzU3ODMxYjAyZjQwZGQ2MTQ5OWFmNzU0MzIxODY1MjYxMWViNTgzZmMxMmI3OGFiNGI1MDVmMWFlIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhIMjAxalpaNG5RWHNJMTA4aENZMVE9PSIsInZhbHVlIjoiQVM0S2dtS1U0NWhuMWdBc2FmUnJpWlJZVUx3RUxJWWtNbmpDNndvUlBWN21WSUZ1NllqVzhac2FjR0g0eXU5WTBJN2J0NDlaN1FPL2FRTlFoY3JzYUNLUkU5bXFkUGp3U0tNQWt1MnYwNnd3Z2o5b2VVZE1DUGNlNXlRSVY1YmIiLCJtYWMiOiIzMThhYTliMGEzNWJmNDQwOTA4MDUyYTRiNTVmNGE4OGNlYThjOWM5YzEyMmQyNGM4ZTM1MmUyZDhkOWI4YWU1IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkF5eGxyV3hTZTJtQkdQeEV6MXRRdEE9PSIsInZhbHVlIjoidkxxRWVBQWJWU3EzL0M5ckMxc2N4a1doTEw5a1BYNkNIZ0JyNjNSWGppVm1HeURpS0NaMytGWFNyaWx3WC9KSXdwVVN3RG1wS3BYT0wreXU1NU14dHBNQjkwdzFWZHhzM1NiZUVHcHNiYW5mR1ZKdm5OTTQrMWpsdUdUQXNCUEsiLCJtYWMiOiIzZGIyMzAxYWU4ZjgwMmZjNTcyMTVhOTQ4NTQyN2FlMDQxY2NlYmU5OTZmMjRlMjg1MDg0NmRmYWNlMTI5ZGZmIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVkbWdESnRtMFVaU0VhRU1vRXdsMXc9PSIsInZhbHVlIjoiS1FwSURpZlVqUDluWFJmYi9BZytyWUhzUmFudC9BUDNIaFdSYVpXMEpBUXhteTlSOFc2WGtVL2JVUzlkSElwMDZza0xmMUVEVXpGcEl2dytuSDh4UytjaTl4Mll6Q1pNWFBNWjhsMGpoQXV2Rmg1VXE0R1p3M2xVTFdhTkU4YU8iLCJtYWMiOiI4OTgzZGViYzRjYzU2ZDRlMTNiNzJlOTc3MjA0NGE5MmRkMTRkNDRhZWRiZjQyZjE1YjdjM2MzMGNhZDRlOGQ4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjRhMkpiTnBjbEJQR0lZWmtIb044U3c9PSIsInZhbHVlIjoiQU92bHZSYTdxRUZqOVJQbWYwdEd0cy8zSEtuNElxcWZDUlFTSW5RbGRiQXpudjNuYS80S1pSdVgxS2czdll6VXZDZXIvWUVMVHdSNlJSWTExRlJwSjdwZzYxQW9nV3hjNUxpQ1BnTFBNUmdma2dWODZMMkNXSWQ2SE1Vc3RmYVUiLCJtYWMiOiI3ZTc0YmU4NjhmNWY3Y2UwYmNhZTAyYWUzOGViMzc3NmMyZWUwYjAwZTZhYTcyYmY2OWVlMDc0Yjg2YTVhZmRjIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhmNUsxQWdpZzhvb21WVGtCL2lRUVE9PSIsInZhbHVlIjoiZWw3NGFXSEZSTHRJbUtGcTFRN3lnd1FXMHRzdEkzYmtYTWxEYWlqaW1DMFdHTmNGWUx1RzVOd0p3SzhxSmJVQndyU09Qa2xkb0NVY0dXblhqTVZpd083SVdjN0hJVEdWQ2xMS2w5Y1B3bTM1NDZnU0dGRm04N3lRUU16b01xMGciLCJtYWMiOiJjY2ZkY2I2YjhiNDA0N2I4ZjliYWZhNmE4ZDNkZTk5YzNkOWI2ODEzNGFmZjgwZGU2ZmU2ZmJiMDU4ZTEwMzVkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImtVZnYrblozUW5tTzFqbmk1akI1TWc9PSIsInZhbHVlIjoibElPbTU4RUJ3azF3MytpTytWR0NtZDBPVHVrQ2xoR3pIbzlwNnBSblpYaHJxWTZGRFo3elRMQ1BTM2c2Ulh4RTBldjgyUDJtb2ljWnBPalRWQWVmUFNna3BaM0doWHhyRWRWcmNUaFJ4RUZpSFRRY0c1N1RFd1Z0VDRkUjEvYk8iLCJtYWMiOiJjNDJiZTBkMjVhYTkyYmUyZTNmZDMyNTNjZDA4MmY4NTMzZjlkZmI5NTlmZmQ3MTMwNmExMjBiM2QyZGQwNmQxIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjF3d3JVaWVjbjVHOTRDbXJyZXYzV1E9PSIsInZhbHVlIjoiVU5xRlRpUWVyanNxVThmbGlJWmtmOTJpcVNvc3djMkVFekNQVjl3bGsxU0NMZmF6MXhwZXBzR0hrVVlnZVJhc0d1UStncTJKSnB2TEtETlpQci9pUzJsbURCbGR4SzRqNENqTXZ4MnY1MGZJU1hZWTN5a0V1NENxTkdpcjZBaHAiLCJtYWMiOiIyNTNkNTI4MDliYjQ2OTQ0ZDRmMzg5NGZiNWMzMTdiMDU5MTkwZTViMzI5ZjE1NmZkZDhjMDllMTVkNzkzY2JkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imo0MVhaVW91Qy83UVo0U2Z1amFHeUE9PSIsInZhbHVlIjoiajJqTDd3M3FMTXEzbXVGem5rRXhjdkpKS3ZSVjNkMFVSRzYyeWxHWFdiZ1FHZFVYOTEvSXA4WGU3WUMwUUQwYWdaVTkvYm9FV2pRQnd2YjlIOXdXbUZERjRkdjRpSlZ1ejhqa1hZZDQwUzFqVUxSQkZHcUh4ZXN0Q3poQUQ5ejMiLCJtYWMiOiI5ZmU5ZDE0ZjRiYTc4MWI5NjAyN2JiZTRlMjNiZTM0MzYyOTkzYzcyNjA4M2M4YTIxNjJlYjBiN2RhYTZkMGQzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InBuMjNRZGJwaUZudmdCejNEcldiS1E9PSIsInZhbHVlIjoiV2JodXVXR2J5T25KOFY3NlVobGQzZCtUc25IOFZ5YlA0MlVhRERvMnQrbFFlTnZ0QmQ2ZDAxejZQZXl5WDRUNE5iVFh3dzQ1Vjk4VDBPRHBLcHdsKzd2RFlqNWZvbDBXdVphczFibmduQ3lzREo5OGRnZG1IZlVVRG1HdW9qSkMiLCJtYWMiOiIxZTYxZGMzNWMxNDAyZGJlMDY1MjQyNWZlNjYwZmZlMTdlZmMwODlhYWFjODcyYjM1ZDYyZDE2ZGQ0MTc2ODhjIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkhxaXZNSURTa28wa2daUTdQbDlOQUE9PSIsInZhbHVlIjoidHV3SEE1SHQ1TllwRmZYMWYzTzczWFFveVlFeEw4Y0dUNG1JbVJ5U0RMamNFNFVaRnA4bkNDZTJZQ2hyVU43SHZMTk1OdE8zc2F3VDVmdm5mdFJBeFFqcUluekJud3FwbmlsQkxDVUprc2dOaXlOM2VNeUFPaENQVlJUMDZEblUiLCJtYWMiOiJiNjBiMjFjMTk0Mzc0NDczYTBmMTg1NWE5NDJmNTljYWUzZWVkNWYxYzlkZjgyNzc1NTBlZTNlODZiYjBjY2M1IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjdRVXhneW9ZeFhyZUpuMGZ3VmpOU3c9PSIsInZhbHVlIjoieVh4MUs2V0YySURSbVNGSmowZXNMR2hOL1YvY3FnaHgySkJubGNWYTJ3TWkxdEdTeTVQeG9DRER1ZGJhSFA0a3lMdlA0dVhwenF4cUExU3RMN1hOZTdmcHl0Q2pHa01Sb1p1SnBjeHQyN1pVYUZIaWxNNVZ6KzV4TDUybHEvaSsiLCJtYWMiOiIyMmE5OTBkMzlhZmJlMjJlNzYzNDEzZTRlYTBiNGNlMTBlYmU3OWUwNDcyNmEwNjVjOWNjODY1M2ZkZDNiYzgwIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkxLZVFwd0h0U3VvcGlhWUFVVUUyTXc9PSIsInZhbHVlIjoiOHYzeW4vSWhXcnY5TXN1WkJoYlM2SGN2NHI3cXJQN2hjbUlhenBhd2NyekxLWjlPK3FrcVYrTlViT3o5Y0h6RG5uM0o5OHF3R09LdUtUQUVoMWN6QzdHbkZ3RFN3S3Nsa295MkkvVzFoZy9QRllTMXQ3ZTdhcllYQnc5a3BqRUsiLCJtYWMiOiI0YzlmOTdmNWE0YTJjMjQ1ZTdhNmIyNzJiNDQ1ZmFmMTZmM2ZiMzMyYjk0OWU0N2EzZThjMmI2ODYwNTRjMzg3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkYwQ1FCek0rWERDWUovNVJaZENWUkE9PSIsInZhbHVlIjoiMXk0ckNFVTFvZisrRzN5R3VIdDZxMVpzcVB6L3lETUoxNW54SDM0SlI0SjRINmtOdlFWUTFtWkd0cFpidHFGZGlYZDlKOWoyK3U5NXQ4Mk9yZkZ2TnN6WmNuMkFPUHpPNTBKU1ExSkJCZUFPVnd2V00rWHYxWjN5VENwSkxFczUiLCJtYWMiOiI5ZjllMDY2ODhhZGVkNjk1ZjUxOTQ0OTE1YThjYjVhZTEwNTU4NTIyOTNmYjllNTUyNjIwZmU2NTAwYWE3ZTQzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp2K3lGb2czdE12T0hOMGd3WE1XaHc9PSIsInZhbHVlIjoiMGFHNkJFNmN2eVhleE9KQlNXZnNSNUJDdmVlcy9JQklRd0Z3eVBseUxYNkdWa1hKVHFYWnlzVGdiNlYwaTQyWmpTK3BSbWkwVjIwOG5hRHlUc0tXN2lldS9Gb3lrOWpoOU16Z3g3dmhLZmN5STFrMUVHajR1V25MeFhGVkczRDgiLCJtYWMiOiJjMjJlNzY2Y2E1MWJmZmU5YmE1MGEwYmE0YzEzM2I1YjU0NjA0MDQyNjdiN2I1NTVmNGRhZDRhMmZiN2I1ZjNhIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVqL1pKcDlJeG51MExUdTZSQWhkemc9PSIsInZhbHVlIjoiYVNtbCt0bHc5ei9oWmJGK3VGUm53ZTNpZGNNUG9yS2ZKSjV1Y0ppNmNQZ2J3ay9FcThWdzNZbDVIY0J1Ny9lemxMUjdYUXNQSTR3NFh1K1lGUkVEU25vYjA1MzY5ekp5dTlxU1ZISkRuRXlqVEN2OHRSNXB6VVpNOHk4dVpPNnQiLCJtYWMiOiJlMWYzZWY3Y2RhMTFlYTdkNzViNzAwMzI0OTQ3OGRiMWYyZGNhZWNhZWY0MTQ0ZjgwMzEwOThhY2E3YWI0Njk4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp0YW95YVV3REw5SDJJREwrcGVQenc9PSIsInZhbHVlIjoieE1oSUltNGYvTVI5WGFVbG5pNU9mcTFrd0FnQVVQb0NvRFBaWDg5NTBCUWI5WnFtOFp6OTRtU2F2bUFwOGxjaENlbWFyOVQzdEQ4WWcvbXFTaE1jL3VwdS9QRjhKRlBlVG41Q3QwV3dGY2NIRlROeXVJQTRxZnM2R1daU1Y2cDYiLCJtYWMiOiIxNzg0NjZkNWQ1ZDEyZDVkNzM5NTdkMDNkYTY2MDgyYzdmOTU2NzIwMTlmNGIzMWEyZjVmZjI0YTE3YzQ5NDU3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InJKU05Kb3BSOFpIdTVNMTJBSys1NkE9PSIsInZhbHVlIjoiN045S29tTjdLejRwNlNCcUdFK0crV3NsT25hSnJmbXZyTjZabWZYanBmWFF6M2dzVTRld0M2M3RsSjk4N3ZPa2doZTRPOVA2WXVwalRnMGxxUDQzdG8wSlZwTnZna3ZaWkkyc2tNVWJMV3NZVWFFWDJRRGV0SDV5VlUxWGZPVWciLCJtYWMiOiJkNWM3ZGIyY2QwY2M0OWVlNzQwYTUwZTQxY2ZhYjg3M2FmNzYxMjcyMTdlMWJiYjM3ZDhjZGFiMjNlM2I5MzBiIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Im56NnlmZWJ5M2Ruc1JGOTdXK05zTlE9PSIsInZhbHVlIjoiUmFjZm1tQWp3ZEF1OC80UWxmWkY2TnBqTWZwR0xsRU10ZldQRnFRSHFjMjMwb2J4R1NLSHEwUzZubFBSYXM2OE9xSmZQbVN5RlpsQ0RINnNMeDU3T2Ric1loUzUrVTVzS1dtMzdUSHlNN3NuL0xZckRWMmhpZEI0cThRa00zenoiLCJtYWMiOiIxNDI0ZDM3NzIxMTA4ZGJjYjE2MTc5MWIyYmFiNTA2MjM0NDE2YTg4MTBhYTY5Y2I0ZmZlYzI1OWNjMTZmOGQ4IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6ImZFeHZYY0VSSmd1OTNmL0pYclhQMFE9PSIsInZhbHVlIjoieVQrdFhMd1pyRStZaUlodE50UXdjZHZkT3RZTGtRNjEwNVJ4NmRCck95UmFQVmlLM2o4eWpQQXV3dURQTzdaWHptRUgzQnBTUDFHNHdxZDM2WVZEaG5Rb1ZPdjFZM1J3S3ZCTXM2TnIvVnFtRUlFUGhXV1kyMUxkZUswNjFhbVYiLCJtYWMiOiJhZjNiNGFiYWEzZDI3NDMyNTJjZGU4YTg3YmNkMjY1MjIyZjQ2ZGEwY2U0ZGQ1ZTE3NTllYzkwNTMxNTM4OGQ5IiwidGFnIjoiIn0%3D",
-          "enabled": true
-        }
-      ],
-      "body": {
-        "type": "none"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "inheritAuth": true
-    },
-    "response": {
-      "status": 200,
-      "statusText": "OK",
-      "headers": {
-        "cache-control": "no-cache, private",
-        "connection": "close",
-        "content-type": "application/json",
-        "date": "Sat, 24 Oct 2026 10:23:16 GMT",
-        "host": "localhost:8001",
-        "set-cookie": "laravel-session=eyJpdiI6IjlIa1RXTTVFclVqWFc4WlNRdG5mTVE9PSIsInZhbHVlIjoiNndiMEpRS1liNkZjNFFuZmk3Zk1oU210bHB6cnhITDg3UStONmdDdnV0K3hRNGE4OHFvVVBpeGJWQWtCQ0FJb2R1WnpweTYzMGdmS3pCeDVuSzJlT3MxQ1o5V3AxRVNRUm1CanYrMStqbTNBRkc3dCsyaHZPdzZ2U1JWMzdIRS8iLCJtYWMiOiI4NWZjMzFlZTdmZDQ2Y2ExNzcyMDJjZGE3MGYxN2QwNmQyZjU3OWIyYWNlNjBlOWE4YTk0YzJiOTI0NTVkNjU4IiwidGFnIjoiIn0%3D; expires=Sat, 24 Oct 2026 12:23:16 GMT; Max-Age=7200; path=/; httponly; samesite=lax",
-        "x-powered-by": "PHP/8.4.5"
-      },
-      "body": "[{\"id\":3001,\"match\":\"Manchester United vs Newcastle\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3002,\"match\":\"Liverpool vs Manchester City\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3003,\"match\":\"Arsenal vs Tottenham\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3004,\"match\":\"Chelsea vs Brighton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3005,\"match\":\"Aston Villa vs Brentford\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3006,\"match\":\"Fulham vs Everton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3007,\"match\":\"West Ham vs Crystal Palace\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3008,\"match\":\"Leicester vs Wolves\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3009,\"match\":\"Southampton vs Bournemouth\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3010,\"match\":\"Ipswich vs Nottingham Forest\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4001,\"match\":\"Barcelona vs Real Madrid\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4002,\"match\":\"Atletico Madrid vs Sevilla\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4003,\"match\":\"Valencia vs Villarreal\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4004,\"match\":\"Athletic Club vs Real Betis\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4005,\"match\":\"Real Sociedad vs Celta Vigo\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4006,\"match\":\"Espanyol vs Getafe\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4007,\"match\":\"Girona vs Leganes\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4008,\"match\":\"Osasuna vs Rayo Vallecano\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4009,\"match\":\"Mallorca vs Alaves\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4010,\"match\":\"Valladolid vs Almeria\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}}]",
-      "time": 1350,
-      "size": 2633,
-      "cookies": [
-        {
-          "name": "XSRF-TOKEN",
-          "value": "eyJpdiI6ImhwOVkxY3NId1hHOHVvWWRTLzdkNWc9PSIsInZhbHVlIjoiVWxRSWlldG1FeHlJT0F4S2orMjJza3I5YkxKcHNtcFRQUVJaV0ZSN0xLSDFqMzdsRzF6QVJHSW5kZUZocWFMb2h4MVJuL2hBcjNWQWVNZ3RySW5yRDBGQXFpaWhmY0RhMmpISGJqVXY0TkZNWjVhblZPVGVvaFJFRFZLQTkvSUUiLCJtYWMiOiJlZTU5ZjU5MDc0Yjg2NDdjMzBhZGQyOTE2NjIzOGFkYzJkOTA4ZDdjMGEzOTc1YTMzMmRlODcyMjdkZjU0Mzg1IiwidGFnIjoiIn0%3D",
-          "domain": "localhost",
-          "path": "/",
-          "expires": "2026-10-24T12:23:16.631Z",
-          "httpOnly": false,
-          "secure": false,
-          "sameSite": "Lax",
-          "createdAt": "2026-10-24T10:23:16.631Z"
-        },
-        {
-          "name": "laravel-session",
-          "value": "eyJpdiI6IjlIa1RXTTVFclVqWFc4WlNRdG5mTVE9PSIsInZhbHVlIjoiNndiMEpRS1liNkZjNFFuZmk3Zk1oU210bHB6cnhITDg3UStONmdDdnV0K3hRNGE4OHFvVVBpeGJWQWtCQ0FJb2R1WnpweTYzMGdmS3pCeDVuSzJlT3MxQ1o5V3AxRVNRUm1CanYrMStqbTNBRkc3dCsyaHZPdzZ2U1JWMzdIRS8iLCJtYWMiOiI4NWZjMzFlZTdmZDQ2Y2ExNzcyMDJjZGE3MGYxN2QwNmQyZjU3OWIyYWNlNjBlOWE4YTk0YzJiOTI0NTVkNjU4IiwidGFnIjoiIn0%3D",
-          "domain": "localhost",
-          "path": "/",
-          "expires": "2026-10-24T12:23:16.631Z",
-          "httpOnly": true,
-          "secure": false,
-          "sameSite": "Lax",
-          "createdAt": "2026-10-24T10:23:16.631Z"
-        }
-      ]
-    }
-  },
-  {
-    "id": "1792853954638",
-    "timestamp": 1792853954638,
-    "request": {
-      "id": "1792853953098",
-      "name": "New Request",
-      "method": "POST",
-      "url": "http://localhost:8001/dev/mock-api/drowning/reset",
-      "params": [],
-      "headers": [
-        {
-          "key": "Accept",
-          "value": "application/json",
-          "enabled": true
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/json",
-          "enabled": true
-        },
-        {
-          "key": "Cookie",
-          "value": "XSRF-TOKEN=eyJpdiI6IlJCZEdzZElabUFnanlMNTZCc0RrVFE9PSIsInZhbHVlIjoiT3dHR1BmSmFFVk85QytwVEVvQU40dXFJVHc2MVZySHNBR3pGRVVVWVMyaVcwQmwrVkhvNjRnSThkdUt6M0wvbXcyL3VnU25PVC9oMTNYUkE3STF0SWwyUnpGbzM5b2NjbUxSRXd6bEpkVjdvUHgrc285S2lRZHpXTGZtczF1d2MiLCJtYWMiOiIyNTUwOWU0YjFmNjJmMmQ4NThlYWI2NDg3YmVhNzE5YmI3Y2U3MGUxNTMyMTcxY2E3OTY1ZTA0OTM5Yjg3MGNkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IklGakI1L0lRK25QOUZUdHMyM1UvdWc9PSIsInZhbHVlIjoiTUhVZHhXV0pQZ21ja0dBODJXaHYybGdoMTkzNHJuMnQva3AxSCtzdTkvUUlNckpoNWFUSFp2dTBkOEx1YzJubTNobzR0N0p0WVVFK0Z4ai9sL2VocnBXSmJ6MUVKckR0WE1PYjMzV21mZitzQ2hSK1RHQVB5STNDMWVBdDFRZmgiLCJtYWMiOiJlNDQ0OThmMDgzZWVkMjIxYWExN2VhYzYxMGYwYzk0NWVjNGI3MzYzYmFhZjI2Y2UzODQxOWMxYmIwODRkYjljIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InpaM0c0K2dlcXhCdytSUE9DTmdqS2c9PSIsInZhbHVlIjoiUWZWNHUva2lIU2FSVTFiZFExcS9lUlJlVFdmeE0wNFFPWGd0WTNaS3pGa1dhODVacCtZVDlyZk5WVjlDS3NBYThud1VZTWlYQUVZTWg0SlJZNGQzdytKUjFiNVRRVk9rTE9vU3ZETWlMblhiZEdscFpxZE51bTVEOHEraGRGcWMiLCJtYWMiOiJmMDMwMDA5NDU3NTA3MGU0NDhjMGM4M2U0YTE1ODZmMGZkMDc5MDkyNWVhMWQ1OGEwMDc5OTgzM2I5OWY5MzA2IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlNoRStwN1E1Q1JUOVVyaytENFR5emc9PSIsInZhbHVlIjoiNmtlQ3BYYzhRcEQyVlY2UEdUK01nU2NjeGxhZVlOeWdPclY2ZlVtSU5TaDdKL1h5dEhMY3Bva0xrOS9UOGV2UUFyRFNFNnhqQmYxaTZJL0dNUzdjRktRaHV1MUhROFUrbE1ybGdFTGp6L3B5T1FLNGVkRHN0S0w4SmRnSXRlTy8iLCJtYWMiOiJiMzM4MWU1N2RjNGE3ZjM5YmIxMDBiNDU4OTc3ZjczMWFhNGMxYmQxYWQ1YTliNTNlNjBmOGQ3OWE3NzY2MDZmIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InhUbmFjUTdwdmwxeFZLMElIWDJtRUE9PSIsInZhbHVlIjoiN1hSbVpNTUZVWHFJYlRUK1lzN2FGOFFJYXZ5aEtLbXEvY2sxTHNCdWJ1b3psUitOVUV0akJtVHZXdVk5cFVSRlhNVVFDNGU1RFlsWDVVeWd2NXNCd0hteG1MQ1o1dm55elFPd2FhS2MwSml5VnFBUTA4RFhmUENkS1Nld3IwVnIiLCJtYWMiOiJhNjM1NGM3YTM0ZjRiNWNhYzliZTg2OGJlMDM4ZWIxZThiNTIzNTBhOTgzNmNmZjkyNmIzZjQ5ZDlmMzhkN2EzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ind0RHhUWUFTR3Z6eTdYc0tTM1Q4alE9PSIsInZhbHVlIjoiNlowQVM2MEFQR21FMUpGOUwzZkR4VTJ2TVRqVkI5YURGeHFmQ085N2trQWt6ZmN6L1VKQWx4bVFjUXVtVHREMHRhYWNmQ0RHZnRBc0Y2U0JPN2IxNDQ5UFhKMjRVMmxSRzlTQVhleFFaem1DenZpWkUvZnhQMHhoR3VPOG0yUXkiLCJtYWMiOiIyMGViYzJhMGEzOWI3OWQ3MzgzZjM4N2M1MjFhYzY5NjlkNGU5MGRiMzNmN2ZiZDNjOTg0ZjRlZTExNWVmYjUzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InY1M2ZuakFwWDVoYk1xRkIvSkpuVnc9PSIsInZhbHVlIjoiUEZ0U3RxRDJQcWhIaWJaaklxTmszUnN6bk9QcFR0ellEQzZTMVN1cWtnd01kbnVoNEFDRjUzVlZ6Q2Jkc1RXakNpVk5lVy9BSU4zQm94VlVCM0RQODNmL0JIK05yNmZrQXNYcit2VVJQWERmWTh6emwyODRTc3BqZjZLdy9KUE8iLCJtYWMiOiIzZmUyNGUzMzU3ODMxYjAyZjQwZGQ2MTQ5OWFmNzU0MzIxODY1MjYxMWViNTgzZmMxMmI3OGFiNGI1MDVmMWFlIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhIMjAxalpaNG5RWHNJMTA4aENZMVE9PSIsInZhbHVlIjoiQVM0S2dtS1U0NWhuMWdBc2FmUnJpWlJZVUx3RUxJWWtNbmpDNndvUlBWN21WSUZ1NllqVzhac2FjR0g0eXU5WTBJN2J0NDlaN1FPL2FRTlFoY3JzYUNLUkU5bXFkUGp3U0tNQWt1MnYwNnd3Z2o5b2VVZE1DUGNlNXlRSVY1YmIiLCJtYWMiOiIzMThhYTliMGEzNWJmNDQwOTA4MDUyYTRiNTVmNGE4OGNlYThjOWM5YzEyMmQyNGM4ZTM1MmUyZDhkOWI4YWU1IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkF5eGxyV3hTZTJtQkdQeEV6MXRRdEE9PSIsInZhbHVlIjoidkxxRWVBQWJWU3EzL0M5ckMxc2N4a1doTEw5a1BYNkNIZ0JyNjNSWGppVm1HeURpS0NaMytGWFNyaWx3WC9KSXdwVVN3RG1wS3BYT0wreXU1NU14dHBNQjkwdzFWZHhzM1NiZUVHcHNiYW5mR1ZKdm5OTTQrMWpsdUdUQXNCUEsiLCJtYWMiOiIzZGIyMzAxYWU4ZjgwMmZjNTcyMTVhOTQ4NTQyN2FlMDQxY2NlYmU5OTZmMjRlMjg1MDg0NmRmYWNlMTI5ZGZmIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVkbWdESnRtMFVaU0VhRU1vRXdsMXc9PSIsInZhbHVlIjoiS1FwSURpZlVqUDluWFJmYi9BZytyWUhzUmFudC9BUDNIaFdSYVpXMEpBUXhteTlSOFc2WGtVL2JVUzlkSElwMDZza0xmMUVEVXpGcEl2dytuSDh4UytjaTl4Mll6Q1pNWFBNWjhsMGpoQXV2Rmg1VXE0R1p3M2xVTFdhTkU4YU8iLCJtYWMiOiI4OTgzZGViYzRjYzU2ZDRlMTNiNzJlOTc3MjA0NGE5MmRkMTRkNDRhZWRiZjQyZjE1YjdjM2MzMGNhZDRlOGQ4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjRhMkpiTnBjbEJQR0lZWmtIb044U3c9PSIsInZhbHVlIjoiQU92bHZSYTdxRUZqOVJQbWYwdEd0cy8zSEtuNElxcWZDUlFTSW5RbGRiQXpudjNuYS80S1pSdVgxS2czdll6VXZDZXIvWUVMVHdSNlJSWTExRlJwSjdwZzYxQW9nV3hjNUxpQ1BnTFBNUmdma2dWODZMMkNXSWQ2SE1Vc3RmYVUiLCJtYWMiOiI3ZTc0YmU4NjhmNWY3Y2UwYmNhZTAyYWUzOGViMzc3NmMyZWUwYjAwZTZhYTcyYmY2OWVlMDc0Yjg2YTVhZmRjIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhmNUsxQWdpZzhvb21WVGtCL2lRUVE9PSIsInZhbHVlIjoiZWw3NGFXSEZSTHRJbUtGcTFRN3lnd1FXMHRzdEkzYmtYTWxEYWlqaW1DMFdHTmNGWUx1RzVOd0p3SzhxSmJVQndyU09Qa2xkb0NVY0dXblhqTVZpd083SVdjN0hJVEdWQ2xMS2w5Y1B3bTM1NDZnU0dGRm04N3lRUU16b01xMGciLCJtYWMiOiJjY2ZkY2I2YjhiNDA0N2I4ZjliYWZhNmE4ZDNkZTk5YzNkOWI2ODEzNGFmZjgwZGU2ZmU2ZmJiMDU4ZTEwMzVkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImtVZnYrblozUW5tTzFqbmk1akI1TWc9PSIsInZhbHVlIjoibElPbTU4RUJ3azF3MytpTytWR0NtZDBPVHVrQ2xoR3pIbzlwNnBSblpYaHJxWTZGRFo3elRMQ1BTM2c2Ulh4RTBldjgyUDJtb2ljWnBPalRWQWVmUFNna3BaM0doWHhyRWRWcmNUaFJ4RUZpSFRRY0c1N1RFd1Z0VDRkUjEvYk8iLCJtYWMiOiJjNDJiZTBkMjVhYTkyYmUyZTNmZDMyNTNjZDA4MmY4NTMzZjlkZmI5NTlmZmQ3MTMwNmExMjBiM2QyZGQwNmQxIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjF3d3JVaWVjbjVHOTRDbXJyZXYzV1E9PSIsInZhbHVlIjoiVU5xRlRpUWVyanNxVThmbGlJWmtmOTJpcVNvc3djMkVFekNQVjl3bGsxU0NMZmF6MXhwZXBzR0hrVVlnZVJhc0d1UStncTJKSnB2TEtETlpQci9pUzJsbURCbGR4SzRqNENqTXZ4MnY1MGZJU1hZWTN5a0V1NENxTkdpcjZBaHAiLCJtYWMiOiIyNTNkNTI4MDliYjQ2OTQ0ZDRmMzg5NGZiNWMzMTdiMDU5MTkwZTViMzI5ZjE1NmZkZDhjMDllMTVkNzkzY2JkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imo0MVhaVW91Qy83UVo0U2Z1amFHeUE9PSIsInZhbHVlIjoiajJqTDd3M3FMTXEzbXVGem5rRXhjdkpKS3ZSVjNkMFVSRzYyeWxHWFdiZ1FHZFVYOTEvSXA4WGU3WUMwUUQwYWdaVTkvYm9FV2pRQnd2YjlIOXdXbUZERjRkdjRpSlZ1ejhqa1hZZDQwUzFqVUxSQkZHcUh4ZXN0Q3poQUQ5ejMiLCJtYWMiOiI5ZmU5ZDE0ZjRiYTc4MWI5NjAyN2JiZTRlMjNiZTM0MzYyOTkzYzcyNjA4M2M4YTIxNjJlYjBiN2RhYTZkMGQzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InBuMjNRZGJwaUZudmdCejNEcldiS1E9PSIsInZhbHVlIjoiV2JodXVXR2J5T25KOFY3NlVobGQzZCtUc25IOFZ5YlA0MlVhRERvMnQrbFFlTnZ0QmQ2ZDAxejZQZXl5WDRUNE5iVFh3dzQ1Vjk4VDBPRHBLcHdsKzd2RFlqNWZvbDBXdVphczFibmduQ3lzREo5OGRnZG1IZlVVRG1HdW9qSkMiLCJtYWMiOiIxZTYxZGMzNWMxNDAyZGJlMDY1MjQyNWZlNjYwZmZlMTdlZmMwODlhYWFjODcyYjM1ZDYyZDE2ZGQ0MTc2ODhjIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkhxaXZNSURTa28wa2daUTdQbDlOQUE9PSIsInZhbHVlIjoidHV3SEE1SHQ1TllwRmZYMWYzTzczWFFveVlFeEw4Y0dUNG1JbVJ5U0RMamNFNFVaRnA4bkNDZTJZQ2hyVU43SHZMTk1OdE8zc2F3VDVmdm5mdFJBeFFqcUluekJud3FwbmlsQkxDVUprc2dOaXlOM2VNeUFPaENQVlJUMDZEblUiLCJtYWMiOiJiNjBiMjFjMTk0Mzc0NDczYTBmMTg1NWE5NDJmNTljYWUzZWVkNWYxYzlkZjgyNzc1NTBlZTNlODZiYjBjY2M1IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjdRVXhneW9ZeFhyZUpuMGZ3VmpOU3c9PSIsInZhbHVlIjoieVh4MUs2V0YySURSbVNGSmowZXNMR2hOL1YvY3FnaHgySkJubGNWYTJ3TWkxdEdTeTVQeG9DRER1ZGJhSFA0a3lMdlA0dVhwenF4cUExU3RMN1hOZTdmcHl0Q2pHa01Sb1p1SnBjeHQyN1pVYUZIaWxNNVZ6KzV4TDUybHEvaSsiLCJtYWMiOiIyMmE5OTBkMzlhZmJlMjJlNzYzNDEzZTRlYTBiNGNlMTBlYmU3OWUwNDcyNmEwNjVjOWNjODY1M2ZkZDNiYzgwIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkxLZVFwd0h0U3VvcGlhWUFVVUUyTXc9PSIsInZhbHVlIjoiOHYzeW4vSWhXcnY5TXN1WkJoYlM2SGN2NHI3cXJQN2hjbUlhenBhd2NyekxLWjlPK3FrcVYrTlViT3o5Y0h6RG5uM0o5OHF3R09LdUtUQUVoMWN6QzdHbkZ3RFN3S3Nsa295MkkvVzFoZy9QRllTMXQ3ZTdhcllYQnc5a3BqRUsiLCJtYWMiOiI0YzlmOTdmNWE0YTJjMjQ1ZTdhNmIyNzJiNDQ1ZmFmMTZmM2ZiMzMyYjk0OWU0N2EzZThjMmI2ODYwNTRjMzg3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkYwQ1FCek0rWERDWUovNVJaZENWUkE9PSIsInZhbHVlIjoiMXk0ckNFVTFvZisrRzN5R3VIdDZxMVpzcVB6L3lETUoxNW54SDM0SlI0SjRINmtOdlFWUTFtWkd0cFpidHFGZGlYZDlKOWoyK3U5NXQ4Mk9yZkZ2TnN6WmNuMkFPUHpPNTBKU1ExSkJCZUFPVnd2V00rWHYxWjN5VENwSkxFczUiLCJtYWMiOiI5ZjllMDY2ODhhZGVkNjk1ZjUxOTQ0OTE1YThjYjVhZTEwNTU4NTIyOTNmYjllNTUyNjIwZmU2NTAwYWE3ZTQzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp2K3lGb2czdE12T0hOMGd3WE1XaHc9PSIsInZhbHVlIjoiMGFHNkJFNmN2eVhleE9KQlNXZnNSNUJDdmVlcy9JQklRd0Z3eVBseUxYNkdWa1hKVHFYWnlzVGdiNlYwaTQyWmpTK3BSbWkwVjIwOG5hRHlUc0tXN2lldS9Gb3lrOWpoOU16Z3g3dmhLZmN5STFrMUVHajR1V25MeFhGVkczRDgiLCJtYWMiOiJjMjJlNzY2Y2E1MWJmZmU5YmE1MGEwYmE0YzEzM2I1YjU0NjA0MDQyNjdiN2I1NTVmNGRhZDRhMmZiN2I1ZjNhIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVqL1pKcDlJeG51MExUdTZSQWhkemc9PSIsInZhbHVlIjoiYVNtbCt0bHc5ei9oWmJGK3VGUm53ZTNpZGNNUG9yS2ZKSjV1Y0ppNmNQZ2J3ay9FcThWdzNZbDVIY0J1Ny9lemxMUjdYUXNQSTR3NFh1K1lGUkVEU25vYjA1MzY5ekp5dTlxU1ZISkRuRXlqVEN2OHRSNXB6VVpNOHk4dVpPNnQiLCJtYWMiOiJlMWYzZWY3Y2RhMTFlYTdkNzViNzAwMzI0OTQ3OGRiMWYyZGNhZWNhZWY0MTQ0ZjgwMzEwOThhY2E3YWI0Njk4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp0YW95YVV3REw5SDJJREwrcGVQenc9PSIsInZhbHVlIjoieE1oSUltNGYvTVI5WGFVbG5pNU9mcTFrd0FnQVVQb0NvRFBaWDg5NTBCUWI5WnFtOFp6OTRtU2F2bUFwOGxjaENlbWFyOVQzdEQ4WWcvbXFTaE1jL3VwdS9QRjhKRlBlVG41Q3QwV3dGY2NIRlROeXVJQTRxZnM2R1daU1Y2cDYiLCJtYWMiOiIxNzg0NjZkNWQ1ZDEyZDVkNzM5NTdkMDNkYTY2MDgyYzdmOTU2NzIwMTlmNGIzMWEyZjVmZjI0YTE3YzQ5NDU3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InJKU05Kb3BSOFpIdTVNMTJBSys1NkE9PSIsInZhbHVlIjoiN045S29tTjdLejRwNlNCcUdFK0crV3NsT25hSnJmbXZyTjZabWZYanBmWFF6M2dzVTRld0M2M3RsSjk4N3ZPa2doZTRPOVA2WXVwalRnMGxxUDQzdG8wSlZwTnZna3ZaWkkyc2tNVWJMV3NZVWFFWDJRRGV0SDV5VlUxWGZPVWciLCJtYWMiOiJkNWM3ZGIyY2QwY2M0OWVlNzQwYTUwZTQxY2ZhYjg3M2FmNzYxMjcyMTdlMWJiYjM3ZDhjZGFiMjNlM2I5MzBiIiwidGFnIjoiIn0%3D",
-          "enabled": true
-        }
-      ],
-      "body": {
-        "type": "none"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "inheritAuth": true
-    },
-    "response": {
-      "status": 200,
-      "statusText": "OK",
-      "headers": {
-        "cache-control": "no-cache, private",
-        "connection": "close",
-        "content-type": "application/json",
-        "date": "Sat, 24 Oct 2026 14:59:14 GMT",
-        "host": "localhost:8001",
-        "set-cookie": "laravel-session=eyJpdiI6ImlLc1h4REZRL3RXM3RERHlOK0M3bEE9PSIsInZhbHVlIjoiaThnTUVwa3ZGbmlyODVnVmZPVzdtekE3T3A2N3ozU2h5T3lBMWZJWnoraENwOWN0SjdiNFpWZmwrV3BacFNwZmpqR2M0OTk5OVgvcldkeGdiMW5iR1lkRGowMTRxRHRmbTd5MkRPaEZhcGtDK3J0NDJFdU1ubkUyYW9wckdBQ2IiLCJtYWMiOiI1Mzk5NzkyODI3ZjU5NTcxOTBmZGNmNDBjYjkyOTY1NzkyMGU2NGM2NWI0YzQwYmQ1MzVlNmIxNTRhOWZhOWIyIiwidGFnIjoiIn0%3D; expires=Sat, 24 Oct 2026 16:59:14 GMT; Max-Age=7200; path=/; httponly; samesite=lax",
-        "x-powered-by": "PHP/8.4.5"
-      },
-      "body": "[{\"id\":3001,\"match\":\"Manchester United vs Newcastle\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3002,\"match\":\"Liverpool vs Manchester City\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3003,\"match\":\"Arsenal vs Tottenham\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3004,\"match\":\"Chelsea vs Brighton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3005,\"match\":\"Aston Villa vs Brentford\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3006,\"match\":\"Fulham vs Everton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3007,\"match\":\"West Ham vs Crystal Palace\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3008,\"match\":\"Leicester vs Wolves\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3009,\"match\":\"Southampton vs Bournemouth\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3010,\"match\":\"Ipswich vs Nottingham Forest\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4001,\"match\":\"Barcelona vs Real Madrid\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4002,\"match\":\"Atletico Madrid vs Sevilla\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4003,\"match\":\"Valencia vs Villarreal\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4004,\"match\":\"Athletic Club vs Real Betis\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4005,\"match\":\"Real Sociedad vs Celta Vigo\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4006,\"match\":\"Espanyol vs Getafe\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4007,\"match\":\"Girona vs Leganes\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4008,\"match\":\"Osasuna vs Rayo Vallecano\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4009,\"match\":\"Mallorca vs Alaves\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4010,\"match\":\"Valladolid vs Almeria\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}}]",
-      "time": 1487,
-      "size": 2633,
-      "cookies": [
-        {
-          "name": "XSRF-TOKEN",
-          "value": "eyJpdiI6Imw1RDNzc2xPU3RiZWZZSjU0RkRlVmc9PSIsInZhbHVlIjoiMUtCUzY2VTByQXhjQTNYd0xSM0tjc1UxSlQxNG1KWlV6VkIwZGM4VkxQZGR1dnprZnUwU2NFVWRhamxmbHE3UTJOeGdZOXlhWXNsTnlrSFVrTGpSMk1HWmJqYkJXdm9mYXNEUGROUnR5Wlg2MENyYk5yYWFUUUkrYjBIMVd1TzQiLCJtYWMiOiI2ZmYxZmRkYWJjZjhkZWNmNzBhMGFmYWNiZTg1NGM1ZDM3YzkxZjk4OWM2MWZhODgyMzVlZjg1NTg1NTU0N2NmIiwidGFnIjoiIn0%3D",
-          "domain": "localhost",
-          "path": "/",
-          "expires": "2026-10-24T16:59:14.617Z",
-          "httpOnly": false,
-          "secure": false,
-          "sameSite": "Lax",
-          "createdAt": "2026-10-24T14:59:14.617Z"
-        },
-        {
-          "name": "laravel-session",
-          "value": "eyJpdiI6ImlLc1h4REZRL3RXM3RERHlOK0M3bEE9PSIsInZhbHVlIjoiaThnTUVwa3ZGbmlyODVnVmZPVzdtekE3T3A2N3ozU2h5T3lBMWZJWnoraENwOWN0SjdiNFpWZmwrV3BacFNwZmpqR2M0OTk5OVgvcldkeGdiMW5iR1lkRGowMTRxRHRmbTd5MkRPaEZhcGtDK3J0NDJFdU1ubkUyYW9wckdBQ2IiLCJtYWMiOiI1Mzk5NzkyODI3ZjU5NTcxOTBmZGNmNDBjYjkyOTY1NzkyMGU2NGM2NWI0YzQwYmQ1MzVlNmIxNTRhOWZhOWIyIiwidGFnIjoiIn0%3D",
-          "domain": "localhost",
-          "path": "/",
-          "expires": "2026-10-24T16:59:14.617Z",
-          "httpOnly": true,
-          "secure": false,
-          "sameSite": "Lax",
-          "createdAt": "2026-10-24T14:59:14.617Z"
-        }
-      ]
-    }
-  },
-  {
-    "id": "1792857570308",
-    "timestamp": 1792857570308,
-    "request": {
-      "id": "1792857569007",
-      "name": "New Request",
-      "method": "POST",
-      "url": "http://localhost:8001/dev/mock-api/drowning/reset",
-      "params": [],
-      "headers": [
-        {
-          "key": "Accept",
-          "value": "application/json",
-          "enabled": true
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/json",
-          "enabled": true
-        },
-        {
-          "key": "Cookie",
-          "value": "XSRF-TOKEN=eyJpdiI6IlJCZEdzZElabUFnanlMNTZCc0RrVFE9PSIsInZhbHVlIjoiT3dHR1BmSmFFVk85QytwVEVvQU40dXFJVHc2MVZySHNBR3pGRVVVWVMyaVcwQmwrVkhvNjRnSThkdUt6M0wvbXcyL3VnU25PVC9oMTNYUkE3STF0SWwyUnpGbzM5b2NjbUxSRXd6bEpkVjdvUHgrc285S2lRZHpXTGZtczF1d2MiLCJtYWMiOiIyNTUwOWU0YjFmNjJmMmQ4NThlYWI2NDg3YmVhNzE5YmI3Y2U3MGUxNTMyMTcxY2E3OTY1ZTA0OTM5Yjg3MGNkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IklGakI1L0lRK25QOUZUdHMyM1UvdWc9PSIsInZhbHVlIjoiTUhVZHhXV0pQZ21ja0dBODJXaHYybGdoMTkzNHJuMnQva3AxSCtzdTkvUUlNckpoNWFUSFp2dTBkOEx1YzJubTNobzR0N0p0WVVFK0Z4ai9sL2VocnBXSmJ6MUVKckR0WE1PYjMzV21mZitzQ2hSK1RHQVB5STNDMWVBdDFRZmgiLCJtYWMiOiJlNDQ0OThmMDgzZWVkMjIxYWExN2VhYzYxMGYwYzk0NWVjNGI3MzYzYmFhZjI2Y2UzODQxOWMxYmIwODRkYjljIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InpaM0c0K2dlcXhCdytSUE9DTmdqS2c9PSIsInZhbHVlIjoiUWZWNHUva2lIU2FSVTFiZFExcS9lUlJlVFdmeE0wNFFPWGd0WTNaS3pGa1dhODVacCtZVDlyZk5WVjlDS3NBYThud1VZTWlYQUVZTWg0SlJZNGQzdytKUjFiNVRRVk9rTE9vU3ZETWlMblhiZEdscFpxZE51bTVEOHEraGRGcWMiLCJtYWMiOiJmMDMwMDA5NDU3NTA3MGU0NDhjMGM4M2U0YTE1ODZmMGZkMDc5MDkyNWVhMWQ1OGEwMDc5OTgzM2I5OWY5MzA2IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlNoRStwN1E1Q1JUOVVyaytENFR5emc9PSIsInZhbHVlIjoiNmtlQ3BYYzhRcEQyVlY2UEdUK01nU2NjeGxhZVlOeWdPclY2ZlVtSU5TaDdKL1h5dEhMY3Bva0xrOS9UOGV2UUFyRFNFNnhqQmYxaTZJL0dNUzdjRktRaHV1MUhROFUrbE1ybGdFTGp6L3B5T1FLNGVkRHN0S0w4SmRnSXRlTy8iLCJtYWMiOiJiMzM4MWU1N2RjNGE3ZjM5YmIxMDBiNDU4OTc3ZjczMWFhNGMxYmQxYWQ1YTliNTNlNjBmOGQ3OWE3NzY2MDZmIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InhUbmFjUTdwdmwxeFZLMElIWDJtRUE9PSIsInZhbHVlIjoiN1hSbVpNTUZVWHFJYlRUK1lzN2FGOFFJYXZ5aEtLbXEvY2sxTHNCdWJ1b3psUitOVUV0akJtVHZXdVk5cFVSRlhNVVFDNGU1RFlsWDVVeWd2NXNCd0hteG1MQ1o1dm55elFPd2FhS2MwSml5VnFBUTA4RFhmUENkS1Nld3IwVnIiLCJtYWMiOiJhNjM1NGM3YTM0ZjRiNWNhYzliZTg2OGJlMDM4ZWIxZThiNTIzNTBhOTgzNmNmZjkyNmIzZjQ5ZDlmMzhkN2EzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ind0RHhUWUFTR3Z6eTdYc0tTM1Q4alE9PSIsInZhbHVlIjoiNlowQVM2MEFQR21FMUpGOUwzZkR4VTJ2TVRqVkI5YURGeHFmQ085N2trQWt6ZmN6L1VKQWx4bVFjUXVtVHREMHRhYWNmQ0RHZnRBc0Y2U0JPN2IxNDQ5UFhKMjRVMmxSRzlTQVhleFFaem1DenZpWkUvZnhQMHhoR3VPOG0yUXkiLCJtYWMiOiIyMGViYzJhMGEzOWI3OWQ3MzgzZjM4N2M1MjFhYzY5NjlkNGU5MGRiMzNmN2ZiZDNjOTg0ZjRlZTExNWVmYjUzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InY1M2ZuakFwWDVoYk1xRkIvSkpuVnc9PSIsInZhbHVlIjoiUEZ0U3RxRDJQcWhIaWJaaklxTmszUnN6bk9QcFR0ellEQzZTMVN1cWtnd01kbnVoNEFDRjUzVlZ6Q2Jkc1RXakNpVk5lVy9BSU4zQm94VlVCM0RQODNmL0JIK05yNmZrQXNYcit2VVJQWERmWTh6emwyODRTc3BqZjZLdy9KUE8iLCJtYWMiOiIzZmUyNGUzMzU3ODMxYjAyZjQwZGQ2MTQ5OWFmNzU0MzIxODY1MjYxMWViNTgzZmMxMmI3OGFiNGI1MDVmMWFlIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhIMjAxalpaNG5RWHNJMTA4aENZMVE9PSIsInZhbHVlIjoiQVM0S2dtS1U0NWhuMWdBc2FmUnJpWlJZVUx3RUxJWWtNbmpDNndvUlBWN21WSUZ1NllqVzhac2FjR0g0eXU5WTBJN2J0NDlaN1FPL2FRTlFoY3JzYUNLUkU5bXFkUGp3U0tNQWt1MnYwNnd3Z2o5b2VVZE1DUGNlNXlRSVY1YmIiLCJtYWMiOiIzMThhYTliMGEzNWJmNDQwOTA4MDUyYTRiNTVmNGE4OGNlYThjOWM5YzEyMmQyNGM4ZTM1MmUyZDhkOWI4YWU1IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkF5eGxyV3hTZTJtQkdQeEV6MXRRdEE9PSIsInZhbHVlIjoidkxxRWVBQWJWU3EzL0M5ckMxc2N4a1doTEw5a1BYNkNIZ0JyNjNSWGppVm1HeURpS0NaMytGWFNyaWx3WC9KSXdwVVN3RG1wS3BYT0wreXU1NU14dHBNQjkwdzFWZHhzM1NiZUVHcHNiYW5mR1ZKdm5OTTQrMWpsdUdUQXNCUEsiLCJtYWMiOiIzZGIyMzAxYWU4ZjgwMmZjNTcyMTVhOTQ4NTQyN2FlMDQxY2NlYmU5OTZmMjRlMjg1MDg0NmRmYWNlMTI5ZGZmIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVkbWdESnRtMFVaU0VhRU1vRXdsMXc9PSIsInZhbHVlIjoiS1FwSURpZlVqUDluWFJmYi9BZytyWUhzUmFudC9BUDNIaFdSYVpXMEpBUXhteTlSOFc2WGtVL2JVUzlkSElwMDZza0xmMUVEVXpGcEl2dytuSDh4UytjaTl4Mll6Q1pNWFBNWjhsMGpoQXV2Rmg1VXE0R1p3M2xVTFdhTkU4YU8iLCJtYWMiOiI4OTgzZGViYzRjYzU2ZDRlMTNiNzJlOTc3MjA0NGE5MmRkMTRkNDRhZWRiZjQyZjE1YjdjM2MzMGNhZDRlOGQ4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjRhMkpiTnBjbEJQR0lZWmtIb044U3c9PSIsInZhbHVlIjoiQU92bHZSYTdxRUZqOVJQbWYwdEd0cy8zSEtuNElxcWZDUlFTSW5RbGRiQXpudjNuYS80S1pSdVgxS2czdll6VXZDZXIvWUVMVHdSNlJSWTExRlJwSjdwZzYxQW9nV3hjNUxpQ1BnTFBNUmdma2dWODZMMkNXSWQ2SE1Vc3RmYVUiLCJtYWMiOiI3ZTc0YmU4NjhmNWY3Y2UwYmNhZTAyYWUzOGViMzc3NmMyZWUwYjAwZTZhYTcyYmY2OWVlMDc0Yjg2YTVhZmRjIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhmNUsxQWdpZzhvb21WVGtCL2lRUVE9PSIsInZhbHVlIjoiZWw3NGFXSEZSTHRJbUtGcTFRN3lnd1FXMHRzdEkzYmtYTWxEYWlqaW1DMFdHTmNGWUx1RzVOd0p3SzhxSmJVQndyU09Qa2xkb0NVY0dXblhqTVZpd083SVdjN0hJVEdWQ2xMS2w5Y1B3bTM1NDZnU0dGRm04N3lRUU16b01xMGciLCJtYWMiOiJjY2ZkY2I2YjhiNDA0N2I4ZjliYWZhNmE4ZDNkZTk5YzNkOWI2ODEzNGFmZjgwZGU2ZmU2ZmJiMDU4ZTEwMzVkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImtVZnYrblozUW5tTzFqbmk1akI1TWc9PSIsInZhbHVlIjoibElPbTU4RUJ3azF3MytpTytWR0NtZDBPVHVrQ2xoR3pIbzlwNnBSblpYaHJxWTZGRFo3elRMQ1BTM2c2Ulh4RTBldjgyUDJtb2ljWnBPalRWQWVmUFNna3BaM0doWHhyRWRWcmNUaFJ4RUZpSFRRY0c1N1RFd1Z0VDRkUjEvYk8iLCJtYWMiOiJjNDJiZTBkMjVhYTkyYmUyZTNmZDMyNTNjZDA4MmY4NTMzZjlkZmI5NTlmZmQ3MTMwNmExMjBiM2QyZGQwNmQxIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjF3d3JVaWVjbjVHOTRDbXJyZXYzV1E9PSIsInZhbHVlIjoiVU5xRlRpUWVyanNxVThmbGlJWmtmOTJpcVNvc3djMkVFekNQVjl3bGsxU0NMZmF6MXhwZXBzR0hrVVlnZVJhc0d1UStncTJKSnB2TEtETlpQci9pUzJsbURCbGR4SzRqNENqTXZ4MnY1MGZJU1hZWTN5a0V1NENxTkdpcjZBaHAiLCJtYWMiOiIyNTNkNTI4MDliYjQ2OTQ0ZDRmMzg5NGZiNWMzMTdiMDU5MTkwZTViMzI5ZjE1NmZkZDhjMDllMTVkNzkzY2JkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imo0MVhaVW91Qy83UVo0U2Z1amFHeUE9PSIsInZhbHVlIjoiajJqTDd3M3FMTXEzbXVGem5rRXhjdkpKS3ZSVjNkMFVSRzYyeWxHWFdiZ1FHZFVYOTEvSXA4WGU3WUMwUUQwYWdaVTkvYm9FV2pRQnd2YjlIOXdXbUZERjRkdjRpSlZ1ejhqa1hZZDQwUzFqVUxSQkZHcUh4ZXN0Q3poQUQ5ejMiLCJtYWMiOiI5ZmU5ZDE0ZjRiYTc4MWI5NjAyN2JiZTRlMjNiZTM0MzYyOTkzYzcyNjA4M2M4YTIxNjJlYjBiN2RhYTZkMGQzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InBuMjNRZGJwaUZudmdCejNEcldiS1E9PSIsInZhbHVlIjoiV2JodXVXR2J5T25KOFY3NlVobGQzZCtUc25IOFZ5YlA0MlVhRERvMnQrbFFlTnZ0QmQ2ZDAxejZQZXl5WDRUNE5iVFh3dzQ1Vjk4VDBPRHBLcHdsKzd2RFlqNWZvbDBXdVphczFibmduQ3lzREo5OGRnZG1IZlVVRG1HdW9qSkMiLCJtYWMiOiIxZTYxZGMzNWMxNDAyZGJlMDY1MjQyNWZlNjYwZmZlMTdlZmMwODlhYWFjODcyYjM1ZDYyZDE2ZGQ0MTc2ODhjIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkhxaXZNSURTa28wa2daUTdQbDlOQUE9PSIsInZhbHVlIjoidHV3SEE1SHQ1TllwRmZYMWYzTzczWFFveVlFeEw4Y0dUNG1JbVJ5U0RMamNFNFVaRnA4bkNDZTJZQ2hyVU43SHZMTk1OdE8zc2F3VDVmdm5mdFJBeFFqcUluekJud3FwbmlsQkxDVUprc2dOaXlOM2VNeUFPaENQVlJUMDZEblUiLCJtYWMiOiJiNjBiMjFjMTk0Mzc0NDczYTBmMTg1NWE5NDJmNTljYWUzZWVkNWYxYzlkZjgyNzc1NTBlZTNlODZiYjBjY2M1IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjdRVXhneW9ZeFhyZUpuMGZ3VmpOU3c9PSIsInZhbHVlIjoieVh4MUs2V0YySURSbVNGSmowZXNMR2hOL1YvY3FnaHgySkJubGNWYTJ3TWkxdEdTeTVQeG9DRER1ZGJhSFA0a3lMdlA0dVhwenF4cUExU3RMN1hOZTdmcHl0Q2pHa01Sb1p1SnBjeHQyN1pVYUZIaWxNNVZ6KzV4TDUybHEvaSsiLCJtYWMiOiIyMmE5OTBkMzlhZmJlMjJlNzYzNDEzZTRlYTBiNGNlMTBlYmU3OWUwNDcyNmEwNjVjOWNjODY1M2ZkZDNiYzgwIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkxLZVFwd0h0U3VvcGlhWUFVVUUyTXc9PSIsInZhbHVlIjoiOHYzeW4vSWhXcnY5TXN1WkJoYlM2SGN2NHI3cXJQN2hjbUlhenBhd2NyekxLWjlPK3FrcVYrTlViT3o5Y0h6RG5uM0o5OHF3R09LdUtUQUVoMWN6QzdHbkZ3RFN3S3Nsa295MkkvVzFoZy9QRllTMXQ3ZTdhcllYQnc5a3BqRUsiLCJtYWMiOiI0YzlmOTdmNWE0YTJjMjQ1ZTdhNmIyNzJiNDQ1ZmFmMTZmM2ZiMzMyYjk0OWU0N2EzZThjMmI2ODYwNTRjMzg3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkYwQ1FCek0rWERDWUovNVJaZENWUkE9PSIsInZhbHVlIjoiMXk0ckNFVTFvZisrRzN5R3VIdDZxMVpzcVB6L3lETUoxNW54SDM0SlI0SjRINmtOdlFWUTFtWkd0cFpidHFGZGlYZDlKOWoyK3U5NXQ4Mk9yZkZ2TnN6WmNuMkFPUHpPNTBKU1ExSkJCZUFPVnd2V00rWHYxWjN5VENwSkxFczUiLCJtYWMiOiI5ZjllMDY2ODhhZGVkNjk1ZjUxOTQ0OTE1YThjYjVhZTEwNTU4NTIyOTNmYjllNTUyNjIwZmU2NTAwYWE3ZTQzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp2K3lGb2czdE12T0hOMGd3WE1XaHc9PSIsInZhbHVlIjoiMGFHNkJFNmN2eVhleE9KQlNXZnNSNUJDdmVlcy9JQklRd0Z3eVBseUxYNkdWa1hKVHFYWnlzVGdiNlYwaTQyWmpTK3BSbWkwVjIwOG5hRHlUc0tXN2lldS9Gb3lrOWpoOU16Z3g3dmhLZmN5STFrMUVHajR1V25MeFhGVkczRDgiLCJtYWMiOiJjMjJlNzY2Y2E1MWJmZmU5YmE1MGEwYmE0YzEzM2I1YjU0NjA0MDQyNjdiN2I1NTVmNGRhZDRhMmZiN2I1ZjNhIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVqL1pKcDlJeG51MExUdTZSQWhkemc9PSIsInZhbHVlIjoiYVNtbCt0bHc5ei9oWmJGK3VGUm53ZTNpZGNNUG9yS2ZKSjV1Y0ppNmNQZ2J3ay9FcThWdzNZbDVIY0J1Ny9lemxMUjdYUXNQSTR3NFh1K1lGUkVEU25vYjA1MzY5ekp5dTlxU1ZISkRuRXlqVEN2OHRSNXB6VVpNOHk4dVpPNnQiLCJtYWMiOiJlMWYzZWY3Y2RhMTFlYTdkNzViNzAwMzI0OTQ3OGRiMWYyZGNhZWNhZWY0MTQ0ZjgwMzEwOThhY2E3YWI0Njk4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp0YW95YVV3REw5SDJJREwrcGVQenc9PSIsInZhbHVlIjoieE1oSUltNGYvTVI5WGFVbG5pNU9mcTFrd0FnQVVQb0NvRFBaWDg5NTBCUWI5WnFtOFp6OTRtU2F2bUFwOGxjaENlbWFyOVQzdEQ4WWcvbXFTaE1jL3VwdS9QRjhKRlBlVG41Q3QwV3dGY2NIRlROeXVJQTRxZnM2R1daU1Y2cDYiLCJtYWMiOiIxNzg0NjZkNWQ1ZDEyZDVkNzM5NTdkMDNkYTY2MDgyYzdmOTU2NzIwMTlmNGIzMWEyZjVmZjI0YTE3YzQ5NDU3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InJKU05Kb3BSOFpIdTVNMTJBSys1NkE9PSIsInZhbHVlIjoiN045S29tTjdLejRwNlNCcUdFK0crV3NsT25hSnJmbXZyTjZabWZYanBmWFF6M2dzVTRld0M2M3RsSjk4N3ZPa2doZTRPOVA2WXVwalRnMGxxUDQzdG8wSlZwTnZna3ZaWkkyc2tNVWJMV3NZVWFFWDJRRGV0SDV5VlUxWGZPVWciLCJtYWMiOiJkNWM3ZGIyY2QwY2M0OWVlNzQwYTUwZTQxY2ZhYjg3M2FmNzYxMjcyMTdlMWJiYjM3ZDhjZGFiMjNlM2I5MzBiIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjZ1MlJiYXBNUjNPcnJRVHdNNXpnVXc9PSIsInZhbHVlIjoidnNVVEsyYm5LMXdjeld5VUNCdWpURjNuZ3VHVkpBYUN1aUI5RC9DZ3IzV1cwY2JrNkxXb3ZzVEQ4M3BPd1A0Z25xdUM2TFRRZXFtbndYQnQyTjJXTkQyRW9hc280cVFPOXMzVXRjV3NqQ05IRGpsUjNQNWxQWWpKc3dJUURtQVgiLCJtYWMiOiIyZjMxOGQzODBjYjY1YjY4NmE1NzI0NzI5MmY4MjdlMzM2NDVmMmNmNjhkZTlhNTM0YzA0MmI5MjU0MDM2MDlkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Imo1UnVrVDNpYmpsVkxOQll5K1FQdUE9PSIsInZhbHVlIjoicDR6dzBFcnc3Wi9qV1dKbTRaYTZuMlFmZjBMYW56TjJHcVNBekZaWW03cWMxajlsTzRFckdITzdpS0lrSXVWUFQ0Z09rd1BTbmQyK21RTWk2TldHcmpNUnpERFduNk5BZG9Db1JLWVlLWXpnalVoMEl4dGNWQkpWZzUwWjJrbWwiLCJtYWMiOiI5NDBiZWI5ZTYzY2U5ZjU1NDFlOWQ5Mzk3NTY3ODNlYTFhMDQ3YjM2NjBhZDM2NzAwYzY5MWFkNTJjZjQ0ZDQyIiwidGFnIjoiIn0%3D",
-          "enabled": true
-        }
-      ],
-      "body": {
-        "type": "none"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "inheritAuth": true
-    },
-    "response": {
-      "status": 200,
-      "statusText": "OK",
-      "headers": {
-        "cache-control": "no-cache, private",
-        "connection": "close",
-        "content-type": "application/json",
-        "date": "Sat, 24 Oct 2026 15:59:30 GMT",
-        "host": "localhost:8001",
-        "set-cookie": "laravel-session=eyJpdiI6Ik9HWElDTlVTYjRBSjdPY1NINXk4WFE9PSIsInZhbHVlIjoiMHZvN3hsUzE3OWZkaTJvdWhNYmxqVW9Oa1kxT1NaYmFWV09ybk8wekpuSHVpaUZCTmxvTGtrOEc4cGdHTWhhZUduaVlPVXI5V3NCcDVEU0ZjK1pKbEl1bTZOQitkNU85aFFiYlRrS2I0UXlDclphaFdWTnh2cExueTRZUkxvaXMiLCJtYWMiOiJlMWVlNDIwNjZhNzI1NjU5YWQ2OTM5NzUyOTUwNDE3YTdlOWIyOGM5OTQ1MTkyZWI2Mzg4NDhmNWIyMTcyYzFhIiwidGFnIjoiIn0%3D; expires=Sat, 24 Oct 2026 17:59:30 GMT; Max-Age=7200; path=/; httponly; samesite=lax",
-        "x-powered-by": "PHP/8.4.5"
-      },
-      "body": "[{\"id\":3001,\"match\":\"Manchester United vs Newcastle\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3002,\"match\":\"Liverpool vs Manchester City\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3003,\"match\":\"Arsenal vs Tottenham\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3004,\"match\":\"Chelsea vs Brighton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3005,\"match\":\"Aston Villa vs Brentford\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3006,\"match\":\"Fulham vs Everton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3007,\"match\":\"West Ham vs Crystal Palace\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3008,\"match\":\"Leicester vs Wolves\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3009,\"match\":\"Southampton vs Bournemouth\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":3010,\"match\":\"Ipswich vs Nottingham Forest\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4001,\"match\":\"Barcelona vs Real Madrid\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4002,\"match\":\"Atletico Madrid vs Sevilla\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4003,\"match\":\"Valencia vs Villarreal\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4004,\"match\":\"Athletic Club vs Real Betis\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4005,\"match\":\"Real Sociedad vs Celta Vigo\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4006,\"match\":\"Espanyol vs Getafe\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4007,\"match\":\"Girona vs Leganes\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4008,\"match\":\"Osasuna vs Rayo Vallecano\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4009,\"match\":\"Mallorca vs Alaves\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":4010,\"match\":\"Valladolid vs Almeria\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}}]",
-      "time": 1271,
-      "size": 2633,
-      "cookies": [
-        {
-          "name": "XSRF-TOKEN",
-          "value": "eyJpdiI6IkprT1VpRFN0VHVQWXQ3eVFiNVN0TGc9PSIsInZhbHVlIjoiNTRJeS80WEdreWNOc0NKdlRGeDFzNVpUWGVWSkpZdEF4ZjEvaktXM2poWXJFZW9EZWNSWWpWdGdDQWxmTkhhSXBFT2pnaWIyYVA3WFJrcVZvRWVEdDdhU2gvd0FydXI5Z3drRzQ3dVN6bTQ3WG9yazNlSVF0VnNoTHVMQjBXWlgiLCJtYWMiOiI2NTc4MGE2YjYwNzc2YTZmOGQ0ZDAwZGM2NmFjNGM1OTY1ZTI5MzI4ZTUyOTRiNTc1ODA5ZmRhOTg4NzY2NTFhIiwidGFnIjoiIn0%3D",
-          "domain": "localhost",
-          "path": "/",
-          "expires": "2026-10-24T17:59:30.290Z",
-          "httpOnly": false,
-          "secure": false,
-          "sameSite": "Lax",
-          "createdAt": "2026-10-24T15:59:30.290Z"
-        },
-        {
-          "name": "laravel-session",
-          "value": "eyJpdiI6Ik9HWElDTlVTYjRBSjdPY1NINXk4WFE9PSIsInZhbHVlIjoiMHZvN3hsUzE3OWZkaTJvdWhNYmxqVW9Oa1kxT1NaYmFWV09ybk8wekpuSHVpaUZCTmxvTGtrOEc4cGdHTWhhZUduaVlPVXI5V3NCcDVEU0ZjK1pKbEl1bTZOQitkNU85aFFiYlRrS2I0UXlDclphaFdWTnh2cExueTRZUkxvaXMiLCJtYWMiOiJlMWVlNDIwNjZhNzI1NjU5YWQ2OTM5NzUyOTUwNDE3YTdlOWIyOGM5OTQ1MTkyZWI2Mzg4NDhmNWIyMTcyYzFhIiwidGFnIjoiIn0%3D",
-          "domain": "localhost",
-          "path": "/",
-          "expires": "2026-10-24T17:59:30.290Z",
-          "httpOnly": true,
-          "secure": false,
-          "sameSite": "Lax",
-          "createdAt": "2026-10-24T15:59:30.290Z"
-        }
-      ]
-    }
-  },
-  {
     "id": "1792926011490",
     "timestamp": 1792926011490,
     "request": {
@@ -4132,6 +3832,306 @@
           "secure": false,
           "sameSite": "Lax",
           "createdAt": "2026-10-27T11:42:11.921Z"
+        }
+      ]
+    }
+  },
+  {
+    "id": "1793107776009",
+    "timestamp": 1793107776009,
+    "request": {
+      "id": "1793107774377",
+      "name": "New Request",
+      "method": "POST",
+      "url": "http://localhost:8001/dev/mock-api/drowning/reset",
+      "params": [],
+      "headers": [
+        {
+          "key": "Accept",
+          "value": "application/json",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        },
+        {
+          "key": "Cookie",
+          "value": "XSRF-TOKEN=eyJpdiI6IlJCZEdzZElabUFnanlMNTZCc0RrVFE9PSIsInZhbHVlIjoiT3dHR1BmSmFFVk85QytwVEVvQU40dXFJVHc2MVZySHNBR3pGRVVVWVMyaVcwQmwrVkhvNjRnSThkdUt6M0wvbXcyL3VnU25PVC9oMTNYUkE3STF0SWwyUnpGbzM5b2NjbUxSRXd6bEpkVjdvUHgrc285S2lRZHpXTGZtczF1d2MiLCJtYWMiOiIyNTUwOWU0YjFmNjJmMmQ4NThlYWI2NDg3YmVhNzE5YmI3Y2U3MGUxNTMyMTcxY2E3OTY1ZTA0OTM5Yjg3MGNkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IklGakI1L0lRK25QOUZUdHMyM1UvdWc9PSIsInZhbHVlIjoiTUhVZHhXV0pQZ21ja0dBODJXaHYybGdoMTkzNHJuMnQva3AxSCtzdTkvUUlNckpoNWFUSFp2dTBkOEx1YzJubTNobzR0N0p0WVVFK0Z4ai9sL2VocnBXSmJ6MUVKckR0WE1PYjMzV21mZitzQ2hSK1RHQVB5STNDMWVBdDFRZmgiLCJtYWMiOiJlNDQ0OThmMDgzZWVkMjIxYWExN2VhYzYxMGYwYzk0NWVjNGI3MzYzYmFhZjI2Y2UzODQxOWMxYmIwODRkYjljIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InpaM0c0K2dlcXhCdytSUE9DTmdqS2c9PSIsInZhbHVlIjoiUWZWNHUva2lIU2FSVTFiZFExcS9lUlJlVFdmeE0wNFFPWGd0WTNaS3pGa1dhODVacCtZVDlyZk5WVjlDS3NBYThud1VZTWlYQUVZTWg0SlJZNGQzdytKUjFiNVRRVk9rTE9vU3ZETWlMblhiZEdscFpxZE51bTVEOHEraGRGcWMiLCJtYWMiOiJmMDMwMDA5NDU3NTA3MGU0NDhjMGM4M2U0YTE1ODZmMGZkMDc5MDkyNWVhMWQ1OGEwMDc5OTgzM2I5OWY5MzA2IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlNoRStwN1E1Q1JUOVVyaytENFR5emc9PSIsInZhbHVlIjoiNmtlQ3BYYzhRcEQyVlY2UEdUK01nU2NjeGxhZVlOeWdPclY2ZlVtSU5TaDdKL1h5dEhMY3Bva0xrOS9UOGV2UUFyRFNFNnhqQmYxaTZJL0dNUzdjRktRaHV1MUhROFUrbE1ybGdFTGp6L3B5T1FLNGVkRHN0S0w4SmRnSXRlTy8iLCJtYWMiOiJiMzM4MWU1N2RjNGE3ZjM5YmIxMDBiNDU4OTc3ZjczMWFhNGMxYmQxYWQ1YTliNTNlNjBmOGQ3OWE3NzY2MDZmIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InhUbmFjUTdwdmwxeFZLMElIWDJtRUE9PSIsInZhbHVlIjoiN1hSbVpNTUZVWHFJYlRUK1lzN2FGOFFJYXZ5aEtLbXEvY2sxTHNCdWJ1b3psUitOVUV0akJtVHZXdVk5cFVSRlhNVVFDNGU1RFlsWDVVeWd2NXNCd0hteG1MQ1o1dm55elFPd2FhS2MwSml5VnFBUTA4RFhmUENkS1Nld3IwVnIiLCJtYWMiOiJhNjM1NGM3YTM0ZjRiNWNhYzliZTg2OGJlMDM4ZWIxZThiNTIzNTBhOTgzNmNmZjkyNmIzZjQ5ZDlmMzhkN2EzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ind0RHhUWUFTR3Z6eTdYc0tTM1Q4alE9PSIsInZhbHVlIjoiNlowQVM2MEFQR21FMUpGOUwzZkR4VTJ2TVRqVkI5YURGeHFmQ085N2trQWt6ZmN6L1VKQWx4bVFjUXVtVHREMHRhYWNmQ0RHZnRBc0Y2U0JPN2IxNDQ5UFhKMjRVMmxSRzlTQVhleFFaem1DenZpWkUvZnhQMHhoR3VPOG0yUXkiLCJtYWMiOiIyMGViYzJhMGEzOWI3OWQ3MzgzZjM4N2M1MjFhYzY5NjlkNGU5MGRiMzNmN2ZiZDNjOTg0ZjRlZTExNWVmYjUzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InY1M2ZuakFwWDVoYk1xRkIvSkpuVnc9PSIsInZhbHVlIjoiUEZ0U3RxRDJQcWhIaWJaaklxTmszUnN6bk9QcFR0ellEQzZTMVN1cWtnd01kbnVoNEFDRjUzVlZ6Q2Jkc1RXakNpVk5lVy9BSU4zQm94VlVCM0RQODNmL0JIK05yNmZrQXNYcit2VVJQWERmWTh6emwyODRTc3BqZjZLdy9KUE8iLCJtYWMiOiIzZmUyNGUzMzU3ODMxYjAyZjQwZGQ2MTQ5OWFmNzU0MzIxODY1MjYxMWViNTgzZmMxMmI3OGFiNGI1MDVmMWFlIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhIMjAxalpaNG5RWHNJMTA4aENZMVE9PSIsInZhbHVlIjoiQVM0S2dtS1U0NWhuMWdBc2FmUnJpWlJZVUx3RUxJWWtNbmpDNndvUlBWN21WSUZ1NllqVzhac2FjR0g0eXU5WTBJN2J0NDlaN1FPL2FRTlFoY3JzYUNLUkU5bXFkUGp3U0tNQWt1MnYwNnd3Z2o5b2VVZE1DUGNlNXlRSVY1YmIiLCJtYWMiOiIzMThhYTliMGEzNWJmNDQwOTA4MDUyYTRiNTVmNGE4OGNlYThjOWM5YzEyMmQyNGM4ZTM1MmUyZDhkOWI4YWU1IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkF5eGxyV3hTZTJtQkdQeEV6MXRRdEE9PSIsInZhbHVlIjoidkxxRWVBQWJWU3EzL0M5ckMxc2N4a1doTEw5a1BYNkNIZ0JyNjNSWGppVm1HeURpS0NaMytGWFNyaWx3WC9KSXdwVVN3RG1wS3BYT0wreXU1NU14dHBNQjkwdzFWZHhzM1NiZUVHcHNiYW5mR1ZKdm5OTTQrMWpsdUdUQXNCUEsiLCJtYWMiOiIzZGIyMzAxYWU4ZjgwMmZjNTcyMTVhOTQ4NTQyN2FlMDQxY2NlYmU5OTZmMjRlMjg1MDg0NmRmYWNlMTI5ZGZmIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVkbWdESnRtMFVaU0VhRU1vRXdsMXc9PSIsInZhbHVlIjoiS1FwSURpZlVqUDluWFJmYi9BZytyWUhzUmFudC9BUDNIaFdSYVpXMEpBUXhteTlSOFc2WGtVL2JVUzlkSElwMDZza0xmMUVEVXpGcEl2dytuSDh4UytjaTl4Mll6Q1pNWFBNWjhsMGpoQXV2Rmg1VXE0R1p3M2xVTFdhTkU4YU8iLCJtYWMiOiI4OTgzZGViYzRjYzU2ZDRlMTNiNzJlOTc3MjA0NGE5MmRkMTRkNDRhZWRiZjQyZjE1YjdjM2MzMGNhZDRlOGQ4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjRhMkpiTnBjbEJQR0lZWmtIb044U3c9PSIsInZhbHVlIjoiQU92bHZSYTdxRUZqOVJQbWYwdEd0cy8zSEtuNElxcWZDUlFTSW5RbGRiQXpudjNuYS80S1pSdVgxS2czdll6VXZDZXIvWUVMVHdSNlJSWTExRlJwSjdwZzYxQW9nV3hjNUxpQ1BnTFBNUmdma2dWODZMMkNXSWQ2SE1Vc3RmYVUiLCJtYWMiOiI3ZTc0YmU4NjhmNWY3Y2UwYmNhZTAyYWUzOGViMzc3NmMyZWUwYjAwZTZhYTcyYmY2OWVlMDc0Yjg2YTVhZmRjIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhmNUsxQWdpZzhvb21WVGtCL2lRUVE9PSIsInZhbHVlIjoiZWw3NGFXSEZSTHRJbUtGcTFRN3lnd1FXMHRzdEkzYmtYTWxEYWlqaW1DMFdHTmNGWUx1RzVOd0p3SzhxSmJVQndyU09Qa2xkb0NVY0dXblhqTVZpd083SVdjN0hJVEdWQ2xMS2w5Y1B3bTM1NDZnU0dGRm04N3lRUU16b01xMGciLCJtYWMiOiJjY2ZkY2I2YjhiNDA0N2I4ZjliYWZhNmE4ZDNkZTk5YzNkOWI2ODEzNGFmZjgwZGU2ZmU2ZmJiMDU4ZTEwMzVkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImtVZnYrblozUW5tTzFqbmk1akI1TWc9PSIsInZhbHVlIjoibElPbTU4RUJ3azF3MytpTytWR0NtZDBPVHVrQ2xoR3pIbzlwNnBSblpYaHJxWTZGRFo3elRMQ1BTM2c2Ulh4RTBldjgyUDJtb2ljWnBPalRWQWVmUFNna3BaM0doWHhyRWRWcmNUaFJ4RUZpSFRRY0c1N1RFd1Z0VDRkUjEvYk8iLCJtYWMiOiJjNDJiZTBkMjVhYTkyYmUyZTNmZDMyNTNjZDA4MmY4NTMzZjlkZmI5NTlmZmQ3MTMwNmExMjBiM2QyZGQwNmQxIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjF3d3JVaWVjbjVHOTRDbXJyZXYzV1E9PSIsInZhbHVlIjoiVU5xRlRpUWVyanNxVThmbGlJWmtmOTJpcVNvc3djMkVFekNQVjl3bGsxU0NMZmF6MXhwZXBzR0hrVVlnZVJhc0d1UStncTJKSnB2TEtETlpQci9pUzJsbURCbGR4SzRqNENqTXZ4MnY1MGZJU1hZWTN5a0V1NENxTkdpcjZBaHAiLCJtYWMiOiIyNTNkNTI4MDliYjQ2OTQ0ZDRmMzg5NGZiNWMzMTdiMDU5MTkwZTViMzI5ZjE1NmZkZDhjMDllMTVkNzkzY2JkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imo0MVhaVW91Qy83UVo0U2Z1amFHeUE9PSIsInZhbHVlIjoiajJqTDd3M3FMTXEzbXVGem5rRXhjdkpKS3ZSVjNkMFVSRzYyeWxHWFdiZ1FHZFVYOTEvSXA4WGU3WUMwUUQwYWdaVTkvYm9FV2pRQnd2YjlIOXdXbUZERjRkdjRpSlZ1ejhqa1hZZDQwUzFqVUxSQkZHcUh4ZXN0Q3poQUQ5ejMiLCJtYWMiOiI5ZmU5ZDE0ZjRiYTc4MWI5NjAyN2JiZTRlMjNiZTM0MzYyOTkzYzcyNjA4M2M4YTIxNjJlYjBiN2RhYTZkMGQzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InBuMjNRZGJwaUZudmdCejNEcldiS1E9PSIsInZhbHVlIjoiV2JodXVXR2J5T25KOFY3NlVobGQzZCtUc25IOFZ5YlA0MlVhRERvMnQrbFFlTnZ0QmQ2ZDAxejZQZXl5WDRUNE5iVFh3dzQ1Vjk4VDBPRHBLcHdsKzd2RFlqNWZvbDBXdVphczFibmduQ3lzREo5OGRnZG1IZlVVRG1HdW9qSkMiLCJtYWMiOiIxZTYxZGMzNWMxNDAyZGJlMDY1MjQyNWZlNjYwZmZlMTdlZmMwODlhYWFjODcyYjM1ZDYyZDE2ZGQ0MTc2ODhjIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkhxaXZNSURTa28wa2daUTdQbDlOQUE9PSIsInZhbHVlIjoidHV3SEE1SHQ1TllwRmZYMWYzTzczWFFveVlFeEw4Y0dUNG1JbVJ5U0RMamNFNFVaRnA4bkNDZTJZQ2hyVU43SHZMTk1OdE8zc2F3VDVmdm5mdFJBeFFqcUluekJud3FwbmlsQkxDVUprc2dOaXlOM2VNeUFPaENQVlJUMDZEblUiLCJtYWMiOiJiNjBiMjFjMTk0Mzc0NDczYTBmMTg1NWE5NDJmNTljYWUzZWVkNWYxYzlkZjgyNzc1NTBlZTNlODZiYjBjY2M1IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjdRVXhneW9ZeFhyZUpuMGZ3VmpOU3c9PSIsInZhbHVlIjoieVh4MUs2V0YySURSbVNGSmowZXNMR2hOL1YvY3FnaHgySkJubGNWYTJ3TWkxdEdTeTVQeG9DRER1ZGJhSFA0a3lMdlA0dVhwenF4cUExU3RMN1hOZTdmcHl0Q2pHa01Sb1p1SnBjeHQyN1pVYUZIaWxNNVZ6KzV4TDUybHEvaSsiLCJtYWMiOiIyMmE5OTBkMzlhZmJlMjJlNzYzNDEzZTRlYTBiNGNlMTBlYmU3OWUwNDcyNmEwNjVjOWNjODY1M2ZkZDNiYzgwIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkxLZVFwd0h0U3VvcGlhWUFVVUUyTXc9PSIsInZhbHVlIjoiOHYzeW4vSWhXcnY5TXN1WkJoYlM2SGN2NHI3cXJQN2hjbUlhenBhd2NyekxLWjlPK3FrcVYrTlViT3o5Y0h6RG5uM0o5OHF3R09LdUtUQUVoMWN6QzdHbkZ3RFN3S3Nsa295MkkvVzFoZy9QRllTMXQ3ZTdhcllYQnc5a3BqRUsiLCJtYWMiOiI0YzlmOTdmNWE0YTJjMjQ1ZTdhNmIyNzJiNDQ1ZmFmMTZmM2ZiMzMyYjk0OWU0N2EzZThjMmI2ODYwNTRjMzg3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkYwQ1FCek0rWERDWUovNVJaZENWUkE9PSIsInZhbHVlIjoiMXk0ckNFVTFvZisrRzN5R3VIdDZxMVpzcVB6L3lETUoxNW54SDM0SlI0SjRINmtOdlFWUTFtWkd0cFpidHFGZGlYZDlKOWoyK3U5NXQ4Mk9yZkZ2TnN6WmNuMkFPUHpPNTBKU1ExSkJCZUFPVnd2V00rWHYxWjN5VENwSkxFczUiLCJtYWMiOiI5ZjllMDY2ODhhZGVkNjk1ZjUxOTQ0OTE1YThjYjVhZTEwNTU4NTIyOTNmYjllNTUyNjIwZmU2NTAwYWE3ZTQzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp2K3lGb2czdE12T0hOMGd3WE1XaHc9PSIsInZhbHVlIjoiMGFHNkJFNmN2eVhleE9KQlNXZnNSNUJDdmVlcy9JQklRd0Z3eVBseUxYNkdWa1hKVHFYWnlzVGdiNlYwaTQyWmpTK3BSbWkwVjIwOG5hRHlUc0tXN2lldS9Gb3lrOWpoOU16Z3g3dmhLZmN5STFrMUVHajR1V25MeFhGVkczRDgiLCJtYWMiOiJjMjJlNzY2Y2E1MWJmZmU5YmE1MGEwYmE0YzEzM2I1YjU0NjA0MDQyNjdiN2I1NTVmNGRhZDRhMmZiN2I1ZjNhIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVqL1pKcDlJeG51MExUdTZSQWhkemc9PSIsInZhbHVlIjoiYVNtbCt0bHc5ei9oWmJGK3VGUm53ZTNpZGNNUG9yS2ZKSjV1Y0ppNmNQZ2J3ay9FcThWdzNZbDVIY0J1Ny9lemxMUjdYUXNQSTR3NFh1K1lGUkVEU25vYjA1MzY5ekp5dTlxU1ZISkRuRXlqVEN2OHRSNXB6VVpNOHk4dVpPNnQiLCJtYWMiOiJlMWYzZWY3Y2RhMTFlYTdkNzViNzAwMzI0OTQ3OGRiMWYyZGNhZWNhZWY0MTQ0ZjgwMzEwOThhY2E3YWI0Njk4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp0YW95YVV3REw5SDJJREwrcGVQenc9PSIsInZhbHVlIjoieE1oSUltNGYvTVI5WGFVbG5pNU9mcTFrd0FnQVVQb0NvRFBaWDg5NTBCUWI5WnFtOFp6OTRtU2F2bUFwOGxjaENlbWFyOVQzdEQ4WWcvbXFTaE1jL3VwdS9QRjhKRlBlVG41Q3QwV3dGY2NIRlROeXVJQTRxZnM2R1daU1Y2cDYiLCJtYWMiOiIxNzg0NjZkNWQ1ZDEyZDVkNzM5NTdkMDNkYTY2MDgyYzdmOTU2NzIwMTlmNGIzMWEyZjVmZjI0YTE3YzQ5NDU3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InJKU05Kb3BSOFpIdTVNMTJBSys1NkE9PSIsInZhbHVlIjoiN045S29tTjdLejRwNlNCcUdFK0crV3NsT25hSnJmbXZyTjZabWZYanBmWFF6M2dzVTRld0M2M3RsSjk4N3ZPa2doZTRPOVA2WXVwalRnMGxxUDQzdG8wSlZwTnZna3ZaWkkyc2tNVWJMV3NZVWFFWDJRRGV0SDV5VlUxWGZPVWciLCJtYWMiOiJkNWM3ZGIyY2QwY2M0OWVlNzQwYTUwZTQxY2ZhYjg3M2FmNzYxMjcyMTdlMWJiYjM3ZDhjZGFiMjNlM2I5MzBiIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImozNG1BMkZ4WjlnM0E2Y3F1QTN2T1E9PSIsInZhbHVlIjoiNzVsTDZLWnFnYVpLRFlnRGZQbG1lc1VpWDUyeWJ3dlovVzJKUFBtWlhZVFhJYWVySVZQSkh6QjV1RUxJK3BEQnJUMS9kb09XcVloK0VGVjIyaVBiS2VFQXg5ZDM2YWMrVmpKNklnb2ptSkRNR29scjlQSUIyRERQZUJNbVhMMHIiLCJtYWMiOiIwNzg5MWNkZTg4ZWUzMmU1NzY4MmEwOGUzMTYwMWM1NGM2MWIxNjE1OTdjNTcwNDJiZWZhNGRiMjU0OWI5N2UwIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InNlanpNeThuUmJGeFFCbnlHdGNRMmc9PSIsInZhbHVlIjoibHVyNFVBR3hGeUpsK000QU9RU1FmekFuTkd1d214VEdZN1lMM1F6SlQ1dVhiU2hVUVB6ZDkvMTVJUW93eXlVb1Irend5VWhZZUx4WU5hL3A5TEN3THJwYTF4RHF0cGQ1ekhiRmRXUnYrTjRKUjV6aTY0aVA5OXVDMkZIa2RSU3UiLCJtYWMiOiJiOGNjNzNmNzM5NjY2NTYxNDZkMWQ4MTcwZmZlNjA5MTA2NWI3MDIxZGM0NTQyMzYzYThjZWY5ZWVkZDRmMWY4IiwidGFnIjoiIn0%3D",
+          "enabled": true
+        }
+      ],
+      "body": {
+        "type": "none"
+      },
+      "auth": {
+        "type": "none"
+      },
+      "inheritAuth": true
+    },
+    "response": {
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "no-cache, private",
+        "connection": "close",
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 13:29:35 GMT",
+        "host": "localhost:8001",
+        "set-cookie": "laravel-session=eyJpdiI6IllEV0V2NnlmM1hpZXh2SytLbHVFdVE9PSIsInZhbHVlIjoiVmJiM1F6VUZVWFJYSlFhNWtpZW4ycDhzdDZLaEx3QThLRCtSaHFDUnFPaFNvSVFHMHRzOVJ3VDgvV0ZWR0ptUUhkNkJnTnhwSk5GODhoUGJER0ZxVTl1UGFYS2dRNWRzWXVDQUpuMmxhcnNzejV3WTN5RHJhSXZCREFiYWhrZGMiLCJtYWMiOiIxNzA0NTZlMWE1MGJkMDRmM2Q2YjRiYmE3ODQ5ODZmOTIyNDkzMzJlNDg2NDkxNGU5MDE1OTIzODAxOGVmMWYzIiwidGFnIjoiIn0%3D; expires=Tue, 27 Oct 2026 15:29:35 GMT; Max-Age=7200; path=/; httponly; samesite=lax",
+        "x-powered-by": "PHP/8.4.5"
+      },
+      "body": "[{\"id\":28005,\"match\":\"Aston Villa vs Brentford\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70016,\"match\":\"Barcelona vs Real Madrid\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70026,\"match\":\"Atletico Madrid vs Sevilla\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70063,\"match\":\"Valencia vs Villarreal\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70069,\"match\":\"Mallorca vs Alaves\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70087,\"match\":\"Girona vs Leganes\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70098,\"match\":\"Osasuna vs Rayo Vallecano\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70105,\"match\":\"Valladolid vs Almeria\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70404,\"match\":\"Athletic Club vs Real Betis\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70505,\"match\":\"Real Sociedad vs Celta Vigo\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70606,\"match\":\"Espanyol vs Getafe\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80013,\"match\":\"Arsenal vs Tottenham\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80024,\"match\":\"Chelsea vs Brighton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80102,\"match\":\"Liverpool vs Manchester City\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80130,\"match\":\"Ipswich vs Nottingham Forest\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80207,\"match\":\"West Ham vs Crystal Palace\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":81001,\"match\":\"Manchester United vs Newcastle\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":82006,\"match\":\"Fulham vs Everton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":83008,\"match\":\"Leicester vs Wolves\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":803059,\"match\":\"Southampton vs Bournemouth\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}}]",
+      "time": 1554,
+      "size": 2654,
+      "cookies": [
+        {
+          "name": "XSRF-TOKEN",
+          "value": "eyJpdiI6InJRYWJnTG1BaTFEMXBYd3dFZUo1Q0E9PSIsInZhbHVlIjoiY2I1d2dIZEVtK3Q0SGE3eVNxSnptdll3NUN4S3J4RUFWUnBpbC9GNW55SUZxZ2pPQWZJbGh3bVdQWlE0NERDK0krKzY5Q3hIN0NvSHNNcTF4ME41M1huL2dTb2taa0lML2NMeXVuVzBSRGIwMGxKdXlLVjdKM1R5MitzS2NsWVciLCJtYWMiOiI1ZTE3MmVkNGQzMzg4ZTA0NTExYTliMjFiNTliYTZmOWNhOTE3NWE3OWMwNWEzNmQ0N2I3YjQxY2JjNzAwMjZiIiwidGFnIjoiIn0%3D",
+          "domain": "localhost",
+          "path": "/",
+          "expires": "2026-10-27T15:29:35.978Z",
+          "httpOnly": false,
+          "secure": false,
+          "sameSite": "Lax",
+          "createdAt": "2026-10-27T13:29:35.978Z"
+        },
+        {
+          "name": "laravel-session",
+          "value": "eyJpdiI6IllEV0V2NnlmM1hpZXh2SytLbHVFdVE9PSIsInZhbHVlIjoiVmJiM1F6VUZVWFJYSlFhNWtpZW4ycDhzdDZLaEx3QThLRCtSaHFDUnFPaFNvSVFHMHRzOVJ3VDgvV0ZWR0ptUUhkNkJnTnhwSk5GODhoUGJER0ZxVTl1UGFYS2dRNWRzWXVDQUpuMmxhcnNzejV3WTN5RHJhSXZCREFiYWhrZGMiLCJtYWMiOiIxNzA0NTZlMWE1MGJkMDRmM2Q2YjRiYmE3ODQ5ODZmOTIyNDkzMzJlNDg2NDkxNGU5MDE1OTIzODAxOGVmMWYzIiwidGFnIjoiIn0%3D",
+          "domain": "localhost",
+          "path": "/",
+          "expires": "2026-10-27T15:29:35.978Z",
+          "httpOnly": true,
+          "secure": false,
+          "sameSite": "Lax",
+          "createdAt": "2026-10-27T13:29:35.978Z"
+        }
+      ]
+    }
+  },
+  {
+    "id": "1793107920419",
+    "timestamp": 1793107920419,
+    "request": {
+      "id": "1793107919271",
+      "name": "New Request",
+      "method": "POST",
+      "url": "http://localhost:8001/dev/mock-api/drowning/reset",
+      "params": [],
+      "headers": [
+        {
+          "key": "Accept",
+          "value": "application/json",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        },
+        {
+          "key": "Cookie",
+          "value": "XSRF-TOKEN=eyJpdiI6IlJCZEdzZElabUFnanlMNTZCc0RrVFE9PSIsInZhbHVlIjoiT3dHR1BmSmFFVk85QytwVEVvQU40dXFJVHc2MVZySHNBR3pGRVVVWVMyaVcwQmwrVkhvNjRnSThkdUt6M0wvbXcyL3VnU25PVC9oMTNYUkE3STF0SWwyUnpGbzM5b2NjbUxSRXd6bEpkVjdvUHgrc285S2lRZHpXTGZtczF1d2MiLCJtYWMiOiIyNTUwOWU0YjFmNjJmMmQ4NThlYWI2NDg3YmVhNzE5YmI3Y2U3MGUxNTMyMTcxY2E3OTY1ZTA0OTM5Yjg3MGNkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IklGakI1L0lRK25QOUZUdHMyM1UvdWc9PSIsInZhbHVlIjoiTUhVZHhXV0pQZ21ja0dBODJXaHYybGdoMTkzNHJuMnQva3AxSCtzdTkvUUlNckpoNWFUSFp2dTBkOEx1YzJubTNobzR0N0p0WVVFK0Z4ai9sL2VocnBXSmJ6MUVKckR0WE1PYjMzV21mZitzQ2hSK1RHQVB5STNDMWVBdDFRZmgiLCJtYWMiOiJlNDQ0OThmMDgzZWVkMjIxYWExN2VhYzYxMGYwYzk0NWVjNGI3MzYzYmFhZjI2Y2UzODQxOWMxYmIwODRkYjljIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InpaM0c0K2dlcXhCdytSUE9DTmdqS2c9PSIsInZhbHVlIjoiUWZWNHUva2lIU2FSVTFiZFExcS9lUlJlVFdmeE0wNFFPWGd0WTNaS3pGa1dhODVacCtZVDlyZk5WVjlDS3NBYThud1VZTWlYQUVZTWg0SlJZNGQzdytKUjFiNVRRVk9rTE9vU3ZETWlMblhiZEdscFpxZE51bTVEOHEraGRGcWMiLCJtYWMiOiJmMDMwMDA5NDU3NTA3MGU0NDhjMGM4M2U0YTE1ODZmMGZkMDc5MDkyNWVhMWQ1OGEwMDc5OTgzM2I5OWY5MzA2IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlNoRStwN1E1Q1JUOVVyaytENFR5emc9PSIsInZhbHVlIjoiNmtlQ3BYYzhRcEQyVlY2UEdUK01nU2NjeGxhZVlOeWdPclY2ZlVtSU5TaDdKL1h5dEhMY3Bva0xrOS9UOGV2UUFyRFNFNnhqQmYxaTZJL0dNUzdjRktRaHV1MUhROFUrbE1ybGdFTGp6L3B5T1FLNGVkRHN0S0w4SmRnSXRlTy8iLCJtYWMiOiJiMzM4MWU1N2RjNGE3ZjM5YmIxMDBiNDU4OTc3ZjczMWFhNGMxYmQxYWQ1YTliNTNlNjBmOGQ3OWE3NzY2MDZmIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InhUbmFjUTdwdmwxeFZLMElIWDJtRUE9PSIsInZhbHVlIjoiN1hSbVpNTUZVWHFJYlRUK1lzN2FGOFFJYXZ5aEtLbXEvY2sxTHNCdWJ1b3psUitOVUV0akJtVHZXdVk5cFVSRlhNVVFDNGU1RFlsWDVVeWd2NXNCd0hteG1MQ1o1dm55elFPd2FhS2MwSml5VnFBUTA4RFhmUENkS1Nld3IwVnIiLCJtYWMiOiJhNjM1NGM3YTM0ZjRiNWNhYzliZTg2OGJlMDM4ZWIxZThiNTIzNTBhOTgzNmNmZjkyNmIzZjQ5ZDlmMzhkN2EzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ind0RHhUWUFTR3Z6eTdYc0tTM1Q4alE9PSIsInZhbHVlIjoiNlowQVM2MEFQR21FMUpGOUwzZkR4VTJ2TVRqVkI5YURGeHFmQ085N2trQWt6ZmN6L1VKQWx4bVFjUXVtVHREMHRhYWNmQ0RHZnRBc0Y2U0JPN2IxNDQ5UFhKMjRVMmxSRzlTQVhleFFaem1DenZpWkUvZnhQMHhoR3VPOG0yUXkiLCJtYWMiOiIyMGViYzJhMGEzOWI3OWQ3MzgzZjM4N2M1MjFhYzY5NjlkNGU5MGRiMzNmN2ZiZDNjOTg0ZjRlZTExNWVmYjUzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InY1M2ZuakFwWDVoYk1xRkIvSkpuVnc9PSIsInZhbHVlIjoiUEZ0U3RxRDJQcWhIaWJaaklxTmszUnN6bk9QcFR0ellEQzZTMVN1cWtnd01kbnVoNEFDRjUzVlZ6Q2Jkc1RXakNpVk5lVy9BSU4zQm94VlVCM0RQODNmL0JIK05yNmZrQXNYcit2VVJQWERmWTh6emwyODRTc3BqZjZLdy9KUE8iLCJtYWMiOiIzZmUyNGUzMzU3ODMxYjAyZjQwZGQ2MTQ5OWFmNzU0MzIxODY1MjYxMWViNTgzZmMxMmI3OGFiNGI1MDVmMWFlIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhIMjAxalpaNG5RWHNJMTA4aENZMVE9PSIsInZhbHVlIjoiQVM0S2dtS1U0NWhuMWdBc2FmUnJpWlJZVUx3RUxJWWtNbmpDNndvUlBWN21WSUZ1NllqVzhac2FjR0g0eXU5WTBJN2J0NDlaN1FPL2FRTlFoY3JzYUNLUkU5bXFkUGp3U0tNQWt1MnYwNnd3Z2o5b2VVZE1DUGNlNXlRSVY1YmIiLCJtYWMiOiIzMThhYTliMGEzNWJmNDQwOTA4MDUyYTRiNTVmNGE4OGNlYThjOWM5YzEyMmQyNGM4ZTM1MmUyZDhkOWI4YWU1IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkF5eGxyV3hTZTJtQkdQeEV6MXRRdEE9PSIsInZhbHVlIjoidkxxRWVBQWJWU3EzL0M5ckMxc2N4a1doTEw5a1BYNkNIZ0JyNjNSWGppVm1HeURpS0NaMytGWFNyaWx3WC9KSXdwVVN3RG1wS3BYT0wreXU1NU14dHBNQjkwdzFWZHhzM1NiZUVHcHNiYW5mR1ZKdm5OTTQrMWpsdUdUQXNCUEsiLCJtYWMiOiIzZGIyMzAxYWU4ZjgwMmZjNTcyMTVhOTQ4NTQyN2FlMDQxY2NlYmU5OTZmMjRlMjg1MDg0NmRmYWNlMTI5ZGZmIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVkbWdESnRtMFVaU0VhRU1vRXdsMXc9PSIsInZhbHVlIjoiS1FwSURpZlVqUDluWFJmYi9BZytyWUhzUmFudC9BUDNIaFdSYVpXMEpBUXhteTlSOFc2WGtVL2JVUzlkSElwMDZza0xmMUVEVXpGcEl2dytuSDh4UytjaTl4Mll6Q1pNWFBNWjhsMGpoQXV2Rmg1VXE0R1p3M2xVTFdhTkU4YU8iLCJtYWMiOiI4OTgzZGViYzRjYzU2ZDRlMTNiNzJlOTc3MjA0NGE5MmRkMTRkNDRhZWRiZjQyZjE1YjdjM2MzMGNhZDRlOGQ4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjRhMkpiTnBjbEJQR0lZWmtIb044U3c9PSIsInZhbHVlIjoiQU92bHZSYTdxRUZqOVJQbWYwdEd0cy8zSEtuNElxcWZDUlFTSW5RbGRiQXpudjNuYS80S1pSdVgxS2czdll6VXZDZXIvWUVMVHdSNlJSWTExRlJwSjdwZzYxQW9nV3hjNUxpQ1BnTFBNUmdma2dWODZMMkNXSWQ2SE1Vc3RmYVUiLCJtYWMiOiI3ZTc0YmU4NjhmNWY3Y2UwYmNhZTAyYWUzOGViMzc3NmMyZWUwYjAwZTZhYTcyYmY2OWVlMDc0Yjg2YTVhZmRjIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhmNUsxQWdpZzhvb21WVGtCL2lRUVE9PSIsInZhbHVlIjoiZWw3NGFXSEZSTHRJbUtGcTFRN3lnd1FXMHRzdEkzYmtYTWxEYWlqaW1DMFdHTmNGWUx1RzVOd0p3SzhxSmJVQndyU09Qa2xkb0NVY0dXblhqTVZpd083SVdjN0hJVEdWQ2xMS2w5Y1B3bTM1NDZnU0dGRm04N3lRUU16b01xMGciLCJtYWMiOiJjY2ZkY2I2YjhiNDA0N2I4ZjliYWZhNmE4ZDNkZTk5YzNkOWI2ODEzNGFmZjgwZGU2ZmU2ZmJiMDU4ZTEwMzVkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImtVZnYrblozUW5tTzFqbmk1akI1TWc9PSIsInZhbHVlIjoibElPbTU4RUJ3azF3MytpTytWR0NtZDBPVHVrQ2xoR3pIbzlwNnBSblpYaHJxWTZGRFo3elRMQ1BTM2c2Ulh4RTBldjgyUDJtb2ljWnBPalRWQWVmUFNna3BaM0doWHhyRWRWcmNUaFJ4RUZpSFRRY0c1N1RFd1Z0VDRkUjEvYk8iLCJtYWMiOiJjNDJiZTBkMjVhYTkyYmUyZTNmZDMyNTNjZDA4MmY4NTMzZjlkZmI5NTlmZmQ3MTMwNmExMjBiM2QyZGQwNmQxIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjF3d3JVaWVjbjVHOTRDbXJyZXYzV1E9PSIsInZhbHVlIjoiVU5xRlRpUWVyanNxVThmbGlJWmtmOTJpcVNvc3djMkVFekNQVjl3bGsxU0NMZmF6MXhwZXBzR0hrVVlnZVJhc0d1UStncTJKSnB2TEtETlpQci9pUzJsbURCbGR4SzRqNENqTXZ4MnY1MGZJU1hZWTN5a0V1NENxTkdpcjZBaHAiLCJtYWMiOiIyNTNkNTI4MDliYjQ2OTQ0ZDRmMzg5NGZiNWMzMTdiMDU5MTkwZTViMzI5ZjE1NmZkZDhjMDllMTVkNzkzY2JkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imo0MVhaVW91Qy83UVo0U2Z1amFHeUE9PSIsInZhbHVlIjoiajJqTDd3M3FMTXEzbXVGem5rRXhjdkpKS3ZSVjNkMFVSRzYyeWxHWFdiZ1FHZFVYOTEvSXA4WGU3WUMwUUQwYWdaVTkvYm9FV2pRQnd2YjlIOXdXbUZERjRkdjRpSlZ1ejhqa1hZZDQwUzFqVUxSQkZHcUh4ZXN0Q3poQUQ5ejMiLCJtYWMiOiI5ZmU5ZDE0ZjRiYTc4MWI5NjAyN2JiZTRlMjNiZTM0MzYyOTkzYzcyNjA4M2M4YTIxNjJlYjBiN2RhYTZkMGQzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InBuMjNRZGJwaUZudmdCejNEcldiS1E9PSIsInZhbHVlIjoiV2JodXVXR2J5T25KOFY3NlVobGQzZCtUc25IOFZ5YlA0MlVhRERvMnQrbFFlTnZ0QmQ2ZDAxejZQZXl5WDRUNE5iVFh3dzQ1Vjk4VDBPRHBLcHdsKzd2RFlqNWZvbDBXdVphczFibmduQ3lzREo5OGRnZG1IZlVVRG1HdW9qSkMiLCJtYWMiOiIxZTYxZGMzNWMxNDAyZGJlMDY1MjQyNWZlNjYwZmZlMTdlZmMwODlhYWFjODcyYjM1ZDYyZDE2ZGQ0MTc2ODhjIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkhxaXZNSURTa28wa2daUTdQbDlOQUE9PSIsInZhbHVlIjoidHV3SEE1SHQ1TllwRmZYMWYzTzczWFFveVlFeEw4Y0dUNG1JbVJ5U0RMamNFNFVaRnA4bkNDZTJZQ2hyVU43SHZMTk1OdE8zc2F3VDVmdm5mdFJBeFFqcUluekJud3FwbmlsQkxDVUprc2dOaXlOM2VNeUFPaENQVlJUMDZEblUiLCJtYWMiOiJiNjBiMjFjMTk0Mzc0NDczYTBmMTg1NWE5NDJmNTljYWUzZWVkNWYxYzlkZjgyNzc1NTBlZTNlODZiYjBjY2M1IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjdRVXhneW9ZeFhyZUpuMGZ3VmpOU3c9PSIsInZhbHVlIjoieVh4MUs2V0YySURSbVNGSmowZXNMR2hOL1YvY3FnaHgySkJubGNWYTJ3TWkxdEdTeTVQeG9DRER1ZGJhSFA0a3lMdlA0dVhwenF4cUExU3RMN1hOZTdmcHl0Q2pHa01Sb1p1SnBjeHQyN1pVYUZIaWxNNVZ6KzV4TDUybHEvaSsiLCJtYWMiOiIyMmE5OTBkMzlhZmJlMjJlNzYzNDEzZTRlYTBiNGNlMTBlYmU3OWUwNDcyNmEwNjVjOWNjODY1M2ZkZDNiYzgwIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkxLZVFwd0h0U3VvcGlhWUFVVUUyTXc9PSIsInZhbHVlIjoiOHYzeW4vSWhXcnY5TXN1WkJoYlM2SGN2NHI3cXJQN2hjbUlhenBhd2NyekxLWjlPK3FrcVYrTlViT3o5Y0h6RG5uM0o5OHF3R09LdUtUQUVoMWN6QzdHbkZ3RFN3S3Nsa295MkkvVzFoZy9QRllTMXQ3ZTdhcllYQnc5a3BqRUsiLCJtYWMiOiI0YzlmOTdmNWE0YTJjMjQ1ZTdhNmIyNzJiNDQ1ZmFmMTZmM2ZiMzMyYjk0OWU0N2EzZThjMmI2ODYwNTRjMzg3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkYwQ1FCek0rWERDWUovNVJaZENWUkE9PSIsInZhbHVlIjoiMXk0ckNFVTFvZisrRzN5R3VIdDZxMVpzcVB6L3lETUoxNW54SDM0SlI0SjRINmtOdlFWUTFtWkd0cFpidHFGZGlYZDlKOWoyK3U5NXQ4Mk9yZkZ2TnN6WmNuMkFPUHpPNTBKU1ExSkJCZUFPVnd2V00rWHYxWjN5VENwSkxFczUiLCJtYWMiOiI5ZjllMDY2ODhhZGVkNjk1ZjUxOTQ0OTE1YThjYjVhZTEwNTU4NTIyOTNmYjllNTUyNjIwZmU2NTAwYWE3ZTQzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp2K3lGb2czdE12T0hOMGd3WE1XaHc9PSIsInZhbHVlIjoiMGFHNkJFNmN2eVhleE9KQlNXZnNSNUJDdmVlcy9JQklRd0Z3eVBseUxYNkdWa1hKVHFYWnlzVGdiNlYwaTQyWmpTK3BSbWkwVjIwOG5hRHlUc0tXN2lldS9Gb3lrOWpoOU16Z3g3dmhLZmN5STFrMUVHajR1V25MeFhGVkczRDgiLCJtYWMiOiJjMjJlNzY2Y2E1MWJmZmU5YmE1MGEwYmE0YzEzM2I1YjU0NjA0MDQyNjdiN2I1NTVmNGRhZDRhMmZiN2I1ZjNhIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVqL1pKcDlJeG51MExUdTZSQWhkemc9PSIsInZhbHVlIjoiYVNtbCt0bHc5ei9oWmJGK3VGUm53ZTNpZGNNUG9yS2ZKSjV1Y0ppNmNQZ2J3ay9FcThWdzNZbDVIY0J1Ny9lemxMUjdYUXNQSTR3NFh1K1lGUkVEU25vYjA1MzY5ekp5dTlxU1ZISkRuRXlqVEN2OHRSNXB6VVpNOHk4dVpPNnQiLCJtYWMiOiJlMWYzZWY3Y2RhMTFlYTdkNzViNzAwMzI0OTQ3OGRiMWYyZGNhZWNhZWY0MTQ0ZjgwMzEwOThhY2E3YWI0Njk4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp0YW95YVV3REw5SDJJREwrcGVQenc9PSIsInZhbHVlIjoieE1oSUltNGYvTVI5WGFVbG5pNU9mcTFrd0FnQVVQb0NvRFBaWDg5NTBCUWI5WnFtOFp6OTRtU2F2bUFwOGxjaENlbWFyOVQzdEQ4WWcvbXFTaE1jL3VwdS9QRjhKRlBlVG41Q3QwV3dGY2NIRlROeXVJQTRxZnM2R1daU1Y2cDYiLCJtYWMiOiIxNzg0NjZkNWQ1ZDEyZDVkNzM5NTdkMDNkYTY2MDgyYzdmOTU2NzIwMTlmNGIzMWEyZjVmZjI0YTE3YzQ5NDU3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InJKU05Kb3BSOFpIdTVNMTJBSys1NkE9PSIsInZhbHVlIjoiN045S29tTjdLejRwNlNCcUdFK0crV3NsT25hSnJmbXZyTjZabWZYanBmWFF6M2dzVTRld0M2M3RsSjk4N3ZPa2doZTRPOVA2WXVwalRnMGxxUDQzdG8wSlZwTnZna3ZaWkkyc2tNVWJMV3NZVWFFWDJRRGV0SDV5VlUxWGZPVWciLCJtYWMiOiJkNWM3ZGIyY2QwY2M0OWVlNzQwYTUwZTQxY2ZhYjg3M2FmNzYxMjcyMTdlMWJiYjM3ZDhjZGFiMjNlM2I5MzBiIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InJRYWJnTG1BaTFEMXBYd3dFZUo1Q0E9PSIsInZhbHVlIjoiY2I1d2dIZEVtK3Q0SGE3eVNxSnptdll3NUN4S3J4RUFWUnBpbC9GNW55SUZxZ2pPQWZJbGh3bVdQWlE0NERDK0krKzY5Q3hIN0NvSHNNcTF4ME41M1huL2dTb2taa0lML2NMeXVuVzBSRGIwMGxKdXlLVjdKM1R5MitzS2NsWVciLCJtYWMiOiI1ZTE3MmVkNGQzMzg4ZTA0NTExYTliMjFiNTliYTZmOWNhOTE3NWE3OWMwNWEzNmQ0N2I3YjQxY2JjNzAwMjZiIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IllEV0V2NnlmM1hpZXh2SytLbHVFdVE9PSIsInZhbHVlIjoiVmJiM1F6VUZVWFJYSlFhNWtpZW4ycDhzdDZLaEx3QThLRCtSaHFDUnFPaFNvSVFHMHRzOVJ3VDgvV0ZWR0ptUUhkNkJnTnhwSk5GODhoUGJER0ZxVTl1UGFYS2dRNWRzWXVDQUpuMmxhcnNzejV3WTN5RHJhSXZCREFiYWhrZGMiLCJtYWMiOiIxNzA0NTZlMWE1MGJkMDRmM2Q2YjRiYmE3ODQ5ODZmOTIyNDkzMzJlNDg2NDkxNGU5MDE1OTIzODAxOGVmMWYzIiwidGFnIjoiIn0%3D",
+          "enabled": true
+        }
+      ],
+      "body": {
+        "type": "none"
+      },
+      "auth": {
+        "type": "none"
+      },
+      "inheritAuth": true
+    },
+    "response": {
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "no-cache, private",
+        "connection": "close",
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 13:32:00 GMT",
+        "host": "localhost:8001",
+        "set-cookie": "laravel-session=eyJpdiI6IlBHRXBDMDJidG5PdnhheUdOV0p5S3c9PSIsInZhbHVlIjoiTUVhb1BjUk1lTm1vdlhXdFdlYnNzMzZ2dW5DNGNDdmFuUlp1cU5UMjBwUmZEMmg0ZTMyL0NTS0MyQVM0M0xIK21DdEMzL2xtamdpNXlCdXd0MlBYUENQYlU2dHRFNWF2VlExYVAwVkFESWJBZ0JQdXNKUXBpVThYT0xlMExraHoiLCJtYWMiOiIzZjVmZTkwMDNmMDVhNmU4MzczZjMxNGY5YmUzZThjMmU1ZmIzMDkxZmJlYzlhNTNlODcyZWZlNjQyOTNkMGM3IiwidGFnIjoiIn0%3D; expires=Tue, 27 Oct 2026 15:32:00 GMT; Max-Age=7200; path=/; httponly; samesite=lax",
+        "x-powered-by": "PHP/8.4.5"
+      },
+      "body": "[{\"id\":28005,\"match\":\"Aston Villa vs Brentford\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70016,\"match\":\"Barcelona vs Real Madrid\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70026,\"match\":\"Atletico Madrid vs Sevilla\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70063,\"match\":\"Valencia vs Villarreal\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70069,\"match\":\"Mallorca vs Alaves\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70087,\"match\":\"Girona vs Leganes\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70098,\"match\":\"Osasuna vs Rayo Vallecano\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70105,\"match\":\"Valladolid vs Almeria\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70404,\"match\":\"Athletic Club vs Real Betis\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70505,\"match\":\"Real Sociedad vs Celta Vigo\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70606,\"match\":\"Espanyol vs Getafe\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80013,\"match\":\"Arsenal vs Tottenham\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80024,\"match\":\"Chelsea vs Brighton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80102,\"match\":\"Liverpool vs Manchester City\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80130,\"match\":\"Ipswich vs Nottingham Forest\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80207,\"match\":\"West Ham vs Crystal Palace\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":81001,\"match\":\"Manchester United vs Newcastle\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":82006,\"match\":\"Fulham vs Everton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":83008,\"match\":\"Leicester vs Wolves\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":803059,\"match\":\"Southampton vs Bournemouth\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}}]",
+      "time": 1116,
+      "size": 2654,
+      "cookies": [
+        {
+          "name": "XSRF-TOKEN",
+          "value": "eyJpdiI6IkthZzBkT2xlWGpWR3ZtS1o2YlEva3c9PSIsInZhbHVlIjoiWjlwYllWY2NhQ0NpTTZMa2pxcjRwb3VreUw5czZVQVZaampFRkozKzVycG9wSWVqenNjQVE4RlJheXFqd1VCL1JQZHBuYTNIa2dJbVFDOElJZ2R1R0FhNjVsR3ZXSHdSMVdwQ2pXU3B1L1JZYy8yeXQ4eE9hRzJzOFZpT0MyMXUiLCJtYWMiOiIxZDU4YjNhYzc4MmQwMmQxM2NjY2Q1YjgyMjMzYjc3YTQxYTBlZmIwZWFjYmZkYzJiY2ZkMTk0NWYzNmQ0M2I4IiwidGFnIjoiIn0%3D",
+          "domain": "localhost",
+          "path": "/",
+          "expires": "2026-10-27T15:32:00.400Z",
+          "httpOnly": false,
+          "secure": false,
+          "sameSite": "Lax",
+          "createdAt": "2026-10-27T13:32:00.400Z"
+        },
+        {
+          "name": "laravel-session",
+          "value": "eyJpdiI6IlBHRXBDMDJidG5PdnhheUdOV0p5S3c9PSIsInZhbHVlIjoiTUVhb1BjUk1lTm1vdlhXdFdlYnNzMzZ2dW5DNGNDdmFuUlp1cU5UMjBwUmZEMmg0ZTMyL0NTS0MyQVM0M0xIK21DdEMzL2xtamdpNXlCdXd0MlBYUENQYlU2dHRFNWF2VlExYVAwVkFESWJBZ0JQdXNKUXBpVThYT0xlMExraHoiLCJtYWMiOiIzZjVmZTkwMDNmMDVhNmU4MzczZjMxNGY5YmUzZThjMmU1ZmIzMDkxZmJlYzlhNTNlODcyZWZlNjQyOTNkMGM3IiwidGFnIjoiIn0%3D",
+          "domain": "localhost",
+          "path": "/",
+          "expires": "2026-10-27T15:32:00.403Z",
+          "httpOnly": true,
+          "secure": false,
+          "sameSite": "Lax",
+          "createdAt": "2026-10-27T13:32:00.400Z"
+        }
+      ]
+    }
+  },
+  {
+    "id": "1793122375573",
+    "timestamp": 1793122375573,
+    "request": {
+      "id": "1793122374292",
+      "name": "New Request",
+      "method": "POST",
+      "url": "http://localhost:8001/dev/mock-api/drowning/reset",
+      "params": [],
+      "headers": [
+        {
+          "key": "Accept",
+          "value": "application/json",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        },
+        {
+          "key": "Cookie",
+          "value": "XSRF-TOKEN=eyJpdiI6IlJCZEdzZElabUFnanlMNTZCc0RrVFE9PSIsInZhbHVlIjoiT3dHR1BmSmFFVk85QytwVEVvQU40dXFJVHc2MVZySHNBR3pGRVVVWVMyaVcwQmwrVkhvNjRnSThkdUt6M0wvbXcyL3VnU25PVC9oMTNYUkE3STF0SWwyUnpGbzM5b2NjbUxSRXd6bEpkVjdvUHgrc285S2lRZHpXTGZtczF1d2MiLCJtYWMiOiIyNTUwOWU0YjFmNjJmMmQ4NThlYWI2NDg3YmVhNzE5YmI3Y2U3MGUxNTMyMTcxY2E3OTY1ZTA0OTM5Yjg3MGNkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IklGakI1L0lRK25QOUZUdHMyM1UvdWc9PSIsInZhbHVlIjoiTUhVZHhXV0pQZ21ja0dBODJXaHYybGdoMTkzNHJuMnQva3AxSCtzdTkvUUlNckpoNWFUSFp2dTBkOEx1YzJubTNobzR0N0p0WVVFK0Z4ai9sL2VocnBXSmJ6MUVKckR0WE1PYjMzV21mZitzQ2hSK1RHQVB5STNDMWVBdDFRZmgiLCJtYWMiOiJlNDQ0OThmMDgzZWVkMjIxYWExN2VhYzYxMGYwYzk0NWVjNGI3MzYzYmFhZjI2Y2UzODQxOWMxYmIwODRkYjljIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InpaM0c0K2dlcXhCdytSUE9DTmdqS2c9PSIsInZhbHVlIjoiUWZWNHUva2lIU2FSVTFiZFExcS9lUlJlVFdmeE0wNFFPWGd0WTNaS3pGa1dhODVacCtZVDlyZk5WVjlDS3NBYThud1VZTWlYQUVZTWg0SlJZNGQzdytKUjFiNVRRVk9rTE9vU3ZETWlMblhiZEdscFpxZE51bTVEOHEraGRGcWMiLCJtYWMiOiJmMDMwMDA5NDU3NTA3MGU0NDhjMGM4M2U0YTE1ODZmMGZkMDc5MDkyNWVhMWQ1OGEwMDc5OTgzM2I5OWY5MzA2IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlNoRStwN1E1Q1JUOVVyaytENFR5emc9PSIsInZhbHVlIjoiNmtlQ3BYYzhRcEQyVlY2UEdUK01nU2NjeGxhZVlOeWdPclY2ZlVtSU5TaDdKL1h5dEhMY3Bva0xrOS9UOGV2UUFyRFNFNnhqQmYxaTZJL0dNUzdjRktRaHV1MUhROFUrbE1ybGdFTGp6L3B5T1FLNGVkRHN0S0w4SmRnSXRlTy8iLCJtYWMiOiJiMzM4MWU1N2RjNGE3ZjM5YmIxMDBiNDU4OTc3ZjczMWFhNGMxYmQxYWQ1YTliNTNlNjBmOGQ3OWE3NzY2MDZmIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InhUbmFjUTdwdmwxeFZLMElIWDJtRUE9PSIsInZhbHVlIjoiN1hSbVpNTUZVWHFJYlRUK1lzN2FGOFFJYXZ5aEtLbXEvY2sxTHNCdWJ1b3psUitOVUV0akJtVHZXdVk5cFVSRlhNVVFDNGU1RFlsWDVVeWd2NXNCd0hteG1MQ1o1dm55elFPd2FhS2MwSml5VnFBUTA4RFhmUENkS1Nld3IwVnIiLCJtYWMiOiJhNjM1NGM3YTM0ZjRiNWNhYzliZTg2OGJlMDM4ZWIxZThiNTIzNTBhOTgzNmNmZjkyNmIzZjQ5ZDlmMzhkN2EzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ind0RHhUWUFTR3Z6eTdYc0tTM1Q4alE9PSIsInZhbHVlIjoiNlowQVM2MEFQR21FMUpGOUwzZkR4VTJ2TVRqVkI5YURGeHFmQ085N2trQWt6ZmN6L1VKQWx4bVFjUXVtVHREMHRhYWNmQ0RHZnRBc0Y2U0JPN2IxNDQ5UFhKMjRVMmxSRzlTQVhleFFaem1DenZpWkUvZnhQMHhoR3VPOG0yUXkiLCJtYWMiOiIyMGViYzJhMGEzOWI3OWQ3MzgzZjM4N2M1MjFhYzY5NjlkNGU5MGRiMzNmN2ZiZDNjOTg0ZjRlZTExNWVmYjUzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InY1M2ZuakFwWDVoYk1xRkIvSkpuVnc9PSIsInZhbHVlIjoiUEZ0U3RxRDJQcWhIaWJaaklxTmszUnN6bk9QcFR0ellEQzZTMVN1cWtnd01kbnVoNEFDRjUzVlZ6Q2Jkc1RXakNpVk5lVy9BSU4zQm94VlVCM0RQODNmL0JIK05yNmZrQXNYcit2VVJQWERmWTh6emwyODRTc3BqZjZLdy9KUE8iLCJtYWMiOiIzZmUyNGUzMzU3ODMxYjAyZjQwZGQ2MTQ5OWFmNzU0MzIxODY1MjYxMWViNTgzZmMxMmI3OGFiNGI1MDVmMWFlIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhIMjAxalpaNG5RWHNJMTA4aENZMVE9PSIsInZhbHVlIjoiQVM0S2dtS1U0NWhuMWdBc2FmUnJpWlJZVUx3RUxJWWtNbmpDNndvUlBWN21WSUZ1NllqVzhac2FjR0g0eXU5WTBJN2J0NDlaN1FPL2FRTlFoY3JzYUNLUkU5bXFkUGp3U0tNQWt1MnYwNnd3Z2o5b2VVZE1DUGNlNXlRSVY1YmIiLCJtYWMiOiIzMThhYTliMGEzNWJmNDQwOTA4MDUyYTRiNTVmNGE4OGNlYThjOWM5YzEyMmQyNGM4ZTM1MmUyZDhkOWI4YWU1IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkF5eGxyV3hTZTJtQkdQeEV6MXRRdEE9PSIsInZhbHVlIjoidkxxRWVBQWJWU3EzL0M5ckMxc2N4a1doTEw5a1BYNkNIZ0JyNjNSWGppVm1HeURpS0NaMytGWFNyaWx3WC9KSXdwVVN3RG1wS3BYT0wreXU1NU14dHBNQjkwdzFWZHhzM1NiZUVHcHNiYW5mR1ZKdm5OTTQrMWpsdUdUQXNCUEsiLCJtYWMiOiIzZGIyMzAxYWU4ZjgwMmZjNTcyMTVhOTQ4NTQyN2FlMDQxY2NlYmU5OTZmMjRlMjg1MDg0NmRmYWNlMTI5ZGZmIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVkbWdESnRtMFVaU0VhRU1vRXdsMXc9PSIsInZhbHVlIjoiS1FwSURpZlVqUDluWFJmYi9BZytyWUhzUmFudC9BUDNIaFdSYVpXMEpBUXhteTlSOFc2WGtVL2JVUzlkSElwMDZza0xmMUVEVXpGcEl2dytuSDh4UytjaTl4Mll6Q1pNWFBNWjhsMGpoQXV2Rmg1VXE0R1p3M2xVTFdhTkU4YU8iLCJtYWMiOiI4OTgzZGViYzRjYzU2ZDRlMTNiNzJlOTc3MjA0NGE5MmRkMTRkNDRhZWRiZjQyZjE1YjdjM2MzMGNhZDRlOGQ4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjRhMkpiTnBjbEJQR0lZWmtIb044U3c9PSIsInZhbHVlIjoiQU92bHZSYTdxRUZqOVJQbWYwdEd0cy8zSEtuNElxcWZDUlFTSW5RbGRiQXpudjNuYS80S1pSdVgxS2czdll6VXZDZXIvWUVMVHdSNlJSWTExRlJwSjdwZzYxQW9nV3hjNUxpQ1BnTFBNUmdma2dWODZMMkNXSWQ2SE1Vc3RmYVUiLCJtYWMiOiI3ZTc0YmU4NjhmNWY3Y2UwYmNhZTAyYWUzOGViMzc3NmMyZWUwYjAwZTZhYTcyYmY2OWVlMDc0Yjg2YTVhZmRjIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhmNUsxQWdpZzhvb21WVGtCL2lRUVE9PSIsInZhbHVlIjoiZWw3NGFXSEZSTHRJbUtGcTFRN3lnd1FXMHRzdEkzYmtYTWxEYWlqaW1DMFdHTmNGWUx1RzVOd0p3SzhxSmJVQndyU09Qa2xkb0NVY0dXblhqTVZpd083SVdjN0hJVEdWQ2xMS2w5Y1B3bTM1NDZnU0dGRm04N3lRUU16b01xMGciLCJtYWMiOiJjY2ZkY2I2YjhiNDA0N2I4ZjliYWZhNmE4ZDNkZTk5YzNkOWI2ODEzNGFmZjgwZGU2ZmU2ZmJiMDU4ZTEwMzVkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImtVZnYrblozUW5tTzFqbmk1akI1TWc9PSIsInZhbHVlIjoibElPbTU4RUJ3azF3MytpTytWR0NtZDBPVHVrQ2xoR3pIbzlwNnBSblpYaHJxWTZGRFo3elRMQ1BTM2c2Ulh4RTBldjgyUDJtb2ljWnBPalRWQWVmUFNna3BaM0doWHhyRWRWcmNUaFJ4RUZpSFRRY0c1N1RFd1Z0VDRkUjEvYk8iLCJtYWMiOiJjNDJiZTBkMjVhYTkyYmUyZTNmZDMyNTNjZDA4MmY4NTMzZjlkZmI5NTlmZmQ3MTMwNmExMjBiM2QyZGQwNmQxIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjF3d3JVaWVjbjVHOTRDbXJyZXYzV1E9PSIsInZhbHVlIjoiVU5xRlRpUWVyanNxVThmbGlJWmtmOTJpcVNvc3djMkVFekNQVjl3bGsxU0NMZmF6MXhwZXBzR0hrVVlnZVJhc0d1UStncTJKSnB2TEtETlpQci9pUzJsbURCbGR4SzRqNENqTXZ4MnY1MGZJU1hZWTN5a0V1NENxTkdpcjZBaHAiLCJtYWMiOiIyNTNkNTI4MDliYjQ2OTQ0ZDRmMzg5NGZiNWMzMTdiMDU5MTkwZTViMzI5ZjE1NmZkZDhjMDllMTVkNzkzY2JkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imo0MVhaVW91Qy83UVo0U2Z1amFHeUE9PSIsInZhbHVlIjoiajJqTDd3M3FMTXEzbXVGem5rRXhjdkpKS3ZSVjNkMFVSRzYyeWxHWFdiZ1FHZFVYOTEvSXA4WGU3WUMwUUQwYWdaVTkvYm9FV2pRQnd2YjlIOXdXbUZERjRkdjRpSlZ1ejhqa1hZZDQwUzFqVUxSQkZHcUh4ZXN0Q3poQUQ5ejMiLCJtYWMiOiI5ZmU5ZDE0ZjRiYTc4MWI5NjAyN2JiZTRlMjNiZTM0MzYyOTkzYzcyNjA4M2M4YTIxNjJlYjBiN2RhYTZkMGQzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InBuMjNRZGJwaUZudmdCejNEcldiS1E9PSIsInZhbHVlIjoiV2JodXVXR2J5T25KOFY3NlVobGQzZCtUc25IOFZ5YlA0MlVhRERvMnQrbFFlTnZ0QmQ2ZDAxejZQZXl5WDRUNE5iVFh3dzQ1Vjk4VDBPRHBLcHdsKzd2RFlqNWZvbDBXdVphczFibmduQ3lzREo5OGRnZG1IZlVVRG1HdW9qSkMiLCJtYWMiOiIxZTYxZGMzNWMxNDAyZGJlMDY1MjQyNWZlNjYwZmZlMTdlZmMwODlhYWFjODcyYjM1ZDYyZDE2ZGQ0MTc2ODhjIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkhxaXZNSURTa28wa2daUTdQbDlOQUE9PSIsInZhbHVlIjoidHV3SEE1SHQ1TllwRmZYMWYzTzczWFFveVlFeEw4Y0dUNG1JbVJ5U0RMamNFNFVaRnA4bkNDZTJZQ2hyVU43SHZMTk1OdE8zc2F3VDVmdm5mdFJBeFFqcUluekJud3FwbmlsQkxDVUprc2dOaXlOM2VNeUFPaENQVlJUMDZEblUiLCJtYWMiOiJiNjBiMjFjMTk0Mzc0NDczYTBmMTg1NWE5NDJmNTljYWUzZWVkNWYxYzlkZjgyNzc1NTBlZTNlODZiYjBjY2M1IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjdRVXhneW9ZeFhyZUpuMGZ3VmpOU3c9PSIsInZhbHVlIjoieVh4MUs2V0YySURSbVNGSmowZXNMR2hOL1YvY3FnaHgySkJubGNWYTJ3TWkxdEdTeTVQeG9DRER1ZGJhSFA0a3lMdlA0dVhwenF4cUExU3RMN1hOZTdmcHl0Q2pHa01Sb1p1SnBjeHQyN1pVYUZIaWxNNVZ6KzV4TDUybHEvaSsiLCJtYWMiOiIyMmE5OTBkMzlhZmJlMjJlNzYzNDEzZTRlYTBiNGNlMTBlYmU3OWUwNDcyNmEwNjVjOWNjODY1M2ZkZDNiYzgwIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkxLZVFwd0h0U3VvcGlhWUFVVUUyTXc9PSIsInZhbHVlIjoiOHYzeW4vSWhXcnY5TXN1WkJoYlM2SGN2NHI3cXJQN2hjbUlhenBhd2NyekxLWjlPK3FrcVYrTlViT3o5Y0h6RG5uM0o5OHF3R09LdUtUQUVoMWN6QzdHbkZ3RFN3S3Nsa295MkkvVzFoZy9QRllTMXQ3ZTdhcllYQnc5a3BqRUsiLCJtYWMiOiI0YzlmOTdmNWE0YTJjMjQ1ZTdhNmIyNzJiNDQ1ZmFmMTZmM2ZiMzMyYjk0OWU0N2EzZThjMmI2ODYwNTRjMzg3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkYwQ1FCek0rWERDWUovNVJaZENWUkE9PSIsInZhbHVlIjoiMXk0ckNFVTFvZisrRzN5R3VIdDZxMVpzcVB6L3lETUoxNW54SDM0SlI0SjRINmtOdlFWUTFtWkd0cFpidHFGZGlYZDlKOWoyK3U5NXQ4Mk9yZkZ2TnN6WmNuMkFPUHpPNTBKU1ExSkJCZUFPVnd2V00rWHYxWjN5VENwSkxFczUiLCJtYWMiOiI5ZjllMDY2ODhhZGVkNjk1ZjUxOTQ0OTE1YThjYjVhZTEwNTU4NTIyOTNmYjllNTUyNjIwZmU2NTAwYWE3ZTQzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp2K3lGb2czdE12T0hOMGd3WE1XaHc9PSIsInZhbHVlIjoiMGFHNkJFNmN2eVhleE9KQlNXZnNSNUJDdmVlcy9JQklRd0Z3eVBseUxYNkdWa1hKVHFYWnlzVGdiNlYwaTQyWmpTK3BSbWkwVjIwOG5hRHlUc0tXN2lldS9Gb3lrOWpoOU16Z3g3dmhLZmN5STFrMUVHajR1V25MeFhGVkczRDgiLCJtYWMiOiJjMjJlNzY2Y2E1MWJmZmU5YmE1MGEwYmE0YzEzM2I1YjU0NjA0MDQyNjdiN2I1NTVmNGRhZDRhMmZiN2I1ZjNhIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVqL1pKcDlJeG51MExUdTZSQWhkemc9PSIsInZhbHVlIjoiYVNtbCt0bHc5ei9oWmJGK3VGUm53ZTNpZGNNUG9yS2ZKSjV1Y0ppNmNQZ2J3ay9FcThWdzNZbDVIY0J1Ny9lemxMUjdYUXNQSTR3NFh1K1lGUkVEU25vYjA1MzY5ekp5dTlxU1ZISkRuRXlqVEN2OHRSNXB6VVpNOHk4dVpPNnQiLCJtYWMiOiJlMWYzZWY3Y2RhMTFlYTdkNzViNzAwMzI0OTQ3OGRiMWYyZGNhZWNhZWY0MTQ0ZjgwMzEwOThhY2E3YWI0Njk4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp0YW95YVV3REw5SDJJREwrcGVQenc9PSIsInZhbHVlIjoieE1oSUltNGYvTVI5WGFVbG5pNU9mcTFrd0FnQVVQb0NvRFBaWDg5NTBCUWI5WnFtOFp6OTRtU2F2bUFwOGxjaENlbWFyOVQzdEQ4WWcvbXFTaE1jL3VwdS9QRjhKRlBlVG41Q3QwV3dGY2NIRlROeXVJQTRxZnM2R1daU1Y2cDYiLCJtYWMiOiIxNzg0NjZkNWQ1ZDEyZDVkNzM5NTdkMDNkYTY2MDgyYzdmOTU2NzIwMTlmNGIzMWEyZjVmZjI0YTE3YzQ5NDU3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InJKU05Kb3BSOFpIdTVNMTJBSys1NkE9PSIsInZhbHVlIjoiN045S29tTjdLejRwNlNCcUdFK0crV3NsT25hSnJmbXZyTjZabWZYanBmWFF6M2dzVTRld0M2M3RsSjk4N3ZPa2doZTRPOVA2WXVwalRnMGxxUDQzdG8wSlZwTnZna3ZaWkkyc2tNVWJMV3NZVWFFWDJRRGV0SDV5VlUxWGZPVWciLCJtYWMiOiJkNWM3ZGIyY2QwY2M0OWVlNzQwYTUwZTQxY2ZhYjg3M2FmNzYxMjcyMTdlMWJiYjM3ZDhjZGFiMjNlM2I5MzBiIiwidGFnIjoiIn0%3D",
+          "enabled": true
+        }
+      ],
+      "body": {
+        "type": "none"
+      },
+      "auth": {
+        "type": "none"
+      },
+      "inheritAuth": true
+    },
+    "response": {
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "no-cache, private",
+        "connection": "close",
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 17:32:55 GMT",
+        "host": "localhost:8001",
+        "set-cookie": "laravel-session=eyJpdiI6Ik5xM083TXloK1htMHlyWEJoOFBRbVE9PSIsInZhbHVlIjoidHdZb0lPZmlmVHQ5QUcra054MEN6ckRSZkN0ZmcwbVYvWFowczZsMW9nZFVrVDVhN3lUUXYvUVRXdDE5VjNRRjl3dDVkOTcwMTZPU0pvN20wVHdpTDhBSUw0UDM5VlYvcjF3M2ZyMkw0bWY5N0lvVytBUEN0SWl2MkF1YzlROFYiLCJtYWMiOiJmZTYxMDVjZmRlOGQwMTE3M2Y2MDc4NWRjNzg0ZTBiYjE2N2YyNmM4ZmIyODVjOTAyMmM3YTIxNDRlZjU1YTIyIiwidGFnIjoiIn0%3D; expires=Tue, 27 Oct 2026 19:32:55 GMT; Max-Age=7200; path=/; httponly; samesite=lax",
+        "x-powered-by": "PHP/8.4.5"
+      },
+      "body": "[{\"id\":28005,\"match\":\"Aston Villa vs Brentford\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70016,\"match\":\"Barcelona vs Real Madrid\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70026,\"match\":\"Atletico Madrid vs Sevilla\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70063,\"match\":\"Valencia vs Villarreal\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70069,\"match\":\"Mallorca vs Alaves\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70087,\"match\":\"Girona vs Leganes\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70098,\"match\":\"Osasuna vs Rayo Vallecano\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70105,\"match\":\"Valladolid vs Almeria\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70404,\"match\":\"Athletic Club vs Real Betis\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70505,\"match\":\"Real Sociedad vs Celta Vigo\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70606,\"match\":\"Espanyol vs Getafe\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80013,\"match\":\"Arsenal vs Tottenham\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80024,\"match\":\"Chelsea vs Brighton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80102,\"match\":\"Liverpool vs Manchester City\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80130,\"match\":\"Ipswich vs Nottingham Forest\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80207,\"match\":\"West Ham vs Crystal Palace\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":81001,\"match\":\"Manchester United vs Newcastle\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":82006,\"match\":\"Fulham vs Everton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":83008,\"match\":\"Leicester vs Wolves\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":803059,\"match\":\"Southampton vs Bournemouth\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}}]",
+      "time": 1254,
+      "size": 2654,
+      "cookies": [
+        {
+          "name": "XSRF-TOKEN",
+          "value": "eyJpdiI6IjJLM1ZoaXM3VVNJSUt5NXBqK3NoSVE9PSIsInZhbHVlIjoiSlVwb1FRSDZzbm9UYVJXT3JhMjdneUZTOUYvYmRvMnJ0Ym9vdXljTjBoVnVQYTZJZ1dhcXg2VktoT1M3VUdseGpLb0RoYU5mUWNodU01TC94YWNkRjQvYVdFVk1DZzQva0RGSWFHK0xxUFpaWGozYnYzcW9HRUI1eWJDUWdwamkiLCJtYWMiOiJhMjlkZmZjZDFhZTEyMzQzMTBlZTA3NGY3OWZiYmQ0NTJmMzM2YmZmODkzYmYyZjdlYmMzMDY5ZWI0ZGY0NDUyIiwidGFnIjoiIn0%3D",
+          "domain": "localhost",
+          "path": "/",
+          "expires": "2026-10-27T19:32:55.562Z",
+          "httpOnly": false,
+          "secure": false,
+          "sameSite": "Lax",
+          "createdAt": "2026-10-27T17:32:55.562Z"
+        },
+        {
+          "name": "laravel-session",
+          "value": "eyJpdiI6Ik5xM083TXloK1htMHlyWEJoOFBRbVE9PSIsInZhbHVlIjoidHdZb0lPZmlmVHQ5QUcra054MEN6ckRSZkN0ZmcwbVYvWFowczZsMW9nZFVrVDVhN3lUUXYvUVRXdDE5VjNRRjl3dDVkOTcwMTZPU0pvN20wVHdpTDhBSUw0UDM5VlYvcjF3M2ZyMkw0bWY5N0lvVytBUEN0SWl2MkF1YzlROFYiLCJtYWMiOiJmZTYxMDVjZmRlOGQwMTE3M2Y2MDc4NWRjNzg0ZTBiYjE2N2YyNmM4ZmIyODVjOTAyMmM3YTIxNDRlZjU1YTIyIiwidGFnIjoiIn0%3D",
+          "domain": "localhost",
+          "path": "/",
+          "expires": "2026-10-27T19:32:55.562Z",
+          "httpOnly": true,
+          "secure": false,
+          "sameSite": "Lax",
+          "createdAt": "2026-10-27T17:32:55.562Z"
+        }
+      ]
+    }
+  },
+  {
+    "id": "1793124194990",
+    "timestamp": 1793124194990,
+    "request": {
+      "id": "1793124193926",
+      "name": "New Request",
+      "method": "POST",
+      "url": "http://localhost:8001/dev/mock-api/drowning/reset",
+      "params": [],
+      "headers": [
+        {
+          "key": "Accept",
+          "value": "application/json",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        },
+        {
+          "key": "Cookie",
+          "value": "XSRF-TOKEN=eyJpdiI6IlJCZEdzZElabUFnanlMNTZCc0RrVFE9PSIsInZhbHVlIjoiT3dHR1BmSmFFVk85QytwVEVvQU40dXFJVHc2MVZySHNBR3pGRVVVWVMyaVcwQmwrVkhvNjRnSThkdUt6M0wvbXcyL3VnU25PVC9oMTNYUkE3STF0SWwyUnpGbzM5b2NjbUxSRXd6bEpkVjdvUHgrc285S2lRZHpXTGZtczF1d2MiLCJtYWMiOiIyNTUwOWU0YjFmNjJmMmQ4NThlYWI2NDg3YmVhNzE5YmI3Y2U3MGUxNTMyMTcxY2E3OTY1ZTA0OTM5Yjg3MGNkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IklGakI1L0lRK25QOUZUdHMyM1UvdWc9PSIsInZhbHVlIjoiTUhVZHhXV0pQZ21ja0dBODJXaHYybGdoMTkzNHJuMnQva3AxSCtzdTkvUUlNckpoNWFUSFp2dTBkOEx1YzJubTNobzR0N0p0WVVFK0Z4ai9sL2VocnBXSmJ6MUVKckR0WE1PYjMzV21mZitzQ2hSK1RHQVB5STNDMWVBdDFRZmgiLCJtYWMiOiJlNDQ0OThmMDgzZWVkMjIxYWExN2VhYzYxMGYwYzk0NWVjNGI3MzYzYmFhZjI2Y2UzODQxOWMxYmIwODRkYjljIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InpaM0c0K2dlcXhCdytSUE9DTmdqS2c9PSIsInZhbHVlIjoiUWZWNHUva2lIU2FSVTFiZFExcS9lUlJlVFdmeE0wNFFPWGd0WTNaS3pGa1dhODVacCtZVDlyZk5WVjlDS3NBYThud1VZTWlYQUVZTWg0SlJZNGQzdytKUjFiNVRRVk9rTE9vU3ZETWlMblhiZEdscFpxZE51bTVEOHEraGRGcWMiLCJtYWMiOiJmMDMwMDA5NDU3NTA3MGU0NDhjMGM4M2U0YTE1ODZmMGZkMDc5MDkyNWVhMWQ1OGEwMDc5OTgzM2I5OWY5MzA2IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlNoRStwN1E1Q1JUOVVyaytENFR5emc9PSIsInZhbHVlIjoiNmtlQ3BYYzhRcEQyVlY2UEdUK01nU2NjeGxhZVlOeWdPclY2ZlVtSU5TaDdKL1h5dEhMY3Bva0xrOS9UOGV2UUFyRFNFNnhqQmYxaTZJL0dNUzdjRktRaHV1MUhROFUrbE1ybGdFTGp6L3B5T1FLNGVkRHN0S0w4SmRnSXRlTy8iLCJtYWMiOiJiMzM4MWU1N2RjNGE3ZjM5YmIxMDBiNDU4OTc3ZjczMWFhNGMxYmQxYWQ1YTliNTNlNjBmOGQ3OWE3NzY2MDZmIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InhUbmFjUTdwdmwxeFZLMElIWDJtRUE9PSIsInZhbHVlIjoiN1hSbVpNTUZVWHFJYlRUK1lzN2FGOFFJYXZ5aEtLbXEvY2sxTHNCdWJ1b3psUitOVUV0akJtVHZXdVk5cFVSRlhNVVFDNGU1RFlsWDVVeWd2NXNCd0hteG1MQ1o1dm55elFPd2FhS2MwSml5VnFBUTA4RFhmUENkS1Nld3IwVnIiLCJtYWMiOiJhNjM1NGM3YTM0ZjRiNWNhYzliZTg2OGJlMDM4ZWIxZThiNTIzNTBhOTgzNmNmZjkyNmIzZjQ5ZDlmMzhkN2EzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ind0RHhUWUFTR3Z6eTdYc0tTM1Q4alE9PSIsInZhbHVlIjoiNlowQVM2MEFQR21FMUpGOUwzZkR4VTJ2TVRqVkI5YURGeHFmQ085N2trQWt6ZmN6L1VKQWx4bVFjUXVtVHREMHRhYWNmQ0RHZnRBc0Y2U0JPN2IxNDQ5UFhKMjRVMmxSRzlTQVhleFFaem1DenZpWkUvZnhQMHhoR3VPOG0yUXkiLCJtYWMiOiIyMGViYzJhMGEzOWI3OWQ3MzgzZjM4N2M1MjFhYzY5NjlkNGU5MGRiMzNmN2ZiZDNjOTg0ZjRlZTExNWVmYjUzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InY1M2ZuakFwWDVoYk1xRkIvSkpuVnc9PSIsInZhbHVlIjoiUEZ0U3RxRDJQcWhIaWJaaklxTmszUnN6bk9QcFR0ellEQzZTMVN1cWtnd01kbnVoNEFDRjUzVlZ6Q2Jkc1RXakNpVk5lVy9BSU4zQm94VlVCM0RQODNmL0JIK05yNmZrQXNYcit2VVJQWERmWTh6emwyODRTc3BqZjZLdy9KUE8iLCJtYWMiOiIzZmUyNGUzMzU3ODMxYjAyZjQwZGQ2MTQ5OWFmNzU0MzIxODY1MjYxMWViNTgzZmMxMmI3OGFiNGI1MDVmMWFlIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhIMjAxalpaNG5RWHNJMTA4aENZMVE9PSIsInZhbHVlIjoiQVM0S2dtS1U0NWhuMWdBc2FmUnJpWlJZVUx3RUxJWWtNbmpDNndvUlBWN21WSUZ1NllqVzhac2FjR0g0eXU5WTBJN2J0NDlaN1FPL2FRTlFoY3JzYUNLUkU5bXFkUGp3U0tNQWt1MnYwNnd3Z2o5b2VVZE1DUGNlNXlRSVY1YmIiLCJtYWMiOiIzMThhYTliMGEzNWJmNDQwOTA4MDUyYTRiNTVmNGE4OGNlYThjOWM5YzEyMmQyNGM4ZTM1MmUyZDhkOWI4YWU1IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkF5eGxyV3hTZTJtQkdQeEV6MXRRdEE9PSIsInZhbHVlIjoidkxxRWVBQWJWU3EzL0M5ckMxc2N4a1doTEw5a1BYNkNIZ0JyNjNSWGppVm1HeURpS0NaMytGWFNyaWx3WC9KSXdwVVN3RG1wS3BYT0wreXU1NU14dHBNQjkwdzFWZHhzM1NiZUVHcHNiYW5mR1ZKdm5OTTQrMWpsdUdUQXNCUEsiLCJtYWMiOiIzZGIyMzAxYWU4ZjgwMmZjNTcyMTVhOTQ4NTQyN2FlMDQxY2NlYmU5OTZmMjRlMjg1MDg0NmRmYWNlMTI5ZGZmIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVkbWdESnRtMFVaU0VhRU1vRXdsMXc9PSIsInZhbHVlIjoiS1FwSURpZlVqUDluWFJmYi9BZytyWUhzUmFudC9BUDNIaFdSYVpXMEpBUXhteTlSOFc2WGtVL2JVUzlkSElwMDZza0xmMUVEVXpGcEl2dytuSDh4UytjaTl4Mll6Q1pNWFBNWjhsMGpoQXV2Rmg1VXE0R1p3M2xVTFdhTkU4YU8iLCJtYWMiOiI4OTgzZGViYzRjYzU2ZDRlMTNiNzJlOTc3MjA0NGE5MmRkMTRkNDRhZWRiZjQyZjE1YjdjM2MzMGNhZDRlOGQ4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjRhMkpiTnBjbEJQR0lZWmtIb044U3c9PSIsInZhbHVlIjoiQU92bHZSYTdxRUZqOVJQbWYwdEd0cy8zSEtuNElxcWZDUlFTSW5RbGRiQXpudjNuYS80S1pSdVgxS2czdll6VXZDZXIvWUVMVHdSNlJSWTExRlJwSjdwZzYxQW9nV3hjNUxpQ1BnTFBNUmdma2dWODZMMkNXSWQ2SE1Vc3RmYVUiLCJtYWMiOiI3ZTc0YmU4NjhmNWY3Y2UwYmNhZTAyYWUzOGViMzc3NmMyZWUwYjAwZTZhYTcyYmY2OWVlMDc0Yjg2YTVhZmRjIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InhmNUsxQWdpZzhvb21WVGtCL2lRUVE9PSIsInZhbHVlIjoiZWw3NGFXSEZSTHRJbUtGcTFRN3lnd1FXMHRzdEkzYmtYTWxEYWlqaW1DMFdHTmNGWUx1RzVOd0p3SzhxSmJVQndyU09Qa2xkb0NVY0dXblhqTVZpd083SVdjN0hJVEdWQ2xMS2w5Y1B3bTM1NDZnU0dGRm04N3lRUU16b01xMGciLCJtYWMiOiJjY2ZkY2I2YjhiNDA0N2I4ZjliYWZhNmE4ZDNkZTk5YzNkOWI2ODEzNGFmZjgwZGU2ZmU2ZmJiMDU4ZTEwMzVkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6ImtVZnYrblozUW5tTzFqbmk1akI1TWc9PSIsInZhbHVlIjoibElPbTU4RUJ3azF3MytpTytWR0NtZDBPVHVrQ2xoR3pIbzlwNnBSblpYaHJxWTZGRFo3elRMQ1BTM2c2Ulh4RTBldjgyUDJtb2ljWnBPalRWQWVmUFNna3BaM0doWHhyRWRWcmNUaFJ4RUZpSFRRY0c1N1RFd1Z0VDRkUjEvYk8iLCJtYWMiOiJjNDJiZTBkMjVhYTkyYmUyZTNmZDMyNTNjZDA4MmY4NTMzZjlkZmI5NTlmZmQ3MTMwNmExMjBiM2QyZGQwNmQxIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjF3d3JVaWVjbjVHOTRDbXJyZXYzV1E9PSIsInZhbHVlIjoiVU5xRlRpUWVyanNxVThmbGlJWmtmOTJpcVNvc3djMkVFekNQVjl3bGsxU0NMZmF6MXhwZXBzR0hrVVlnZVJhc0d1UStncTJKSnB2TEtETlpQci9pUzJsbURCbGR4SzRqNENqTXZ4MnY1MGZJU1hZWTN5a0V1NENxTkdpcjZBaHAiLCJtYWMiOiIyNTNkNTI4MDliYjQ2OTQ0ZDRmMzg5NGZiNWMzMTdiMDU5MTkwZTViMzI5ZjE1NmZkZDhjMDllMTVkNzkzY2JkIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imo0MVhaVW91Qy83UVo0U2Z1amFHeUE9PSIsInZhbHVlIjoiajJqTDd3M3FMTXEzbXVGem5rRXhjdkpKS3ZSVjNkMFVSRzYyeWxHWFdiZ1FHZFVYOTEvSXA4WGU3WUMwUUQwYWdaVTkvYm9FV2pRQnd2YjlIOXdXbUZERjRkdjRpSlZ1ejhqa1hZZDQwUzFqVUxSQkZHcUh4ZXN0Q3poQUQ5ejMiLCJtYWMiOiI5ZmU5ZDE0ZjRiYTc4MWI5NjAyN2JiZTRlMjNiZTM0MzYyOTkzYzcyNjA4M2M4YTIxNjJlYjBiN2RhYTZkMGQzIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InBuMjNRZGJwaUZudmdCejNEcldiS1E9PSIsInZhbHVlIjoiV2JodXVXR2J5T25KOFY3NlVobGQzZCtUc25IOFZ5YlA0MlVhRERvMnQrbFFlTnZ0QmQ2ZDAxejZQZXl5WDRUNE5iVFh3dzQ1Vjk4VDBPRHBLcHdsKzd2RFlqNWZvbDBXdVphczFibmduQ3lzREo5OGRnZG1IZlVVRG1HdW9qSkMiLCJtYWMiOiIxZTYxZGMzNWMxNDAyZGJlMDY1MjQyNWZlNjYwZmZlMTdlZmMwODlhYWFjODcyYjM1ZDYyZDE2ZGQ0MTc2ODhjIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkhxaXZNSURTa28wa2daUTdQbDlOQUE9PSIsInZhbHVlIjoidHV3SEE1SHQ1TllwRmZYMWYzTzczWFFveVlFeEw4Y0dUNG1JbVJ5U0RMamNFNFVaRnA4bkNDZTJZQ2hyVU43SHZMTk1OdE8zc2F3VDVmdm5mdFJBeFFqcUluekJud3FwbmlsQkxDVUprc2dOaXlOM2VNeUFPaENQVlJUMDZEblUiLCJtYWMiOiJiNjBiMjFjMTk0Mzc0NDczYTBmMTg1NWE5NDJmNTljYWUzZWVkNWYxYzlkZjgyNzc1NTBlZTNlODZiYjBjY2M1IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IjdRVXhneW9ZeFhyZUpuMGZ3VmpOU3c9PSIsInZhbHVlIjoieVh4MUs2V0YySURSbVNGSmowZXNMR2hOL1YvY3FnaHgySkJubGNWYTJ3TWkxdEdTeTVQeG9DRER1ZGJhSFA0a3lMdlA0dVhwenF4cUExU3RMN1hOZTdmcHl0Q2pHa01Sb1p1SnBjeHQyN1pVYUZIaWxNNVZ6KzV4TDUybHEvaSsiLCJtYWMiOiIyMmE5OTBkMzlhZmJlMjJlNzYzNDEzZTRlYTBiNGNlMTBlYmU3OWUwNDcyNmEwNjVjOWNjODY1M2ZkZDNiYzgwIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IkxLZVFwd0h0U3VvcGlhWUFVVUUyTXc9PSIsInZhbHVlIjoiOHYzeW4vSWhXcnY5TXN1WkJoYlM2SGN2NHI3cXJQN2hjbUlhenBhd2NyekxLWjlPK3FrcVYrTlViT3o5Y0h6RG5uM0o5OHF3R09LdUtUQUVoMWN6QzdHbkZ3RFN3S3Nsa295MkkvVzFoZy9QRllTMXQ3ZTdhcllYQnc5a3BqRUsiLCJtYWMiOiI0YzlmOTdmNWE0YTJjMjQ1ZTdhNmIyNzJiNDQ1ZmFmMTZmM2ZiMzMyYjk0OWU0N2EzZThjMmI2ODYwNTRjMzg3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkYwQ1FCek0rWERDWUovNVJaZENWUkE9PSIsInZhbHVlIjoiMXk0ckNFVTFvZisrRzN5R3VIdDZxMVpzcVB6L3lETUoxNW54SDM0SlI0SjRINmtOdlFWUTFtWkd0cFpidHFGZGlYZDlKOWoyK3U5NXQ4Mk9yZkZ2TnN6WmNuMkFPUHpPNTBKU1ExSkJCZUFPVnd2V00rWHYxWjN5VENwSkxFczUiLCJtYWMiOiI5ZjllMDY2ODhhZGVkNjk1ZjUxOTQ0OTE1YThjYjVhZTEwNTU4NTIyOTNmYjllNTUyNjIwZmU2NTAwYWE3ZTQzIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp2K3lGb2czdE12T0hOMGd3WE1XaHc9PSIsInZhbHVlIjoiMGFHNkJFNmN2eVhleE9KQlNXZnNSNUJDdmVlcy9JQklRd0Z3eVBseUxYNkdWa1hKVHFYWnlzVGdiNlYwaTQyWmpTK3BSbWkwVjIwOG5hRHlUc0tXN2lldS9Gb3lrOWpoOU16Z3g3dmhLZmN5STFrMUVHajR1V25MeFhGVkczRDgiLCJtYWMiOiJjMjJlNzY2Y2E1MWJmZmU5YmE1MGEwYmE0YzEzM2I1YjU0NjA0MDQyNjdiN2I1NTVmNGRhZDRhMmZiN2I1ZjNhIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkVqL1pKcDlJeG51MExUdTZSQWhkemc9PSIsInZhbHVlIjoiYVNtbCt0bHc5ei9oWmJGK3VGUm53ZTNpZGNNUG9yS2ZKSjV1Y0ppNmNQZ2J3ay9FcThWdzNZbDVIY0J1Ny9lemxMUjdYUXNQSTR3NFh1K1lGUkVEU25vYjA1MzY5ekp5dTlxU1ZISkRuRXlqVEN2OHRSNXB6VVpNOHk4dVpPNnQiLCJtYWMiOiJlMWYzZWY3Y2RhMTFlYTdkNzViNzAwMzI0OTQ3OGRiMWYyZGNhZWNhZWY0MTQ0ZjgwMzEwOThhY2E3YWI0Njk4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6Imp0YW95YVV3REw5SDJJREwrcGVQenc9PSIsInZhbHVlIjoieE1oSUltNGYvTVI5WGFVbG5pNU9mcTFrd0FnQVVQb0NvRFBaWDg5NTBCUWI5WnFtOFp6OTRtU2F2bUFwOGxjaENlbWFyOVQzdEQ4WWcvbXFTaE1jL3VwdS9QRjhKRlBlVG41Q3QwV3dGY2NIRlROeXVJQTRxZnM2R1daU1Y2cDYiLCJtYWMiOiIxNzg0NjZkNWQ1ZDEyZDVkNzM5NTdkMDNkYTY2MDgyYzdmOTU2NzIwMTlmNGIzMWEyZjVmZjI0YTE3YzQ5NDU3IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6InJKU05Kb3BSOFpIdTVNMTJBSys1NkE9PSIsInZhbHVlIjoiN045S29tTjdLejRwNlNCcUdFK0crV3NsT25hSnJmbXZyTjZabWZYanBmWFF6M2dzVTRld0M2M3RsSjk4N3ZPa2doZTRPOVA2WXVwalRnMGxxUDQzdG8wSlZwTnZna3ZaWkkyc2tNVWJMV3NZVWFFWDJRRGV0SDV5VlUxWGZPVWciLCJtYWMiOiJkNWM3ZGIyY2QwY2M0OWVlNzQwYTUwZTQxY2ZhYjg3M2FmNzYxMjcyMTdlMWJiYjM3ZDhjZGFiMjNlM2I5MzBiIiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6IjJLM1ZoaXM3VVNJSUt5NXBqK3NoSVE9PSIsInZhbHVlIjoiSlVwb1FRSDZzbm9UYVJXT3JhMjdneUZTOUYvYmRvMnJ0Ym9vdXljTjBoVnVQYTZJZ1dhcXg2VktoT1M3VUdseGpLb0RoYU5mUWNodU01TC94YWNkRjQvYVdFVk1DZzQva0RGSWFHK0xxUFpaWGozYnYzcW9HRUI1eWJDUWdwamkiLCJtYWMiOiJhMjlkZmZjZDFhZTEyMzQzMTBlZTA3NGY3OWZiYmQ0NTJmMzM2YmZmODkzYmYyZjdlYmMzMDY5ZWI0ZGY0NDUyIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ik5xM083TXloK1htMHlyWEJoOFBRbVE9PSIsInZhbHVlIjoidHdZb0lPZmlmVHQ5QUcra054MEN6ckRSZkN0ZmcwbVYvWFowczZsMW9nZFVrVDVhN3lUUXYvUVRXdDE5VjNRRjl3dDVkOTcwMTZPU0pvN20wVHdpTDhBSUw0UDM5VlYvcjF3M2ZyMkw0bWY5N0lvVytBUEN0SWl2MkF1YzlROFYiLCJtYWMiOiJmZTYxMDVjZmRlOGQwMTE3M2Y2MDc4NWRjNzg0ZTBiYjE2N2YyNmM4ZmIyODVjOTAyMmM3YTIxNDRlZjU1YTIyIiwidGFnIjoiIn0%3D",
+          "enabled": true
+        }
+      ],
+      "body": {
+        "type": "none"
+      },
+      "auth": {
+        "type": "none"
+      },
+      "inheritAuth": true
+    },
+    "response": {
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "no-cache, private",
+        "connection": "close",
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 18:03:14 GMT",
+        "host": "localhost:8001",
+        "set-cookie": "laravel-session=eyJpdiI6IlVZUVVrazhPTU42R0ZKUS9KTUlVSmc9PSIsInZhbHVlIjoiY0w3MVRwZ21SSlVvbUpSM25xbHB6TlZ4QUM0QUdaVmtFVGVBclhHSzd2T29LWlJKYVVFcUJmeDRRamNoRXZEYlY1anIrZ3VmV1RJbis3UHNuY09nMGRuekJ0WHdkdXp5QVJOZkd6NldBMnJsMkJaVEZORXNhUjd0U28rZGMwamIiLCJtYWMiOiI2NmMxMzM2MzE2NGNmZGMzMmIxMDNjNDQ4ZWM5ZWRmZmJkZWNhYmY4MGU5YTg3YjJmY2JhMzE2YjIzMzA2NTc1IiwidGFnIjoiIn0%3D; expires=Tue, 27 Oct 2026 20:03:14 GMT; Max-Age=7200; path=/; httponly; samesite=lax",
+        "x-powered-by": "PHP/8.4.5"
+      },
+      "body": "[{\"id\":28005,\"match\":\"Aston Villa vs Brentford\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70016,\"match\":\"Barcelona vs Real Madrid\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70026,\"match\":\"Atletico Madrid vs Sevilla\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70063,\"match\":\"Valencia vs Villarreal\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70069,\"match\":\"Mallorca vs Alaves\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70087,\"match\":\"Girona vs Leganes\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70098,\"match\":\"Osasuna vs Rayo Vallecano\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70105,\"match\":\"Valladolid vs Almeria\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70404,\"match\":\"Athletic Club vs Real Betis\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70505,\"match\":\"Real Sociedad vs Celta Vigo\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":70606,\"match\":\"Espanyol vs Getafe\",\"league\":\"La Liga\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80013,\"match\":\"Arsenal vs Tottenham\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80024,\"match\":\"Chelsea vs Brighton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80102,\"match\":\"Liverpool vs Manchester City\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80130,\"match\":\"Ipswich vs Nottingham Forest\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":80207,\"match\":\"West Ham vs Crystal Palace\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":81001,\"match\":\"Manchester United vs Newcastle\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":82006,\"match\":\"Fulham vs Everton\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":83008,\"match\":\"Leicester vs Wolves\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}},{\"id\":803059,\"match\":\"Southampton vs Bournemouth\",\"league\":\"Premier League\",\"status\":\"NS\",\"elapsed\":null,\"score\":{\"home\":null,\"away\":null}}]",
+      "time": 1038,
+      "size": 2654,
+      "cookies": [
+        {
+          "name": "XSRF-TOKEN",
+          "value": "eyJpdiI6ImpiaHRoWXZaclBGdDVMUjE2VllHSlE9PSIsInZhbHVlIjoiV2cvQy9zakpMWmd6VFl6U0s5bC9pUUNtV0Ewb2E2MjBRTG1mNHJpelgxK29wZWRKajQwcUlmdHZVeWIySFVPM0pRaW51TTJHdE5DWkpOSEZtQk56YUx6NUJ4MFNGVDVoMHk3SFZtY1dMNHlodCt0djNQbjZTaUpNVVFsL2RCNDYiLCJtYWMiOiIzOGIwOTI3MmZjMmJjNjdiYTRjN2FiMmQ0NTJjOTM0M2FlMGEwNTE5OGVjMjI1MDBhMDczYjU3NjEwN2IyOGMwIiwidGFnIjoiIn0%3D",
+          "domain": "localhost",
+          "path": "/",
+          "expires": "2026-10-27T20:03:14.978Z",
+          "httpOnly": false,
+          "secure": false,
+          "sameSite": "Lax",
+          "createdAt": "2026-10-27T18:03:14.978Z"
+        },
+        {
+          "name": "laravel-session",
+          "value": "eyJpdiI6IlVZUVVrazhPTU42R0ZKUS9KTUlVSmc9PSIsInZhbHVlIjoiY0w3MVRwZ21SSlVvbUpSM25xbHB6TlZ4QUM0QUdaVmtFVGVBclhHSzd2T29LWlJKYVVFcUJmeDRRamNoRXZEYlY1anIrZ3VmV1RJbis3UHNuY09nMGRuekJ0WHdkdXp5QVJOZkd6NldBMnJsMkJaVEZORXNhUjd0U28rZGMwamIiLCJtYWMiOiI2NmMxMzM2MzE2NGNmZGMzMmIxMDNjNDQ4ZWM5ZWRmZmJkZWNhYmY4MGU5YTg3YjJmY2JhMzE2YjIzMzA2NTc1IiwidGFnIjoiIn0%3D",
+          "domain": "localhost",
+          "path": "/",
+          "expires": "2026-10-27T20:03:14.979Z",
+          "httpOnly": true,
+          "secure": false,
+          "sameSite": "Lax",
+          "createdAt": "2026-10-27T18:03:14.979Z"
         }
       ]
     }

@@ -53,6 +53,8 @@ use App\Services\ReferralCodeGenerator;
     'sellable_status_changed_at',
     'prediction_points',
     'sellable_warned_at',
+    'is_analyst',
+    'analyst_slug',
 ])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
@@ -77,6 +79,7 @@ class User extends Authenticatable implements PasskeyUser
             'picks_settled_rolling' => 'integer',
             'sellable_status_changed_at' => 'datetime',
             'sellable_warned_at' => 'datetime',
+            'is_analyst' => 'boolean',
         ];
     }
 
@@ -450,5 +453,21 @@ class User extends Authenticatable implements PasskeyUser
         }
 
         return 1.0 + log10($this->prediction_points / 100 + 1);
+    }
+
+    public function analystSlips(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Betslip::class, 'analyst_id')
+            ->where('is_analyst_slip', true);
+    }
+
+    public function isAnalyst(): bool
+    {
+        return (bool) $this->is_analyst;
+    }
+
+    public function byline(): string
+    {
+        return $this->name;
     }
 }

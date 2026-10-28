@@ -21,6 +21,20 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
         then: function () {
+            // Route-model binding for the analyst-pick public URLs. Scoped so
+            // unpublished picks and non-analyst slips 404 at binding time — the
+            // controllers never see them and cannot leak their existence.
+            //
+            // Does NOT affect the existing /betslip/view/g/{code} route, which
+            // binds on {code}, not {betslip}.
+            Route::bind('betslip', function (string $value) {
+                return \App\Models\Betslip::query()
+                    ->where('id', $value)
+                    ->where('is_analyst_slip', true)
+                    ->whereNotNull('analyst_published_at')
+                    ->firstOrFail();
+            });
+
             Route::middleware('web')
                 ->group(base_path('routes/admin.php'));
         },

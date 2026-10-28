@@ -209,6 +209,8 @@ class SyncLiveFixturesCommand extends Command
         BetslipUserPurchase::whereIn('betslip_id', $pendingBetslipIds)
             ->where('status', 'pending')
             ->update(['status' => 'underway']);
+
+            // Update contest to underway
     }
 
         /**

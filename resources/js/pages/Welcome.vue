@@ -16,6 +16,7 @@ import RecordSection from '@/components/landing/RecordSection.vue';
 import FourWaysSection from '@/components/landing/FourWaysSection.vue';
 import MarketplaceTeaser from '@/components/landing/MarketplaceTeaser.vue';
 import SocialProofSection from '@/components/landing/SocialProofSection.vue';
+import AnalystPicksRow from '@/components/AnalystPicksRow.vue';
 import HowItWorksSection from '@/components/landing/HowItWorksSection.vue';
 import FeatureRail from '@/components/landing/FeatureRail.vue';
 import FinalCtaSection from '@/components/landing/FinalCtaSection.vue';
@@ -359,6 +360,9 @@ const submitBetslipSearch = async () => {
                     @view-all-clicked="handleViewAllLeaders" @search-submitted="handleLeaderSearch" />
             </section>
 
+            <!-- ─── Analyst Picks ─── -->
+            <AnalystPicksRow v-if="$page.props.analyst_picks" :current="$page.props.analyst_picks.current ?? []"
+                :last_settled="$page.props.analyst_picks.last_settled" :analyst="$page.props.analyst_picks.analyst" />
             <!-- ─── Create Your Betslip (fixture list + betslip sidebar) ─── -->
             <section class="grid grid-cols-1 gap-4 lg:grid-cols-12">
                 <div class="lg:col-span-3 order-2 lg:order-1">
