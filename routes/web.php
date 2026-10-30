@@ -31,6 +31,8 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WatchlistController;
 use App\Http\Controllers\WatchlistRecordController;
 use App\Http\Controllers\WithdrawalController;
+use App\Http\Controllers\AnalystDashboardController;
+use App\Http\Controllers\AnalystDirectoryController;
 use App\Models\Betslip;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
@@ -42,6 +44,8 @@ use Inertia\Inertia;
 | PUBLIC ROUTES (No authentication required)
 |--------------------------------------------------------------------------
 */
+
+Route::get('/analysts', [AnalystDirectoryController::class, 'index'])->name('analysts.index');
 
 // ── Dev / maintenance ──
 Route::prefix('dev')->group(function () {
@@ -880,6 +884,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ── Referral Dashboard ──
     Route::get('/refer', [ReferralDashboardController::class, 'index'])
         ->name('refer');
+
+
+        Route::middleware(['is.analyst'])->prefix('analyst/dashboard')->name('analyst.')->group(function () {
+            Route::get('/', [AnalystDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/picks/{betslip}/edit', [AnalystDashboardController::class, 'edit'])->name('picks.edit');
+            Route::put('/picks/{betslip}', [AnalystDashboardController::class, 'update'])->name('picks.update');
+            Route::post('/picks/{betslip}/unpublish', [AnalystDashboardController::class, 'unpublish'])->name('picks.unpublish');
+        });
 });
 
 /*

@@ -359,10 +359,9 @@ const submitBetslipSearch = async () => {
                 <TopTipstersCarousel :leaders="$page.props.leaders || []" @seller-clicked="handleSellerClick"
                     @view-all-clicked="handleViewAllLeaders" @search-submitted="handleLeaderSearch" />
             </section>
-
-            <!-- ─── Analyst Picks ─── -->
-            <AnalystPicksRow v-if="$page.props.analyst_picks" :current="$page.props.analyst_picks.current ?? []"
-                :last_settled="$page.props.analyst_picks.last_settled" :analyst="$page.props.analyst_picks.analyst" />
+            <AnalystPicksRow v-if="$page.props.analyst_picks" :current="$page.props.analyst_picks.current"
+                :leaderboard="$page.props.analyst_picks.leaderboard"
+                :combined-record="$page.props.analyst_picks.combined_record" />
             <!-- ─── Create Your Betslip (fixture list + betslip sidebar) ─── -->
             <section class="grid grid-cols-1 gap-4 lg:grid-cols-12">
                 <div class="lg:col-span-3 order-2 lg:order-1">

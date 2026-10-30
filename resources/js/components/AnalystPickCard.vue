@@ -161,7 +161,12 @@ const publishedLabel = computed(() => {
                 <span v-if="pick.is_edited" class="text-[9px] font-bold uppercase tracking-widest text-slate-500">
                     {{ isSettled ? 'Edited before settlement' : 'Edited' }}
                 </span>
+                <span v-if="pick.analyst.is_self && pick.status === 'pending'"
+                    class="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                    <Link :href="`/dashboard/analyst/picks/${pick.id}/edit`">Edit</Link>
+                </span>
             </div>
+
         </div>
     </Link>
 </template>

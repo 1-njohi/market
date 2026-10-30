@@ -53,6 +53,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'not.suspended' => \App\Http\Middleware\EnsureUserIsNotSuspended::class,
             'seller.access' => \App\Http\Middleware\EnsureSellerAccess::class,
             'has.purchased' => \App\Http\Middleware\EnsureHasPurchased::class,
+            'is.analyst' => \App\Http\Middleware\EnsureUserIsAnalyst::class,
         ]);
 
         $middleware->trustProxies(at: '*');

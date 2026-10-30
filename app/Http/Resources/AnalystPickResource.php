@@ -12,32 +12,35 @@ class AnalystPickResource extends JsonResource
         $slip = $this->resource;
 
         return [
-            'id'                    => $slip->id,
-            'code'                  => $slip->code,
-            'url'                   => '/analyst-picks/' . $slip->id,
+            'id' => $slip->id,
+            'code' => $slip->code,
+            'url' => '/analyst-picks/' . $slip->id,
 
-            'analyst_title'         => $slip->analyst_title,
-            'reasoning'             => $slip->reasoning,
-            'post_settlement_note'  => $slip->post_settlement_note,
+            'analyst_title' => $slip->analyst_title,
+            'reasoning' => $slip->reasoning,
+            'post_settlement_note' => $slip->post_settlement_note,
 
-            'total_odds'            => (float) $slip->total_odds,
-            'status'                => $slip->status,
-            'is_winner'             => (bool) $slip->is_winner,
-            'profit_units'          => $slip->analystProfitUnits(),
+            'total_odds' => (float) $slip->total_odds,
+            'status' => $slip->status,
+            'is_winner' => (bool) $slip->is_winner,
+            'profit_units' => $slip->analystProfitUnits(),
 
-            'analyst_published_at'  => optional($slip->analyst_published_at)->toIso8601String(),
-            'settled_at'            => optional($slip->settled_at)->toIso8601String(),
+            'analyst_published_at' => optional($slip->analyst_published_at)->toIso8601String(),
+            'settled_at' => optional($slip->settled_at)->toIso8601String(),
 
-            'is_edited'             => (bool) $slip->is_edited,
-            'revision_count'        => (int) $slip->revision_count,
+            'is_edited' => (bool) $slip->is_edited,
+            'revision_count' => (int) $slip->revision_count,
 
-            'analyst'               => [
-                'name'       => $slip->analyst?->byline() ?? 'Fainali Analyst',
-                'slug'       => $slip->analyst?->analyst_slug,
+            'analyst' => [
+                'id' => $slip->analyst?->id,
+                'name' => $slip->analyst?->byline() ?? 'Fainali Analyst',
+                'slug' => $slip->analyst?->analyst_slug,
                 'avatar_url' => $slip->analyst?->profile_picture_url,
+                'is_following' => auth()->check() ? auth()->user()->isFollowing($slip->analyst) : false,
+                'is_self' => auth()->check() ? auth()->id() === $slip->analyst_id : false,
             ],
 
-            'legs'                  => $this->legs($slip),
+            'legs' => $this->legs($slip),
         ];
     }
 
@@ -45,19 +48,19 @@ class AnalystPickResource extends JsonResource
     {
         return $slip->odds->map(function ($odd) {
             return [
-                'odd_id'     => $odd->id,
-                'selection'  => $odd->value,
-                'market'     => $odd->market?->name ?? 'Market',
-                'odds'       => (float) ($odd->pivot->odd_value_at_time ?? $odd->odd),
-                'comment'    => $odd->pivot->comment,
+                'odd_id' => $odd->id,
+                'selection' => $odd->value,
+                'market' => $odd->market?->name ?? 'Market',
+                'odds' => (float) ($odd->pivot->odd_value_at_time ?? $odd->odd),
+                'comment' => $odd->pivot->comment,
                 'confidence' => $odd->pivot->confidence !== null ? (int) $odd->pivot->confidence : null,
-                'status'     => $odd->pivot->status ?? 'pending',
-                'fixture'    => [
-                    'id'         => $odd->fixture?->id,
-                    'home_team'  => $odd->fixture?->homeTeam?->name ?? 'Home',
-                    'away_team'  => $odd->fixture?->awayTeam?->name ?? 'Away',
-                    'league'     => $odd->fixture?->league?->name,
-                    'kickoff'    => $odd->fixture?->date
+                'status' => $odd->pivot->status ?? 'pending',
+                'fixture' => [
+                    'id' => $odd->fixture?->id,
+                    'home_team' => $odd->fixture?->homeTeam?->name ?? 'Home',
+                    'away_team' => $odd->fixture?->awayTeam?->name ?? 'Away',
+                    'league' => $odd->fixture?->league?->name,
+                    'kickoff' => $odd->fixture?->date
                         ? \Carbon\Carbon::parse($odd->fixture->date)->toIso8601String()
                         : null,
                 ],

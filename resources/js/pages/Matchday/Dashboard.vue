@@ -3,7 +3,6 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import DashboardSwitcher from '@/components/DashboardSwitcher.vue';
 import SettlementCard from '@/components/Matchday/SettlementCard.vue';
-import NotificationBell from '@/components/NotificationBell.vue';
 import InfoPopover from '@/components/InfoPopover.vue';
 import MatchdaySummaryPanel from '@/components/Matchday/MatchdaySummaryPanel.vue';
 import SubLeagueModal from '@/components/Matchday/SubLeagueModal.vue';
@@ -23,39 +22,20 @@ const summary = computed(() => page.props.summary ?? null);
 
 const hasSubLeagues = computed(() => subLeagues.value.length > 0);
 
-// ────────────── Modal State ──────────────
+// ────────────── Modal state ──────────────
 const modalOpen = ref(false);
 const modalMode = ref<'join' | 'create'>('join');
-
-const openJoin = () => {
-    modalMode.value = 'join';
-    modalOpen.value = true;
-};
-
-const openCreate = () => {
-    modalMode.value = 'create';
-    modalOpen.value = true;
-};
-
-const closeModal = () => {
-    modalOpen.value = false;
-};
+const openJoin = () => { modalMode.value = 'join'; modalOpen.value = true; };
+const openCreate = () => { modalMode.value = 'create'; modalOpen.value = true; };
+const closeModal = () => { modalOpen.value = false; };
 
 // ────────────── Countdown ticker ──────────────
-// Every 30 seconds, re-evaluate lock countdown. Cheap: no HTTP, just a
-// re-render of the computed strings.
 const tick = ref(0);
 let ticker: ReturnType<typeof setInterval> | null = null;
+onMounted(() => { ticker = setInterval(() => tick.value++, 30_000); });
+onBeforeUnmount(() => { if (ticker) clearInterval(ticker); });
 
-onMounted(() => {
-    ticker = setInterval(() => tick.value++, 30_000);
-});
-
-onBeforeUnmount(() => {
-    if (ticker) clearInterval(ticker);
-});
-
-// ────────────── Matchday Logic ──────────────
+// ────────────── Matchday logic ──────────────
 const openMatchdays = computed(() => page.props.open_matchdays ?? []);
 
 const heroState = computed<'no-sub-league' | 'picks-open' | 'between'>(() => {
@@ -72,12 +52,12 @@ const cardState = (md: any) => {
 };
 
 const activeLiveMatchdays = computed(() =>
-    liveRows.value.filter(r => r.is_locked || r.legs_resolved > 0)
+    liveRows.value.filter((r: any) => r.is_locked || r.legs_resolved > 0)
 );
 
 const pendingOpenMatchdays = computed(() =>
-    openMatchdays.value.filter(md => {
-        const live = liveRows.value.find(l => l.uuid === md.uuid);
+    openMatchdays.value.filter((md: any) => {
+        const live = liveRows.value.find((l: any) => l.uuid === md.uuid);
         return !live || (!live.is_locked && live.legs_resolved === 0);
     })
 );
@@ -108,96 +88,89 @@ const leagueLabel = (code: string) => {
     return opt?.label ?? code;
 };
 
-// ────────────── Copy-to-clipboard ──────────────
+// ────────────── Copy invite ──────────────
 const lastCopied = ref<string | null>(null);
 let copyTimer: ReturnType<typeof setTimeout> | null = null;
-
 const copyInvite = (code: string) => {
     if (!navigator?.clipboard) return;
     navigator.clipboard.writeText(code).then(() => {
         lastCopied.value = code;
         if (copyTimer) clearTimeout(copyTimer);
-        copyTimer = setTimeout(() => {
-            lastCopied.value = null;
-            copyTimer = null;
-        }, 2000);
+        copyTimer = setTimeout(() => { lastCopied.value = null; copyTimer = null; }, 2000);
     });
 };
-
-onBeforeUnmount(() => {
-    if (copyTimer) clearTimeout(copyTimer);
-});
+onBeforeUnmount(() => { if (copyTimer) clearTimeout(copyTimer); });
 
 // ────────────── Helpers ──────────────
 const formatKickoff = (iso?: string | null) => {
     if (!iso) return '—';
     const d = new Date(iso);
     return d.toLocaleString('en-KE', {
-        weekday: 'short',
-        day: '2-digit',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
+        weekday: 'short', day: '2-digit', month: 'short',
+        hour: '2-digit', minute: '2-digit', hour12: false,
     });
 };
 </script>
 
 <template>
-
     <Head title="Matchday League" />
 
-    <div
-        class="flex min-h-screen flex-col bg-[#070b14] px-2 pt-6 pb-24 font-sans text-slate-200 selection:bg-amber-500/30 selection:text-white lg:px-8 lg:py-10">
+    <div class="flex min-h-screen flex-col bg-[#070b14] px-4 pt-6 pb-28 font-sans text-slate-200 selection:bg-amber-500/30 selection:text-white lg:px-8 lg:py-10">
         <div class="mx-auto w-full max-w-7xl space-y-6">
+
             <!-- ═══════════════ HEADER ═══════════════ -->
-            <div class="flex w-full items-start justify-between gap-3 border-b border-gray-800/60 pb-6">
-                <div class="flex min-w-0 items-center gap-3 md:gap-4">
-                    <div class="relative flex-shrink-0">
-                        <img :src="user.avatar" :alt="user.name"
-                            class="h-12 w-12 rounded border border-amber-500/30 bg-[#111622] md:h-14 md:w-14" />
-                        <span v-if="user.is_verified"
-                            class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[8px] font-black text-[#070b14]">✓</span>
+            <header class="flex w-full items-center justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-3.5">
+                    <div class="relative shrink-0">
+                        <img
+                            :src="user.avatar"
+                            :alt="user.name"
+                            class="h-12 w-12 rounded-full bg-[#111622] object-cover ring-2 ring-white/10 md:h-14 md:w-14"
+                        />
+                        <span
+                            v-if="user.is_verified"
+                            class="absolute -right-0.5 -bottom-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#070b14] bg-amber-400 text-[10px] font-black text-[#070b14]"
+                            title="Verified"
+                        >✓</span>
                     </div>
                     <div class="min-w-0">
-                        <div
-                            class="flex items-center gap-2 text-[10px] font-black tracking-widest text-amber-400 uppercase">
-                            <span>Matchday League</span>
-                            <span v-if="season" class="text-slate-600">· {{ season }}</span>
-                        </div>
-                        <h1
-                            class="mt-0.5 truncate font-mono text-lg font-black tracking-tight text-white uppercase md:text-xl">
+                        <p class="text-xs font-semibold text-amber-400">
+                            Matchday League
+                            <span v-if="season" class="text-slate-500"> · {{ season }}</span>
+                        </p>
+                        <h1 class="truncate text-xl font-black tracking-tight text-white md:text-2xl">
                             {{ user.name }}
-                            <StreakFlame v-if="summary" :streak="summary.current_streak" />
                         </h1>
-                        <p class="truncate text-[10px] font-medium text-slate-400">
-                            Code: {{ user.code }}
+                        <p class="truncate text-xs text-slate-500">
+                            Code {{ user.code }}
+                            <template v-if="summary">
+                                · {{ summary.current_streak > 0 ? `${summary.current_streak}-match streak` : 'no streak' }}
+                            </template>
                         </p>
                     </div>
                 </div>
 
-                <div class="flex flex-shrink-0 items-center gap-2">
-                    <DashboardSwitcher active="matchday" />
-                    <!-- <NotificationBell :initial-unread-count="notifications.unread_count" /> -->
+                <div class="flex shrink-0 items-center gap-2">
+                    <DashboardSwitcher active="play" />
                 </div>
-            </div>
+            </header>
 
             <!-- ═══════════════ SETTLEMENT CARDS ═══════════════ -->
             <div v-if="settlements.length > 0" class="space-y-3">
                 <SettlementCard v-for="s in settlements" :key="s.entry_id" :settlement="s" />
             </div>
 
-            <!-- ═══════════════ HERO ═══════════════ -->
+            <!-- ═══════════════ HERO — no sub-league ═══════════════ -->
+            <section
+                v-if="heroState === 'no-sub-league'"
+                class="relative overflow-hidden rounded-3xl border border-amber-400/25 bg-gradient-to-br from-amber-500/15 via-[#0b1220] to-[#0b1220] p-5 sm:p-6 md:p-8"
+            >
+                <div class="pointer-events-none absolute -top-20 -right-16 h-52 w-52 rounded-full bg-amber-400/15 blur-3xl" aria-hidden="true"></div>
 
-            <!-- ─── State: no sub-league ─── -->
-            <div v-if="heroState === 'no-sub-league'"
-                class="overflow-hidden rounded-lg border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-transparent to-transparent">
-                <div class="p-6 md:p-8">
+                <div class="relative">
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
-                            Join the matchday league
-                        </span>
-                        <InfoPopover title="How matchday works">
+                        <p class="text-xs font-semibold text-amber-400">Join the matchday league</p>
+                        <InfoPopover title="How matchday works" label="How does matchday work?">
                             <p>
                                 Each matchday, every player picks one selection
                                 per fixture — usually 10 across a weekend.
@@ -205,17 +178,13 @@ const formatKickoff = (iso?: string | null) => {
                                 leaderboard ranks everyone by total points.
                             </p>
                             <p>
-                                <span class="font-bold text-slate-200">
-                                    Sub-leagues:
-                                </span>
+                                <span class="font-bold text-slate-100">Sub-leagues:</span>
                                 playing requires joining a private pool of
                                 friends. Sub-leagues exist only for a season
                                 — you and your friends start fresh each year.
                             </p>
                             <p>
-                                <span class="font-bold text-slate-200">
-                                    Free to play.
-                                </span>
+                                <span class="font-bold text-slate-100">Free to play.</span>
                                 No entry fee. Bragging rights only.
                             </p>
                             <p class="text-slate-400">
@@ -225,7 +194,8 @@ const formatKickoff = (iso?: string | null) => {
                             </p>
                         </InfoPopover>
                     </div>
-                    <h2 class="mt-3 text-2xl font-black tracking-wide text-white uppercase md:text-3xl">
+
+                    <h2 class="mt-2 text-2xl font-black tracking-tight text-white md:text-3xl">
                         Play with your people
                     </h2>
                     <p class="mt-2 max-w-xl text-sm leading-relaxed text-slate-400">
@@ -236,82 +206,102 @@ const formatKickoff = (iso?: string | null) => {
                     </p>
 
                     <div class="mt-5 flex flex-col gap-2 sm:flex-row">
-                        <button type="button" @click="openJoin"
-                            class="cursor-pointer rounded-lg bg-amber-500 px-6 py-3 text-center text-[10px] font-black tracking-widest text-black uppercase transition-colors hover:bg-amber-400">
+                        <button
+                            type="button"
+                            @click="openJoin"
+                            class="inline-flex min-h-12 items-center justify-center rounded-xl bg-amber-500 px-6 text-sm font-black text-[#070b14] transition-all duration-200 hover:bg-amber-400 focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:outline-none active:scale-[0.98]"
+                        >
                             Join with invite code
                         </button>
-                        <button type="button" @click="openCreate"
-                            class="cursor-pointer rounded-lg border border-[#232d42] bg-[#111622] px-6 py-3 text-center text-[10px] font-black tracking-widest text-slate-300 uppercase transition-colors hover:border-amber-500/50 hover:text-amber-400">
+                        <button
+                            type="button"
+                            @click="openCreate"
+                            class="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0b1220] px-6 text-sm font-bold text-slate-300 transition-colors hover:border-amber-400/40 hover:bg-amber-400/5 hover:text-amber-300"
+                        >
                             Create a sub-league
                         </button>
                     </div>
                 </div>
 
-                <!-- Previews of open matchdays (if any are open) -->
-                <div v-if="openMatchdays.length > 0" class="border-t border-amber-500/20 bg-[#0f1422]/50">
-                    <div v-for="md in openMatchdays" :key="md.uuid"
-                        class="flex flex-wrap items-center justify-between gap-3 px-6 py-3 md:px-8 border-b border-gray-800/40 last:border-0">
+                <!-- Open matchdays preview -->
+                <div v-if="openMatchdays.length > 0" class="relative mt-6 -mx-5 -mb-5 sm:-mx-6 sm:-mb-6 md:-mx-8 md:-mb-8 rounded-b-3xl border-t border-amber-400/20 bg-black/25">
+                    <div
+                        v-for="md in openMatchdays"
+                        :key="md.uuid"
+                        class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3 last:border-0 sm:px-6 md:px-8"
+                    >
                         <div class="min-w-0">
-                            <p class="text-[9px] font-black tracking-widest text-slate-500 uppercase">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">
                                 {{ leagueLabel(md.league_code) }} · MD {{ md.matchday_number }}
                             </p>
-                            <p class="mt-0.5 truncate font-mono text-[11px] font-bold text-slate-300">
+                            <p class="mt-0.5 truncate font-mono text-xs font-bold text-slate-300">
                                 {{ md.name }}
-                                <span class="text-slate-600">
-                                    · {{ md.picks_required }} fixtures
-                                </span>
+                                <span class="text-slate-600">· {{ md.picks_required }} fixtures</span>
                             </p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-[11px] font-black"
-                                :class="cardIsUrgent(md) ? 'text-amber-400' : 'text-slate-400'">
-                                Locks in {{ cardCountdown(md) }}
-                            </span>
-                        </div>
+                        <span
+                            class="shrink-0 font-mono text-xs font-black"
+                            :class="cardIsUrgent(md) ? 'text-amber-300' : 'text-slate-400'"
+                        >
+                            Locks in {{ cardCountdown(md) }}
+                        </span>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Live strip — appears when any entered matchday is underway -->
+            <!-- ═══════════════ HERO — live ═══════════════ -->
             <div v-else-if="liveRows.length > 0" class="space-y-3">
-                <h3 class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-500">
                     Live now
                 </h3>
                 <MatchdayLiveStrip v-for="row in liveRows" :key="row.uuid" :row="row" />
             </div>
-            <!-- ─── State: one or more matchdays open ─── -->
+
+            <!-- ═══════════════ HERO — picks open ═══════════════ -->
             <div v-else-if="heroState === 'picks-open'" class="space-y-3">
-                <div v-for="md in openMatchdays" :key="md.uuid"
-                    class="overflow-hidden rounded-lg border transition-colors" :class="cardState(md) === 'live'
-                        ? 'border-sky-500/40 bg-gradient-to-br from-sky-500/10 via-transparent to-transparent'
-                        : 'border-amber-500/40 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent'">
-                    <div class="flex flex-col gap-5 p-6 md:flex-row md:items-center md:justify-between md:p-8">
+                <div
+                    v-for="md in openMatchdays"
+                    :key="md.uuid"
+                    class="relative overflow-hidden rounded-3xl border p-5 sm:p-6 md:p-8"
+                    :class="cardState(md) === 'live'
+                        ? 'border-sky-400/25 bg-gradient-to-br from-sky-500/15 via-[#0b1220] to-[#0b1220]'
+                        : 'border-amber-400/25 bg-gradient-to-br from-amber-500/15 via-[#0b1220] to-[#0b1220]'"
+                >
+                    <div
+                        class="pointer-events-none absolute -top-20 -right-16 h-52 w-52 rounded-full blur-3xl"
+                        :class="cardState(md) === 'live' ? 'bg-sky-400/15' : 'bg-amber-400/15'"
+                        aria-hidden="true"
+                    ></div>
+
+                    <div class="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span class="text-[10px] font-black tracking-widest text-amber-400 uppercase">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-amber-400">
                                     {{ leagueLabel(md.league_code) }} · MD {{ md.matchday_number }}
                                 </span>
                                 <span class="text-slate-600">·</span>
 
                                 <template v-if="md.is_locked">
-                                    <span
-                                        class="inline-flex items-center gap-1.5 text-[10px] font-black tracking-widest text-sky-400 uppercase">
-                                        <span
-                                            class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-sky-400"></span>
+                                    <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-sky-400">
+                                        <span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-sky-400"></span>
                                         Live
                                     </span>
                                 </template>
                                 <template v-else>
-                                    <span class="text-[10px] font-black tracking-widest uppercase"
-                                        :class="cardIsUrgent(md) ? 'text-rose-400' : 'text-slate-400'">
+                                    <span
+                                        class="text-[10px] font-black uppercase tracking-widest"
+                                        :class="cardIsUrgent(md) ? 'text-rose-400' : 'text-slate-400'"
+                                    >
                                         Locks in {{ cardCountdown(md) }}
                                     </span>
-                                    <span v-if="cardIsUrgent(md)"
-                                        class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400"></span>
+                                    <span
+                                        v-if="cardIsUrgent(md)"
+                                        class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400"
+                                    ></span>
                                 </template>
                             </div>
 
-                            <h2 class="mt-2 text-2xl font-black tracking-wide text-white uppercase md:text-3xl">
+                            <h2 class="mt-2 text-2xl font-black tracking-tight text-white md:text-3xl">
                                 {{ md.name }}
                             </h2>
 
@@ -320,9 +310,10 @@ const formatKickoff = (iso?: string | null) => {
                                     {{ md.picks_submitted }} / {{ md.picks_required }}
                                 </span>
                                 picks submitted
-                                <span v-if="md.picks_submitted === md.picks_required" class="text-emerald-400">· all
-                                    done</span>
-                                <span v-else-if="md.picks_submitted > 0" class="text-amber-400">
+                                <span v-if="md.picks_submitted === md.picks_required" class="text-emerald-400">
+                                    · all done
+                                </span>
+                                <span v-else-if="md.picks_submitted > 0" class="text-amber-300">
                                     · {{ md.picks_required - md.picks_submitted }} remaining
                                 </span>
                             </p>
@@ -335,11 +326,13 @@ const formatKickoff = (iso?: string | null) => {
                             </p>
                         </div>
 
-                        <div class="flex-shrink-0">
-                            <Link :href="`/contests/${md.uuid}/picks`"
+                        <div class="shrink-0">
+                            <Link
+                                :href="`/contests/${md.uuid}/picks`"
                                 :class="md.is_locked
-                                    ? 'inline-block cursor-pointer rounded-lg border border-sky-500/50 bg-[#111622] px-6 py-3 text-center text-[11px] font-black tracking-widest text-sky-300 uppercase transition-colors hover:bg-[#16223a]'
-                                    : 'block cursor-pointer rounded-lg bg-amber-500 px-6 py-3 text-center text-[11px] font-black tracking-widest text-black uppercase transition-transform hover:scale-[1.02] active:scale-95'">
+                                    ? 'inline-flex min-h-12 items-center justify-center rounded-xl border border-sky-400/40 bg-[#0b1220] px-6 text-sm font-bold text-sky-300 transition-colors hover:bg-sky-400/10'
+                                    : 'inline-flex min-h-12 items-center justify-center rounded-xl bg-amber-500 px-6 text-sm font-black text-[#070b14] transition-all duration-200 hover:bg-amber-400 active:scale-[0.98]'"
+                            >
                                 <template v-if="md.is_locked">View your picks →</template>
                                 <template v-else-if="md.picks_submitted === 0">Submit picks →</template>
                                 <template v-else-if="md.picks_submitted === md.picks_required">Review picks →</template>
@@ -350,114 +343,128 @@ const formatKickoff = (iso?: string | null) => {
                 </div>
             </div>
 
-            <!-- ─── State: between matchdays ─── -->
-            <div v-else class="overflow-hidden rounded-lg border border-[#232d42] bg-[#111622]">
-                <div class="p-6 text-center md:p-8">
-                    <p class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
-                        Between matchdays
-                    </p>
-                    <h2 class="mt-2 text-xl font-black tracking-wide text-white uppercase md:text-2xl">
-                        No matchday open right now
-                    </h2>
-                    <p class="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-slate-400">
-                        The next matchday will appear here once it's
-                        scheduled. Your season points carry over — nothing
-                        to do until then.
-                    </p>
-                </div>
+            <!-- ═══════════════ HERO — between matchdays ═══════════════ -->
+            <div v-else class="rounded-3xl border border-white/[0.07] bg-[#0b1220] p-8 text-center">
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                    Between matchdays
+                </p>
+                <h2 class="mt-2 text-xl font-black tracking-tight text-white md:text-2xl">
+                    No matchday open right now
+                </h2>
+                <p class="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-slate-400">
+                    The next matchday will appear here once it's scheduled.
+                    Your season points carry over — nothing to do until then.
+                </p>
             </div>
 
             <!-- ═══════════════ SEASON SUMMARY ═══════════════ -->
-            <MatchdaySummaryPanel v-if="hasSubLeagues" :summary="summary" :season="season"
-                :form-guide="page.props.form_guide ?? []" />
+            <MatchdaySummaryPanel
+                v-if="hasSubLeagues"
+                :summary="summary"
+                :season="season"
+                :form-guide="page.props.form_guide ?? []"
+            />
 
             <!-- ═══════════════ SUB-LEAGUES ═══════════════ -->
-            <div v-if="hasSubLeagues" class="space-y-4">
-                <div
-                    class="flex flex-col items-start justify-between gap-3 border-b border-gray-800/60 pb-4 md:flex-row md:items-center">
+            <section v-if="hasSubLeagues" class="space-y-3">
+                <div class="flex flex-col items-start justify-between gap-3 border-b border-white/[0.06] pb-4 md:flex-row md:items-center">
                     <div class="flex items-center gap-2">
-                        <h3 class="text-xs font-black tracking-widest text-white uppercase">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-white">
                             Your sub-leagues
                         </h3>
-                        <span class="font-mono text-[10px] font-bold text-slate-500">
+                        <span class="font-mono text-xs font-bold text-slate-500">
                             [{{ subLeagues.length }}]
                         </span>
                     </div>
                     <div class="flex items-center gap-4">
-                        <button type="button" @click="openCreate" data-testid="create-sub-league-link"
-                            class="cursor-pointer text-[10px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300">
+                        <button
+                            type="button"
+                            @click="openCreate"
+                            class="text-[10px] font-black uppercase tracking-widest text-sky-400 transition-colors hover:text-sky-300"
+                        >
                             + Create one
                         </button>
-                        <button type="button" @click="openJoin"
-                            class="cursor-pointer text-[10px] font-black tracking-widest text-amber-400 uppercase transition-colors hover:text-amber-300">
+                        <button
+                            type="button"
+                            @click="openJoin"
+                            class="text-[10px] font-black uppercase tracking-widest text-amber-400 transition-colors hover:text-amber-300"
+                        >
                             Join another →
                         </button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                    <div v-for="sub in subLeagues" :key="sub.id"
-                        class="overflow-hidden rounded-lg border border-[#232d42] bg-[#161c2a]">
-                        <!-- Header -->
-                        <div
-                            class="flex items-start justify-between gap-3 border-b border-[#232d42] bg-[#121824] px-4 py-3">
+                    <div
+                        v-for="sub in subLeagues"
+                        :key="sub.id"
+                        class="overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0b1220]"
+                    >
+                        <div class="flex items-start justify-between gap-3 border-b border-white/[0.06] px-4 py-3">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-2">
-                                    <h4 class="truncate font-mono text-sm font-black tracking-wide text-white">
+                                    <h4 class="truncate font-mono text-sm font-black tracking-tight text-white">
                                         {{ sub.name }}
                                     </h4>
-                                    <span v-if="sub.is_owner"
-                                        class="rounded-sm bg-amber-500/20 px-1.5 py-0.5 text-[8px] font-black tracking-widest text-amber-400 uppercase">
+                                    <span
+                                        v-if="sub.is_owner"
+                                        class="rounded bg-amber-400/20 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest text-amber-300"
+                                    >
                                         Owner
                                     </span>
                                 </div>
-                                <p class="mt-0.5 font-mono text-[10px] text-slate-500">
-                                    {{ sub.member_count }} /
-                                    {{ sub.max_members }} members
+                                <p class="mt-0.5 font-mono text-[11px] text-slate-500">
+                                    {{ sub.member_count }} / {{ sub.max_members }} members
                                 </p>
                             </div>
-                            <button type="button" @click="copyInvite(sub.invite_code)"
+
+                            <button
+                                type="button"
+                                @click="copyInvite(sub.invite_code)"
                                 :title="`Copy invite code: ${sub.invite_code}`"
-                                class="group flex cursor-pointer items-center gap-1.5 rounded border border-[#232d42] bg-[#111622] px-2 py-1 font-mono text-[10px] font-black tracking-wider text-slate-400 uppercase transition-colors hover:border-amber-500/50 hover:text-amber-400">
+                                class="group flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-[#111622] px-2 py-1 font-mono text-[10px] font-black tracking-wider text-slate-400 uppercase transition-colors hover:border-amber-400/40 hover:text-amber-300"
+                            >
                                 <span>{{ sub.invite_code }}</span>
-                                <span v-if="lastCopied === sub.invite_code" class="text-emerald-400">
-                                    ✓
-                                </span>
+                                <span v-if="lastCopied === sub.invite_code" class="text-emerald-400">✓</span>
                             </button>
 
-                            <Link :href="`/matchday/sub-leagues/${sub.id}`"
-                                    class="text-[9px] font-black tracking-widest text-sky-400 uppercase transition-colors hover:text-sky-300">
-                                    View →
-                                </Link>
+                            <Link
+                                :href="`/matchday/sub-leagues/${sub.id}`"
+                                class="inline-flex min-h-9 items-center rounded-lg px-2 text-[10px] font-black uppercase tracking-widest text-sky-300 transition-colors hover:bg-sky-400/10 hover:text-sky-200"
+                            >
+                                View →
+                            </Link>
                         </div>
 
-                        <!-- Leaderboard preview -->
                         <div v-if="sub.leaderboard_preview.length > 0">
-                            <div class="flex items-center justify-between border-b border-[#232d42]/60 px-4 py-2">
-                                <span class="text-[9px] font-black tracking-widest text-slate-500 uppercase">
+                            <div class="flex items-center justify-between border-b border-white/[0.06] px-4 py-2">
+                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">
                                     Leaderboard
                                 </span>
                             </div>
-                            <ul class="divide-y divide-[#232d42]/40">
-                                <li v-for="row in sub.leaderboard_preview" :key="row.user_id"
-                                    class="flex items-center gap-3 px-4 py-2" :class="row.user_id === user.id
-                                        ? 'bg-amber-500/5'
-                                        : ''
-                                        ">
-                                    <span class="w-6 flex-shrink-0 text-center font-mono text-[11px] font-black" :class="row.rank === 1
-                                        ? 'text-amber-400'
-                                        : row.rank === 2
-                                            ? 'text-slate-300'
-                                            : row.rank === 3
-                                                ? 'text-orange-400'
-                                                : 'text-slate-500'
-                                        ">
+                            <ul class="divide-y divide-white/[0.04]">
+                                <li
+                                    v-for="row in sub.leaderboard_preview"
+                                    :key="row.user_id"
+                                    class="flex items-center gap-3 px-4 py-2"
+                                    :class="row.user_id === user.id ? 'bg-amber-500/5' : ''"
+                                >
+                                    <span
+                                        class="w-6 shrink-0 text-center font-mono text-[11px] font-black"
+                                        :class="row.rank === 1
+                                            ? 'text-amber-300'
+                                            : row.rank === 2
+                                                ? 'text-slate-300'
+                                                : row.rank === 3
+                                                    ? 'text-orange-400'
+                                                    : 'text-slate-500'"
+                                    >
                                         #{{ row.rank }}
                                     </span>
-                                    <span class="min-w-0 flex-1 truncate text-[11px] font-bold" :class="row.user_id === user.id
-                                        ? 'text-amber-300'
-                                        : 'text-slate-300'
-                                        ">
+                                    <span
+                                        class="min-w-0 flex-1 truncate text-[11px] font-bold"
+                                        :class="row.user_id === user.id ? 'text-amber-200' : 'text-slate-300'"
+                                    >
                                         {{ row.name }}
                                     </span>
                                     <span class="font-mono text-[10px] text-slate-500">
@@ -465,29 +472,28 @@ const formatKickoff = (iso?: string | null) => {
                                     </span>
                                     <span class="font-mono text-[11px] font-black text-white">
                                         {{ row.points }}
-                                        <span class="text-slate-600 text-[9px]">pts</span>
+                                        <span class="text-[9px] text-slate-600">pts</span>
                                     </span>
                                 </li>
                             </ul>
                         </div>
 
-                        <div v-else class="px-4 py-6 text-center text-[10px] text-slate-600 italic">
+                        <div v-else class="px-4 py-6 text-center text-[10px] italic text-slate-600">
                             No settled matchdays yet.
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- ═══════════════ HOW IT WORKS (only when no sub-leagues) ═══════════════ -->
-            <div v-if="!hasSubLeagues" class="rounded-lg border border-[#232d42] bg-[#111622] p-6 md:p-8">
-                <p class="text-[10px] font-black tracking-widest text-slate-500 uppercase">
+            <!-- ═══════════════ HOW IT WORKS (no sub-leagues yet) ═══════════════ -->
+            <section v-if="!hasSubLeagues" class="rounded-3xl border border-white/[0.07] bg-[#0b1220] p-6 md:p-8">
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">
                     How matchday works
                 </p>
-                <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div class="mt-4 grid grid-cols-1 gap-5 md:grid-cols-3">
                     <div>
-                        <span
-                            class="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/20 font-mono text-[11px] font-black text-amber-400">1</span>
-                        <h4 class="mt-2 text-[11px] font-black tracking-widest text-white uppercase">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amber-400/20 font-mono text-[11px] font-black text-amber-300">1</span>
+                        <h4 class="mt-2 text-[11px] font-black uppercase tracking-widest text-white">
                             Join a sub-league
                         </h4>
                         <p class="mt-1 text-[11px] leading-relaxed text-slate-400">
@@ -497,9 +503,8 @@ const formatKickoff = (iso?: string | null) => {
                         </p>
                     </div>
                     <div>
-                        <span
-                            class="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/20 font-mono text-[11px] font-black text-amber-400">2</span>
-                        <h4 class="mt-2 text-[11px] font-black tracking-widest text-white uppercase">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amber-400/20 font-mono text-[11px] font-black text-amber-300">2</span>
+                        <h4 class="mt-2 text-[11px] font-black uppercase tracking-widest text-white">
                             Submit picks
                         </h4>
                         <p class="mt-1 text-[11px] leading-relaxed text-slate-400">
@@ -509,9 +514,8 @@ const formatKickoff = (iso?: string | null) => {
                         </p>
                     </div>
                     <div>
-                        <span
-                            class="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/20 font-mono text-[11px] font-black text-amber-400">3</span>
-                        <h4 class="mt-2 text-[11px] font-black tracking-widest text-white uppercase">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amber-400/20 font-mono text-[11px] font-black text-amber-300">3</span>
+                        <h4 class="mt-2 text-[11px] font-black uppercase tracking-widest text-white">
                             Climb the board
                         </h4>
                         <p class="mt-1 text-[11px] leading-relaxed text-slate-400">
@@ -521,9 +525,16 @@ const formatKickoff = (iso?: string | null) => {
                         </p>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
-        <SubLeagueModal :open="modalOpen" :mode="modalMode" :seasons="seasons" :active-season="season"
-            :league-options="leagueOptions" @close="closeModal" />
+
+        <SubLeagueModal
+            :open="modalOpen"
+            :mode="modalMode"
+            :seasons="seasons"
+            :active-season="season"
+            :league-options="leagueOptions"
+            @close="closeModal"
+        />
     </div>
 </template>

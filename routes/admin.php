@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\WithdrawalController;
+use App\Http\Controllers\Admin\AnalystRosterController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\BetslipController;
 use App\Http\Controllers\Admin\MetricsController;
@@ -61,4 +62,11 @@ Route::middleware(['auth', 'verified', 'admin'])
         Route::get('/matchdays', [MatchdayController::class, 'index'])->name('matchdays.index');
         Route::get('/matchdays/{matchday}', [MatchdayController::class, 'show'])->name('matchdays.show');
         Route::post('/matchdays/{matchday}/settle', [MatchdayController::class, 'settle'])->name('matchdays.settle');
+
+        Route::prefix('analysts')->name('admin.analysts.')->group(function () {
+            Route::get('/', [AnalystRosterController::class, 'index'])->name('index');
+            Route::post('/{user}/promote', [AnalystRosterController::class, 'promote'])->name('promote');
+            Route::post('/{user}/demote', [AnalystRosterController::class, 'demote'])->name('demote');
+            Route::put('/{user}', [AnalystRosterController::class, 'update'])->name('update');
+        });
     });

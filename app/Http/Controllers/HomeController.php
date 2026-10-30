@@ -40,10 +40,32 @@ class HomeController extends Controller
             ->limit(3)
             ->get();
 
-        $analyst = User::where('is_analyst', true)
-            ->whereNotNull('analyst_slug')
-            ->orderBy('id')
-            ->first();
+        $analysts = User::where('is_analyst', true)->whereNotNull('analyst_slug')->get();
+        $archive = app(AnalystArchiveService::class);
+        $leaderboard = $archive->leaderboard(3);
+
+        $relations = [
+            'analyst',
+            'odds.market',
+            'odds.fixture.homeTeam',
+            'odds.fixture.awayTeam',
+            'odds.fixture.league',
+        ];
+
+        $currentPicks = collect();
+        foreach ($leaderboard as $l) {
+            $pick = Betslip::publishedAnalystSlips()
+                ->where('analyst_id', $l['user']->id)
+                ->whereIn('status', ['pending', 'underway'])
+                ->where('analyst_published_at', '>=', now()->subDays(7))
+                ->with($relations)
+                ->orderByDesc('analyst_published_at')
+                ->first();
+
+            if ($pick) {
+                $currentPicks->push($pick);
+            }
+        }
 
         return Inertia::render('Welcome', [
             'fixtures' => $this->fixtureService->leaguesWithUpcomingFixtures(),
@@ -54,14 +76,15 @@ class HomeController extends Controller
             'open_jackpots' => $this->getOpenJackpots(),
             'analyst_picks' => [
                 'current' => AnalystPickResource::collection($currentPicks)->resolve(),
-                'last_settled' => $analystArchive->lastSettledBatch(),
-                'analyst' => $analyst ? [
-                    'name' => $analyst->byline(),
-                    'slug' => $analyst->analyst_slug,
-                    'avatar_url' => $analyst->profile_picture_url,
-                ] : null,
+                'leaderboard' => collect($leaderboard)->map(fn($l) => [
+                    'id' => $l['user']->id,
+                    'name' => $l['user']->byline(),
+                    'slug' => $l['user']->analyst_slug,
+                    'avatar_url' => $l['user']->profile_picture_url,
+                    'record' => $l['record'],
+                ])->values()->all(),
+                'combined_record' => $archive->combinedRecord(),
             ],
-
         ]);
     }
     /**

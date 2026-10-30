@@ -468,6 +468,6 @@ class User extends Authenticatable implements PasskeyUser
 
     public function byline(): string
     {
-        return $this->name;
+        return $this->analyst_display_name ?: $this->name;
     }
 }

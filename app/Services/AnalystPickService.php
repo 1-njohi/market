@@ -124,4 +124,19 @@ class AnalystPickService
             'confidence' => $odd->pivot->confidence,
         ])->values()->all();
     }
+    public function updateByAnalyst(Betslip $pick, array $data, User $analyst): Betslip
+    {
+        if ($pick->analyst_id !== $analyst->id) {
+            throw new \DomainException('You can only edit your own picks.');
+        }
+        return $this->update($pick, $data, $analyst);
+    }
+
+    public function unpublishByAnalyst(Betslip $pick, User $analyst): void
+    {
+        if ($pick->analyst_id !== $analyst->id) {
+            throw new \DomainException('You can only unpublish your own picks.');
+        }
+        $this->unpublish($pick, 'Unpublished by analyst');
+    }
 }

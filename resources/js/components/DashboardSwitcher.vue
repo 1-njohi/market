@@ -44,17 +44,47 @@
             </svg>
             <span class="hidden sm:inline">Sell</span>
         </Link>
+
+        <!--
+            Analyst tab.
+            Hidden entirely for non-analysts — they should not
+            know the surface exists. Rendered as a Link only when
+            `is_analyst` is true on the current user.
+        -->
+        <Link
+            v-if="isAnalyst"
+            href="/analyst/dashboard"
+            :class="[
+                'flex items-center gap-1 rounded px-2.5 py-1.5 text-[10px] font-black tracking-wider uppercase transition-all',
+                active === 'analyst'
+                    ? 'bg-fuchsia-500 text-[#070b14] shadow-[0_0_10px_rgba(217,70,239,0.3)]'
+                    : 'text-slate-400 hover:text-white',
+            ]"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-3 w-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+            </svg>
+            <span class="hidden sm:inline">Analyst</span>
+        </Link>
     </div>
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
 
-defineProps({
+const props = defineProps({
     active: {
         type: String,
         required: true,
-        validator: (v) => ['buyer', 'seller', 'play'].includes(v),
+        validator: (v) => ['buyer', 'seller', 'play', 'analyst'].includes(v),
     },
 });
+
+const page = usePage();
+
+// Truthy only when the authenticated user has is_analyst = true.
+// Reading defensively so a logged-out switcher (unlikely but possible)
+// falls through to "not an analyst" instead of crashing.
+const isAnalyst = computed(() => !!page.props?.auth?.user?.is_analyst);
 </script>
